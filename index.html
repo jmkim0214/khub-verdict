@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찐가판정 — 가격·주장 검증 판정서 (목업)</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7;
+    --border:rgba(11,11,11,0.10);
+    --series:#2a78d6; --series-wash:rgba(42,120,214,0.10);
+    --good:#0ca30c; --good-text:#006300;
+    --warn:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --good-bg:rgba(12,163,12,0.09); --warn-bg:rgba(250,178,25,0.13);
+    --serious-bg:rgba(236,131,90,0.12); --critical-bg:rgba(208,59,59,0.09);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835;
+      --border:rgba(255,255,255,0.10);
+      --series:#3987e5; --series-wash:rgba(57,135,229,0.14);
+      --good-text:#0ca30c;
+    }
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
+    background:var(--page); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .mock-banner{
+    background:var(--ink); color:var(--page);
+    text-align:center; font-size:12px; padding:7px 12px; letter-spacing:.02em;
+  }
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  header.site{
+    display:flex; align-items:baseline; gap:10px; padding:26px 0 10px;
+  }
+  .logo{font-size:21px; font-weight:800; letter-spacing:-0.02em;}
+  .logo .accent{color:var(--series);}
+  .logo-sub{font-size:12.5px; color:var(--muted);}
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:26px; margin-top:16px;
+  }
+
+  /* ---------- HOME ---------- */
+  .hero{text-align:center; padding:44px 26px 38px;}
+  .hero h1{font-size:26px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
+  .hero h1 .u{box-shadow:inset 0 -10px var(--series-wash);}
+  .hero p.lead{color:var(--ink-2); margin-top:10px; font-size:15px;}
+  .urlbar{display:flex; gap:8px; margin:26px auto 0; max-width:560px;}
+  .urlbar input{
+    flex:1; font:inherit; font-size:14.5px; padding:13px 16px;
+    border:1.5px solid var(--baseline); border-radius:10px;
+    background:var(--surface); color:var(--ink); outline:none; min-width:0;
+  }
+  .urlbar input:focus{border-color:var(--series);}
+  .urlbar input.err{border-color:var(--critical); animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .btn{
+    font:inherit; font-size:14.5px; font-weight:700; cursor:pointer;
+    padding:13px 22px; border-radius:10px; border:none;
+    background:var(--ink); color:var(--page); white-space:nowrap;
+  }
+  .btn:hover{opacity:.85;}
+  .btn.ghost{
+    background:transparent; color:var(--ink-2);
+    border:1px solid var(--baseline); font-weight:600;
+  }
+  .hint{margin-top:10px; font-size:12.5px; color:var(--muted);}
+  .samples{margin-top:26px;}
+  .samples .s-label{font-size:12.5px; color:var(--muted); margin-bottom:10px;}
+  .chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .chip{
+    font:inherit; font-size:13px; cursor:pointer;
+    padding:8px 14px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .chip:hover{border-color:var(--series); color:var(--ink);}
+  .chip.real-chip{border-style:solid; border-color:var(--series); background:var(--series-wash);}
+  .chip .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px;}
+  .trust{display:flex; justify-content:center; gap:36px; margin-top:40px; flex-wrap:wrap;}
+  .trust .t{text-align:center;}
+  .trust .t b{display:block; font-size:20px; font-weight:800;}
+  .trust .t span{font-size:12px; color:var(--muted);}
+
+  /* ---------- LOADING ---------- */
+  .loading{padding:48px 26px; max-width:420px; margin:0 auto;}
+  .loading .step{display:flex; align-items:center; gap:11px; padding:8px 0; font-size:14.5px; color:var(--muted); transition:color .2s;}
+  .loading .step.on{color:var(--ink);}
+  .loading .step .ic{width:20px; height:20px; border-radius:50%; border:1.5px solid var(--baseline); flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--page); background:transparent;}
+  .loading .step.on .ic{background:var(--good); border-color:var(--good);}
+  .loading .step.now .ic{border-color:var(--series); border-top-color:transparent; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- REPORT ---------- */
+  .report-top{display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; flex-wrap:wrap;}
+  .rid{font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .rid b{color:var(--ink-2); font-weight:600;}
+  .back{font:inherit; font-size:13px; background:none; border:none; color:var(--ink-2); cursor:pointer; padding:4px 0;}
+  .back:hover{color:var(--ink);}
+
+  .prod{display:flex; gap:16px; align-items:flex-start;}
+  .thumb{width:72px; height:72px; border-radius:12px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:32px;
+    background:var(--series-wash); border:1px solid var(--border);}
+  .prod .brand{font-size:12.5px; color:var(--muted); font-weight:600;}
+  .prod .name{font-size:16.5px; font-weight:700; letter-spacing:-0.01em; line-height:1.4;}
+  .prod .opt{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  .prod .price-row{margin-top:8px; display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;}
+  .prod .cur{font-size:21px; font-weight:800;}
+  .prod .strike{font-size:13.5px; color:var(--muted); text-decoration:line-through;}
+  .prod .dc{font-size:13.5px; font-weight:700; color:var(--critical);}
+
+  .verdict{display:flex; gap:14px; align-items:flex-start; border-radius:12px; padding:18px 20px; margin-top:20px;}
+  .verdict.v-good{background:var(--good-bg);}
+  .verdict.v-bad{background:var(--critical-bg);}
+  .verdict.v-warn{background:var(--warn-bg);}
+  .verdict .v-ic{font-size:22px; line-height:1.3;}
+  .verdict h2{font-size:17px; font-weight:800; letter-spacing:-0.01em;}
+  .verdict.v-good h2{color:var(--good-text);}
+  .verdict.v-bad h2{color:var(--critical);}
+  .verdict.v-warn h2{color:var(--ink);}
+  .verdict p{font-size:14px; color:var(--ink-2); margin-top:4px;}
+
+  .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
+  .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
+  .sec-h .tag{font-size:11px; color:var(--muted); border:1px solid var(--baseline); border-radius:999px; padding:1px 8px;}
+  .sec-sub{font-size:13px; color:var(--muted); margin-bottom:14px;}
+
+  .tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px;}
+  @media (max-width:600px){.tiles{grid-template-columns:repeat(2,1fr);}}
+  .tile{border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
+  .tile .l{font-size:11.5px; color:var(--muted);}
+  .tile .v{font-size:16.5px; font-weight:700; margin-top:2px;}
+  .tile .v small{font-size:11.5px; font-weight:600; color:var(--muted);}
+  .tile .v.up-good{color:var(--good-text);}
+  .tile .v.up-bad{color:var(--critical);}
+
+  .chart-box{position:relative; margin-top:18px;}
+  .chart-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin-bottom:8px;}
+  .chart-legend .k{display:flex; align-items:center; gap:6px;}
+  .k .sw-line{width:16px; height:2px; background:var(--series); border-radius:2px;}
+  .k .sw-band{width:14px; height:10px; background:var(--series-wash); border-radius:3px;}
+  .k .sw-ref{width:16px; height:1.5px; background:var(--muted);}
+  svg{display:block; width:100%; height:auto;}
+  .tooltip{
+    position:absolute; pointer-events:none; display:none;
+    background:var(--ink); color:var(--page); font-size:12px;
+    padding:6px 10px; border-radius:8px; white-space:nowrap;
+    transform:translate(-50%,-115%); z-index:5;
+  }
+  .tooltip b{font-variant-numeric:tabular-nums;}
+  .findings{margin-top:18px; border-top:1px solid var(--grid); padding-top:6px;}
+  .finding{display:flex; gap:10px; padding:9px 0; font-size:13.5px; color:var(--ink-2); border-bottom:1px solid var(--grid);}
+  .finding:last-child{border-bottom:none;}
+  .finding .fi{flex:none; width:18px; text-align:center;}
+  .finding b{color:var(--ink); font-weight:700;}
+
+  .claim{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--grid); align-items:flex-start;}
+  .claim:last-child{border-bottom:none;}
+  .claim .c-body{flex:1;}
+  .claim .c-title{font-size:14px; font-weight:700;}
+  .claim .c-src{font-size:12px; color:var(--muted); margin-top:1px;}
+  .claim .c-note{font-size:13px; color:var(--ink-2); margin-top:5px;}
+  .badge{flex:none; font-size:12px; font-weight:700; border-radius:999px; padding:4px 11px; margin-top:1px; white-space:nowrap;}
+  .badge.b-good{background:var(--good-bg); color:var(--good-text);}
+  .badge.b-warn{background:var(--warn-bg); color:var(--ink);}
+  .badge.b-serious{background:var(--serious-bg); color:var(--ink);}
+  .badge.b-bad{background:var(--critical-bg); color:var(--critical);}
+  .badge.b-neutral{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+
+  .alts-banner{display:flex; gap:10px; align-items:flex-start; background:var(--good-bg);
+    border-radius:9px; padding:11px 14px; font-size:13px; color:var(--ink-2); margin-bottom:14px; line-height:1.6;}
+  .alts-banner .ab-ic{color:var(--good-text); font-weight:800;}
+  .alts-banner b{color:var(--good-text);}
+  .alts{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px;}
+  @media (max-width:640px){.alts{grid-template-columns:1fr;}}
+  .alt{border:1px solid var(--border); border-radius:12px; padding:15px 16px; display:flex; flex-direction:column; gap:2px;}
+  .alt .a-why{font-size:11px; font-weight:700; color:var(--series); letter-spacing:.01em;}
+  .alt .a-brand{font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .alt .a-name{font-size:13.5px; font-weight:700; line-height:1.4;}
+  .alt .a-price{margin-top:7px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;}
+  .alt .a-price b{font-size:16px; font-weight:800;}
+  .alt .a-price s{font-size:11.5px; color:var(--muted);}
+  .alt .a-verdict{margin-top:7px;}
+  .alt .a-verdict .badge{margin:0; font-size:11px; padding:3px 9px;}
+  .alt .a-basis{font-size:12px; color:var(--ink-2); margin-top:7px; line-height:1.55; flex:1;}
+  .alt .a-link{margin-top:10px; font-size:12px; font-weight:600; color:var(--series); cursor:pointer; background:none; border:none; padding:0; text-align:left; font-family:inherit;}
+  .alt .a-link:hover{text-decoration:underline;}
+  .alts-note{
+    margin-top:14px; padding:11px 14px; border-radius:9px;
+    background:var(--page); font-size:12px; color:var(--muted); line-height:1.65;
+  }
+  .basis{font-size:13px; color:var(--ink-2);}
+  .basis .row{display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--grid);}
+  .basis .row:last-child{border-bottom:none;}
+  .basis .row .k2{flex:none; width:128px; color:var(--muted);}
+  .neutral{
+    margin-top:16px; padding:14px 16px; border-radius:10px;
+    border:1px dashed var(--baseline); font-size:12.5px; color:var(--muted); line-height:1.65;
+  }
+  .actions{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
+  .dev-teaser{
+    margin-top:28px; text-align:center; font-size:12.5px; color:var(--muted);
+  }
+  .dev-teaser a{color:var(--series); text-decoration:none; font-weight:600;}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--page); font-size:13.5px;
+    padding:11px 20px; border-radius:10px; opacity:0; transition:all .25s; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .hidden{display:none;}
+  footer.site{margin-top:56px; text-align:center; font-size:12px; color:var(--muted); line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="mock-banner">🧪 목업 프리뷰 — 실제 서비스가 아니며, 성분·효능 검증 등 일부 데이터는 가상입니다</div>
+<div class="wrap">
+  <header class="site">
+    <div class="logo">찐가<span class="accent">판정</span></div>
+    <div class="logo-sub">가격·주장 검증 판정서 <span style="opacity:.7">(가칭 · by THE K-HUB)</span></div>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <section id="view-home">
+    <div class="card hero">
+      <h1>이 할인, <span class="u">진짜</span>인가요?</h1>
+      <p class="lead">올리브영 상품 URL을 붙여넣으면 12개월 가격 이력과 제품 주장을 검증한<br>공식 판정서를 발급해 드립니다.</p>
+      <div class="urlbar">
+        <input id="url-input" type="url" placeholder="https://www.oliveyoung.co.kr/store/goods/…" spellcheck="false">
+        <button class="btn" id="go-btn">판정하기</button>
+      </div>
+      <div class="hint">아무 URL이나 넣어도 목업 판정서가 열립니다 · 판정은 무료, 판정서는 발급 후 변경되지 않습니다</div>
+      <div class="samples">
+        <div class="s-label">📡 실데이터 판정서 — 실제 수집 데이터 기반 (2026-07-16 기준, 조기 신호)</div>
+        <div class="chips">
+          <button class="chip real-chip" data-case="rb"><span class="dot" style="background:var(--good)"></span>진짜 할인 신호 · 휩드</button>
+          <button class="chip real-chip" data-case="ra"><span class="dot" style="background:var(--critical)"></span>부풀림 신호 · 식물나라</button>
+          <button class="chip real-chip" data-case="rc"><span class="dot" style="background:var(--series)"></span>정직한 가격 · 디오디너리</button>
+        </div>
+        <div class="s-label" style="margin-top:20px">정식 판정서 미리보기 — 관측 12개월 축적 후의 모습 (가상 데이터)</div>
+        <div class="chips">
+          <button class="chip" data-case="b"><span class="dot" style="background:var(--good)"></span>12개월 밴드 판정 사례</button>
+          <button class="chip" data-case="c"><span class="dot" style="background:var(--warn)"></span>판정 보류 사례</button>
+        </div>
+      </div>
+      <div class="trust">
+        <div class="t"><b>1,208</b><span>추적 중인 상품 (실측)</span></div>
+        <div class="t"><b>20,104</b><span>가격 관측 건수 (실측)</span></div>
+        <div class="t"><b>767</b><span>전성분 프로필 확보 (실측)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOADING ================= -->
+  <section id="view-loading" class="hidden">
+    <div class="card loading">
+      <div class="step" data-i="0"><span class="ic">✓</span>URL 확인 및 상품 식별</div>
+      <div class="step" data-i="1"><span class="ic">✓</span>12개월 가격 이력 조회</div>
+      <div class="step" data-i="2"><span class="ic">✓</span>정상가·할인율 진위 분석</div>
+      <div class="step" data-i="3"><span class="ic">✓</span>성분·효능 주장 추출 및 대조</div>
+      <div class="step" data-i="4"><span class="ic">✓</span>판정서 발급</div>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section id="view-report" class="hidden">
+    <div class="report-top">
+      <button class="back" id="back-btn">← 다른 상품 판정하기</button>
+      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">📡 실데이터 · 조기 신호</span>판정서 <b id="r-id"></b> · 발급 <span id="r-time"></span></div>
+    </div>
+
+    <div class="card">
+      <div class="prod">
+        <div class="thumb" id="r-thumb"></div>
+        <div>
+          <div class="brand" id="r-brand"></div>
+          <div class="name" id="r-name"></div>
+          <div class="opt" id="r-opt"></div>
+          <div class="price-row">
+            <span class="cur" id="r-cur"></span>
+            <span class="strike" id="r-normal"></span>
+            <span class="dc" id="r-dc"></span>
+          </div>
+        </div>
+      </div>
+      <div class="verdict" id="r-verdict">
+        <div class="v-ic" id="r-vic"></div>
+        <div>
+          <h2 id="r-vtitle"></h2>
+          <p id="r-vdesc"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3>① 가격 진실</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
+      <div class="sec-sub" id="r-chart-sub"></div>
+      <div class="chart-legend" id="r-legend">
+        <span class="k"><span class="sw-line"></span>실판매가</span>
+        <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
+        <span class="k"><span class="sw-ref"></span>표시 정상가</span>
+      </div>
+      <div class="chart-box">
+        <div id="chart"></div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div class="tiles" id="r-tiles"></div>
+      <div class="findings" id="r-findings"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="claims-title">② 성분·효능 주장 검증</h3><span class="tag" id="claims-tag">🧪 가상 데이터 (목업)</span></div>
+      <div class="sec-sub" id="claims-sub">상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.</div>
+      <div id="r-claims"></div>
+    </div>
+
+    <div class="card" id="alts-card">
+      <div class="sec-h"><h3 id="alts-title">③ 검증된 대안</h3><span class="tag" id="alts-tag">🧪 가상 데이터 (목업)</span></div>
+      <div class="sec-sub" id="alts-sub"></div>
+      <div class="alts-banner hidden" id="alts-banner"><span class="ab-ic">✓</span><span id="alts-banner-txt"></span></div>
+      <div class="alts" id="r-alts"></div>
+      <div class="alts-note">
+        <b>정렬 기준 고지</b> — 비교·추천 순위는 <b>성분 유사도 × 자체 가격 판정</b>만으로 정해지며, 브랜드가 비용을 지불해 노출되거나 순위를 바꿀 수 없습니다. 상품 링크에 제휴 수수료가 붙는 경우에도 수수료율은 판정·순위에 어떤 영향도 주지 않습니다(분리 원칙). 각 상품의 판정 칩은 해당 상품의 최신 판정서에서 가져옵니다.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="basis-title">④ 판정 근거</h3></div>
+      <div class="basis" id="r-basis"></div>
+      <div class="neutral">
+        <b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
+        <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
+        <button class="btn ghost" id="tg-btn">📮 텔레그램으로 주간 팩트체크 받기</button>
+      </div>
+    </div>
+
+    <div class="dev-teaser">
+      개발자이신가요? 이 판정을 <a href="#" id="api-link">API / MCP 도구</a>로 받아 에이전트에 연결할 수 있습니다 — <code>verify_price</code> · <code>check_claim</code>
+    </div>
+  </section>
+
+  <footer class="site">
+    찐가판정 (가칭) · THE K-HUB — Price-Truth Oracle 소비자 표면 목업 v0.1<br>
+    데이터: 올리브영 공개 가격 관측 (일 2회) · 개인 리뷰 미수집 (PIPA 준수)
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function quantile(arr,q){const s=[...arr].sort((a,b)=>a-b);const p=(s.length-1)*q;const lo=Math.floor(p),hi=Math.ceil(p);return s[lo]+(s[hi]-s[lo])*(p-lo);}
+
+/* ---------- 가격 이력 생성 (결정적) ---------- */
+function genSeries(seed, base, noise, promoDepth, promoEvery, last, startWeek=0){
+  const rnd = mulberry32(seed);
+  const pts = [];
+  for(let w=startWeek; w<52; w++){
+    let p = base + (rnd()-0.5)*2*noise;
+    const cycle = w % promoEvery;
+    if(cycle===0 || cycle===1) p = base - promoDepth - rnd()*noise; // 세일 주간
+    pts.push({w, price: Math.round(p/100)*100});
+  }
+  if(last!=null) pts[pts.length-1].price = last;
+  return pts;
+}
+
+/* ---------- 3가지 판정 케이스 ---------- */
+const CASES = {
+  a: {
+    emoji:'🧻', brand:'메디필', name:'콜라겐 앰플 마스크 10매 기획세트', opt:'옵션: 10매 (단일)',
+    normal: 32000, cur: 19900, dcShown: '38%',
+    series: genSeries(7, 22100, 700, 2400, 7, 19900),
+    verdict: 'bad', vic:'✕', vtitle:'부풀려진 정상가 — 표시 할인율 38%는 과장',
+    vdesc:'표시 정상가 32,000원에 실제 판매된 날은 최근 12개월 중 0일입니다. 12개월 중앙값({med}) 기준 실질 할인율은 약 {realDc}%입니다.',
+    chartSub:'최근 12개월(주 단위) 실판매가 관측 — 표시 정상가는 관측 구간 내내 실판매가와 괴리',
+    findings:[
+      ['✕','표시 정상가 <b>32,000원</b>은 12개월간 <b>판매 실적 0일</b> — 통상 판매가 구간({p10}~{p90}) 밖에 있습니다.'],
+      ['✕','표시 할인율 38% 중 <b>실질 할인은 약 {realDc}%</b> — 나머지는 정상가 부풀리기에서 발생합니다.'],
+      ['✓','현재가 19,900원 자체는 12개월 하위 {pct}% 구간으로, 사기에 좋은 가격대인 것은 맞습니다.'],
+    ],
+    claims:[
+      {t:'“저분자 콜라겐 3,000ppm 고함량”', s:'상품 상세 페이지', v:'serious', b:'과장 소지',
+       n:'전성분표에서 콜라겐은 8번째 — 통상 1% 미만 함량 구간입니다. “고함량” 표현과 성분표 순서의 개연성이 낮습니다.'},
+      {t:'“진피층까지 흡수”', s:'상품 상세 페이지', v:'bad', b:'근거 없음',
+       n:'화장품은 법적으로 표피 각질층까지만 작용을 표방할 수 있습니다. 진피 흡수 주장은 화장품법 표시광고 위반 소지가 있습니다.'},
+    ],
+    altsSub:'요청하신 상품과 핵심 성분이 유사하면서, 지금 가격 판정이 더 좋은 대안입니다.',
+    alts:[
+      {why:'💰 같은 성분군 · 진짜 할인 중', brand:'메디힐', name:'콜라겐 에센셜 마스크 EX 10매',
+       price:12900, was:16000, v:'good', chip:'진짜 할인 · 실질 −24%',
+       basis:'저분자 콜라겐이 성분표 5번째 — 요청 상품(8번째)보다 상위. 현재가는 12개월 하위 6% 구간.'},
+      {why:'🧬 성분 우위', brand:'바이오던스', name:'바이오 콜라겐 리얼 딥 마스크 4매',
+       price:15900, was:null, v:'good', chip:'통상가 · 부풀림 없음',
+       basis:'가수분해 콜라겐 성분표 2번째 — 비교군 중 함량 개연성 최상위. 표시 정상가와 실판매가가 일치하는 정직한 SKU.'},
+      {why:'⚖️ 같은 브랜드 · 정직한 표기', brand:'메디필', name:'레드락토 콜라겐 마스크 10매',
+       price:17400, was:19000, v:'good', chip:'진짜 할인 · 실질 −8%',
+       basis:'동일 브랜드 콜라겐 라인 중 표시 정상가가 12개월 실판매가와 일치하는 상품. 브랜드를 유지하고 싶다면 이쪽.'},
+    ],
+  },
+  b: {
+    emoji:'☀️', brand:'라운드랩', name:'자작나무 수분 선크림 SPF50+ PA++++', opt:'옵션: 50ml (단일)',
+    normal: 25000, cur: 14900, dcShown: '40%',
+    series: genSeries(21, 19900, 600, 2100, 8, 14900),
+    verdict: 'good', vic:'✓', vtitle:'진짜 할인 — 12개월 최저가 수준',
+    vdesc:'현재가 14,900원은 최근 12개월 관측치의 하위 {pct}% 구간입니다. 12개월 중앙값({med}) 대비 실질 할인율 {realDc}%로, 지금이 실제로 싼 시점입니다.',
+    chartSub:'최근 12개월(주 단위) 실판매가 관측 — 현재가가 관측 구간 최저 수준',
+    findings:[
+      ['✓','현재가 <b>14,900원</b>은 12개월 <b>하위 3%</b> 구간 — 지난 1년 중 가장 싼 축에 속합니다.'],
+      ['✓','표시 정상가 25,000원은 실제 비세일 기간 판매가보다 다소 높지만, 세일 주기를 감안한 <b>실질 할인율도 {realDc}%</b>로 유의미합니다.'],
+      ['✓','최근 4회 세일에서 이 가격 아래로 내려간 적이 없습니다 — 다음 세일을 기다릴 실익이 낮습니다.'],
+    ],
+    claims:[
+      {t:'“자외선차단 SPF50+ / PA++++”', s:'상품 상세 페이지', v:'good', b:'확인됨',
+       n:'식약처 기능성화장품 보고 목록에서 동일 품목 확인 (보고번호 목업 표기). 표기와 고시 내용이 일치합니다.'},
+      {t:'“무기자차 (논나노 징크옥사이드)”', s:'상품 상세 페이지', v:'good', b:'개연성 높음',
+       n:'전성분표 상 유기 자외선차단제 성분이 검출되지 않습니다. 성분표와 주장이 일치합니다.'},
+    ],
+    altsTitle:'③ 비교군 검증 — 더 나은 선택지가 있는지 확인했습니다',
+    altsSub:'같은 조건(무기자차 · 수분 타입 · SPF50+)의 비교군 12개를 성분 유사도 × 가격 판정으로 함께 검증했습니다.',
+    altsBanner:'<b>비교군 12개 중 1위</b> — 성분 조건을 만족하면서 지금 이 상품보다 가격 판정이 좋은 선택지는 없습니다. 아래는 차순위 3개와 밀린 이유입니다.',
+    alts:[
+      {why:'2위', brand:'닥터지', name:'그린 마일드업 선 플러스 50ml',
+       price:17900, was:28000, v:'neutral', chip:'실질 −12%',
+       basis:'가격 판정은 정상이나 실질 할인율이 낮고, 유기자차 혼합 처방이라 무기자차 조건에서 감점.'},
+      {why:'3위', brand:'셀퓨전씨', name:'레이저 썬스크린 100 50ml',
+       price:24700, was:null, v:'neutral', chip:'통상가',
+       basis:'성분 스펙은 대등하지만 현재 세일 중이 아님 — 지금 시점의 가격 열위. 세일 진입 시 순위 변동 가능.'},
+      {why:'4위', brand:'아비브', name:'쑥 수분 선크림 50ml',
+       price:19500, was:22000, v:'neutral', chip:'실질 −7%',
+       basis:'논나노 무기자차 조건 일치. 다만 실질 할인율이 낮아 현재가 기준 열위.'},
+    ],
+  },
+  c: {
+    emoji:'🧴', brand:'토리든', name:'다이브인 저분자 히알루론산 세럼 더블 기획', opt:'옵션: 50ml×2 + 미니 10ml',
+    normal: 34000, cur: 22900, dcShown: '33%',
+    series: genSeries(5, 24400, 500, 1300, 9, 22900, 46),
+    verdict: 'warn', vic:'!', vtitle:'판정 보류 — 관측 이력 부족 (41일)',
+    vdesc:'이 기획세트는 출시 41일 차로, 정상가 진위를 판정하기 위한 최소 관측 기간(90일)에 미달합니다. 현재까지의 관측만으로는 표시 정상가 34,000원의 진위를 단정할 수 없습니다.',
+    chartSub:'관측 41일(주 단위) — 통상 판매가 구간(밴드) 산출에는 최소 90일이 필요합니다',
+    findings:[
+      ['!','관측 <b>41일</b> — 밴드(p10–p90) 산출 기준(90일) 미달로 <b>정상가 진위 판정을 보류</b>합니다.'],
+      ['!','기획세트는 구성이 자주 바뀝니다 — 동일 구성 기준 비교가 불가능한 구간이 존재합니다.'],
+      ['✓','참고: 동일 브랜드 단품(50ml)의 12개월 중앙값 환산가와 비교하면 현재 세트가는 <b>약 7% 저렴</b>합니다.'],
+    ],
+    claims:[
+      {t:'“5중 저분자 히알루론산”', s:'상품 상세 페이지', v:'good', b:'개연성 높음',
+       n:'전성분표에서 분자량이 다른 히알루론산 유도체 5종이 확인됩니다. 표기와 성분표가 일치합니다.'},
+      {t:'“각질 개선 인체적용시험 완료”', s:'상품 상세 페이지', v:'warn', b:'제한적 근거',
+       n:'인체적용시험 1건 존재하나 표본 20명, 자사 의뢰 시험입니다. 주장 자체는 사실이지만 근거 강도는 제한적입니다.'},
+    ],
+    altsSub:'이 기획세트는 이력 부족으로 판정을 보류했습니다. 대신 이력이 검증됐거나 지금 진짜 할인 중인 유사 대안입니다.',
+    alts:[
+      {why:'📊 같은 제품 · 검증된 단품', brand:'토리든', name:'다이브인 세럼 50ml 단품',
+       price:14200, was:22000, v:'good', chip:'진짜 할인 · 실질 −21%',
+       basis:'동일 제품 단품 — 12개월 이력이 확보되어 판정 가능. 세트 환산가 대비 ml당 약 4% 비싸지만, 진위가 검증된 가격입니다.'},
+      {why:'💰 유사 성분 · 진짜 할인 중', brand:'아누아', name:'히알루론산 캡슐 100 세럼 50ml',
+       price:18600, was:25000, v:'good', chip:'진짜 할인 · 실질 −18%',
+       basis:'저분자 히알루론산 5종 중 4종 일치(성분 유사도 91%). 현재가는 12개월 하위 9% 구간.'},
+      {why:'🧬 성분 우위', brand:'이즈앤트리', name:'히알루론산 샷 세럼 50ml',
+       price:21800, was:null, v:'good', chip:'통상가 · 부풀림 없음',
+       basis:'히알루론산 8종 + 판테놀 — 보습 성분 구성이 비교군 중 상위. 세일 없이도 표기가 정직한 상품.'},
+    ],
+  },
+};
+
+const REAL_CASES = {
+ "ra": {
+  "real": true,
+  "emoji": "🧴",
+  "brand": "식물나라",
+  "name": "식물나라 워터프루프 선 크림 100mL",
+  "opt": "옵션: 100mL 단일 · goods A000000151904",
+  "normal": 19000,
+  "cur": 10800,
+  "dcShown": "43%",
+  "verdict": "bad",
+  "vic": "✕",
+  "vtitle": "정상가 부풀림 신호 — 관측 12일간 표시 정상가 판매 실적 0회",
+  "vdesc": "표시 정상가 19,000원은 관측 기간(12일, 14회) 중 최고 실판매가 10,800원보다 76% 높습니다. 실판매가는 9,800원~10,800원 범위에서만 움직였고, 표시 정상가 근처에도 간 적이 없습니다. 정식 판정(12개월 기준)은 관측 누적 후 확정되지만, 조기 신호로는 부풀림 의심입니다.",
+  "chartSub": "실관측 12일 (일 1~2회) — 정식 12개월 밴드는 관측 90일 누적 후 제공",
+  "chart": {
+   "series": [
+    {
+     "label": "7/6",
+     "price": 10800
+    },
+    {
+     "label": "7/7",
+     "price": 10800
+    },
+    {
+     "label": "7/8",
+     "price": 10800
+    },
+    {
+     "label": "7/9",
+     "price": 9800
+    },
+    {
+     "label": "7/9",
+     "price": 9800
+    },
+    {
+     "label": "7/10",
+     "price": 10800
+    },
+    {
+     "label": "7/11",
+     "price": 10800
+    },
+    {
+     "label": "7/12",
+     "price": 10800
+    },
+    {
+     "label": "7/13",
+     "price": 10800
+    },
+    {
+     "label": "7/14",
+     "price": 10800
+    },
+    {
+     "label": "7/15",
+     "price": 10800
+    },
+    {
+     "label": "7/16",
+     "price": 10800
+    },
+    {
+     "label": "7/17",
+     "price": 10800
+    },
+    {
+     "label": "7/17·저녁",
+     "price": 10800
+    }
+   ],
+   "normal": 19000,
+   "normalNote": "표시 정상가 19,000원 · 판매 실적 0회"
+  },
+  "tiles": [
+   [
+    "현재가",
+    "10,800원",
+    ""
+   ],
+   [
+    "관측 12일 중앙값",
+    "10,800원",
+    ""
+   ],
+   [
+    "관측 최고 실판매가",
+    "10,800원",
+    ""
+   ],
+   [
+    "부풀림 신호",
+    "+76%",
+    "up-bad"
+   ]
+  ],
+  "findings": [
+   [
+    "✕",
+    "표시 정상가 <b>19,000원</b>은 관측 12일 내내 실판매가(10,800원 이하) 위에 떠 있었습니다 — <b>판매 실적 0회</b>."
+   ],
+   [
+    "✕",
+    "표시 할인율 43%는 실판매가 이력과 무관한 숫자입니다 — 관측 중앙값 대비 <b>실질 할인 0%</b>."
+   ],
+   [
+    "!",
+    "관측 12일은 정식 판정 기준(90일)에 미달 — 본 판정서는 <b>조기 신호</b>이며 관측 누적 시 자동 갱신됩니다."
+   ]
+  ],
+  "claimsTitle": "② 핵심성분 검출 (전성분 기반 · 실데이터)",
+  "claimsTag": "📊 사전 v0.2 자동 검출",
+  "claimsSub": "전성분 원문에서 핵심성분 사전(37그룹)으로 자동 검출한 결과입니다. 효능 주장 대조는 다음 단계.",
+  "claims": [
+   {
+    "t": "무기자차(징크) — 성분표 #3",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 3번째 위치에서 검출. 순위가 앞설수록 함량이 높은 처방입니다."
+   },
+   {
+    "t": "유기자차 — 성분표 #4",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 4번째 위치에서 검출. 순위가 앞설수록 함량이 높은 처방입니다."
+   },
+   {
+    "t": "나이아신아마이드 — 성분표 #10",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 10번째 위치에서 검출. 순위가 앞설수록 함량이 높은 처방입니다."
+   },
+   {
+    "t": "무기자차(티타늄) — 성분표 #13",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 13번째 위치에서 검출. 순위가 앞설수록 함량이 높은 처방입니다."
+   }
+  ],
+  "altsTitle": "③ 검증된 대안 (실데이터)",
+  "altsSub": "동일 카테고리·동일 단위 후보를 결합 유사도와 가격 판정으로 선별했습니다.",
+  "alts": [
+   {
+    "why": "💰 같은 브랜드 · 더 싼 환산가",
+    "brand": "식물나라",
+    "name": "[위클리초특가/순한무기자차]식물나라 페이스 앤 바디 저자극 선 크림 150ml",
+    "price": 9900,
+    "was": null,
+    "v": "neutral",
+    "chip": "진짜 할인 신호",
+    "basis": "결합 유사도 0.41 · 공유 핵심성분: 무기자차(징크), 나이아신아마이드, 알로에 · 환산 66원 (앵커 대비 −39%) · 관측 12일, 실질 +23%, 부풀림 +55%"
+   },
+   {
+    "why": "🧴 유사 처방 · 부풀림 낮음",
+    "brand": "넘버즈인",
+    "name": "[파데프리] 넘버즈인 3번 도자기결 톤업베이지 선크림 02 글로우 기획 (+클렌징오일 20ml",
+    "price": 17900,
+    "was": null,
+    "v": "neutral",
+    "chip": "통상가",
+    "basis": "결합 유사도 0.41 · 공유 핵심성분: 무기자차(징크), 나이아신아마이드, 무기자차(티타늄) · 관측 2일, 실질 +0%, 부풀림 +45%"
+   }
+  ],
+  "basis": [
+   [
+    "가격 관측",
+    "일 1~2회 자동 수집 · 12일 / 14회 (2026-07-06 ~ 07-16)"
+   ],
+   [
+    "판정 기준",
+    "조기 신호 모드: 표시 정상가 vs 관측 최고 실판매가 괴리 + 판매 실적 · 정식 12개월 밴드는 관측 누적 후"
+   ],
+   [
+    "비교군",
+    "동일 카테고리 81개 중 유사도 산출 67개 → 상위 12개"
+   ],
+   [
+    "판정서 고정",
+    "발급 시점 데이터로 고정 · 관측 누적 시 새 번호로 갱신 발급"
+   ]
+  ],
+  "altsTag": "📡 실측 데이터 (자동 산출)",
+  "vid": "KHUB-V-20260717-00001"
+ },
+ "rb": {
+  "real": true,
+  "emoji": "🧼",
+  "brand": "휩드",
+  "name": "휩드 비건 팩클렌저 130g 기획 4종 (피치페어/머그트리/무화버터/유자몽)",
+  "opt": "goods A000000217511",
+  "normal": 29000,
+  "cur": 18500,
+  "dcShown": "36%",
+  "verdict": "good",
+  "vic": "✓",
+  "vtitle": "진짜 할인 신호 — 표시 정상가에 실제 판매된 기록 있음",
+  "vdesc": "표시 정상가 29,000원은 관측 기간 중 실제 판매가 확인된 가격입니다(7/6). 현재가 18,500원는 관측 최고가 대비 −36%로, 표시 할인율이 실제 가격 이력과 일치합니다. 부풀림 신호 0%.",
+  "chartSub": "실관측 11일 — 정상가 판매 구간과 할인 구간이 그대로 보입니다",
+  "chart": {
+   "series": [
+    {
+     "label": "7/6",
+     "price": 29000
+    },
+    {
+     "label": "7/8",
+     "price": 29000
+    },
+    {
+     "label": "7/9",
+     "price": 29000
+    },
+    {
+     "label": "7/10",
+     "price": 29000
+    },
+    {
+     "label": "7/11",
+     "price": 29000
+    },
+    {
+     "label": "7/12",
+     "price": 29000
+    },
+    {
+     "label": "7/13",
+     "price": 18500
+    },
+    {
+     "label": "7/14",
+     "price": 18500
+    },
+    {
+     "label": "7/15",
+     "price": 18500
+    },
+    {
+     "label": "7/16",
+     "price": 18500
+    },
+    {
+     "label": "7/17",
+     "price": 18500
+    },
+    {
+     "label": "7/17·저녁",
+     "price": 18500
+    }
+   ],
+   "normal": 29000,
+   "normalNote": "표시 정상가 29,000원 · 판매 실적 6회 (진짜)"
+  },
+  "tiles": [
+   [
+    "현재가",
+    "18,500원",
+    ""
+   ],
+   [
+    "관측 11일 중앙값",
+    "29,000원",
+    ""
+   ],
+   [
+    "관측 최고 (=정상가)",
+    "29,000원",
+    ""
+   ],
+   [
+    "실질 할인 (최고가 대비)",
+    "−36%",
+    "up-good"
+   ]
+  ],
+  "findings": [
+   [
+    "✓",
+    "표시 정상가 29,000원에 <b>실제 판매된 날이 있습니다</b> (6회 관측, 최초 7/6) — 정상가가 실존 가격."
+   ],
+   [
+    "✓",
+    "현재가 18,500원은 관측 기간 최저 수준 — 표시 할인율 36%가 <b>이력과 일치</b>합니다."
+   ],
+   [
+    "!",
+    "관측 11일 기준의 조기 신호입니다 — 12개월 밴드 확정 전까지 '지난 1년 최저'는 보증하지 않습니다."
+   ]
+  ],
+  "claimsTitle": "② 핵심성분 검출 (전성분 기반 · 실데이터)",
+  "claimsTag": "📊 사전 v0.2 자동 검출",
+  "claimsSub": "전성분 원문에서 핵심성분 사전으로 자동 검출한 결과입니다.",
+  "claims": [
+   {
+    "t": "나이아신아마이드 — 성분표 #5",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 5번째 위치에서 검출."
+   },
+   {
+    "t": "BHA — 성분표 #17",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 17번째 위치에서 검출."
+   },
+   {
+    "t": "쑥 — 성분표 #18",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 18번째 위치에서 검출."
+   },
+   {
+    "t": "센텔라(시카) — 성분표 #19",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 19번째 위치에서 검출."
+   }
+  ],
+  "altsTitle": "③ 비교군 검증 (실데이터)",
+  "altsSub": "동일 카테고리(클렌징폼/젤) 17개 후보와 함께 검증했습니다.",
+  "altsBanner": "<b>비교군 12개 중 딜 품질 상위</b> — 현재 클렌징폼/젤 후보 중 부풀림 없이 이 폭으로 할인 중인 상품은 드뭅니다. 아래는 딜 품질 차순위입니다.",
+  "alts": [
+   {
+    "why": "2위",
+    "brand": "닥터지",
+    "name": "[증정/약산성] 닥터지 약산성 레드 블레미쉬 클리어 수딩 폼 기획2종 택 1(150ml+75m",
+    "price": 15000,
+    "was": null,
+    "v": "good",
+    "chip": "진짜 할인 신호",
+    "basis": "결합 유사도 0.34 · 공유 핵심성분: BHA, 센텔라(시카), 히알루론산 · 관측 8일, 실질 +25%, 부풀림 +0%"
+   },
+   {
+    "why": "3위",
+    "brand": "아렌시아",
+    "name": "[2025어워즈]아렌시아 그린티 LHA 딥 포어 떡솝 클렌저 150g 어워즈 한정기획(+프레시",
+    "price": 22400,
+    "was": null,
+    "v": "neutral",
+    "chip": "통상가",
+    "basis": "결합 유사도 0.23 · 공유 핵심성분: BHA · 환산 149원 · 관측 1일, 실질 +0%, 부풀림 +25%"
+   },
+   {
+    "why": "4위",
+    "brand": "블랑네이처",
+    "name": "[여드름 기능성/피지케어] 블랑네이처 아크네 클렌징 폼 기획/단품",
+    "price": 21400,
+    "was": null,
+    "v": "good",
+    "chip": "통상가",
+    "basis": "결합 유사도 0.21 · 공유 핵심성분: BHA, 센텔라(시카), 티트리 · 관측 12일, 실질 +0%, 부풀림 +11%"
+   }
+  ],
+  "basis": [
+   [
+    "가격 관측",
+    "일 1~2회 자동 수집 · 11일 / 12회 (2026-07-06 ~ 07-16)"
+   ],
+   [
+    "판정 기준",
+    "조기 신호 모드: 정상가 판매 실적 + 관측 최고가 대비 낙폭"
+   ],
+   [
+    "비교군",
+    "동일 카테고리 17개 중 유사도 산출 5개"
+   ],
+   [
+    "판정서 고정",
+    "발급 시점 데이터로 고정 · 관측 누적 시 새 번호로 갱신 발급"
+   ]
+  ],
+  "altsTag": "📡 실측 데이터 (자동 산출)",
+  "vid": "KHUB-V-20260717-00002"
+ },
+ "rc": {
+  "real": true,
+  "emoji": "💧",
+  "brand": "디오디너리",
+  "name": "디오디너리 나이아신아마이드 10% + 징크 1% 60ml",
+  "opt": "옵션: 60ml 단일 · goods A000000158615",
+  "normal": 15700,
+  "cur": 15700,
+  "dcShown": "할인 없음",
+  "verdict": "good",
+  "vic": "✓",
+  "vtitle": "정직한 가격 — 부풀림 신호 0%, 표시가 = 실판매가",
+  "vdesc": "관측 12일간 표시가와 실판매가가 15,700원로 완전히 일치합니다. 할인 연출이 없는 정가 운영 상품입니다. 현재 비교군에는 가치 우위 조건을 충족하는 대안도 없습니다.",
+  "chartSub": "실관측 12일 — 가격 변동 없음 (정가 운영)",
+  "chart": {
+   "series": [
+    {
+     "label": "7/6",
+     "price": 15700
+    },
+    {
+     "label": "7/6",
+     "price": 15700
+    },
+    {
+     "label": "7/7",
+     "price": 15700
+    },
+    {
+     "label": "7/8",
+     "price": 15700
+    },
+    {
+     "label": "7/8",
+     "price": 15700
+    },
+    {
+     "label": "7/9",
+     "price": 15700
+    },
+    {
+     "label": "7/10",
+     "price": 15700
+    },
+    {
+     "label": "7/10",
+     "price": 15700
+    },
+    {
+     "label": "7/11",
+     "price": 15700
+    },
+    {
+     "label": "7/11",
+     "price": 15700
+    },
+    {
+     "label": "7/12",
+     "price": 15700
+    },
+    {
+     "label": "7/12",
+     "price": 15700
+    },
+    {
+     "label": "7/13",
+     "price": 15700
+    },
+    {
+     "label": "7/13",
+     "price": 15700
+    },
+    {
+     "label": "7/14",
+     "price": 15700
+    },
+    {
+     "label": "7/14",
+     "price": 15700
+    },
+    {
+     "label": "7/15",
+     "price": 15700
+    },
+    {
+     "label": "7/15",
+     "price": 15700
+    },
+    {
+     "label": "7/16",
+     "price": 15700
+    },
+    {
+     "label": "7/16",
+     "price": 15700
+    },
+    {
+     "label": "7/17",
+     "price": 15700
+    },
+    {
+     "label": "7/17",
+     "price": 15700
+    },
+    {
+     "label": "7/17·저녁",
+     "price": 15700
+    },
+    {
+     "label": "7/17·저녁",
+     "price": 15700
+    }
+   ],
+   "normal": 15700,
+   "normalNote": "표시 정상가 15,700원 = 실판매가 (부풀림 0%)"
+  },
+  "tiles": [
+   [
+    "현재가",
+    "15,700원",
+    ""
+   ],
+   [
+    "환산가",
+    "262원/ml",
+    ""
+   ],
+   [
+    "부풀림 신호",
+    "0%",
+    "up-good"
+   ],
+   [
+    "핵심성분",
+    "나이아신아마이드 #2",
+    ""
+   ]
+  ],
+  "findings": [
+   [
+    "✓",
+    "관측 12일간 가격 변동 0회 — 표시 정상가가 곧 실판매가인 <b>정직한 표기</b>입니다."
+   ],
+   [
+    "✓",
+    "동일 제품 용량 옵션: 디오디너리 나이아신아마이드 10% + 징크 1% 8,700원 / 디오디너리 나이아신아마이드 10% + 징크 1% 28,900원 — 대용량이 환산가 우위."
+   ],
+   [
+    "✓",
+    "비교군에서 가치 우위 조건(환산가 −15% 이상 + 딜 품질 유지)을 충족하는 대안이 현재 없습니다 — 지금 구성 그대로가 합리적 선택입니다."
+   ]
+  ],
+  "claimsTitle": "② 핵심성분 검출 (전성분 기반 · 실데이터)",
+  "claimsTag": "📊 사전 v0.2 자동 검출",
+  "claimsSub": "전성분 12개 미니멀 처방 — 성분표 순위가 곧 처방 의도입니다.",
+  "claims": [
+   {
+    "t": "나이아신아마이드 — 성분표 #2",
+    "s": "전성분 원문 (goods_profile)",
+    "v": "good",
+    "b": "검출",
+    "n": "성분표 2번째 위치. '10% 함량' 표기와 #2 위치는 개연성이 높습니다."
+   }
+  ],
+  "altsTitle": "③ 검증된 대안 — 같은 효능을 더 싸게 (실데이터)",
+  "altsSub": "가치 우위 조건(환산가 −15% 이상 저렴 + 딜 품질 유지)을 충족하는 대안이 현재 비교군에 없습니다.",
+  "alts": [],
+  "basis": [
+   [
+    "가격 관측",
+    "일 1~2회 자동 수집 · 12일 / 24회"
+   ],
+   [
+    "판정 기준",
+    "조기 신호 모드 + 2경로 대안 게이트(딜 우위/가치 우위) v0.2"
+   ],
+   [
+    "비교군",
+    "동일 카테고리 55개 중 유사도 산출 33개 (결합 유사도)"
+   ],
+   [
+    "판정서 고정",
+    "발급 시점 데이터로 고정 · 관측 누적 시 새 번호로 갱신 발급"
+   ]
+  ],
+  "altsTag": "📡 실측 데이터 (자동 산출)",
+  "vid": "KHUB-V-20260717-00004"
+ }
+};
+Object.assign(CASES, REAL_CASES);
+
+/* ---------- 뷰 전환 ---------- */
+const views = ['home','loading','report'];
+function show(v){ views.forEach(x => $('#view-'+x).classList.toggle('hidden', x!==v)); window.scrollTo({top:0}); }
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- 로딩 연출 ---------- */
+function runLoading(caseKey){
+  show('loading');
+  const steps = document.querySelectorAll('#view-loading .step');
+  steps.forEach(s => s.classList.remove('on','now'));
+  let i = 0;
+  const tick = () => {
+    if(i>0) steps[i-1].classList.replace('now','on') || steps[i-1].classList.add('on');
+    if(i < steps.length){ steps[i].classList.add('now'); i++; setTimeout(tick, 340); }
+    else setTimeout(()=>renderReport(caseKey), 250);
+  };
+  tick();
+}
+
+/* ---------- 판정서 렌더 ---------- */
+let seq = 4217;
+function renderReport(key){
+  const c = CASES[key];
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  $('#r-id').textContent = c.vid ||
+    `KHUB-V-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${String(seq++).padStart(5,'0')}(미리보기)`;
+  $('#r-time').textContent = c.vid
+    ? `대장 기록됨 (verdicts) · 조회 ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
+    : `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} KST`;
+
+  $('#r-thumb').textContent = c.emoji;
+  $('#r-brand').textContent = c.brand;
+  $('#r-name').textContent = c.name;
+  $('#r-opt').textContent = c.opt;
+  $('#r-cur').textContent = won(c.cur);
+  const hasDc = c.dcShown && c.normal !== c.cur;
+  $('#r-normal').textContent = hasDc ? won(c.normal) : '';
+  $('#r-dc').textContent = hasDc ? c.dcShown + ' 할인 표시' : '';
+  $('#r-dc').style.color = hasDc ? 'var(--critical)' : 'var(--muted)';
+  if(!hasDc) $('#r-dc').textContent = '정가 판매 중 (할인 표시 없음)';
+
+  const v = $('#r-verdict');
+  v.className = 'verdict v-' + c.verdict;
+  $('#r-vic').textContent = c.vic;
+  $('#r-vtitle').textContent = c.vtitle;
+  $('#r-vdesc').textContent = c.vdesc;
+  $('#r-chart-sub').textContent = c.chartSub;
+
+  /* 실데이터/가상 분기 및 시계열 정규화 */
+  const isReal = !!c.real;
+  $('#real-badge').classList.toggle('hidden', !isReal);
+  $('#price-tag').textContent = isReal ? '📡 실측 데이터 (oy.db)' : '가상 데이터 (시나리오)';
+  const weekLabelW = w => { const m = new Date(2025,7,4); m.setDate(m.getDate()+w*7);
+    return `${String(m.getFullYear()).slice(2)}.${m.getMonth()+1}.${m.getDate()}`; };
+  const pts = isReal
+    ? c.chart.series.map((p,i)=>({i, label:p.label, price:p.price}))
+    : c.series.map((p,i)=>({i, label:weekLabelW(p.w), price:p.price}));
+
+  /* 통계 */
+  const prices = pts.map(p=>p.price);
+  const med = Math.round(quantile(prices,.5)/100)*100;
+  const p10 = Math.round(quantile(prices,.1)/100)*100;
+  const p90 = Math.round(quantile(prices,.9)/100)*100;
+  const below = prices.filter(p=>p<=c.cur).length / prices.length;
+  const pct = Math.max(1, Math.round(below*100));
+  const realDc = Math.round((1 - c.cur/med)*100);
+  const hasBand = !isReal && pts.length >= 13;
+
+  /* 하드코딩 텍스트 ↔ 계산치 동기화 */
+  const fill = s => s.replaceAll('{med}', won(med)).replaceAll('{p10}', p10.toLocaleString('ko-KR'))
+    .replaceAll('{p90}', won(p90)).replaceAll('{pct}', pct).replaceAll('{realDc}', Math.max(0,realDc));
+  $('#r-vdesc').textContent = fill(c.vdesc);
+
+  const tiles = c.tiles || [
+    ['현재가', won(c.cur), ''],
+    [hasBand?'12개월 중앙값':'관측 중앙값', won(med), ''],
+    [hasBand?'12개월 최저 구간 (p10)':'관측 최저', won(hasBand?p10:Math.min(...prices)), ''],
+    ['실질 할인율', (realDc>=0?realDc:0) + '%',
+      c.verdict==='good' ? 'up-good' : (c.verdict==='bad' ? 'up-bad' : '')],
+  ];
+  $('#r-tiles').innerHTML = tiles.map(([l,val,cls]) =>
+    `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
+
+  $('#r-findings').innerHTML = c.findings.map(([ic,raw])=>{
+    const txt = fill(raw);
+    const col = ic==='✓' ? 'var(--good-text)' : ic==='✕' ? 'var(--critical)' : 'var(--ink)';
+    return `<div class="finding"><span class="fi" style="color:${col};font-weight:800">${ic}</span><span>${txt}</span></div>`;
+  }).join('');
+
+  $('#claims-title').textContent = c.claimsTitle || '② 성분·효능 주장 검증';
+  $('#claims-tag').textContent = c.claimsTag || '🧪 가상 데이터 (목업)';
+  $('#claims-sub').textContent = c.claimsSub || '상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.';
+  $('#r-claims').innerHTML = c.claims.map(cl=>`
+    <div class="claim">
+      <div class="c-body">
+        <div class="c-title">${cl.t}</div>
+        <div class="c-src">출처: ${cl.s}</div>
+        <div class="c-note">${cl.n}</div>
+      </div>
+      <span class="badge b-${cl.v}">${cl.b}</span>
+    </div>`).join('');
+
+  /* 대안 옵션 (bad/warn 판정에만) */
+  const altsCard = $('#alts-card');
+  if(c.alts && c.alts.length){
+    altsCard.classList.remove('hidden');
+    $('#alts-title').textContent = c.altsTitle || '③ 검증된 대안';
+    $('#alts-tag').textContent = c.altsTag || '🧪 가상 데이터 (목업)';
+    $('#alts-sub').textContent = c.altsSub;
+    const bn = $('#alts-banner');
+    bn.classList.toggle('hidden', !c.altsBanner);
+    if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
+    $('#r-alts').innerHTML = c.alts.map(a=>`
+      <div class="alt">
+        <div class="a-why">${a.why}</div>
+        <div class="a-brand">${a.brand}</div>
+        <div class="a-name">${a.name}</div>
+        <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
+        <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
+        <div class="a-basis">${a.basis}</div>
+        <button class="a-link">이 상품 판정서 보기 →</button>
+      </div>`).join('');
+    document.querySelectorAll('.a-link').forEach(b=>b.addEventListener('click',
+      ()=>toast('대안 상품의 판정서로 이동합니다 (목업)')));
+    $('#basis-title').textContent = '④ 판정 근거';
+  } else {
+    altsCard.classList.add('hidden');
+    $('#basis-title').textContent = '③ 판정 근거';
+  }
+
+  const obsDays = pts.length>=52 ? 365 : 41;
+  $('#r-basis').innerHTML = (c.basis || [
+    ['가격 관측', `일 2회 (오전·저녁) 자동 수집 · 최근 ${obsDays}일 / 약 ${obsDays*2}회 관측`],
+    ['판정 기준', hasBand ? '12개월 p10–p90 통상 구간 + 중앙값 대비 실질 할인율 (베이스라인 게이트 적용)' : '관측 90일 미만 시 정상가 진위 판정 보류 (보수적 원칙)'],
+    ['주장 대조 출처', '식약처 기능성화장품 고시 · 전성분표 · 공개 임상 등록 정보 <span style="color:var(--muted)">(목업 단계: 가상)</span>'],
+    ['판정서 고정', '발급 시점 데이터로 고정 · 재조회 시 새 번호로 신규 발급'],
+  ]).map(([k,val])=>`<div class="row"><span class="k2">${k}</span><span>${val}</span></div>`).join('');
+
+  $('#lg-band').style.display = hasBand ? '' : 'none';
+  const cfg = isReal
+    ? {pts, cur:c.cur, verdict:c.verdict, normal:c.chart.normal, normalNote:c.chart.normalNote,
+       band:null, median:null, note:null}
+    : {pts, cur:c.cur, verdict:c.verdict, normal:c.normal,
+       normalNote:`표시 정상가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
+       band: hasBand?{p10,p90}:null, median: hasBand?med:null,
+       note: hasBand?null:'관측 41일 — 통상 구간(밴드) 산출 기준(90일) 미달'};
+  drawChart(cfg);
+  show('report');
+}
+
+/* ---------- 차트 (SVG, 임의 시계열) ---------- */
+function drawChart(cfg){
+  const W=720, H=250, L=58, R=14, T=18, B=30;
+  const iw = W-L-R, ih = H-T-B;
+  const pts = cfg.pts, n = pts.length;
+  const allVals = pts.map(p=>p.price).concat([cfg.normal]);
+  let yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+  const padY = Math.max((yMax-yMin)*0.12, yMax*0.03); yMin=Math.max(0,yMin-padY); yMax+=padY;
+  const x = i => n>1 ? L + (i/(n-1))*iw : L + iw/2;
+  const y = p => T + ih - ((p-yMin)/(yMax-yMin))*ih;
+
+  /* y 눈금: 깔끔한 단위 */
+  const span = yMax-yMin;
+  const step = span > 15000 ? 5000 : span > 6000 ? 2000 : 1000;
+  let ticks=[]; for(let t=Math.ceil(yMin/step)*step; t<=yMax; t+=step) ticks.push(t);
+
+  /* x 눈금: 최대 7개, 라벨 중복 제거 */
+  const nTicks = Math.min(7, n);
+  const idxs = [...new Set(Array.from({length:nTicks}, (_,k)=>Math.round(k*(n-1)/Math.max(1,nTicks-1))))];
+  let lastLab = null;
+  const xticks = idxs.map(i=>{
+    const lab = pts[i].label.split('·')[0];
+    if(lab===lastLab) return null; lastLab=lab; return [i,lab];
+  }).filter(Boolean);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="가격 이력 차트">`;
+  ticks.forEach(t=>{
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    s += `<text x="${L-8}" y="${y(t)+4}" text-anchor="end" font-size="10.5" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${t.toLocaleString('ko-KR')}</text>`;
+  });
+  xticks.forEach(([i,lab])=>{
+    s += `<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${lab}</text>`;
+  });
+  /* 통상 구간 밴드 / 미달 노트 */
+  if(cfg.band){
+    s += `<rect x="${L}" y="${y(cfg.band.p90)}" width="${iw}" height="${y(cfg.band.p10)-y(cfg.band.p90)}" rx="4" fill="var(--series-wash)"/>`;
+  }
+  if(cfg.median != null){
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.median)}" y2="${y(cfg.median)}" stroke="var(--baseline)" stroke-width="1"/>`;
+    s += `<text x="${L+4}" y="${y(cfg.median)-5}" font-size="10.5" fill="var(--muted)">중앙값 ${cfg.median.toLocaleString('ko-KR')}</text>`;
+  }
+  if(cfg.note){
+    s += `<text x="${L+iw*0.38}" y="${T+ih*0.45}" text-anchor="middle" font-size="12" fill="var(--muted)">${cfg.note}</text>`;
+  }
+  /* 표시 정상가 기준선 */
+  s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--muted)" stroke-width="1.5"/>`;
+  s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--ink-2)" font-weight="600">${cfg.normalNote}</text>`;
+  /* 가격 라인 */
+  const d = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p.price).toFixed(1)).join(' ');
+  s += `<path d="${d}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  /* 관측점 마커 (짧은 시계열일 때만) */
+  if(n <= 25){
+    pts.forEach((p,i)=>{
+      s += `<circle cx="${x(i)}" cy="${y(p.price)}" r="3.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+    });
+  }
+  /* 현재가 마커 (서피스 링) */
+  const lastP = pts[n-1];
+  s += `<circle cx="${x(n-1)}" cy="${y(lastP.price)}" r="5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${x(n-1)-12}" y="${y(lastP.price)+(cfg.verdict==='good'?20:-14)}" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--ink)">현재 ${lastP.price.toLocaleString('ko-KR')}원</text>`;
+  /* 호버 레이어 */
+  s += `<line id="xhair" x1="0" x2="0" y1="${T}" y2="${T+ih}" stroke="var(--baseline)" stroke-width="1" style="display:none"/>`;
+  s += `<circle id="hoverdot" r="4.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2" style="display:none"/>`;
+  s += `<rect x="${L}" y="${T}" width="${iw}" height="${ih}" fill="transparent" id="hover-rect"/>`;
+  s += `</svg>`;
+  $('#chart').innerHTML = s;
+
+  /* 크로스헤어 + 툴팁 */
+  const svg = $('#chart svg'), tt = $('#tooltip');
+  const hr = svg.querySelector('#hover-rect'), xh = svg.querySelector('#xhair'), hd = svg.querySelector('#hoverdot');
+  hr.addEventListener('mousemove', ev=>{
+    const box = svg.getBoundingClientRect();
+    const sx = (ev.clientX-box.left) * (W/box.width);
+    let bi=0, bd=1e9;
+    pts.forEach((p,i)=>{const dd=Math.abs(x(i)-sx); if(dd<bd){bd=dd;bi=i;}});
+    const px=x(bi), py=y(pts[bi].price);
+    xh.setAttribute('x1',px); xh.setAttribute('x2',px); xh.style.display='block';
+    hd.setAttribute('cx',px); hd.setAttribute('cy',py); hd.style.display='block';
+    tt.style.display='block';
+    tt.style.left=(px/W*100)+'%';
+    tt.style.top=(py/H*100)+'%';
+    tt.innerHTML = `${pts[bi].label} · <b>${won(pts[bi].price)}</b>`;
+  });
+  hr.addEventListener('mouseleave', ()=>{ tt.style.display='none'; xh.style.display='none'; hd.style.display='none'; });
+}
+
+/* ---------- 이벤트 ---------- */
+function caseFromUrl(u){
+  let h=0; for(const ch of u) h=(h*31+ch.charCodeAt(0))|0;
+  return ['a','b','c'][Math.abs(h)%3];
+}
+$('#go-btn').addEventListener('click', ()=>{
+  const inp = $('#url-input'), u = inp.value.trim();
+  if(!u){ inp.classList.add('err'); setTimeout(()=>inp.classList.remove('err'),400); inp.focus(); return; }
+  runLoading(caseFromUrl(u));
+});
+$('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
+document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', ()=>runLoading(ch.dataset.case)));
+$('#back-btn').addEventListener('click', ()=>{ $('#url-input').value=''; show('home'); });
+$('#copy-btn').addEventListener('click', ()=>toast('판정서 링크가 복사되었습니다 (목업)'));
+$('#object-btn').addEventListener('click', ()=>toast('이의제기 접수 — 근거와 함께 재검토 후 결과를 알려드립니다 (목업)'));
+$('#tg-btn').addEventListener('click', ()=>toast('주간 「올영 세일 팩트체크」 텔레그램 채널 연결 (목업)'));
+$('#api-link').addEventListener('click', e=>{ e.preventDefault(); toast('개발자 문서 — verify_price · resolve_bundle · check_claim (목업)'); });
+</script>
+</body>
+</html>
