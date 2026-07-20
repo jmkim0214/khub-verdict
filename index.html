@@ -236,6 +236,7 @@
   <header class="site">
     <div class="logo">찐가<span class="accent">판정</span></div>
     <div class="logo-sub">가격·주장 검증 판정서 <span style="opacity:.7">(가칭 · by THE K-HUB)</span></div>
+    <a class="nav-link" href="glossary.html" style="margin-left:auto; align-self:center; font-size:13px; font-weight:700; color:var(--series); text-decoration:none; border:1px solid var(--baseline); border-radius:999px; padding:6px 13px; white-space:nowrap;">🔎 성분 사전</a>
   </header>
 
   <!-- ================= HOME ================= -->
@@ -355,6 +356,9 @@
       <div class="neutral">
         <b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.
       </div>
+      <div class="neutral" style="margin-top:10px">
+        <b>이의제기·정정 정책</b> — 본 판정은 <b>공개 관측 데이터와 식약처 고시 전성분</b>에 근거한 <b>자동 분석 결과</b>이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 <b>근거와 함께 재검토</b>하며, 오류가 확인되면 <b>즉시 정정하고 판정서를 새 번호로 갱신</b>합니다. 처리 경과는 접수하신 연락처로 회신드립니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 <b>일반 참고 정보</b>로, 개별 제품의 효능·안전을 단정하지 않습니다.
+      </div>
       <div class="actions">
         <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
         <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
@@ -369,8 +373,35 @@
 
   <footer class="site">
     찐가판정 (가칭) · THE K-HUB — Price-Truth Oracle 소비자 표면 목업 v0.1<br>
-    데이터: 올리브영 공개 가격 관측 (일 2회) · 개인 리뷰 미수집 (PIPA 준수)
+    데이터: 올리브영 공개 가격 관측 (일 2회) · 개인 리뷰 미수집 (PIPA 준수)<br>
+    <a href="glossary.html" style="color:var(--series); text-decoration:none;">🔎 성분 사전</a>
+    · <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
   </footer>
+</div>
+<!-- ================= 이의제기 모달 ================= -->
+<div id="dispute-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(20,22,28,.55); align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#fff; border-radius:16px; max-width:520px; width:100%; max-height:85vh; overflow:auto; padding:26px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25);">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <span style="font-size:20px;">✋</span>
+      <h2 style="font-size:18px; font-weight:800; margin:0;">판정에 이의제기</h2>
+      <button id="dispute-close" style="margin-left:auto; background:none; border:none; font-size:22px; color:#999; cursor:pointer; line-height:1;">×</button>
+    </div>
+    <p style="font-size:13.5px; color:#555; line-height:1.6; margin:8px 0 14px;">
+      이 판정이 <b>사실과 다르거나 오류</b>가 있다고 보시면 알려주세요. 접수된 건은 근거와 함께 재검토하고,
+      오류가 확인되면 <b>즉시 정정 후 판정서를 새 번호로 갱신</b>합니다.
+    </p>
+    <div style="background:#f6f7f9; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#444; line-height:1.7; margin-bottom:14px;">
+      <b>재검토 대상 판정서</b><br>
+      <span id="dispute-ctx" style="color:#666;">—</span>
+    </div>
+    <ol style="font-size:12.5px; color:#666; line-height:1.7; margin:0 0 16px; padding-left:18px;">
+      <li>아래 버튼으로 이메일이 열립니다 (판정서 정보 자동 첨부).</li>
+      <li>어떤 부분이 사실과 다른지, 근거(가격 캡처·공식 자료 등)를 적어 보내주세요.</li>
+      <li>영업일 <b>7일 이내</b> 검토 결과를 회신드립니다.</li>
+    </ol>
+    <a id="dispute-mail" href="#" style="display:block; text-align:center; background:var(--series,#2f6fed); color:#fff; font-weight:700; font-size:14.5px; text-decoration:none; border-radius:11px; padding:13px;">✉️ 이메일로 이의제기 보내기</a>
+    <p style="font-size:11px; color:#aaa; text-align:center; margin-top:10px;">또는 <span id="dispute-addr" style="color:#888;">dispute@themaric.kr</span> 로 직접 보내주셔도 됩니다.</p>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -1386,8 +1417,32 @@ $('#go-btn').addEventListener('click', ()=>{
 $('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
 document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', ()=>runLoading(ch.dataset.case)));
 $('#back-btn').addEventListener('click', ()=>{ $('#url-input').value=''; show('home'); });
-$('#copy-btn').addEventListener('click', ()=>toast('판정서 링크가 복사되었습니다 (목업)'));
-$('#object-btn').addEventListener('click', ()=>toast('이의제기 접수 — 근거와 함께 재검토 후 결과를 알려드립니다 (목업)'));
+$('#copy-btn').addEventListener('click', ()=>{
+  const url = location.href;
+  (navigator.clipboard?.writeText(url) || Promise.reject())
+    .then(()=>toast('판정서 링크가 복사되었습니다'))
+    .catch(()=>toast(url));
+});
+/* ---------- 이의제기 (실제 접수: mailto) ---------- */
+const DISPUTE_EMAIL = 'dispute@themaric.kr';   // ← 실제 접수 이메일로 교체하세요
+$('#dispute-addr').textContent = DISPUTE_EMAIL;
+function openDispute(){
+  const id = ($('#r-id')?.textContent || '').trim() || '(번호 없음)';
+  const brand = ($('#r-brand')?.textContent || '').trim();
+  const name = ($('#r-name')?.textContent || '').trim();
+  const vtitle = ($('#r-vtitle')?.textContent || '').trim();
+  const ctx = `${brand} ${name}\n판정서 ${id} · ${vtitle}\n${location.href}`;
+  $('#dispute-ctx').textContent = ctx;
+  const subject = `[찐가판정 이의제기] ${id} ${brand} ${name}`.slice(0,120);
+  const body =
+`■ 재검토 대상\n${ctx}\n\n■ 어떤 점이 사실과 다른가요?\n(여기에 작성)\n\n■ 근거 (가격 캡처, 공식 자료 링크 등)\n(여기에 첨부/링크)\n\n■ 회신받을 연락처\n(이메일 또는 담당자)\n`;
+  $('#dispute-mail').href = `mailto:${DISPUTE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  $('#dispute-modal').style.display = 'flex';
+}
+$('#object-btn').addEventListener('click', openDispute);
+$('#foot-dispute')?.addEventListener('click', e=>{ e.preventDefault(); openDispute(); });
+$('#dispute-close').addEventListener('click', ()=>{ $('#dispute-modal').style.display='none'; });
+$('#dispute-modal').addEventListener('click', e=>{ if(e.target.id==='dispute-modal') $('#dispute-modal').style.display='none'; });
 $('#tg-btn').addEventListener('click', ()=>toast('주간 「올영 세일 팩트체크」 텔레그램 채널 연결 (목업)'));
 $('#api-link').addEventListener('click', e=>{ e.preventDefault(); toast('개발자 문서 — verify_price · resolve_bundle · check_claim (목업)'); });
 </script>
