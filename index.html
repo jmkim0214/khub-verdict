@@ -1424,7 +1424,7 @@ $('#copy-btn').addEventListener('click', ()=>{
     .catch(()=>toast(url));
 });
 /* ---------- 이의제기 (실제 접수: mailto) ---------- */
-const DISPUTE_EMAIL = 'dispute@themaric.kr';   // ← 실제 접수 이메일로 교체하세요
+const DISPUTE_EMAIL = 'themaric.official@gmail.com';   // 이의제기 접수 이메일
 $('#dispute-addr').textContent = DISPUTE_EMAIL;
 function openDispute(){
   const id = ($('#r-id')?.textContent || '').trim() || '(번호 없음)';
