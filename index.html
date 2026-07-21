@@ -77,9 +77,10 @@
   #search-results{display:none; max-width:560px; margin:14px auto 0; text-align:left;}
   #search-results.on{display:block;}
   #search-results .sr-head{font-size:12.5px; color:var(--muted); margin:0 2px 8px;}
-  #search-results .sr-empty{font-size:13px; color:var(--muted); background:var(--card,#fff); border:1px solid var(--baseline); border-radius:12px; padding:14px 16px;}
-  #search-results .sr-item{display:flex; align-items:center; gap:8px; width:100%; text-align:left; background:#fff; border:1px solid var(--baseline); border-radius:11px; padding:11px 13px; margin-bottom:7px; font-size:13.5px; color:var(--ink); cursor:pointer;}
-  #search-results .sr-item:hover{border-color:var(--series); background:var(--series-wash,#f5f7ff);}
+  #search-results .sr-empty{font-size:13px; color:var(--muted); background:var(--surface); border:1px solid var(--baseline); border-radius:12px; padding:14px 16px;}
+  #search-results .sr-img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;background:var(--series-wash);}
+  #search-results .sr-item{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--baseline); border-radius:11px; padding:9px 12px; margin-bottom:7px; font-size:13.5px; color:var(--ink); cursor:pointer; font-family:inherit;}
+  #search-results .sr-item:hover{border-color:var(--series); background:var(--series-wash);}
   #search-results .sr-item b{font-weight:700; flex:none;}
   #search-results .sr-cur{margin-left:auto; font-weight:700; color:var(--series); white-space:nowrap;}
   .samples{margin-top:26px;}
@@ -474,7 +475,8 @@ function renderReport(key){
       ? `판정 프리뷰 (조회 시 자동 생성) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
       : `발급 대장 기록됨 (verdicts) · 조회 ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
 
-  $('#r-thumb').textContent = c.emoji;
+  if(c.img){ $('#r-thumb').innerHTML = `<img src="${c.img}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:11px;" onerror="this.remove()">`; }
+  else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }
   $('#r-brand').textContent = c.brand;
   $('#r-name').textContent = c.name;
   $('#r-opt').textContent = c.opt;
@@ -754,7 +756,8 @@ async function searchProducts(q){
     hits.map(([g,it]) => {
       const nm=(it.name||''), br=(it.brand||'');
       const disp = (br && !nm.includes(br)) ? `<b>${br}</b> ${nm}` : nm;
-      return `<button class="sr-item" data-g="${g}"><span>${disp}</span><span class="sr-cur">${(it.cur||0).toLocaleString('ko-KR')}원</span></button>`;
+      const im = it.img ? `<img class="sr-img" src="${it.img}" alt="" loading="lazy" onerror="this.remove()">` : '';
+      return `<button class="sr-item" data-g="${g}">${im}<span>${disp}</span><span class="sr-cur">${(it.cur||0).toLocaleString('ko-KR')}원</span></button>`;
     }).join('');
   box.classList.add('on');
 }
