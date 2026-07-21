@@ -1418,9 +1418,10 @@ async function searchProducts(q){
     box.innerHTML = `<div class="sr-empty">상품명 검색은 배포된 사이트에서 동작해요. 파일을 직접 열면 상품 URL로만 조회됩니다.</div>`;
     box.classList.add('on'); return;
   }
-  const ql = q.toLowerCase();
+  // 띄어쓴 단어는 각각 AND로 검색 (예: "아누아 세럼" → '아누아' AND '세럼' 둘 다 포함)
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   const hits = Object.entries(idx)
-    .filter(([g,it]) => (((it.name||'')+' '+(it.brand||'')).toLowerCase().includes(ql)))
+    .filter(([g,it]) => { const hay=((it.name||'')+' '+(it.brand||'')).toLowerCase(); return terms.every(t=>hay.includes(t)); })
     .sort((a,b)=>(a[1].name||'').length-(b[1].name||'').length)   // 짧은(대표) 상품명 우선
     .slice(0, 40);
   if(!hits.length){
