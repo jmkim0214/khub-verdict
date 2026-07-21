@@ -1417,7 +1417,17 @@ $('#go-btn').addEventListener('click', ()=>{
   judgeUrl(u);
 });
 $('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
-document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', ()=>runLoading(ch.dataset.case)));
+// 실데이터 칩은 실제 판정서(verdicts JSON)를 fetch — 최신 ②단락·성분 사전링크 반영.
+// (가상 미리보기 칩 b/c는 임베디드 데이터 그대로)
+const CASE_GOODS = {ra:'A000000151904', rb:'A000000217511', rc:'A000000158615'};
+document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', ()=>{
+  const c = ch.dataset.case, gno = CASE_GOODS[c];
+  if(ch.classList.contains('real-chip') && gno){
+    judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + gno);
+  } else {
+    runLoading(c);
+  }
+}));
 $('#back-btn').addEventListener('click', ()=>{ $('#url-input').value=''; show('home'); });
 $('#copy-btn').addEventListener('click', ()=>{
   const url = location.href;
