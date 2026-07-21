@@ -35,6 +35,7 @@
     font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
     background:var(--page); color:var(--ink);
     line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;  /* 한글 어절 단위 줄바꿈 */
   }
   .wrap{max-width:1080px; margin:0 auto; padding:0 20px 80px;}
   header.site{
@@ -53,11 +54,11 @@
   .page-head h1 .u{box-shadow:inset 0 -9px var(--series-wash);}
   .page-head .sub{font-size:13.5px; color:var(--ink-2); margin-top:5px;}
   .obs-note{
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12px; color:var(--muted); margin-top:8px;
-    border:1px solid var(--baseline); border-radius:999px; padding:4px 12px;
+    display:inline-block;
+    font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6;
+    border:1px solid var(--baseline); border-radius:14px; padding:4px 12px;
   }
-  .obs-note .live{width:7px; height:7px; border-radius:50%; background:var(--good); flex:none;}
+  .obs-note .live{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--good); margin-right:6px; vertical-align:1px;}
 
   .toolbar{
     display:flex; justify-content:space-between; align-items:center;
@@ -156,6 +157,25 @@
   .method-note b{color:var(--ink-2);}
   footer.site{margin-top:48px; text-align:center; font-size:12px; color:var(--muted); line-height:1.8;}
   footer.site a{color:var(--series); text-decoration:none;}
+
+  /* ---------- 모바일 (≤640px) ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 14px 60px;}
+    header.site{flex-wrap:wrap; row-gap:10px; padding:18px 0 12px;}
+    header.site > a:first-child{width:100%;}
+    .logo{font-size:20px;}
+    .logo-sub{white-space:nowrap;}
+    .nav-link{margin-left:0 !important; padding:6px 12px; font-size:12.5px;}
+    .page-head h1{font-size:19px;}
+    .page-head .sub{font-size:13px;}
+    .obs-note{font-size:11px; padding:4px 10px;}
+    .toolbar{margin-top:14px;}
+    .chip{padding:6px 12px; font-size:12.5px;}
+    .legend{font-size:11.5px; gap:12px;}
+    .pcard{padding:13px 14px 10px;}
+    .more-note{padding:16px 16px;}
+    .more-note .btn{width:100%; text-align:center;}
+  }
 </style>
 </head>
 <body>
