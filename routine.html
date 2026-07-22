@@ -194,7 +194,8 @@
   .rp-score{font-size:40px; font-weight:800; letter-spacing:-0.03em; line-height:1;}
   .rp-score small{font-size:12px; color:var(--muted); font-weight:600; display:block; margin-top:3px;}
   .rp-counts{font-size:12.5px; color:var(--ink-2); line-height:1.7;}
-  .rp-cols{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .rp-cols{display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:12px; position:relative;}
+  .rp-legend{font-size:11px; color:var(--muted); margin-top:8px; text-align:center;}
   @media (max-width:480px){.rp-cols{grid-template-columns:1fr;}}
   .rp-col{border:1px solid var(--border); border-radius:10px; padding:10px 12px;}
   .rp-col h4{font-size:12.5px; margin-bottom:6px;}
@@ -259,6 +260,7 @@
       </div>
     </details>
     <div class="chips" id="chips"></div>
+    <button class="btn" id="clear-all" style="display:none; margin-top:10px;" onclick="if(confirm('등록한 제품을 모두 지울까요?')){shelf=[];saveState();render();rcRender&&rcRender();}">🗑 전체 비우기</button>
     <div class="modes">
       <label><input type="checkbox" id="mPreg" onchange="render()"> 🤰 임신·수유 중</label>
       <label><input type="checkbox" id="mSens" onchange="render()"> 🌡️ 민감성 피부</label>
@@ -430,9 +432,25 @@ function name(p){
 function short(p){ const n = name(p); return n.length>22 ? n.slice(0,21)+'…' : n; }
 
 // ── 쌍 평가 ──────────────────────────────────────────────────────
-// 유사 성분 중복 후보: 같은 '기능성 활성'을 둘 다 핵심으로 담은 경우 (베이스 보습 성분은 중복이 정상이라 제외)
-const DUP_CLASSES = [['NIA','나이아신아마이드'],['VITC','순수 비타민C'],['VITCD','비타민C 유도체'],
-                     ['RET','레티노이드'],['AZE','아젤라익산'],['PDRN','PDRN'],['CUPEP','구리 펩타이드']];
+// 유사 성분 중복 — 오탐 억제 3중 게이트:
+//  (a) 선크림은 성분 중복 대상 제외 (선↔선 중복만 판정)
+//  (b) 희소·의도적 액티브(레티노이드/순수VitC/아젤라익/PDRN/구리펩타이드)는 슬롯 무관,
+//      단 양쪽 모두 전성분 상위(핵심 함량)일 때만
+//  (c) 흔한 액티브(나이아신아마이드/비타민C 유도체)는 같은 슬롯끼리 + 양쪽 모두 상위일 때만
+const DUP_CORE = [['RET','레티노이드'],['VITC','순수 비타민C'],['AZE','아젤라익산'],
+                  ['PDRN','PDRN'],['CUPEP','구리 펩타이드']];
+const DUP_SAME = [['NIA','나이아신아마이드'],['VITCD','비타민C 유도체']];
+function coreRank(p, k){                       // '핵심 함량' 게이트: 상위 5위 또는 상위 15% 이내
+  const r = p.a && p.a[k]; if (!r) return null;
+  return r <= Math.max(5, Math.round((p.n||30) * 0.15)) ? r : null;
+}
+function dupGroup(p){                          // 같은 슬롯 판정용 (대략 그룹)
+  const c = p.c || '';
+  if (c === '에센스/세럼/앰플') return 'serum';
+  if (c === '스킨/토너' || c === '패드' || c === '미스트') return 'toner';
+  if (c === '크림' || c === '올인원' || /로션|에멀전/.test(c)) return 'cream';
+  return null;
+}
 function isSun(p){
   return /선케어|선크림|선세럼|선에센스|선쿠션|선스틱|선팩트|자외선/.test((p.c||'')+(p.t||''))
     || (p.a && p.a.SUNO && p.a.SUNO <= 8);
@@ -452,10 +470,22 @@ function evalPair(p1, p2){
   if (isSun(p1) && isSun(p2))
     return {grade:'dup', title:'자외선차단 제품이 겹쳐요 — 하나면 충분해요',
       why:'두 제품 모두 자외선차단이 핵심이에요. 덧바르는 건 괜찮지만, 루틴에 둘 다 둘 필요는 없어요.'};
-  const shared = DUP_CLASSES.filter(([k])=>has(p1,k)&&has(p2,k)).map(([,ko])=>ko);
+  if (isSun(p1) || isSun(p2)) return null;     // 선크림은 성분 중복 판정 제외
+  let shared = DUP_CORE.map(([k,ko])=>{
+    const r1 = coreRank(p1,k), r2 = coreRank(p2,k);
+    return (r1 && r2) ? `${ko}(#${r1}·#${r2})` : null;
+  }).filter(Boolean);
+  if (!shared.length){
+    const g1 = dupGroup(p1);
+    if (g1 && g1 === dupGroup(p2))
+      shared = DUP_SAME.map(([k,ko])=>{
+        const r1 = coreRank(p1,k), r2 = coreRank(p2,k);
+        return (r1 && r2) ? `${ko}(#${r1}·#${r2})` : null;
+      }).filter(Boolean);
+  }
   if (shared.length)
     return {grade:'dup', title:'유사 성분 — 중복 사용은 필요 없어요',
-      why:`두 제품 모두 ${shared.join('·')}${shared.length>1?'을(를)':'을(를)'} 핵심으로 담고 있어요. 같이 써도 해롭진 않지만 효과가 더해지기보단 중복이라, 하나로 충분해요.`};
+      why:`두 제품 모두 ${shared.join('·')}을(를) 전성분 상위에 담고 있어요. 같이 써도 해롭진 않지만 효과가 더해지기보단 중복이라, 하나로 충분해요.`};
   return null;
 }
 
@@ -575,6 +605,7 @@ function render(){
     `<span class="chip">`+(p.i?`<img src="${IMG+p.i}" alt="">`:'')+
     `<span class="nm" title="${esc(name(p))}">${esc(name(p))}</span>`+
     `<button onclick="removeProd(${i})" aria-label="삭제">×</button></span>`).join('');
+  document.getElementById('clear-all').style.display = shelf.length >= 2 ? '' : 'none';
 
   const out = document.getElementById('out');
   if (shelf.length < 1){ out.innerHTML = '<div class="card"><div class="empty">제품을 등록하면 결과가 여기에 표시돼요.</div></div>'; return; }
@@ -917,7 +948,11 @@ function rpData(){
     ...a.flags.filter(f=>f[0]==='clash'||f[0]==='split').map(f=>({g:f[0], t:f[1], s:''})),
   ];
   const goods = a.pairs.filter(p=>p.grade==='good').length;
-  return {...a, am, pm, both, issues, goods};
+  const rel = a.pairs.filter(p=>p.grade!=='good')
+    .map(p=>({g:p.grade, A:shelf[p.i], B:shelf[p.j]}))
+    .sort((x,y)=>({clash:0,split:1,dup:2}[x.g])-({clash:0,split:1,dup:2}[y.g]))
+    .slice(0, 8);
+  return {...a, am, pm, both, issues, goods, rel};
 }
 function rpRender(){
   const d = rpData();
@@ -932,15 +967,54 @@ function rpRender(){
       <div class="rp-score">${d.score}<small>/100 궁합</small></div>
       <div class="rp-counts">⛔ 상충 ${d.nClash} · 🌙 분리 필요 ${d.nSplit}<br>🔁 중복 ${d.nDup} · ✅ 좋은 조합 ${d.goods} · 제품 ${shelf.length}개</div>
     </div>
-    <div class="rp-cols">
+    <div class="rp-cols" id="rp-cols">
       <div class="rp-col"><h4>☀️ 아침</h4><ol>${d.am.map(li).join('')}${d.both.map(li).join('')}</ol></div>
       <div class="rp-col"><h4>🌙 저녁</h4><ol>${d.pm.map(li).join('')}${d.both.map(li).join('')}</ol></div>
     </div>
+    ${d.rel.length? `<div class="rp-legend">관계선 — <span style="color:var(--critical)">━ ⛔ 상충</span> · <span style="color:#b47b00">━ 🌙 분리 필요</span> · <span style="color:var(--series)">┅ 🔁 중복</span></div>`:''}
     ${d.issues.length? `<div class="rp-issues">${d.issues.slice(0,4).map(x=>
       `<div class="rp-issue ${x.g}">${GRADE_ICON[x.g]||''} <b>${esc(x.t)}</b>${x.s?`<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>`:''}</div>`).join('')}
       ${d.issues.length>4?`<div class="rp-issue" style="background:var(--page)">외 ${d.issues.length-4}건 — 화장대 검사에서 전체 근거를 확인하세요</div>`:''}</div>` : ''}
     <div class="rp-foot">식약처 고시 전성분(함량순) 기준 참고 정보 · 개인차 있음 · themaric.kr</div>`;
+  window._rpLR = {left: d.am.concat(d.both), right: d.pm.concat(d.both), rel: d.rel};
+  requestAnimationFrame(rpDrawLines);
 }
+// 아침↔저녁 관계선 (사랑의 작대기) — 상충/분리/중복만, 좋은 조합은 생략
+function rpDrawLines(){
+  const box = document.getElementById('rp-cols'); if (!box) return;
+  const old = box.querySelector('svg.rp-lines'); if (old) old.remove();
+  const st = window._rpLR; if (!st || !st.rel.length) return;
+  const cols = box.querySelectorAll('.rp-col');
+  if (cols.length < 2) return;
+  const lis = [cols[0].querySelectorAll('ol li'), cols[1].querySelectorAll('ol li')];
+  const bb = box.getBoundingClientRect();
+  const anchor = (c, row) => {
+    const r = lis[c][row].getBoundingClientRect();
+    return c===0 ? {x:r.right-bb.left+2, y:r.top-bb.top+r.height/2}
+                 : {x:r.left-bb.left-2,  y:r.top-bb.top+r.height/2};
+  };
+  const COLR = {clash:'#d03b3b', split:'#e0a400', dup:'#0e6e5c'};
+  let svg = `<svg class="rp-lines" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">`;
+  st.rel.forEach(pr=>{
+    const Al = st.left.indexOf(pr.A), Ar = st.right.indexOf(pr.A);
+    const Bl = st.left.indexOf(pr.B), Br = st.right.indexOf(pr.B);
+    let a=null, b=null;
+    if (Al>=0 && Br>=0){ a=anchor(0,Al); b=anchor(1,Br); }
+    else if (Bl>=0 && Ar>=0){ a=anchor(0,Bl); b=anchor(1,Ar); }
+    else if (Al>=0 && Bl>=0){ a=anchor(0,Al); b=anchor(0,Bl); }
+    else if (Ar>=0 && Br>=0){ a=anchor(1,Ar); b=anchor(1,Br); }
+    if (!a || !b || (a.x===b.x && a.y===b.y)) return;
+    const bow = a.x===b.x ? (a.x < bb.width/2 ? a.x+28 : a.x-28) : (a.x+b.x)/2;
+    const dash = pr.g==='dup' ? ' stroke-dasharray="6 5"' : '';
+    svg += `<path d="M${a.x} ${a.y} Q ${bow} ${(a.y+b.y)/2} ${b.x} ${b.y}" fill="none" stroke="${COLR[pr.g]}" stroke-width="2.2" opacity="0.85"${dash}/>`
+        + `<circle cx="${a.x}" cy="${a.y}" r="3" fill="${COLR[pr.g]}"/><circle cx="${b.x}" cy="${b.y}" r="3" fill="${COLR[pr.g]}"/>`;
+  });
+  svg += '</svg>';
+  box.insertAdjacentHTML('beforeend', svg);
+}
+window.addEventListener('resize', ()=>{
+  if (document.getElementById('view-result').style.display !== 'none') rpDrawLines();
+});
 function rpSavePng(){
   const d = rpData();
   const combo = rpCombo();
@@ -948,7 +1022,7 @@ function rpSavePng(){
   const amList = d.am.concat(d.both).map(short), pmList = d.pm.concat(d.both).map(short);
   const rows = Math.max(amList.length, pmList.length);
   const issues = d.issues.slice(0,4);
-  const H = 430 + (combo?20:0) + rows*46 + (issues.length ? 34 + issues.length*96 : 10) + 130;
+  const H = 430 + (combo?20:0) + rows*46 + (d.rel.length?54:0) + (issues.length ? 34 + issues.length*96 : 10) + 130;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const x = cv.getContext('2d');
   const FONT = "'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',sans-serif";
@@ -975,7 +1049,9 @@ function rpSavePng(){
   x.fillText(`⛔ 상충 ${d.nClash} · 🌙 분리 ${d.nSplit} · 🔁 중복 ${d.nDup}`, P+300, y+40);
   x.fillText(`✅ 좋은 조합 ${d.goods} · 제품 ${shelf.length}개`, P+300, y+82);
   y += 150;
-  const colW = (W-P*2-24)/2;
+  const GAP = 90;
+  const colW = (W-P*2-GAP)/2;
+  const yCols = y;
   const drawCol = (cx, title, list) => {
     x.fillStyle = INK; x.font = '800 28px '+FONT; x.fillText(title, cx, y+8);
     x.font = '400 25px '+FONT;
@@ -987,8 +1063,41 @@ function rpSavePng(){
     });
   };
   drawCol(P, '☀️ 아침', amList);
-  drawCol(P+colW+24, '🌙 저녁', pmList);
-  y += 56 + rows*46 + 34;
+  drawCol(P+colW+GAP, '🌙 저녁', pmList);
+  // 관계선 (상충/분리/중복)
+  const leftArr = d.am.concat(d.both), rightArr = d.pm.concat(d.both);
+  const rowY = i => yCols + 56 + i*46 - 9;
+  const LX = P+colW+8, RX = P+colW+GAP-8, MX = P+colW+GAP/2;
+  const LCOL = {clash:'#d03b3b', split:'#e0a400', dup:'#0e6e5c'};
+  d.rel.forEach(pr=>{
+    const Al = leftArr.indexOf(pr.A), Ar = rightArr.indexOf(pr.A);
+    const Bl = leftArr.indexOf(pr.B), Br = rightArr.indexOf(pr.B);
+    let a=null, b=null;
+    if (Al>=0 && Br>=0){ a=[LX,rowY(Al)]; b=[RX,rowY(Br)]; }
+    else if (Bl>=0 && Ar>=0){ a=[LX,rowY(Bl)]; b=[RX,rowY(Ar)]; }
+    else if (Al>=0 && Bl>=0){ a=[LX,rowY(Al)]; b=[LX,rowY(Bl)]; }
+    else if (Ar>=0 && Br>=0){ a=[RX,rowY(Ar)]; b=[RX,rowY(Br)]; }
+    if (!a || !b || (a[0]===b[0] && a[1]===b[1])) return;
+    x.strokeStyle = LCOL[pr.g]; x.lineWidth = 3.2; x.globalAlpha = 0.85;
+    x.setLineDash(pr.g==='dup' ? [10,8] : []);
+    const bow = a[0]===b[0] ? (a[0]===LX ? LX+34 : RX-34) : MX;
+    x.beginPath(); x.moveTo(a[0], a[1]);
+    x.quadraticCurveTo(bow, (a[1]+b[1])/2, b[0], b[1]); x.stroke();
+    x.setLineDash([]); x.globalAlpha = 1;
+    x.fillStyle = LCOL[pr.g];
+    x.beginPath(); x.arc(a[0],a[1],4.5,0,7); x.fill();
+    x.beginPath(); x.arc(b[0],b[1],4.5,0,7); x.fill();
+  });
+  y += 56 + rows*46 + 20;
+  if (d.rel.length){
+    x.font = '400 22px '+FONT; x.textAlign = 'center';
+    let lx = W/2 - 210;
+    x.textAlign = 'left';
+    const leg = [['#d03b3b','━ ⛔ 상충'], ['#e0a400','━ 🌙 분리'], ['#0e6e5c','┅ 🔁 중복']];
+    leg.forEach(([c,t])=>{ x.fillStyle = c; x.fillText(t, lx, y); lx += x.measureText(t).width + 36; });
+    y += 34;
+  }
+  y += 14;
   const ICOL = {clash:'rgba(208,59,59,.09)', split:'rgba(250,178,25,.13)', dup:'rgba(14,110,92,.08)'};
   issues.forEach(it=>{
     x.fillStyle = ICOL[it.g] || '#f1f1ee';
