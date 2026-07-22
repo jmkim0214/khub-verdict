@@ -199,8 +199,11 @@
   @media (max-width:480px){.rp-cols{grid-template-columns:1fr;}}
   .rp-col{border:1px solid var(--border); border-radius:10px; padding:10px 12px;}
   .rp-col h4{font-size:12.5px; margin-bottom:6px;}
-  .rp-col ol{margin:0; padding-left:18px;}
-  .rp-col li{font-size:12px; color:var(--ink-2); padding:2px 0; line-height:1.45;}
+  .rp-col ul.rp-list{margin:0; padding:0; list-style:none;}
+  .rp-col li{font-size:12px; color:var(--ink-2); padding:3px 0; line-height:1.45; display:flex; gap:7px; align-items:flex-start;}
+  .rp-slot{flex:none; font-size:10px; font-weight:800; color:var(--series);
+    border:1px solid var(--series); border-radius:6px; padding:0 6px; line-height:1.6; margin-top:1px;
+    background:var(--series-wash); white-space:nowrap;}
   .rp-issues{margin-top:12px; display:flex; flex-direction:column; gap:6px;}
   .rp-issue{font-size:12px; color:var(--ink-2); line-height:1.5; padding:7px 11px; border-radius:8px;}
   .rp-issue.clash{background:var(--critical-bg);}
@@ -954,12 +957,27 @@ function rpData(){
     .slice(0, 8);
   return {...a, am, pm, both, issues, goods, rel};
 }
+function rpSlotKo(p){
+  const c = p.c||'', t = p.t||'';
+  if (c.indexOf('클렌징')===0 || (p.w && /클렌저|클렌징|폼|워시/.test(t))) return '클렌저';
+  if (isSun(p)) return '선크림';
+  if (c==='스킨/토너' || /토너/.test(t)) return '토너';
+  if (c==='패드') return '패드';
+  if (c==='미스트') return '미스트';
+  if (c==='에센스/세럼/앰플' || /세럼|앰플|에센스/.test(t)) return '세럼';
+  if (c==='크림' || /크림/.test(t)) return '크림';
+  if (/로션|에멀전/.test(c+t)) return '로션';
+  if (c==='올인원') return '올인원';
+  if (/마스크|팩/.test(c+t)) return '마스크';
+  if (p.w) return '워시오프';
+  return c ? c.split('/')[0].slice(0,4) : '제품';
+}
 function rpRender(){
   const d = rpData();
   const today = new Date();
   const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
   const combo = rpCombo();
-  const li = p => `<li>${esc(short(p))}</li>`;
+  const li = p => `<li><span class="rp-slot">${esc(rpSlotKo(p))}</span><span>${esc(short(p))}</span></li>`;
   document.getElementById('rp-card').innerHTML = `
     <div class="rp-top"><span class="rp-logo">더마릭</span><span class="rp-title">루틴 리포트</span><span class="rp-date">${date}</span></div>
     ${combo? `<div class="rp-combo">${esc(combo)} 조합 기준</div>` : ''}
@@ -968,8 +986,8 @@ function rpRender(){
       <div class="rp-counts">⛔ 상충 ${d.nClash} · 🌙 분리 필요 ${d.nSplit}<br>🔁 중복 ${d.nDup} · ✅ 좋은 조합 ${d.goods} · 제품 ${shelf.length}개</div>
     </div>
     <div class="rp-cols" id="rp-cols">
-      <div class="rp-col"><h4>☀️ 아침</h4><ol>${d.am.map(li).join('')}${d.both.map(li).join('')}</ol></div>
-      <div class="rp-col"><h4>🌙 저녁</h4><ol>${d.pm.map(li).join('')}${d.both.map(li).join('')}</ol></div>
+      <div class="rp-col"><h4>☀️ 아침</h4><ul class="rp-list">${d.am.map(li).join('')}${d.both.map(li).join('')}</ul></div>
+      <div class="rp-col"><h4>🌙 저녁</h4><ul class="rp-list">${d.pm.map(li).join('')}${d.both.map(li).join('')}</ul></div>
     </div>
     ${d.rel.length? `<div class="rp-legend">관계선 — <span style="color:var(--critical)">━ ⛔ 상충</span> · <span style="color:#b47b00">━ 🌙 분리 필요</span> · <span style="color:var(--series)">┅ 🔁 중복</span></div>`:''}
     ${d.issues.length? `<div class="rp-issues">${d.issues.slice(0,4).map(x=>
@@ -986,7 +1004,7 @@ function rpDrawLines(){
   const st = window._rpLR; if (!st || !st.rel.length) return;
   const cols = box.querySelectorAll('.rp-col');
   if (cols.length < 2) return;
-  const lis = [cols[0].querySelectorAll('ol li'), cols[1].querySelectorAll('ol li')];
+  const lis = [cols[0].querySelectorAll('.rp-list li'), cols[1].querySelectorAll('.rp-list li')];
   const bb = box.getBoundingClientRect();
   const anchor = (c, row) => {
     const r = lis[c][row].getBoundingClientRect();
@@ -1019,8 +1037,8 @@ function rpSavePng(){
   const d = rpData();
   const combo = rpCombo();
   const W = 1080, P = 72;
-  const amList = d.am.concat(d.both).map(short), pmList = d.pm.concat(d.both).map(short);
-  const rows = Math.max(amList.length, pmList.length);
+  const amArr = d.am.concat(d.both), pmArr = d.pm.concat(d.both);
+  const rows = Math.max(amArr.length, pmArr.length);
   const issues = d.issues.slice(0,4);
   const H = 430 + (combo?20:0) + rows*46 + (d.rel.length?54:0) + (issues.length ? 34 + issues.length*96 : 10) + 130;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
@@ -1054,16 +1072,22 @@ function rpSavePng(){
   const yCols = y;
   const drawCol = (cx, title, list) => {
     x.fillStyle = INK; x.font = '800 28px '+FONT; x.fillText(title, cx, y+8);
-    x.font = '400 25px '+FONT;
-    list.forEach((nm, i)=>{
-      x.fillStyle = SUB;
-      let s = (i+1)+'. '+nm;
-      while (x.measureText(s).width > colW-10 && s.length > 6) s = s.slice(0,-2)+'…';
-      x.fillText(s, cx, y+56+i*46);
+    list.forEach((p, i)=>{
+      const by = y+56+i*46;
+      const label = rpSlotKo(p);
+      x.font = '700 18px '+FONT;
+      const bw = x.measureText(label).width + 18;
+      x.fillStyle = 'rgba(14,110,92,.08)'; x.strokeStyle = GREEN; x.lineWidth = 2;
+      x.beginPath(); x.roundRect(cx, by-21, bw, 28, 8); x.fill(); x.stroke();
+      x.fillStyle = GREEN; x.fillText(label, cx+9, by-1);
+      x.font = '400 24px '+FONT; x.fillStyle = SUB;
+      let s = short(p);
+      while (x.measureText(s).width > colW-bw-16 && s.length > 5) s = s.slice(0,-2)+'…';
+      x.fillText(s, cx+bw+10, by);
     });
   };
-  drawCol(P, '☀️ 아침', amList);
-  drawCol(P+colW+GAP, '🌙 저녁', pmList);
+  drawCol(P, '☀️ 아침', amArr);
+  drawCol(P+colW+GAP, '🌙 저녁', pmArr);
   // 관계선 (상충/분리/중복)
   const leftArr = d.am.concat(d.both), rightArr = d.pm.concat(d.both);
   const rowY = i => yCols + 56 + i*46 - 9;
