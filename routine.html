@@ -1152,12 +1152,23 @@ function rpSavePng(){
   img.onload = ()=>{
     const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
     cv.getContext('2d').drawImage(img, 0, 0, PW, PH);
-    cv.toBlob(b=>{
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(b);
+    cv.toBlob(async b=>{
       const today = new Date();
       const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-      a.download = `themaric_routine_${ymd}.png`;
+      const fname = `themaric_routine_${ymd}.png`;
+      // 모바일(iOS 등): 공유 시트 → '이미지 저장'으로 사진 앱에 바로 저장
+      try{
+        const file = new File([b], fname, {type:'image/png'});
+        if (navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file], title:'더마릭 루틴 리포트'});
+          rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
+          return;
+        }
+      }catch(e){ if (e && e.name === 'AbortError') return; /* 취소 — 조용히 종료 */ }
+      // 데스크톱/미지원 브라우저: 파일 다운로드
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = fname;
       a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
       rcToast('리포트 이미지를 저장했어요');
     });
