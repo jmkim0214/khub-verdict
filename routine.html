@@ -982,84 +982,121 @@ function rpSlotKo(p){
   return c ? c.split('/')[0].slice(0,4) : '제품';
 }
 
-// ── 루틴 맵 SVG (화면·저장 이미지 공용 — 원형 관계도) ──
+// ── 루틴 맵 SVG (화면·저장 공용 — 아침/저녁 존 + 노드 + 관계선) ──
 function rpSVG(d){
-  const W = 1080, H = 1280;
+  const W = 1080;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
   const GREEN='#0e6e5c', INK='#141413', SUB='#52514e', MUTED='#8b8983', WASH='#e3eeeb';
-  const prods = shelf.slice(0, 10);
-  const extra = shelf.length - prods.length;
-  const n = prods.length;
-  const cx = 540, cy = 640;
-  const rx = n > 7 ? 380 : n > 4 ? 340 : 300;
-  const ry = n > 7 ? 306 : 276;
-  const NW = 208, NH = 92;
-  const pos = prods.map((p,i)=>{
-    const a = -Math.PI/2 + i*2*Math.PI/Math.max(n,1);
-    return {x: cx+rx*Math.cos(a), y: cy+ry*Math.sin(a)};
-  });
-  const timeOf = p => { const sl = slotOf(p)[0]; return sl==='am' ? '☀️' : sl==='pm' ? '🌙' : '☀️🌙'; };
-  const today = new Date();
-  const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+  const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
+  const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
+  const amProds = shelf.filter(p=>slotOf(p)[0] !== 'pm').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
+  const pmProds = shelf.filter(p=>slotOf(p)[0] !== 'am').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
+  const NW = 220, NH = 112, GX = 16, GY = 18, COLS = 4;
+  const zoneH = list => 74 + Math.ceil(Math.max(list.length,1)/COLS)*(NH+GY) + 8;
   const combo = rpCombo();
+  const headH = combo ? 178 : 150;
+  const scoreH = 96;
+  const amY = headH + scoreH + 14;
+  const amH = zoneH(amProds);
+  const ZGAP = 118;                       // 존 사이 — 교차 관계선이 지나는 공간
+  const pmY = amY + amH + ZGAP;
+  const pmH = zoneH(pmProds);
+  const tailY = pmY + pmH + 26;
+  const H = tailY + 150;
+
+  const nodePos = (zy, i) => ({
+    x: 72 + (i%COLS)*(NW+GX),
+    y: zy + 64 + Math.floor(i/COLS)*(NH+GY),
+  });
+  const amPos = new Map(), pmPos = new Map();
+  amProds.forEach((p,i)=>amPos.set(p, nodePos(amY, i)));
+  pmProds.forEach((p,i)=>pmPos.set(p, nodePos(pmY, i)));
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
   s += `<rect width="${W}" height="${H}" fill="#f9f9f7"/>`;
-  s += `<rect x="24" y="24" width="${W-48}" height="${H-48}" rx="30" fill="#fcfcfb" stroke="${GREEN}" stroke-width="3"/>`;
-  s += `<text x="64" y="112" font-family="${F}" font-size="46" font-weight="800" fill="${GREEN}">더마릭</text>`;
-  s += `<text x="230" y="112" font-family="${F}" font-size="29" font-weight="700" fill="${SUB}">루틴 리포트</text>`;
-  s += `<text x="${W-64}" y="110" text-anchor="end" font-family="${F}" font-size="24" fill="${MUTED}">${date}</text>`;
-  if (combo) s += `<text x="64" y="158" font-family="${F}" font-size="26" font-weight="700" fill="${GREEN}">${e2(combo)} 조합</text>`;
+  s += `<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="30" fill="#fcfcfb" stroke="${GREEN}" stroke-width="3"/>`;
+  // 헤더
+  s += `<text x="60" y="106" font-family="${F}" font-size="45" font-weight="800" fill="${GREEN}">더마릭</text>`;
+  s += `<text x="222" y="106" font-family="${F}" font-size="28" font-weight="700" fill="${SUB}">루틴 리포트</text>`;
+  const today = new Date();
+  const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+  s += `<text x="${W-60}" y="104" text-anchor="end" font-family="${F}" font-size="23" fill="${MUTED}">${date}</text>`;
+  if (combo) s += `<text x="60" y="152" font-family="${F}" font-size="26" font-weight="700" fill="${GREEN}">${e2(combo)} 조합</text>`;
+  // 점수 스트립
+  const sy = headH + 12;
+  s += `<rect x="48" y="${sy}" width="${W-96}" height="${scoreH-12}" rx="16" fill="${WASH}" opacity="0.55"/>`;
+  s += `<text x="76" y="${sy+60}" font-family="${F}" font-size="60" font-weight="800" fill="${INK}">${d.score}</text>`;
+  s += `<text x="${76 + String(d.score).length*36 + 10}" y="${sy+58}" font-family="${F}" font-size="22" fill="${MUTED}">/100 루틴 궁합</text>`;
+  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · 🌙 ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
 
-  // 관계선 (노드·중앙판 아래에 먼저)
+  // 존 컨테이너
+  const zone = (zy, zh, label) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="#b9b8b0" stroke-width="2.5"/>`
+    + `<text x="74" y="${zy+44}" font-family="${F}" font-size="29" font-weight="800" fill="${INK}">${label}</text>`;
+  s += zone(amY, amH, '☀️ 아침');
+  s += zone(pmY, pmH, '🌙 저녁');
+
+  // 관계선 (노드보다 먼저 → 노드 아래로 깔림. 단 존 테두리 위)
   const COLR = {clash:'#d03b3b', split:'#e0a400', dup:'#0e6e5c'};
+  let lines = '', dots = '';
   d.rel.forEach(pr=>{
-    const i = prods.indexOf(pr.A), j = prods.indexOf(pr.B);
-    if (i < 0 || j < 0) return;
-    const dash = pr.g==='dup' ? ' stroke-dasharray="13 11"' : '';
-    s += `<line x1="${pos[i].x}" y1="${pos[i].y}" x2="${pos[j].x}" y2="${pos[j].y}" stroke="${COLR[pr.g]}" stroke-width="5.5" opacity="0.9" stroke-linecap="round"${dash}/>`;
+    const aAm = amPos.get(pr.A), aPm = pmPos.get(pr.A);
+    const bAm = amPos.get(pr.B), bPm = pmPos.get(pr.B);
+    let seg = null;                        // {x1,y1,x2,y2, kind}
+    if (aPm && bPm) seg = {a:aPm, b:bPm, zone:'pm'};
+    else if (aAm && bAm) seg = {a:aAm, b:bAm, zone:'am'};
+    else if (aAm && bPm) seg = {a:aAm, b:bPm, zone:'x'};
+    else if (bAm && aPm) seg = {a:bAm, b:aPm, zone:'x'};
+    if (!seg) return;
+    const c = COLR[pr.g], dash = pr.g==='dup' ? ' stroke-dasharray="12 10"' : '';
+    if (seg.zone === 'x'){
+      // 교차: 아침 노드 아래 중앙 → 저녁 노드 위 중앙
+      const x1 = seg.a.x+NW/2, y1 = seg.a.y+NH, x2 = seg.b.x+NW/2, y2 = seg.b.y;
+      lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="5" opacity="0.9" stroke-linecap="round"${dash}/>`;
+      dots += `<circle cx="${x1}" cy="${y1}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="8" fill="${c}"/>`;
+    } else if (seg.a.y === seg.b.y){
+      // 같은 줄: 아래로 볼록한 호
+      const x1 = seg.a.x+NW/2, x2 = seg.b.x+NW/2, yy = seg.a.y+NH;
+      const bow = yy + 38 + Math.abs(x2-x1)*0.045;
+      lines += `<path d="M${x1} ${yy} Q ${(x1+x2)/2} ${bow} ${x2} ${yy}" fill="none" stroke="${c}" stroke-width="5" opacity="0.9" stroke-linecap="round"${dash}/>`;
+      dots += `<circle cx="${x1}" cy="${yy}" r="8" fill="${c}"/><circle cx="${x2}" cy="${yy}" r="8" fill="${c}"/>`;
+    } else {
+      // 같은 존 다른 줄: 직선
+      const top = seg.a.y < seg.b.y ? seg.a : seg.b, bot = top===seg.a ? seg.b : seg.a;
+      const x1 = top.x+NW/2, y1 = top.y+NH, x2 = bot.x+NW/2, y2 = bot.y;
+      lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="5" opacity="0.9" stroke-linecap="round"${dash}/>`;
+      dots += `<circle cx="${x1}" cy="${y1}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="8" fill="${c}"/>`;
+    }
   });
+  s += lines;
 
-  // 중앙 점수판
-  s += `<circle cx="${cx}" cy="${cy}" r="142" fill="#fcfcfb" stroke="${WASH}" stroke-width="10"/>`;
-  s += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-family="${F}" font-size="98" font-weight="800" fill="${INK}">${d.score}</text>`;
-  s += `<text x="${cx}" y="${cy+38}" text-anchor="middle" font-family="${F}" font-size="24" fill="${MUTED}">/100 루틴 궁합</text>`;
-  s += `<text x="${cx}" y="${cy+80}" text-anchor="middle" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash}  🌙 ${d.nSplit}  🔁 ${d.nDup}  ✅ ${d.goods}</text>`;
-
-  // 노드 (슬롯 배지 + 시간대 + 이름)
-  prods.forEach((p,i)=>{
-    const nx = pos[i].x - NW/2, ny = pos[i].y - NH/2;
-    s += `<rect x="${nx}" y="${ny}" width="${NW}" height="${NH}" rx="18" fill="#ffffff" stroke="#c9c8c0" stroke-width="2.5"/>`;
+  // 노드
+  const node = (p, pos) => {
     const label = rpSlotKo(p);
-    const bw = label.length*20 + 24;
-    s += `<rect x="${nx+13}" y="${ny+13}" width="${bw}" height="31" rx="9" fill="${WASH}"/>`;
-    s += `<text x="${nx+13+bw/2}" y="${ny+36}" text-anchor="middle" font-family="${F}" font-size="20" font-weight="800" fill="${GREEN}">${e2(label)}</text>`;
-    s += `<text x="${nx+NW-13}" y="${ny+38}" text-anchor="end" font-family="${F}" font-size="23">${timeOf(p)}</text>`;
-    let nm = short(p); if (nm.length > 13) nm = nm.slice(0,12)+'…';
-    s += `<text x="${nx+13}" y="${ny+74}" font-family="${F}" font-size="23" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
-  });
+    const bw = label.length*19 + 22;
+    const brand = e2((p.b||'').slice(0,10));
+    let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
+    if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
+    if (nm.length > 11) nm = nm.slice(0,10)+'…';
+    return `<rect x="${pos.x}" y="${pos.y}" width="${NW}" height="${NH}" rx="16" fill="#ffffff" stroke="#c9c8c0" stroke-width="2.5"/>`
+      + `<rect x="${pos.x+14}" y="${pos.y+13}" width="${bw}" height="31" rx="9" fill="${WASH}"/>`
+      + `<text x="${pos.x+14+bw/2}" y="${pos.y+36}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="${GREEN}">${e2(label)}</text>`
+      + `<text x="${pos.x+14}" y="${pos.y+68}" font-family="${F}" font-size="18" fill="${MUTED}">${brand}</text>`
+      + `<text x="${pos.x+14}" y="${pos.y+96}" font-family="${F}" font-size="21" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
+  };
+  amProds.forEach(p=>{ s += node(p, amPos.get(p)); });
+  pmProds.forEach(p=>{ s += node(p, pmPos.get(p)); });
+  s += dots;                                // 끝점 도트는 노드 위에
 
-  // 범례 + 아침/저녁 순서 + 푸터
-  let ly = cy + ry + NH/2 + 46;
-  s += `<text x="${cx}" y="${ly}" text-anchor="middle" font-family="${F}" font-size="24">`
+  // 범례 + 푸터
+  const extra = Math.max(shelf.length - new Set([...amProds, ...pmProds]).size, 0);
+  s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="23">`
     + `<tspan fill="#d03b3b" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#b47b00" font-weight="700">━ 🌙 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="${GREEN}" font-weight="700">┅ 🔁 중복</tspan>`
-    + (extra > 0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
-  const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','크림','올인원','선크림'];
-  const orderOf = list => {
-    const set = new Set(list.map(rpSlotKo));
-    return SLOT_SEQ.filter(k=>set.has(k)).join(' → ');
-  };
-  const amL = shelf.filter(p=>slotOf(p)[0] !== 'pm');
-  const pmL = shelf.filter(p=>slotOf(p)[0] !== 'am');
-  ly += 50;
-  s += `<text x="${cx}" y="${ly}" text-anchor="middle" font-family="${F}" font-size="25" fill="${SUB}">☀️ 아침  ${e2(orderOf(amL)||'—')}</text>`;
-  ly += 40;
-  s += `<text x="${cx}" y="${ly}" text-anchor="middle" font-family="${F}" font-size="25" fill="${SUB}">🌙 저녁  ${e2(orderOf(pmL.filter(p=>!isSun(p)))||'—')}</text>`;
-  s += `<text x="${cx}" y="${H-86}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 참고 정보 · 개인차 있음</text>`;
-  s += `<text x="${cx}" y="${H-50}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${GREEN}">themaric.kr</text>`;
+    + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
+  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 참고 정보 · 개인차 있음</text>`;
+  s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${GREEN}">themaric.kr</text>`;
   return s + '</svg>';
 }
 
@@ -1073,11 +1110,14 @@ function rpRender(){
 
 function rpSavePng(){
   const d = rpData();
-  const svg = rpSVG(d).replace('class="rp-svg"', 'width="1080" height="1280"');
+  let svg = rpSVG(d);
+  const vb = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
+  const PW = +vb[1], PH = +vb[2];
+  svg = svg.replace('class="rp-svg"', `width="${PW}" height="${PH}"`);
   const img = new Image();
   img.onload = ()=>{
-    const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1280;
-    cv.getContext('2d').drawImage(img, 0, 0, 1080, 1280);
+    const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
+    cv.getContext('2d').drawImage(img, 0, 0, PW, PH);
     cv.toBlob(b=>{
       const a = document.createElement('a');
       a.href = URL.createObjectURL(b);
