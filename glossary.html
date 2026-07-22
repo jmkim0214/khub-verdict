@@ -4,9 +4,15 @@
  :root{color-scheme:light;--page:#f6f6f3;--surface:#fcfcfb;--ink:#141413;--ink-2:#52514e;--muted:#8b8983;--baseline:#d5d4cc;--line:#ebeae4;--series:#0e6e5c;--wash:rgba(14,110,92,.08);--cau-bg:#fff8f0;--cau-bd:#ffe3c2;--cau-ink:#8a5a00}
  @media (prefers-color-scheme:dark){:root:where(:not([data-theme=light])){color-scheme:dark;--page:#0d0d0d;--surface:#1a1a19;--ink:#f2f2ef;--ink-2:#c3c2b7;--muted:#8f8d86;--baseline:#3a3a37;--line:#2a2a28;--series:#3fae97;--wash:rgba(63,174,151,.14);--cau-bg:#2a2114;--cau-bd:#4a3a1e;--cau-ink:#e6b877}}
  body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif;background:var(--page);margin:0;color:var(--ink);-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
- .site-nav{display:flex;gap:6px;margin:0 0 11px;flex-wrap:wrap}
- .site-nav a{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid var(--baseline);color:var(--series);text-decoration:none;white-space:nowrap}
- .site-nav a:hover{background:var(--wash)}
+ .hdrw{max-width:640px;margin:0 auto;padding:0 18px}
+ header.site{display:flex;align-items:center;gap:10px;padding:18px 0 12px;flex-wrap:wrap;row-gap:10px}
+ .logo{font-size:20px;font-weight:800;letter-spacing:-.03em;color:var(--series)}
+ .logo-eng{font-size:10.5px;font-weight:700;letter-spacing:.22em;color:var(--muted);margin-left:8px;vertical-align:2px}
+ .logo-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+ .nav-link{font-size:13.5px;font-weight:700;color:var(--series);text-decoration:none;border:1px solid var(--baseline);border-radius:999px;padding:7px 15px;white-space:nowrap}
+ .nav-link:hover{background:var(--wash)}
+ .nav-link.here{background:var(--series);color:#fff;border-color:var(--series)}
+ @media (max-width:640px){header.site>a:first-child{width:100%}.nav-link{margin-left:0!important;padding:6px 12px;font-size:12.5px}}
  .top{position:sticky;top:0;background:var(--surface);padding:16px 18px 12px;border-bottom:1px solid var(--line);z-index:5}
  h1{font-size:16px;margin:0 0 3px} h1 a{text-decoration:none} .sub{font-size:12px;color:var(--muted);margin:0 0 11px}
  #q{width:100%;box-sizing:border-box;font-size:15px;padding:11px 13px;border:1.5px solid var(--baseline);border-radius:11px;outline:none;background:var(--page);color:var(--ink)}
@@ -35,9 +41,14 @@
  .empty{text-align:center;color:var(--muted);font-size:13px;padding:40px}
  .disc{font-size:11px;color:var(--muted);padding:4px 18px 0;line-height:1.5}
 </style>
+<div class=hdrw><header class=site>
+ <a href='./' style='text-decoration:none;color:inherit'><div class=logo>더마릭<span class=logo-eng>THEMARIC</span></div><div class=logo-sub>화장품 가격·성분 검증</div></a>
+ <a class=nav-link style='margin-left:auto' href='price.html'>가격 데이터</a>
+ <a class=nav-link style='margin-left:8px' href='routine.html'>루틴 궁합</a>
+ <a class='nav-link here' style='margin-left:8px' href='glossary.html'>성분 사전</a>
+</header></div>
 <div class=top><div class="wrap" style="padding:0">
- <h1><a href='https://themaric.kr' style='text-decoration:none;color:var(--series)'>더마릭<span style='font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:700;margin-left:6px'>THEMARIC</span></a> <span style='color:var(--ink);font-weight:700'>· 성분 사전</span></h1><p class=sub>전성분에서 낯선 성분, 쉬운 말로 · 주의사항까지 · 식약처 고시 기준</p>
- <div class=site-nav><a href='./'>판정 검색</a><a href='price.html'>가격 데이터</a><a href='routine.html'>루틴 궁합</a></div>
+ <p class=sub>전성분에서 낯선 성분, 쉬운 말로 · 주의사항까지 · 식약처 고시 기준</p>
  <input id=q placeholder="성분명 검색 (예: 소듐디엔에이, 폴리뉴클레오타이드, 레티놀)" autocomplete=off>
  <div class=chips id=chips>
   <button class="fchip on" data-f="all">전체</button>

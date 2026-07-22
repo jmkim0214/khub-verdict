@@ -38,8 +38,10 @@
   header.site{display:flex; align-items:center; gap:10px; padding:24px 0 14px; border-bottom:1px solid var(--grid); margin-bottom:6px;}
   .logo{font-size:22px; font-weight:800; letter-spacing:-0.03em; color:var(--series); text-decoration:none;}
   .logo-eng{font-size:10.5px; font-weight:700; letter-spacing:0.22em; color:var(--muted); margin-left:8px; vertical-align:2px;}
+  .logo-sub{font-size:12.5px; color:var(--muted); margin-top:2px;}
   .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:700; color:var(--series); text-decoration:none; border:1px solid var(--baseline); border-radius:999px; padding:7px 15px; white-space:nowrap;}
   .nav-link:hover{background:var(--series-wash);}
+  .nav-link.here{background:var(--series); color:#fff; border-color:var(--series);}
   .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; margin-top:16px;}
   h1{font-size:23px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
   h1 .u{box-shadow:inset 0 -10px var(--series-wash);}
@@ -118,8 +120,9 @@
 <body>
 <div class="wrap">
   <header class="site">
-    <div><a class="logo" href="index.html">더마릭<span class="logo-eng">THEMARIC</span></a></div>
+    <div><a class="logo" href="index.html">더마릭<span class="logo-eng">THEMARIC</span></a><div class="logo-sub">화장품 가격·성분 검증</div></div>
     <a class="nav-link" href="price.html">가격 데이터</a>
+    <a class="nav-link here" style="margin-left:8px" href="routine.html">루틴 궁합</a>
     <a class="nav-link" style="margin-left:8px" href="glossary.html">성분 사전</a>
   </header>
 
