@@ -1020,22 +1020,22 @@ function rpSVG(d){
   const zoneH = list => 74 + Math.ceil(Math.max(list.length,1)/COLS)*(NH+GY) + 8;
   const combo = rpCombo();
   const headH = combo ? 178 : 150;
-  const scoreH = 96;
+  // 한 줄 요약 (점수 박스 안, 최대 2줄)
+  const summary = rpSummary(d);
+  let sLines = [summary];
+  if (summary.length > 36){
+    let cut = summary.lastIndexOf(' ', 36); if (cut < 18) cut = 36;
+    sLines = [summary.slice(0,cut), summary.slice(cut).trim()];
+    if (sLines[1].length > 40) sLines[1] = sLines[1].slice(0,39)+'…';
+  }
+  const scoreH = 104 + sLines.length*36;
   const amY = headH + scoreH + 14;
   const amH = zoneH(amProds);
-  const ZGAP = 118;
+  const ZGAP = 64;                        // 아침·저녁 존 간격 (교차선 공간)
   const pmY = amY + amH + ZGAP;
   const pmH = zoneH(pmProds);
   const tailY = pmY + pmH + 26;
-  // 한 줄 요약 (최대 2줄 줄바꿈)
-  const summary = rpSummary(d);
-  let sLines = [summary];
-  if (summary.length > 38){
-    let cut = summary.lastIndexOf(' ', 38); if (cut < 20) cut = 38;
-    sLines = [summary.slice(0,cut), summary.slice(cut).trim()];
-    if (sLines[1].length > 42) sLines[1] = sLines[1].slice(0,41)+'…';
-  }
-  const H = tailY + 62 + sLines.length*38 + 118;
+  const H = tailY + 40 + 118;
 
   const nodePos = (zy, i) => ({
     x: 72 + (i%COLS)*(NW+GX),
@@ -1061,6 +1061,11 @@ function rpSVG(d){
   s += `<text x="76" y="${sy+60}" font-family="${F}" font-size="60" font-weight="800" fill="${INK}">${d.score}</text>`;
   s += `<text x="${76 + String(d.score).length*36 + 10}" y="${sy+58}" font-family="${F}" font-size="22" fill="${MUTED}">/100 루틴 궁합</text>`;
   s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · 🌙 ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
+  let qy = sy + 98;
+  sLines.forEach(line=>{
+    s += `<text x="76" y="${qy}" font-family="${F}" font-size="25" font-weight="600" fill="${INK}">${e2(line)}</text>`;
+    qy += 36;
+  });
 
   // 존 컨테이너
   const zone = (zy, zh, label) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`
@@ -1124,11 +1129,6 @@ function rpSVG(d){
     + `<tspan fill="#f2b52a" font-weight="700">━ 🌙 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#46c2a8" font-weight="700">┅ 🔁 중복</tspan>`
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
-  let ty = tailY + 66;
-  sLines.forEach(line=>{
-    s += `<text x="${W/2}" y="${ty}" text-anchor="middle" font-family="${F}" font-size="27" font-weight="700" fill="${INK}">${e2(line)}</text>`;
-    ty += 38;
-  });
   s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 참고 정보 · 개인차 있음</text>`;
   s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
   return s + '</svg>';
