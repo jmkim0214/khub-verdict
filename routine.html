@@ -890,14 +890,16 @@ function rcRender(){
   document.getElementById('rc-diag').innerHTML = sorted.map(x=>RC_RULES[x.v].d).join(' ')
     + (eff.notes.length? `<span class="buf">⚖️ ${eff.notes.map(esc).join(' ')}</span>` : '');
 
-  const cleansers = rcTop(RC_BY.cleanser, eff, 3);
-  const toners    = rcTop(RC_BY.toner, eff, 3);
+  // 슬롯당 후보 2개로 통일 → 모바일 2열에서 항상 한 줄에 딱 맞음 (토너는 아침 필터용으로 풀만 넓게)
+  const RC_N = 2;
+  const cleansers = rcTop(RC_BY.cleanser, eff, RC_N);
+  const toners    = rcTop(RC_BY.toner, eff, 5);
   const serumsAll = rcTop(RC_BY.serum, eff, 6);
   const isPM = x => has(x.p,'RET') || RC_ACIDS.some(a=>has(x.p,a));
-  const amSerums = serumsAll.filter(x=>!isPM(x)).slice(0,2);
-  const pmSerums = serumsAll.filter(isPM).slice(0,2);
-  const creams    = rcTop(RC_BY.cream, eff, 3);
-  const suns      = rcTop(RC_BY.sun, eff, 3);
+  const amSerums = serumsAll.filter(x=>!isPM(x)).slice(0,RC_N);
+  const pmSerums = serumsAll.filter(isPM).slice(0,RC_N);
+  const creams    = rcTop(RC_BY.cream, eff, RC_N);
+  const suns      = rcTop(RC_BY.sun, eff, RC_N);
   const sensSel = sel.includes('sens');
   const pmNote = x => has(x.p,'RET') ? '저녁 전용 · 다음날 아침 자외선차단 필수'
                     : RC_ACIDS.some(a=>has(x.p,a)) ? (sensSel?'격일 사용 권장':'주 2~3회부터 시작') : '';
@@ -909,12 +911,13 @@ function rcRender(){
     `<div>🌙 <b>저녁</b> — 클렌저 → 토너 ${pmSerums.length?'→ 세럼(저녁용) ':''}→ 크림</div>`;
 
   // 아침 토너엔 활성 산 제외 (산은 저녁 위주)
-  const amToners = toners.filter(x=>!['AHA','BHA'].some(a=>has(x.p,a)));
+  const amToners = toners.filter(x=>!['AHA','BHA'].some(a=>has(x.p,a))).slice(0,RC_N);
+  const pmToners = toners.slice(0,RC_N);
 
   let html = '<h2 class="rc-day">☀️ 아침 루틴</h2>';
   let n1 = 0;
   html += rcSec(`${++n1}. 클렌저`, '아침', '세안은 순하게 — 남는 성분보다 씻어내는 자극이 중요해요.', cleansers);
-  html += rcSec(`${++n1}. 토너·패드`, '아침', '세안 직후 결을 정돈하는 단계 — 산 성분 토너는 저녁 루틴에 있어요.', amToners.length?amToners:toners, amToners.length?null:acidNote);
+  html += rcSec(`${++n1}. 토너·패드`, '아침', '세안 직후 결을 정돈하는 단계 — 산 성분 토너는 저녁 루틴에 있어요.', amToners.length?amToners:pmToners, amToners.length?null:acidNote);
   if (amSerums.length) html += rcSec(`${++n1}. 세럼·앰플`, '아침', '자극이 낮아 아침에 써도 되는 성분들이에요.', amSerums);
   html += rcSec(`${++n1}. 크림`, '아침', '앞 단계 성분을 잠그는 보습 장벽이에요.', creams);
   html += rcSec(`${++n1}. 선크림`, '아침 필수', '아침 루틴의 마지막은 언제나 자외선차단이에요.', suns);
@@ -922,7 +925,7 @@ function rcRender(){
   html += '<h2 class="rc-day">🌙 저녁 루틴</h2>';
   let n2 = 0;
   html += rcSec(`${++n2}. 클렌저`, '저녁', '아침과 같은 후보예요 — 하나로 아침·저녁 모두 쓰면 됩니다.', cleansers);
-  html += rcSec(`${++n2}. 토너·패드`, '저녁', '저녁엔 산 성분 토너도 선택지예요 — 주의 문구를 확인하세요.', toners, acidNote);
+  html += rcSec(`${++n2}. 토너·패드`, '저녁', '저녁엔 산 성분 토너도 선택지예요 — 주의 문구를 확인하세요.', pmToners, acidNote);
   if (pmSerums.length) html += rcSec(`${++n2}. 세럼·앰플`, '저녁', '레티노이드·산 계열은 저녁에 쓰는 게 원칙이에요.', pmSerums, pmNote);
   html += rcSec(`${++n2}. 크림`, '저녁', '아침과 같은 후보예요 — 저녁엔 조금 더 넉넉히.', creams);
   document.getElementById('rc-slots').innerHTML = html;
