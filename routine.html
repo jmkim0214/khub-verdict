@@ -212,6 +212,7 @@
   .rp-issue.clash{background:var(--critical-bg);}
   .rp-issue.split{background:var(--warn-bg);}
   .rp-issue.dup{background:var(--series-wash);}
+  .rp-issue.note{background:rgba(137,135,129,0.12);}
   .rp-issue b{color:var(--ink);}
   .rp-foot{margin-top:14px; padding-top:10px; border-top:1px dashed var(--baseline);
     font-size:10.5px; color:var(--muted); text-align:center; line-height:1.6;}
@@ -613,6 +614,24 @@ function analyzeShelf(){
   return {modes, pairs, flags, nClash, nSplit, nDup, score};
 }
 
+// 저녁에 같은 슬롯(세럼·토너 등) 제품을 2개 이상 담았을 때: 병용해도 되는지 / 하나만 쓸지 안내.
+// 상충·분리·중복은 이미 다른 판정으로 안내되므로, 여기선 '충돌 없는(good/무판정)' 경우만 다룸.
+function eveningDoubleNotes(){
+  const out = [];
+  const eve = shelf.filter(p=>!p.w && !p.v && slotOf(p)[0] !== 'am');   // 저녁에 쓰는 제품(공용 포함), 워시오프·옵션형 제외
+  const bySlot = {};
+  eve.forEach(p=>{ const k = rpSlotKo(p); (bySlot[k] = bySlot[k] || []).push(p); });
+  ['토너','패드','세럼','로션','크림'].forEach(slot=>{
+    const arr = bySlot[slot]; if (!arr || arr.length < 2) return;
+    const a = arr[0], b = arr[1];
+    const v = evalPair(a, b);
+    if (v && v.grade !== 'good') return;   // 상충·분리·중복은 판정 근거에서 이미 안내
+    out.push(['note', `🌙 저녁 ${slot} 두 가지 — 함께 or 하나만`,
+      `${short(a)} · ${short(b)}는 성분 충돌이 없어요. 저녁엔 순한 쪽 먼저 → 진한 쪽 순으로 겹쳐 발라도 되고, 간단히 하려면 새로 담은 것 하나만 써도 충분해요.`]);
+  });
+  return out;
+}
+
 function render(){
   // chips
   document.getElementById('chips').innerHTML = shelf.map((p,i)=>
@@ -660,6 +679,7 @@ function render(){
   const items = [
     ...pairs.map(p=>[p.grade, GRADE_ICON[p.grade]+' '+p.title, `${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`, p.why]),
     ...flags.map(f=>[f[0], (GRADE_ICON[f[0]]||'')+' '+f[1], '', f[2]]),
+    ...eveningDoubleNotes().map(n=>[n[0], (GRADE_ICON[n[0]]||'')+' '+n[1], '', n[2]]),
   ];
   const order = {clash:0, split:1, dup:2, note:3, good:4};
   items.sort((a,b)=>order[a[0]]-order[b[0]]);
@@ -682,10 +702,10 @@ function render(){
   html += `<div class="card"><h2>4. 아침 / 저녁 나누기</h2><div class="ampm">
     <div class="slot"><h3>☀️ 아침</h3><ul>`+
     am.map(([p,w])=>`<li>${esc(short(p))}<span class="why">${esc(w)}</span></li>`).join('')+
-    both.map(([p])=>`<li style="opacity:.65;">${esc(short(p))}<span class="why">아침·저녁 무관</span></li>`).join('')+
+    both.map(([p])=>`<li style="opacity:.7;">${esc(short(p))}<span class="why">공용 · 아침·저녁 함께</span></li>`).join('')+
     `</ul></div><div class="slot"><h3>🌙 저녁</h3><ul>`+
     pm.map(([p,w])=>`<li>${esc(short(p))}<span class="why">${esc(w)}</span></li>`).join('')+
-    both.map(([p])=>`<li style="opacity:.65;">${esc(short(p))}<span class="why">아침·저녁 무관</span></li>`).join('')+
+    both.map(([p])=>`<li style="opacity:.7;">${esc(short(p))}<span class="why">공용 · 아침·저녁 함께</span></li>`).join('')+
     `</ul></div></div>`;
   // 격일 제안: 저녁에 RET와 산이 모두 있으면
   const pmRet = shelf.some(p=>!p.w&&!p.v&&has(p,'RET')), pmAcid = shelf.some(p=>!p.w&&!p.v&&STRONGACID(p));
@@ -871,10 +891,10 @@ function rcCand(x, note){
     </div>
   </div>`;
 }
-function rcSec(title, when, why, cands, noteFn){
+function rcSec(title, when, why, cands, noteFn, emptyMsg){
   const inner = cands.length
     ? `<div class="rc-grid">${cands.map(x=>rcCand(x, noteFn?noteFn(x):'')).join('')}</div>`
-    : `<div class="rc-empty">이 조합은 후보가 부족해요 — 상품 수집을 넓히는 중입니다</div>`;
+    : `<div class="rc-empty">${emptyMsg || '이 조합은 후보가 부족해요 — 상품 수집을 넓히는 중입니다'}</div>`;
   return `<div class="rc-sec"><div class="rc-sh"><b>${title}</b><span class="rc-when">${when}</span></div>
     <div class="rc-why">${why}</div>${inner}</div>`;
 }
@@ -906,9 +926,13 @@ function rcRender(){
   const acidNote = x => ['AHA','BHA'].some(a=>has(x.p,a))
     ? '각질 정돈 산 포함 — 저녁 위주, ' + (sensSel?'격일로 시작하세요':'주 2~3회부터 시작하세요') : '';
 
+  // 저녁 세럼: 저녁 전용(레티놀·산)이 있으면 그걸, 없으면 아침 순한 세럼을 그대로(공용)
+  const eveSerums = pmSerums.length ? pmSerums : amSerums;
+  const eveShared = !pmSerums.length && amSerums.length > 0;   // 아침 세럼을 저녁에 재사용하는 경우
+
   document.getElementById('rc-order').innerHTML =
-    `<div>☀️ <b>아침</b> — 클렌저 → 토너 ${amSerums.length?'→ 세럼(아침용) ':''}→ 크림 → <b>선크림</b></div>`+
-    `<div>🌙 <b>저녁</b> — 클렌저 → 토너 ${pmSerums.length?'→ 세럼(저녁용) ':''}→ 크림</div>`;
+    `<div>☀️ <b>아침</b> — 클렌저 → 토너 → 세럼 → 크림 → <b>선크림</b></div>`+
+    `<div>🌙 <b>저녁</b> — 클렌저 → 토너 → 세럼 → 크림</div>`;
 
   // 아침 토너엔 활성 산 제외 (산은 저녁 위주)
   const amToners = toners.filter(x=>!['AHA','BHA'].some(a=>has(x.p,a))).slice(0,RC_N);
@@ -918,7 +942,10 @@ function rcRender(){
   let n1 = 0;
   html += rcSec(`${++n1}. 클렌저`, '아침', '세안은 순하게 — 남는 성분보다 씻어내는 자극이 중요해요.', cleansers);
   html += rcSec(`${++n1}. 토너·패드`, '아침', '세안 직후 결을 정돈하는 단계 — 산 성분 토너는 저녁 루틴에 있어요.', amToners.length?amToners:pmToners, amToners.length?null:acidNote);
-  if (amSerums.length) html += rcSec(`${++n1}. 세럼·앰플`, '아침', '자극이 낮아 아침에 써도 되는 성분들이에요.', amSerums);
+  html += rcSec(`${++n1}. 세럼·앰플`, '아침',
+    amSerums.length ? '자극이 낮아 아침에 써도 되는 성분들이에요.'
+                    : '이 조합은 활성 세럼(레티놀·산)을 저녁 루틴에 배치했어요 — 아침 세럼은 건너뛰어도 괜찮아요.',
+    amSerums, null, '아침용 순한 세럼 후보가 부족해요 — 저녁 세럼 위주로 보세요.');
   html += rcSec(`${++n1}. 크림`, '아침', '앞 단계 성분을 잠그는 보습 장벽이에요.', creams);
   html += rcSec(`${++n1}. 선크림`, '아침 필수', '아침 루틴의 마지막은 언제나 자외선차단이에요.', suns);
 
@@ -926,14 +953,19 @@ function rcRender(){
   let n2 = 0;
   html += rcSec(`${++n2}. 클렌저`, '저녁', '아침과 같은 후보예요 — 하나로 아침·저녁 모두 쓰면 됩니다.', cleansers);
   html += rcSec(`${++n2}. 토너·패드`, '저녁', '저녁엔 산 성분 토너도 선택지예요 — 주의 문구를 확인하세요.', pmToners, acidNote);
-  if (pmSerums.length) html += rcSec(`${++n2}. 세럼·앰플`, '저녁', '레티노이드·산 계열은 저녁에 쓰는 게 원칙이에요.', pmSerums, pmNote);
+  html += rcSec(`${++n2}. 세럼·앰플`, '저녁',
+    pmSerums.length ? '레티노이드·산 계열은 저녁에 쓰는 게 원칙이에요.'
+    : eveShared ? '저녁 전용(레티놀·산) 세럼은 없어요 — 아침에 고른 순한 세럼을 저녁에도 그대로 쓰면 됩니다 (아침·저녁 공용).'
+    : '이 조합은 세럼 후보가 부족해요.',
+    eveSerums, pmSerums.length ? pmNote : null,
+    '세럼 후보가 부족해요 — 상품 수집을 넓히는 중입니다.');
   html += rcSec(`${++n2}. 크림`, '저녁', '아침과 같은 후보예요 — 저녁엔 조금 더 넉넉히.', creams);
   document.getElementById('rc-slots').innerHTML = html;
 
   const nExcl = Object.values(RC_BY).flat().filter(p=>p.vt!=='genuine'&&p.vt!=='honest'&&p.vt!=='watch').length;
   document.getElementById('rc-excl').textContent =
     `ⓘ 가격 판정이 확실하지 않은 상품(부풀림 신호·판정 보류·관측 부족) ${nExcl}개는 후보에서 제외했어요. `
-    + '후보 순서는 성분 매칭 점수순이며, 아침/저녁 구분은 상충 매트릭스 규칙을 따릅니다. 옵션형(골라담기 등)·성별 특정 상품은 추천에서 제외해요. 클렌저·토너·크림은 아침·저녁 공용이라 같은 후보가 양쪽에 보여요.';
+    + '후보 순서는 성분 매칭 점수순이며, 아침/저녁 구분은 상충 매트릭스 규칙을 따릅니다. 옵션형(골라담기 등)·성별 특정 상품은 추천에서 제외해요. 클렌저·토너·크림(및 저녁 전용 세럼이 없을 때의 순한 세럼)은 아침·저녁 공용이라 같은 후보가 양쪽에 보여요.';
   box.style.display='block';
   rcBar();
 }
@@ -977,6 +1009,7 @@ function rpData(){
   const issues = [
     ...a.pairs.filter(p=>p.grade!=='good').map(p=>({g:p.grade, t:p.title, s:`${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`})),
     ...a.flags.filter(f=>f[0]==='clash'||f[0]==='split').map(f=>({g:f[0], t:f[1], s:''})),
+    ...eveningDoubleNotes().map(n=>({g:'note', t:n[1], s:''})),
   ];
   const goods = a.pairs.filter(p=>p.grade==='good').length;
   const rel = a.pairs.filter(p=>p.grade!=='good')
@@ -1136,12 +1169,15 @@ function rpSVG(d){
     const label = rpSlotKo(p);
     const bw = label.length*19 + 22;
     const brand = e2((p.b||'').slice(0,10));
+    const shared = slotOf(p)[0] === 'both';   // 아침·저녁 공용
     let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
     if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
     if (nm.length > 11) nm = nm.slice(0,10)+'…';
     return `<rect x="${pos.x}" y="${pos.y}" width="${NW}" height="${NH}" rx="16" fill="${NODE}" stroke="${NSTK}" stroke-width="2.5"/>`
       + `<rect x="${pos.x+14}" y="${pos.y+13}" width="${bw}" height="31" rx="9" fill="${WASH}"/>`
       + `<text x="${pos.x+14+bw/2}" y="${pos.y+36}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="${MINT}">${e2(label)}</text>`
+      + (shared ? `<rect x="${pos.x+NW-60}" y="${pos.y+13}" width="46" height="31" rx="9" fill="rgba(143,141,134,0.22)"/>`
+          + `<text x="${pos.x+NW-37}" y="${pos.y+35}" text-anchor="middle" font-family="${F}" font-size="17" font-weight="700" fill="${SUB}">공용</text>` : '')
       + `<text x="${pos.x+14}" y="${pos.y+68}" font-family="${F}" font-size="18" fill="${MUTED}">${brand}</text>`
       + `<text x="${pos.x+14}" y="${pos.y+96}" font-family="${F}" font-size="21" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
   };
@@ -1156,7 +1192,7 @@ function rpSVG(d){
     + `<tspan fill="#f2b52a" font-weight="700">━ 🌙 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#46c2a8" font-weight="700">┅ 🔁 중복</tspan>`
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
-  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 참고 정보 · 개인차 있음</text>`;
+  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
   s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
   return s + '</svg>';
 }
