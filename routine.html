@@ -616,18 +616,21 @@ function analyzeShelf(){
 
 // 저녁에 같은 슬롯(세럼·토너 등) 제품을 2개 이상 담았을 때: 병용해도 되는지 / 하나만 쓸지 안내.
 // 상충·분리·중복은 이미 다른 판정으로 안내되므로, 여기선 '충돌 없는(good/무판정)' 경우만 다룸.
+const KO_NUM = ['','한','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
+function koCount(n){ return (KO_NUM[n] || String(n)) + ' 가지'; }
 function eveningDoubleNotes(){
   const out = [];
   const eve = shelf.filter(p=>!p.w && !p.v && slotOf(p)[0] !== 'am');   // 저녁에 쓰는 제품(공용 포함), 워시오프·옵션형 제외
   const bySlot = {};
   eve.forEach(p=>{ const k = rpSlotKo(p); (bySlot[k] = bySlot[k] || []).push(p); });
+  const bad = (p,q) => { const v = evalPair(p,q); return !!(v && v.grade !== 'good'); };
   ['토너','패드','세럼','로션','크림'].forEach(slot=>{
     const arr = bySlot[slot]; if (!arr || arr.length < 2) return;
-    const a = arr[0], b = arr[1];
-    const v = evalPair(a, b);
-    if (v && v.grade !== 'good') return;   // 상충·분리·중복은 판정 근거에서 이미 안내
-    out.push(['note', `🌙 저녁 ${slot} 두 가지 — 함께 or 하나만`,
-      `${short(a)} · ${short(b)}는 성분 충돌이 없어요. 저녁엔 순한 쪽 먼저 → 진한 쪽 순으로 겹쳐 발라도 되고, 간단히 하려면 새로 담은 것 하나만 써도 충분해요.`]);
+    // 서로 상충·분리·중복이 없는(=같이 써도 되는) 것만 — 충돌 쌍은 판정 근거에서 이미 안내
+    const ok = arr.filter(p => arr.every(q => q === p || !bad(p, q)));
+    if (ok.length < 2) return;
+    out.push(['note', `🌙 저녁 ${slot} ${koCount(ok.length)} — 함께 or 하나만`,
+      `${ok.map(short).join(' · ')}는 성분 충돌이 없어요. 저녁엔 순한 쪽 먼저 → 진한 쪽 순으로 겹쳐 발라도 되고, 간단히 하려면 하나만 골라 써도 충분해요.`]);
   });
   return out;
 }
@@ -1093,13 +1096,34 @@ function rpSVG(d){
   const maxN = Math.max(amProds.length, pmProds.length, 1);
   const NW = Math.max(96, Math.floor((W - MG*2 - (maxN-1)*GX) / maxN));
   const zoneH = ZHEAD + NH + 12;
-  const CHAN = 128;                          // 아침·저녁 사이 관계선 채널
-  const amY = headH + scoreH + 14;
+
+  // 관계 분류를 레이아웃보다 먼저 — 3개 채널(아침 위 / 사이 / 저녁 아래) 높이 계산에 필요
+  const amSet = new Set(amProds), pmSet = new Set(pmProds);
+  const segs = [];
+  d.rel.forEach(pr=>{
+    const aAm = amSet.has(pr.A), aPm = pmSet.has(pr.A);
+    const bAm = amSet.has(pr.B), bPm = pmSet.has(pr.B);
+    if (aAm && bAm)      segs.push({g:pr.g, kind:'am', A:pr.A, B:pr.B});
+    else if (aPm && bPm) segs.push({g:pr.g, kind:'pm', A:pr.A, B:pr.B});
+    else if (aAm && bPm) segs.push({g:pr.g, kind:'x',  A:pr.A, B:pr.B});
+    else if (bAm && aPm) segs.push({g:pr.g, kind:'x',  A:pr.B, B:pr.A});
+  });
+  const LSTEP = 26;
+  const nAmSeg = segs.filter(x=>x.kind==='am').length;
+  const nPmSeg = segs.filter(x=>x.kind==='pm').length;
+  const nXSeg  = segs.filter(x=>x.kind==='x').length;
+  const TOPCH = nAmSeg ? 22 + nAmSeg*LSTEP : 0;          // 아침 존 위 — 아침끼리 선
+  const BOTCH = nPmSeg ? 22 + nPmSeg*LSTEP : 0;          // 저녁 존 아래 — 저녁끼리 선
+  const MIDCH = nXSeg ? Math.max(76, 44 + nXSeg*LSTEP) : 58;   // 두 존 사이 — 교차선
+
+  const amY = headH + scoreH + 14 + TOPCH;
   const amRowY = amY + ZHEAD;
   const amH = zoneH, pmH = zoneH;
-  const pmY = amY + zoneH + CHAN;
+  const amBot = amY + zoneH;
+  const pmY = amBot + MIDCH;
   const pmRowY = pmY + ZHEAD;
-  const tailY = pmY + zoneH + 26;
+  const pmBot = pmY + zoneH;
+  const tailY = pmBot + BOTCH + 26;
   const H = tailY + 40 + 118;
 
   const rowX = (i, count) => (W - (count*NW + (count-1)*GX))/2 + i*(NW+GX);
@@ -1129,44 +1153,41 @@ function rpSVG(d){
     qy += 36;
   });
 
-  // 존 컨테이너
-  const zone = (zy, zh, label) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`
-    + `<text x="74" y="${zy+40}" font-family="${F}" font-size="29" font-weight="800" fill="${INK}">${label}</text>`;
-  s += zone(amY, amH, '☀️ 아침');
-  s += zone(pmY, pmH, '🌙 저녁');
+  // 존 컨테이너 (테두리만 먼저 — 라벨은 선을 그린 뒤 위에 얹음)
+  const zoneBox = (zy, zh) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`;
+  s += zoneBox(amY, amH) + zoneBox(pmY, pmH);
 
-  // ── 관계선 ── 존 교차(아침↔저녁)=직선, 같은 존(아침↔아침·저녁↔저녁)=꺾은선(ㄷ자)
+  // ── 관계선 3층 ── 아침끼리=아침 존 위 / 아침↔저녁=두 존 사이 직선 / 저녁끼리=저녁 존 아래 (모두 꺾은선)
   const COLR = {clash:'#f26060', split:'#f2b52a', dup:'#46c2a8'};
-  const amBoxBot = amY + zoneH, pmBoxTop = pmY;     // 채널 상·하단(두 존 박스 사이)
   let lines = '', dots = '', amI = 0, pmI = 0;
-  d.rel.forEach(pr=>{
-    const aAm = amPos.get(pr.A), aPm = pmPos.get(pr.A);
-    const bAm = amPos.get(pr.B), bPm = pmPos.get(pr.B);
-    let seg = null;
-    if (aAm && bAm) seg = {a:aAm, b:bAm, kind:'am'};
-    else if (aPm && bPm) seg = {a:aPm, b:bPm, kind:'pm'};
-    else if (aAm && bPm) seg = {a:aAm, b:bPm, kind:'x'};
-    else if (bAm && aPm) seg = {a:bAm, b:aPm, kind:'x'};
-    if (!seg) return;
-    const c = COLR[pr.g], dash = pr.g==='dup' ? ' stroke-dasharray="12 10"' : '';
+  segs.forEach(sg=>{
+    const c = COLR[sg.g], dash = sg.g==='dup' ? ' stroke-dasharray="12 10"' : '';
     const st = `stroke="${c}" stroke-width="5" opacity="0.95" fill="none" stroke-linecap="round" stroke-linejoin="round"${dash}`;
-    if (seg.kind === 'x'){                            // 존 교차: 직선
-      const x1 = seg.a.x+NW/2, y1 = seg.a.y+NH, x2 = seg.b.x+NW/2, y2 = seg.b.y;
+    if (sg.kind === 'x'){                             // 존 교차: 아침 노드 아래 → 저녁 노드 위, 직선
+      const a = amPos.get(sg.A), b = pmPos.get(sg.B);
+      const x1 = a.x+NW/2, y1 = a.y+NH, x2 = b.x+NW/2, y2 = b.y;
       lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${st}/>`;
       dots += `<circle cx="${x1}" cy="${y1}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="8" fill="${c}"/>`;
-    } else if (seg.kind === 'am'){                    // 아침 내부: 아래로 꺾은선
-      const x1 = seg.a.x+NW/2, x2 = seg.b.x+NW/2, y0 = amRowY+NH;
-      const dip = Math.min(amBoxBot + 24 + amI*24, pmBoxTop - 16); amI++;
-      lines += `<path d="M ${x1} ${y0} V ${dip} H ${x2} V ${y0}" ${st}/>`;
-      dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
-    } else {                                          // 저녁 내부: 위로 꺾은선
-      const x1 = seg.a.x+NW/2, x2 = seg.b.x+NW/2, y0 = pmRowY;
-      const rise = Math.max(pmBoxTop - 24 - pmI*24, amBoxBot + 16); pmI++;
+    } else if (sg.kind === 'am'){                     // 아침끼리: 위로 올라가는 ㄷ자
+      const a = amPos.get(sg.A), b = amPos.get(sg.B);
+      const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = amRowY;
+      const rise = amY - 22 - amI*LSTEP; amI++;
       lines += `<path d="M ${x1} ${y0} V ${rise} H ${x2} V ${y0}" ${st}/>`;
+      dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
+    } else {                                          // 저녁끼리: 아래로 내려가는 ㄷ자
+      const a = pmPos.get(sg.A), b = pmPos.get(sg.B);
+      const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = pmRowY+NH;
+      const dip = pmBot + 22 + pmI*LSTEP; pmI++;
+      lines += `<path d="M ${x1} ${y0} V ${dip} H ${x2} V ${y0}" ${st}/>`;
       dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
     }
   });
   s += lines;
+
+  // 존 라벨 (선 위에 — 카드색 배경으로 지나가는 선을 가림)
+  const zoneLabel = (zy, label) => `<rect x="64" y="${zy+12}" width="136" height="38" rx="10" fill="${CARD}"/>`
+    + `<text x="74" y="${zy+40}" font-family="${F}" font-size="29" font-weight="800" fill="${INK}">${label}</text>`;
+  s += zoneLabel(amY, '☀️ 아침') + zoneLabel(pmY, '🌙 저녁');
 
   // 노드 (단일 행 — 폭 NW에 맞춰 폰트·이름 스케일)
   const node = (p, pos) => {
