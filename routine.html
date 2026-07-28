@@ -596,7 +596,8 @@ function addManual(){
 }
 
 // ── 렌더 ─────────────────────────────────────────────────────────
-const GRADE_ICON = {clash:'⛔', split:'🌙', dup:'🔁', good:'✅', note:'ℹ️'};
+// 분리필요는 ⏰(시간대/요일 분리) — 🌙은 리포트의 '저녁 존'과 겹쳐서 쓰지 않음
+const GRADE_ICON = {clash:'⛔', split:'⏰', dup:'🔁', good:'✅', note:'ℹ️'};
 
 // ── 공용 분석 (렌더·리포트 카드가 함께 사용) ──
 function analyzeShelf(){
@@ -653,7 +654,7 @@ function render(){
   // score + actions
   html += `<div class="card" style="text-align:center;">
     <div class="score">${score}<small> /100 루틴 궁합</small></div>
-    <div style="font-size:13px; color:var(--ink-2); margin-top:4px;">⛔ 상충 ${nClash} · 🌙 분리 필요 ${nSplit} · 🔁 중복 ${nDup} · 제품 ${shelf.length}개</div>
+    <div style="font-size:13px; color:var(--ink-2); margin-top:4px;">⛔ 상충 ${nClash} · ⏰ 분리 필요 ${nSplit} · 🔁 중복 ${nDup} · 제품 ${shelf.length}개</div>
     <div class="actions" style="justify-content:center;">
       <button class="btn" onclick="openReport()">📋 리포트 카드</button>
       <button class="btn" onclick="copyLink()">🔗 루틴 링크 복사</button>
@@ -675,7 +676,7 @@ function render(){
       });
       html += '</tr>';
     });
-    html += '</table></div><div class="legend"><span>⛔ 같이 쓰지 마세요</span><span>🌙 시간대·요일 분리</span><span>🔁 유사 성분 중복</span><span>✅ 궁합 좋음</span><span>· 특이사항 없음</span></div></div>';
+    html += '</table></div><div class="legend"><span>⛔ 같이 쓰지 마세요</span><span>⏰ 시간대·요일 분리</span><span>🔁 유사 성분 중복</span><span>✅ 궁합 좋음</span><span>· 특이사항 없음</span></div></div>';
   }
 
   // verdicts
@@ -1108,13 +1109,13 @@ function rpSVG(d){
     else if (aAm && bPm) segs.push({g:pr.g, kind:'x',  A:pr.A, B:pr.B});
     else if (bAm && aPm) segs.push({g:pr.g, kind:'x',  A:pr.B, B:pr.A});
   });
-  const LSTEP = 26;
+  const LSTEP = 38, ICONR = 17;             // 선 간격 / 선 위 아이콘 반지름
   const nAmSeg = segs.filter(x=>x.kind==='am').length;
   const nPmSeg = segs.filter(x=>x.kind==='pm').length;
   const nXSeg  = segs.filter(x=>x.kind==='x').length;
-  const TOPCH = nAmSeg ? 22 + nAmSeg*LSTEP : 0;          // 아침 존 위 — 아침끼리 선
-  const BOTCH = nPmSeg ? 22 + nPmSeg*LSTEP : 0;          // 저녁 존 아래 — 저녁끼리 선
-  const MIDCH = nXSeg ? Math.max(76, 44 + nXSeg*LSTEP) : 58;   // 두 존 사이 — 교차선
+  const TOPCH = nAmSeg ? (ICONR+8) + nAmSeg*LSTEP : 0;   // 아침 존 위 — 아침끼리 선
+  const BOTCH = nPmSeg ? (ICONR+8) + nPmSeg*LSTEP : 0;   // 저녁 존 아래 — 저녁끼리 선
+  const MIDCH = nXSeg ? Math.max(88, 50 + nXSeg*LSTEP) : 58;   // 두 존 사이 — 교차선
 
   const amY = headH + scoreH + 14 + TOPCH;
   const amRowY = amY + ZHEAD;
@@ -1146,7 +1147,7 @@ function rpSVG(d){
   s += `<rect x="48" y="${sy}" width="${W-96}" height="${scoreH-12}" rx="16" fill="${WASH}"/>`;
   s += `<text x="76" y="${sy+60}" font-family="${F}" font-size="60" font-weight="800" fill="${INK}">${d.score}</text>`;
   s += `<text x="${76 + String(d.score).length*36 + 10}" y="${sy+58}" font-family="${F}" font-size="22" fill="${MUTED}">/100 루틴 궁합</text>`;
-  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · 🌙 ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
+  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · ⏰ ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
   let qy = sy + 98;
   sLines.forEach(line=>{
     s += `<text x="76" y="${qy}" font-family="${F}" font-size="25" font-weight="600" fill="${INK}">${e2(line)}</text>`;
@@ -1159,7 +1160,10 @@ function rpSVG(d){
 
   // ── 관계선 3층 ── 아침끼리=아침 존 위 / 아침↔저녁=두 존 사이 직선 / 저녁끼리=저녁 존 아래 (모두 꺾은선)
   const COLR = {clash:'#f26060', split:'#f2b52a', dup:'#46c2a8'};
-  let lines = '', dots = '', amI = 0, pmI = 0;
+  let lines = '', dots = '', icons = '', amI = 0, pmI = 0;
+  // 선 한가운데 등급 아이콘 (카드색 원으로 선을 끊어 얹음)
+  const marker = (cx, cy, g, c) => `<circle cx="${cx}" cy="${cy}" r="${ICONR}" fill="${CARD}" stroke="${c}" stroke-width="2.5"/>`
+    + `<text x="${cx}" y="${cy+8}" text-anchor="middle" font-family="${F}" font-size="21">${GRADE_ICON[g]||''}</text>`;
   segs.forEach(sg=>{
     const c = COLR[sg.g], dash = sg.g==='dup' ? ' stroke-dasharray="12 10"' : '';
     const st = `stroke="${c}" stroke-width="5" opacity="0.95" fill="none" stroke-linecap="round" stroke-linejoin="round"${dash}`;
@@ -1168,21 +1172,24 @@ function rpSVG(d){
       const x1 = a.x+NW/2, y1 = a.y+NH, x2 = b.x+NW/2, y2 = b.y;
       lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${st}/>`;
       dots += `<circle cx="${x1}" cy="${y1}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="8" fill="${c}"/>`;
+      icons += marker((x1+x2)/2, (y1+y2)/2, sg.g, c);
     } else if (sg.kind === 'am'){                     // 아침끼리: 위로 올라가는 ㄷ자
       const a = amPos.get(sg.A), b = amPos.get(sg.B);
       const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = amRowY;
       const rise = amY - 22 - amI*LSTEP; amI++;
       lines += `<path d="M ${x1} ${y0} V ${rise} H ${x2} V ${y0}" ${st}/>`;
       dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
+      icons += marker((x1+x2)/2, rise, sg.g, c);
     } else {                                          // 저녁끼리: 아래로 내려가는 ㄷ자
       const a = pmPos.get(sg.A), b = pmPos.get(sg.B);
       const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = pmRowY+NH;
       const dip = pmBot + 22 + pmI*LSTEP; pmI++;
       lines += `<path d="M ${x1} ${y0} V ${dip} H ${x2} V ${y0}" ${st}/>`;
       dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
+      icons += marker((x1+x2)/2, dip, sg.g, c);
     }
   });
-  s += lines;
+  s += lines + icons;
 
   // 존 라벨 (선 위에 — 카드색 배경으로 지나가는 선을 가림)
   const zoneLabel = (zy, label) => `<rect x="64" y="${zy+12}" width="136" height="38" rx="10" fill="${CARD}"/>`
@@ -1221,7 +1228,7 @@ function rpSVG(d){
   const extra = Math.max(shelf.length - new Set([...amProds, ...pmProds]).size, 0);
   s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="23">`
     + `<tspan fill="#f26060" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
-    + `<tspan fill="#f2b52a" font-weight="700">━ 🌙 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
+    + `<tspan fill="#f2b52a" font-weight="700">━ ⏰ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#46c2a8" font-weight="700">┅ 🔁 중복</tspan>`
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
   s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
