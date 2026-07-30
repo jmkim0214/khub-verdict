@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>더마릭 — 화장품 가격·성분 판정</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7;
+    --border:rgba(11,11,11,0.10);
+    --series:#0e6e5c; --series-wash:rgba(14,110,92,0.08);
+    --good:#0ca30c; --good-text:#006300;
+    --warn:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --good-bg:rgba(12,163,12,0.09); --warn-bg:rgba(250,178,25,0.13);
+    --serious-bg:rgba(236,131,90,0.12); --critical-bg:rgba(208,59,59,0.09);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835;
+      --border:rgba(255,255,255,0.10);
+      --series:#3fae97; --series-wash:rgba(63,174,151,0.14);
+      --good-text:#0ca30c;
+    }
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--page); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;  /* 한글 어절 단위 줄바꿈 */
+  }
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  header.site{
+    display:flex; align-items:center; gap:10px; padding:24px 0 14px; border-bottom:1px solid var(--grid); margin-bottom:6px;
+  }
+  .logo{font-size:22px; font-weight:800; letter-spacing:-0.03em; color:var(--series);}
+  .logo-eng{font-size:10.5px; font-weight:700; letter-spacing:0.22em; color:var(--muted); margin-left:8px; vertical-align:2px;}
+  .logo-sub{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:700; color:var(--series); text-decoration:none; border:1px solid var(--baseline); border-radius:999px; padding:7px 15px; white-space:nowrap;}
+  .nav-link:hover{background:var(--series-wash);}
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:26px; margin-top:16px;
+  }
+
+  /* ---------- HOME ---------- */
+  .hero{text-align:center; padding:44px 26px 38px;}
+  .hero h1{font-size:26px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
+  .hero h1 .u{box-shadow:inset 0 -10px var(--series-wash);}
+  .hero p.lead{color:var(--ink-2); margin-top:10px; font-size:15px;}
+  .urlbar{display:flex; gap:8px; margin:26px auto 0; max-width:560px;}
+  .urlbar input{
+    flex:1; font:inherit; font-size:14.5px; padding:13px 16px;
+    border:1.5px solid var(--baseline); border-radius:10px;
+    background:var(--surface); color:var(--ink); outline:none; min-width:0;
+  }
+  .urlbar input:focus{border-color:var(--series);}
+  .urlbar input.err{border-color:var(--critical); animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .btn{
+    font:inherit; font-size:14.5px; font-weight:700; cursor:pointer;
+    padding:13px 22px; border-radius:10px; border:none;
+    background:var(--ink); color:var(--page); white-space:nowrap;
+  }
+  .btn:hover{opacity:.85;}
+  .btn.ghost{
+    background:transparent; color:var(--ink-2);
+    border:1px solid var(--baseline); font-weight:600;
+  }
+  .hint{margin-top:10px; font-size:12.5px; color:var(--muted);}
+  #search-results{display:none; max-width:560px; margin:14px auto 0; text-align:left;}
+  #search-results.on{display:block;}
+  #search-results .sr-head{font-size:12.5px; color:var(--muted); margin:0 2px 8px;}
+  #search-results .sr-empty{font-size:13px; color:var(--muted); background:var(--surface); border:1px solid var(--baseline); border-radius:12px; padding:14px 16px;}
+  #search-results .sr-img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;background:var(--series-wash);}
+  #search-results .sr-item{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--baseline); border-radius:11px; padding:9px 12px; margin-bottom:7px; font-size:13.5px; color:var(--ink); cursor:pointer; font-family:inherit;}
+  #search-results .sr-item:hover{border-color:var(--series); background:var(--series-wash);}
+  #search-results .sr-item b{font-weight:700; flex:none;}
+  #search-results .sr-cur{margin-left:auto; font-weight:700; color:var(--series); white-space:nowrap;}
+  .samples{margin-top:26px;}
+  .samples .s-label{font-size:12.5px; color:var(--muted); margin-bottom:10px;}
+  .chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .chip{
+    font:inherit; font-size:13px; cursor:pointer;
+    padding:8px 14px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .chip:hover{border-color:var(--series); color:var(--ink);}
+  .chip.real-chip{border-style:solid; border-color:var(--series); background:var(--series-wash);}
+  .chip .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px;}
+  /* ---------- 메인 티저 (오늘의 가격 데이터) ---------- */
+  .teaser{display:block; cursor:pointer; padding:22px 24px 20px; text-decoration:none; color:inherit; transition:border-color .15s;}
+  .teaser:hover{border-color:var(--series);}
+  .t-head{display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap;}
+  .t-title{font-size:16.5px; font-weight:800; letter-spacing:-0.01em;}
+  .t-new{font-size:10px; font-weight:800; vertical-align:7px; color:var(--critical); margin-left:3px;}
+  .t-sub{font-size:13px; color:var(--ink-2); margin-top:3px;}
+  .t-sub b.bad{color:var(--critical);}
+  .t-cta{margin-left:auto; font-size:13px; font-weight:700; color:var(--series); white-space:nowrap; padding-top:3px;}
+  .t-stats{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
+  .t-stat{font-size:12px; font-weight:700; border-radius:999px; padding:4px 12px;}
+  .t-stat.s-good{background:var(--good-bg); color:var(--good-text);}
+  .t-stat.s-bad{background:var(--critical-bg); color:var(--critical);}
+  .t-stat.s-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+  .t-stat.s-warn{background:var(--warn-bg); color:var(--ink);}
+  .t-minis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
+  @media (max-width:640px){.t-minis{grid-template-columns:1fr;}}
+  .t-mini{border:1px solid var(--border); border-radius:11px; padding:12px 13px 9px; background:var(--page);}
+  .t-mini .m-row{display:flex; align-items:center; gap:8px;}
+  .t-mini .m-thumb{width:30px; height:30px; border-radius:8px; flex:none; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--series-wash); border:1px solid var(--border);
+    font-size:13px; font-weight:800; color:var(--series);}
+  .t-mini .m-thumb img{width:100%; height:100%; object-fit:cover;}
+  .t-mini .m-name{font-size:12px; font-weight:700; line-height:1.35;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .t-mini .m-price{font-size:13px; font-weight:800; margin-top:6px; font-variant-numeric:tabular-nums;
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .t-mini .m-chip{font-size:10.5px; font-weight:700; border-radius:999px; padding:1px 8px;}
+  .t-mini .m-chip.v-good{background:var(--good-bg); color:var(--good-text);}
+  .t-mini .m-chip.v-bad{background:var(--critical-bg); color:var(--critical);}
+  .t-mini .m-chip.v-warn{background:var(--warn-bg); color:var(--ink);}
+  .t-mini .m-chip.v-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+  .t-mini svg{display:block; width:100%; height:auto; margin-top:5px;}
+  .t-foot{text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px;
+    border-top:1px solid var(--grid); padding-top:12px;}
+  .t-foot b{color:var(--ink-2);}
+  .trust{display:flex; justify-content:center; gap:36px; margin-top:40px; flex-wrap:wrap;}
+  .trust .t{text-align:center;}
+  .trust .t b{display:block; font-size:20px; font-weight:800;}
+  .trust .t span{font-size:12px; color:var(--muted);}
+
+  /* ---------- LOADING ---------- */
+  .loading{padding:48px 26px; max-width:420px; margin:0 auto;}
+  .loading .step{display:flex; align-items:center; gap:11px; padding:8px 0; font-size:14.5px; color:var(--muted); transition:color .2s;}
+  .loading .step.on{color:var(--ink);}
+  .loading .step .ic{width:20px; height:20px; border-radius:50%; border:1.5px solid var(--baseline); flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--page); background:transparent;}
+  .loading .step.on .ic{background:var(--good); border-color:var(--good);}
+  .loading .step.now .ic{border-color:var(--series); border-top-color:transparent; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- REPORT ---------- */
+  .report-top{display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; flex-wrap:wrap;}
+  .rid{font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .rid b{color:var(--ink-2); font-weight:600;}
+  .back{font:inherit; font-size:13px; background:none; border:none; color:var(--ink-2); cursor:pointer; padding:4px 0;}
+  .back:hover{color:var(--ink);}
+
+  .prod{display:flex; gap:16px; align-items:flex-start;}
+  .thumb{width:72px; height:72px; border-radius:12px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:32px;
+    background:var(--series-wash); border:1px solid var(--border);}
+  .prod .brand{font-size:12.5px; color:var(--muted); font-weight:600;}
+  .prod .name{font-size:16.5px; font-weight:700; letter-spacing:-0.01em; line-height:1.4;}
+  .prod .opt{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  .prod .price-row{margin-top:8px; display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;}
+  .prod .cur{font-size:21px; font-weight:800;}
+  .prod .strike{font-size:13.5px; color:var(--muted); text-decoration:line-through;}
+  .prod .dc{font-size:13.5px; font-weight:700; color:var(--critical);}
+
+  .verdict{display:flex; gap:14px; align-items:flex-start; border-radius:12px; padding:18px 20px; margin-top:20px;}
+  .verdict.v-good{background:var(--good-bg);}
+  .verdict.v-bad{background:var(--critical-bg);}
+  .verdict.v-warn{background:var(--warn-bg);}
+  .verdict .v-ic{font-size:22px; line-height:1.3;}
+  .verdict h2{font-size:17px; font-weight:800; letter-spacing:-0.01em;}
+  .verdict.v-good h2{color:var(--good-text);}
+  .verdict.v-bad h2{color:var(--critical);}
+  .verdict.v-warn h2{color:var(--ink);}
+  .verdict p{font-size:14px; color:var(--ink-2); margin-top:4px;}
+
+  .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
+  .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
+  .sec-h .tag{font-size:11px; color:var(--muted); border:1px solid var(--baseline); border-radius:999px; padding:1px 8px;}
+  .sec-sub{font-size:13px; color:var(--muted); margin-bottom:14px;}
+
+  .tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px;}
+  @media (max-width:600px){.tiles{grid-template-columns:repeat(2,1fr);}}
+  .tile{border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
+  .tile .l{font-size:11.5px; color:var(--muted);}
+  .tile .v{font-size:16.5px; font-weight:700; margin-top:2px;}
+  .tile .v small{font-size:11.5px; font-weight:600; color:var(--muted);}
+  .tile .v.up-good{color:var(--good-text);}
+  .tile .v.up-bad{color:var(--critical);}
+
+  .chart-box{position:relative; margin-top:18px;}
+  .chart-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin-bottom:8px;}
+  .chart-legend .k{display:flex; align-items:center; gap:6px;}
+  .k .sw-line{width:16px; height:2px; background:var(--series); border-radius:2px;}
+  .k .sw-band{width:14px; height:10px; background:var(--series-wash); border-radius:3px;}
+  .k .sw-ref{width:16px; height:1.5px; background:var(--muted);}
+  svg{display:block; width:100%; height:auto;}
+  .tooltip{
+    position:absolute; pointer-events:none; display:none;
+    background:var(--ink); color:var(--page); font-size:12px;
+    padding:6px 10px; border-radius:8px; white-space:nowrap;
+    transform:translate(-50%,-115%); z-index:5;
+  }
+  .tooltip b{font-variant-numeric:tabular-nums;}
+  .findings{margin-top:18px; border-top:1px solid var(--grid); padding-top:6px;}
+  .finding{display:flex; gap:10px; padding:9px 0; font-size:13.5px; color:var(--ink-2); border-bottom:1px solid var(--grid);}
+  .finding:last-child{border-bottom:none;}
+  .finding .fi{flex:none; width:18px; text-align:center;}
+  .finding b{color:var(--ink); font-weight:700;}
+
+  .claim{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--grid); align-items:flex-start;}
+  .claim:last-child{border-bottom:none;}
+  .claim .c-body{flex:1;}
+  .claim .c-title{font-size:14px; font-weight:700;}
+  .ing-link{font-size:11px; font-weight:600; color:var(--series); text-decoration:none; background:#eef1fe; border-radius:12px; padding:2px 7px; margin-left:6px; white-space:nowrap;}
+  .ing-link:hover{background:#dde4fd;}
+  .claim .c-src{font-size:12px; color:var(--muted); margin-top:1px;}
+  .claim .c-note{font-size:13px; color:var(--ink-2); margin-top:5px;}
+  .safety-row{display:flex; gap:12px; align-items:flex-start; padding:13px 15px; border-radius:11px; margin-bottom:9px;}
+  .safety-row.warn{background:var(--warn-bg);}
+  .safety-row.ok{background:var(--good-bg);}
+  .safety-row .s-ic{font-size:20px; line-height:1.3; flex:none;}
+  .safety-row b{font-size:14.5px;}
+  .safety-row .s-list{font-size:13.5px; color:var(--ink); font-weight:600; margin-top:3px;}
+  .safety-row .s-note{font-size:12.5px; color:var(--ink-2); margin-top:4px; line-height:1.5;}
+  .badge{flex:none; font-size:12px; font-weight:700; border-radius:999px; padding:4px 11px; margin-top:1px; white-space:nowrap;}
+  .badge.b-good{background:var(--good-bg); color:var(--good-text);}
+  .badge.b-warn{background:var(--warn-bg); color:var(--ink);}
+  .badge.b-serious{background:var(--serious-bg); color:var(--ink);}
+  .badge.b-bad{background:var(--critical-bg); color:var(--critical);}
+  .badge.b-neutral{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+
+  .alts-banner{display:flex; gap:10px; align-items:flex-start; background:var(--good-bg);
+    border-radius:9px; padding:11px 14px; font-size:13px; color:var(--ink-2); margin-bottom:14px; line-height:1.6;}
+  .alts-banner .ab-ic{color:var(--good-text); font-weight:800;}
+  .alts-banner b{color:var(--good-text);}
+  .alts{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px;}
+  @media (max-width:640px){.alts{grid-template-columns:1fr;}}
+  .alt{border:1px solid var(--border); border-radius:12px; padding:15px 16px; display:flex; flex-direction:column; gap:2px;}
+  .alt .a-why{font-size:11px; font-weight:700; color:var(--series); letter-spacing:.01em;}
+  .alt .a-brand{font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .alt .a-name{font-size:13.5px; font-weight:700; line-height:1.4;}
+  .alt .a-price{margin-top:7px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;}
+  .alt .a-price b{font-size:16px; font-weight:800;}
+  .alt .a-price s{font-size:11.5px; color:var(--muted);}
+  .alt .a-verdict{margin-top:7px;}
+  .alt .a-verdict .badge{margin:0; font-size:11px; padding:3px 9px;}
+  .alt .a-basis{font-size:12px; color:var(--ink-2); margin-top:7px; line-height:1.55; flex:1;}
+  .alt .a-link{display:inline-block; margin-top:10px; font-size:12px; font-weight:600; color:var(--series); cursor:pointer; background:none; border:none; padding:0; text-align:left; font-family:inherit; text-decoration:none;}
+  .alt .a-link:hover{text-decoration:underline;}
+  .alts-note{
+    margin-top:14px; padding:11px 14px; border-radius:9px;
+    background:var(--page); font-size:12px; color:var(--muted); line-height:1.65;
+  }
+  .basis{font-size:13px; color:var(--ink-2);}
+  .basis .row{display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--grid);}
+  .basis .row:last-child{border-bottom:none;}
+  .basis .row .k2{flex:none; width:128px; color:var(--muted);}
+  .neutral{
+    margin-top:16px; padding:14px 16px; border-radius:10px;
+    border:1px dashed var(--baseline); font-size:12.5px; color:var(--muted); line-height:1.65;
+  }
+  .actions{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
+  .dev-teaser{
+    margin-top:28px; text-align:center; font-size:12.5px; color:var(--muted);
+  }
+  .dev-teaser a{color:var(--series); text-decoration:none; font-weight:600;}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--page); font-size:13.5px;
+    padding:11px 20px; border-radius:10px; opacity:0; transition:all .25s; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .hidden{display:none;}
+  footer.site{margin-top:56px; text-align:center; font-size:12px; color:var(--muted); line-height:1.8;}
+
+  /* ---------- 모바일 (≤640px) ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 14px 60px;}
+    header.site{flex-wrap:wrap; row-gap:10px; padding:18px 0 12px;}
+    header.site > a:first-child{width:100%;}
+    .logo{font-size:20px;}
+    .logo-sub{white-space:nowrap;}
+    .nav-link{margin-left:0 !important; padding:6px 12px; font-size:12.5px;}
+    .card{padding:20px 16px; border-radius:12px;}
+    .hero{padding:30px 16px 26px;}
+    .hero h1{font-size:22px;}
+    .hero p.lead{font-size:14px;}
+    .hero p.lead br{display:none;}
+    .urlbar{margin-top:20px;}
+    .urlbar input{padding:12px 13px; font-size:14px;}
+    .btn{padding:12px 16px; font-size:14px;}
+    .trust{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:28px;}
+    .trust .t b{font-size:16.5px; white-space:nowrap;}
+    .trust .t span{font-size:11px; white-space:nowrap;}
+    .teaser{padding:18px 16px 16px;}
+    .t-title{font-size:15.5px;}
+    .t-cta{margin-left:0; width:100%; text-align:right; padding-top:6px;}
+    .tiles{grid-template-columns:repeat(2,1fr);}
+    .actions .btn{width:100%; text-align:center;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <a href="./" style="text-decoration:none; color:inherit;">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link" href="price.html">가격 데이터</a>
+    <a class="nav-link" style="margin-left:8px" href="routine.html">루틴 가이드</a>
+    <a class="nav-link" style="margin-left:8px" href="glossary.html">성분 사전</a>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <section id="view-home">
+    <div class="card hero">
+      <h1>광고 말고, <span class="u">데이터</span>로 사세요</h1>
+      <p class="lead">올리브영 상품을 검색하면, 그동안 관측한 실제 가격과 식약처 고시 전성분으로 <br>‘정상가 뻥튀기’와 성분 기대 효과를 판정해 드려요.</p>
+      <div class="urlbar">
+        <input id="url-input" type="text" placeholder="상품 URL 또는 상품명 (예: 아누아 세럼, 토리든 크림)" spellcheck="false">
+        <button class="btn" id="go-btn">판정하기</button>
+      </div>
+      <div class="hint">상품 URL을 넣으면 바로 판정, 상품명을 넣으면 추적 목록에서 검색합니다 · 판정서는 발급 후 변경되지 않습니다</div>
+      <div id="search-results"></div>
+      <div class="trust">
+        <div class="t"><b id="stat-n">—</b><span>추적 중인 상품</span></div>
+        <div class="t"><b>3,300<span style="font-size:14px">+</span></b><span>쉬운 말 성분 해설</span></div>
+        <div class="t"><b>식약처 고시</b><span>전성분 기준 분석</span></div>
+      </div>
+    </div>
+
+    <!-- 오늘의 가격 데이터 티저 (price_teaser.json — build_price_page.py 생성) -->
+    <a class="card teaser hidden" id="teaser" href="price.html">
+      <div class="t-head">
+        <div>
+          <div class="t-title">📉 오늘의 올영 랭킹, 실제 가격으로 보기<span class="t-new">NEW</span></div>
+          <div class="t-sub" id="t-sub"></div>
+        </div>
+        <span class="t-cta">Top 30 전체 보기 →</span>
+      </div>
+      <div class="t-stats" id="t-stats"></div>
+      <div class="t-minis" id="t-minis"></div>
+      <div class="t-foot">매일 오전·저녁 관측 갱신 — <b>내일은 순위도, 판정도 달라집니다</b></div>
+    </a>
+  </section>
+
+  <!-- ================= LOADING ================= -->
+  <section id="view-loading" class="hidden">
+    <div class="card loading">
+      <div class="step" data-i="0"><span class="ic">✓</span>URL 확인 및 상품 식별</div>
+      <div class="step" data-i="1"><span class="ic">✓</span>관측 가격 이력 조회</div>
+      <div class="step" data-i="2"><span class="ic">✓</span>정상가·할인율 진위 분석</div>
+      <div class="step" data-i="3"><span class="ic">✓</span>성분·효능 주장 추출 및 대조</div>
+      <div class="step" data-i="4"><span class="ic">✓</span>판정서 발급</div>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section id="view-report" class="hidden">
+    <div class="report-top">
+      <button class="back" id="back-btn">← 다른 상품 판정하기</button>
+      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">실측 데이터 · 조기 신호</span>판정서 <b id="r-id"></b> · 발급 <span id="r-time"></span></div>
+    </div>
+
+    <div class="card">
+      <div class="prod">
+        <div class="thumb" id="r-thumb"></div>
+        <div>
+          <div class="brand" id="r-brand"></div>
+          <div class="name" id="r-name"></div>
+          <div class="opt" id="r-opt"></div>
+          <div class="price-row">
+            <span class="cur" id="r-cur"></span>
+            <span class="strike" id="r-normal"></span>
+            <span class="dc" id="r-dc"></span>
+          </div>
+        </div>
+      </div>
+      <div class="verdict" id="r-verdict">
+        <div class="v-ic" id="r-vic"></div>
+        <div>
+          <h2 id="r-vtitle"></h2>
+          <p id="r-vdesc"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3>① 가격 진실</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
+      <div class="sec-sub" id="r-chart-sub"></div>
+      <div class="chart-legend" id="r-legend">
+        <span class="k"><span class="sw-line"></span>실판매가</span>
+        <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
+        <span class="k"><span class="sw-ref"></span>표시 정상가</span>
+      </div>
+      <div class="chart-box">
+        <div id="chart"></div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div class="tiles" id="r-tiles"></div>
+      <div class="findings" id="r-findings"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="claims-title">② 성분·효능 주장 검증</h3><span class="tag" id="claims-tag">자동 분석</span></div>
+      <div class="sec-sub" id="claims-sub">상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.</div>
+      <div id="r-claims"></div>
+    </div>
+
+    <div class="card hidden" id="safety-card">
+      <div class="sec-h"><h3>안전 주의 (성분 기반)</h3><span class="tag">전성분 자동 스캔</span></div>
+      <div class="sec-sub">전성분표에서 임신·수유 중 회피 권고 성분과 알레르기 유발 가능 성분을 자동 표시합니다.</div>
+      <div id="r-safety"></div>
+      <div class="neutral" style="margin-top:14px">본 표시는 <b>전성분표 기반의 일반 정보</b>이며 개인의 의학적 진단이 아닙니다. 특정 성분에 민감하거나 임신·수유 중이라면 성분표를 직접 확인하고 의사·약사 등 전문가와 상담하세요.</div>
+    </div>
+
+    <div class="card" id="alts-card">
+      <div class="sec-h"><h3 id="alts-title">③ 검증된 대안</h3><span class="tag" id="alts-tag">자동 분석</span></div>
+      <div class="sec-sub" id="alts-sub"></div>
+      <div class="alts-banner hidden" id="alts-banner"><span class="ab-ic">✓</span><span id="alts-banner-txt"></span></div>
+      <div class="alts" id="r-alts"></div>
+      <div class="alts-note">
+        <b>정렬 기준 고지</b> — 비교·추천 순위는 <b>성분 유사도 × 자체 가격 판정</b>만으로 정해지며, 브랜드가 비용을 지불해 노출되거나 순위를 바꿀 수 없습니다. 상품 링크에 제휴 수수료가 붙는 경우에도 수수료율은 판정·순위에 어떤 영향도 주지 않습니다(분리 원칙). 각 상품의 판정 칩은 해당 상품의 최신 판정서에서 가져옵니다.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="basis-title">④ 판정 근거</h3></div>
+      <div class="basis" id="r-basis"></div>
+      <div class="neutral">
+        <b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.
+      </div>
+      <div class="neutral" style="margin-top:10px">
+        <b>이의제기·정정 정책</b> — 본 판정은 <b>공개 관측 데이터와 식약처 고시 전성분</b>에 근거한 <b>자동 분석 결과</b>이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 <b>근거와 함께 재검토</b>하며, 오류가 확인되면 <b>즉시 정정하고 판정서를 새 번호로 갱신</b>합니다. 처리 경과는 접수하신 연락처로 회신드립니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 <b>일반 참고 정보</b>로, 개별 제품의 효능·안전을 단정하지 않습니다.
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
+        <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
+        <button class="btn ghost" id="tg-btn">📮 텔레그램으로 주간 팩트체크 받기</button>
+      </div>
+    </div>
+
+    <div class="dev-teaser">
+      개발자이신가요? 이 판정을 <a href="#" id="api-link">API / MCP 도구</a>로 받아 에이전트에 연결할 수 있습니다 — <code>verify_price</code> · <code>check_claim</code>
+    </div>
+  </section>
+
+  <footer class="site">
+    <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
+    데이터: 올리브영 공개 가격 관측 (일 2회) · 식약처 고시 전성분 · 개인 리뷰 미수집 (PIPA 준수)<br>
+    <a href="glossary.html" style="color:var(--series); text-decoration:none;">성분 사전</a>
+    · <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
+  </footer>
+</div>
+<!-- ================= 이의제기 모달 ================= -->
+<div id="dispute-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(20,22,28,.55); align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#fff; border-radius:16px; max-width:520px; width:100%; max-height:85vh; overflow:auto; padding:26px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25);">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <span style="font-size:20px;">✋</span>
+      <h2 style="font-size:18px; font-weight:800; margin:0;">판정에 이의제기</h2>
+      <button id="dispute-close" style="margin-left:auto; background:none; border:none; font-size:22px; color:#999; cursor:pointer; line-height:1;">×</button>
+    </div>
+    <p style="font-size:13.5px; color:#555; line-height:1.6; margin:8px 0 14px;">
+      이 판정이 <b>사실과 다르거나 오류</b>가 있다고 보시면 알려주세요. 접수된 건은 근거와 함께 재검토하고,
+      오류가 확인되면 <b>즉시 정정 후 판정서를 새 번호로 갱신</b>합니다.
+    </p>
+    <div style="background:#f6f7f9; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#444; line-height:1.7; margin-bottom:14px;">
+      <b>재검토 대상 판정서</b><br>
+      <span id="dispute-ctx" style="color:#666;">—</span>
+    </div>
+    <ol style="font-size:12.5px; color:#666; line-height:1.7; margin:0 0 16px; padding-left:18px;">
+      <li>아래 버튼으로 이메일이 열립니다 (판정서 정보 자동 첨부).</li>
+      <li>어떤 부분이 사실과 다른지, 근거(가격 캡처·공식 자료 등)를 적어 보내주세요.</li>
+      <li>영업일 <b>7일 이내</b> 검토 결과를 회신드립니다.</li>
+    </ol>
+    <a id="dispute-mail" href="#" style="display:block; text-align:center; background:var(--series,#2f6fed); color:#fff; font-weight:700; font-size:14.5px; text-decoration:none; border-radius:11px; padding:13px;">✉️ 이메일로 이의제기 보내기</a>
+    <p style="font-size:11px; color:#aaa; text-align:center; margin-top:10px;">또는 <span id="dispute-addr" style="color:#888;">dispute@themaric.kr</span> 로 직접 보내주셔도 됩니다.</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function quantile(arr,q){const s=[...arr].sort((a,b)=>a-b);const p=(s.length-1)*q;const lo=Math.floor(p),hi=Math.ceil(p);return s[lo]+(s[hi]-s[lo])*(p-lo);}
+
+/* ---------- 가격 이력 생성 (결정적) ---------- */
+function genSeries(seed, base, noise, promoDepth, promoEvery, last, startWeek=0){
+  const rnd = mulberry32(seed);
+  const pts = [];
+  for(let w=startWeek; w<52; w++){
+    let p = base + (rnd()-0.5)*2*noise;
+    const cycle = w % promoEvery;
+    if(cycle===0 || cycle===1) p = base - promoDepth - rnd()*noise; // 세일 주간
+    pts.push({w, price: Math.round(p/100)*100});
+  }
+  if(last!=null) pts[pts.length-1].price = last;
+  return pts;
+}
+
+/* 판정서 데이터는 verdicts/*.json 에서 fetch (임베디드 데이터 없음) */
+const CASES = {};
+
+/* ---------- 뷰 전환 ---------- */
+const views = ['home','loading','report'];
+function show(v){ views.forEach(x => $('#view-'+x).classList.toggle('hidden', x!==v)); window.scrollTo({top:0}); }
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- 로딩 연출 ---------- */
+function runLoading(caseKey){
+  show('loading');
+  const steps = document.querySelectorAll('#view-loading .step');
+  steps.forEach(s => s.classList.remove('on','now'));
+  let i = 0;
+  const tick = () => {
+    if(i>0) steps[i-1].classList.replace('now','on') || steps[i-1].classList.add('on');
+    if(i < steps.length){ steps[i].classList.add('now'); i++; setTimeout(tick, 340); }
+    else setTimeout(()=>renderReport(caseKey), 250);
+  };
+  tick();
+}
+
+/* ---------- 판정서 렌더 ---------- */
+let seq = 4217;
+function renderReport(key){
+  const c = CASES[key];
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  $('#r-id').textContent = c.vid ||
+    `KHUB-V-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${String(seq++).padStart(5,'0')}(미리보기)`;
+  const isPreview = c.vid && c.vid.includes('-P');
+  $('#r-time').textContent = !c.vid
+    ? `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} KST`
+    : isPreview
+      ? `판정 프리뷰 (조회 시 자동 생성) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
+      : `발급 대장 기록됨 (verdicts) · 조회 ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
+
+  if(c.img){ $('#r-thumb').innerHTML = `<img src="${c.img}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:11px;" onerror="this.remove()">`; }
+  else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }
+  $('#r-brand').textContent = c.brand;
+  $('#r-name').textContent = c.name;
+  $('#r-opt').textContent = c.opt;
+  $('#r-cur').textContent = won(c.cur);
+  const hasDc = c.dcShown && c.normal !== c.cur;
+  $('#r-normal').textContent = hasDc ? won(c.normal) : '';
+  $('#r-dc').textContent = hasDc ? c.dcShown + ' 할인 표시' : '';
+  $('#r-dc').style.color = hasDc ? 'var(--critical)' : 'var(--muted)';
+  if(!hasDc) $('#r-dc').textContent = '정가 판매 중 (할인 표시 없음)';
+
+  const v = $('#r-verdict');
+  v.className = 'verdict v-' + c.verdict;
+  $('#r-vic').textContent = c.vic;
+  $('#r-vtitle').textContent = c.vtitle;
+  $('#r-vdesc').textContent = c.vdesc;
+  $('#r-chart-sub').textContent = c.chartSub;
+
+  /* 실데이터/가상 분기 및 시계열 정규화 */
+  const isReal = !!c.real;
+  $('#real-badge').classList.toggle('hidden', !isReal);
+  $('#price-tag').textContent = '실측 데이터 · 일 2회 관측';
+  const weekLabelW = w => { const m = new Date(2025,7,4); m.setDate(m.getDate()+w*7);
+    return `${String(m.getFullYear()).slice(2)}.${m.getMonth()+1}.${m.getDate()}`; };
+  const pts = isReal
+    ? c.chart.series.map((p,i)=>({i, label:p.label, price:p.price}))
+    : c.series.map((p,i)=>({i, label:weekLabelW(p.w), price:p.price}));
+
+  /* 통계 */
+  const prices = pts.map(p=>p.price);
+  const med = Math.round(quantile(prices,.5)/100)*100;
+  const p10 = Math.round(quantile(prices,.1)/100)*100;
+  const p90 = Math.round(quantile(prices,.9)/100)*100;
+  const below = prices.filter(p=>p<=c.cur).length / prices.length;
+  const pct = Math.max(1, Math.round(below*100));
+  const realDc = Math.round((1 - c.cur/med)*100);
+  const hasBand = !isReal && pts.length >= 13;
+
+  /* 하드코딩 텍스트 ↔ 계산치 동기화 */
+  const fill = s => s.replaceAll('{med}', won(med)).replaceAll('{p10}', p10.toLocaleString('ko-KR'))
+    .replaceAll('{p90}', won(p90)).replaceAll('{pct}', pct).replaceAll('{realDc}', Math.max(0,realDc));
+  $('#r-vdesc').textContent = fill(c.vdesc);
+
+  const tiles = c.tiles || [
+    ['현재가', won(c.cur), ''],
+    [hasBand?'12개월 중앙값':'관측 중앙값', won(med), ''],
+    [hasBand?'12개월 최저 구간 (p10)':'관측 최저', won(hasBand?p10:Math.min(...prices)), ''],
+    ['실질 할인율', (realDc>=0?realDc:0) + '%',
+      c.verdict==='good' ? 'up-good' : (c.verdict==='bad' ? 'up-bad' : '')],
+  ];
+  $('#r-tiles').innerHTML = tiles.map(([l,val,cls]) =>
+    `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
+
+  $('#r-findings').innerHTML = c.findings.map(([ic,raw])=>{
+    const txt = fill(raw);
+    const col = ic==='✓' ? 'var(--good-text)' : ic==='✕' ? 'var(--critical)' : 'var(--ink)';
+    return `<div class="finding"><span class="fi" style="color:${col};font-weight:800">${ic}</span><span>${txt}</span></div>`;
+  }).join('');
+
+  $('#claims-title').textContent = c.claimsTitle || '② 성분·효능 주장 검증';
+  $('#claims-tag').textContent = c.claimsTag || '자동 분석';
+  $('#claims-sub').textContent = c.claimsSub || '상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.';
+  $('#r-claims').innerHTML = c.claims.map(cl=>`
+    <div class="claim">
+      <div class="c-body">
+        <div class="c-title">${cl.t}${cl.ing?` <a class="ing-link" href="glossary.html?q=${encodeURIComponent(cl.ing)}" target="_blank" rel="noopener" title="성분 사전에서 보기">🔎 사전</a>`:''}</div>
+        <div class="c-src">출처: ${cl.s}</div>
+        <div class="c-note">${cl.n}</div>
+      </div>
+      <span class="badge b-${cl.v}">${cl.b}</span>
+    </div>`).join('');
+
+  /* 안전 주의 (성분 기반) — 프로필 있는 실데이터에만 */
+  const safetyCard = $('#safety-card');
+  if(c.hasProfile){
+    safetyCard.classList.remove('hidden');
+    const s = c.safety || {};
+    const rows = [];
+    if(s.pregnancy && s.pregnancy.length){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">🤰</div><div><b>임산부·수유부 주의</b><div class="s-list">${s.pregnancy.join(', ')} 포함</div><div class="s-note">임신·수유 중이라면 사용 전 전문가 상담을 권장합니다.</div></div></div>`);
+    }
+    if(s.allergen && s.allergen.length){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">🌸</div><div><b>알레르기 유발 가능 성분</b><div class="s-list">${s.allergen.join(', ')}</div><div class="s-note">향료·특정 착향 성분에 민감하다면 성분표를 확인하고 사용하세요.</div></div></div>`);
+    }
+    if(!rows.length){
+      rows.push(`<div class="safety-row ok"><div class="s-ic">✓</div><div><b>특별히 주의할 성분은 검출되지 않았습니다</b><div class="s-note">임신 회피 권고·주요 착향 알레르겐 기준 스캔 결과입니다.</div></div></div>`);
+    }
+    if(s.official){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">📋</div><div><b>제조사 공식 주의사항</b><div class="s-note">${s.official}</div></div></div>`);
+    }
+    $('#r-safety').innerHTML = rows.join('');
+  } else {
+    safetyCard.classList.add('hidden');
+  }
+
+  /* 대안 옵션 (bad/warn 판정에만) */
+  const altsCard = $('#alts-card');
+  if(c.alts && c.alts.length){
+    altsCard.classList.remove('hidden');
+    $('#alts-title').textContent = c.altsTitle || '③ 검증된 대안';
+    $('#alts-tag').textContent = c.altsTag || '자동 분석';
+    $('#alts-sub').textContent = c.altsSub;
+    const bn = $('#alts-banner');
+    bn.classList.toggle('hidden', !c.altsBanner);
+    if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
+    $('#r-alts').innerHTML = c.alts.map(a=>`
+      <div class="alt">
+        <div class="a-why">${a.why}</div>
+        <div class="a-brand">${a.brand}</div>
+        <div class="a-name">${a.name}</div>
+        <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
+        <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
+        <div class="a-basis">${a.basis}</div>
+        ${a.gno?`<a class="a-link" href="https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=${a.gno}" target="_blank" rel="noopener">올리브영에서 보기 →</a>`:''}
+      </div>`).join('');
+    $('#basis-title').textContent = '④ 판정 근거';
+  } else {
+    altsCard.classList.add('hidden');
+    $('#basis-title').textContent = '③ 판정 근거';
+  }
+
+  const obsDays = pts.length>=52 ? 365 : 41;
+  $('#r-basis').innerHTML = (c.basis || [
+    ['가격 관측', `일 2회 (오전·저녁) 자동 수집 · 최근 ${obsDays}일 / 약 ${obsDays*2}회 관측`],
+    ['판정 기준', hasBand ? '12개월 p10–p90 통상 구간 + 중앙값 대비 실질 할인율 (베이스라인 게이트 적용)' : '관측 90일 미만 시 정상가 진위 판정 보류 (보수적 원칙)'],
+    ['주장 대조 출처', '식약처 기능성화장품 고시 · 전성분표(함량순 고시 기준)'],
+    ['판정서 고정', '발급 시점 데이터로 고정 · 재조회 시 새 번호로 신규 발급'],
+  ]).map(([k,val])=>`<div class="row"><span class="k2">${k}</span><span>${val}</span></div>`).join('');
+
+  $('#lg-band').style.display = hasBand ? '' : 'none';
+  const cfg = isReal
+    ? {pts, cur:c.cur, verdict:c.verdict, normal:c.chart.normal, normalNote:c.chart.normalNote,
+       band:null, median:null, note:null}
+    : {pts, cur:c.cur, verdict:c.verdict, normal:c.normal,
+       normalNote:`표시 정상가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
+       band: hasBand?{p10,p90}:null, median: hasBand?med:null,
+       note: hasBand?null:'관측 41일 — 통상 구간(밴드) 산출 기준(90일) 미달'};
+  drawChart(cfg);
+  show('report');
+}
+
+/* ---------- 차트 (SVG, 임의 시계열) ---------- */
+function drawChart(cfg){
+  const W=720, H=250, L=58, R=14, T=18, B=30;
+  const iw = W-L-R, ih = H-T-B;
+  const pts = cfg.pts, n = pts.length;
+  const allVals = pts.map(p=>p.price).concat([cfg.normal]);
+  let yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+  const padY = Math.max((yMax-yMin)*0.12, yMax*0.03); yMin=Math.max(0,yMin-padY); yMax+=padY;
+  const x = i => n>1 ? L + (i/(n-1))*iw : L + iw/2;
+  const y = p => T + ih - ((p-yMin)/(yMax-yMin))*ih;
+
+  /* y 눈금: 깔끔한 단위 */
+  const span = yMax-yMin;
+  const step = span > 15000 ? 5000 : span > 6000 ? 2000 : 1000;
+  let ticks=[]; for(let t=Math.ceil(yMin/step)*step; t<=yMax; t+=step) ticks.push(t);
+
+  /* x 눈금: 최대 7개, 라벨 중복 제거 */
+  const nTicks = Math.min(7, n);
+  const idxs = [...new Set(Array.from({length:nTicks}, (_,k)=>Math.round(k*(n-1)/Math.max(1,nTicks-1))))];
+  let lastLab = null;
+  const xticks = idxs.map(i=>{
+    const lab = pts[i].label.split('·')[0];
+    if(lab===lastLab) return null; lastLab=lab; return [i,lab];
+  }).filter(Boolean);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="가격 이력 차트">`;
+  ticks.forEach(t=>{
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    s += `<text x="${L-8}" y="${y(t)+4}" text-anchor="end" font-size="10.5" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${t.toLocaleString('ko-KR')}</text>`;
+  });
+  xticks.forEach(([i,lab])=>{
+    s += `<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${lab}</text>`;
+  });
+  /* 통상 구간 밴드 / 미달 노트 */
+  if(cfg.band){
+    s += `<rect x="${L}" y="${y(cfg.band.p90)}" width="${iw}" height="${y(cfg.band.p10)-y(cfg.band.p90)}" rx="4" fill="var(--series-wash)"/>`;
+  }
+  if(cfg.median != null){
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.median)}" y2="${y(cfg.median)}" stroke="var(--baseline)" stroke-width="1"/>`;
+    s += `<text x="${L+4}" y="${y(cfg.median)-5}" font-size="10.5" fill="var(--muted)">중앙값 ${cfg.median.toLocaleString('ko-KR')}</text>`;
+  }
+  if(cfg.note){
+    s += `<text x="${L+iw*0.38}" y="${T+ih*0.45}" text-anchor="middle" font-size="12" fill="var(--muted)">${cfg.note}</text>`;
+  }
+  /* 표시 정상가 기준선 */
+  s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--muted)" stroke-width="1.5"/>`;
+  s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--ink-2)" font-weight="600">${cfg.normalNote}</text>`;
+  /* 가격 라인 */
+  const d = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p.price).toFixed(1)).join(' ');
+  s += `<path d="${d}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  /* 관측점 마커 (짧은 시계열일 때만) */
+  if(n <= 25){
+    pts.forEach((p,i)=>{
+      s += `<circle cx="${x(i)}" cy="${y(p.price)}" r="3.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+    });
+  }
+  /* 현재가 마커 (서피스 링) */
+  const lastP = pts[n-1];
+  s += `<circle cx="${x(n-1)}" cy="${y(lastP.price)}" r="5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${x(n-1)-12}" y="${y(lastP.price)+(cfg.verdict==='good'?20:-14)}" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--ink)">현재 ${lastP.price.toLocaleString('ko-KR')}원</text>`;
+  /* 호버 레이어 */
+  s += `<line id="xhair" x1="0" x2="0" y1="${T}" y2="${T+ih}" stroke="var(--baseline)" stroke-width="1" style="display:none"/>`;
+  s += `<circle id="hoverdot" r="4.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2" style="display:none"/>`;
+  s += `<rect x="${L}" y="${T}" width="${iw}" height="${ih}" fill="transparent" id="hover-rect"/>`;
+  s += `</svg>`;
+  $('#chart').innerHTML = s;
+
+  /* 크로스헤어 + 툴팁 */
+  const svg = $('#chart svg'), tt = $('#tooltip');
+  const hr = svg.querySelector('#hover-rect'), xh = svg.querySelector('#xhair'), hd = svg.querySelector('#hoverdot');
+  hr.addEventListener('mousemove', ev=>{
+    const box = svg.getBoundingClientRect();
+    const sx = (ev.clientX-box.left) * (W/box.width);
+    let bi=0, bd=1e9;
+    pts.forEach((p,i)=>{const dd=Math.abs(x(i)-sx); if(dd<bd){bd=dd;bi=i;}});
+    const px=x(bi), py=y(pts[bi].price);
+    xh.setAttribute('x1',px); xh.setAttribute('x2',px); xh.style.display='block';
+    hd.setAttribute('cx',px); hd.setAttribute('cy',py); hd.style.display='block';
+    tt.style.display='block';
+    tt.style.left=(px/W*100)+'%';
+    tt.style.top=(py/H*100)+'%';
+    tt.innerHTML = `${pts[bi].label} · <b>${won(pts[bi].price)}</b>`;
+  });
+  hr.addEventListener('mouseleave', ()=>{ tt.style.display='none'; xh.style.display='none'; hd.style.display='none'; });
+}
+
+/* ---------- 이벤트 ---------- */
+function caseFromUrl(u){
+  let h=0; for(const ch of u) h=(h*31+ch.charCodeAt(0))|0;
+  return ['a','b','c'][Math.abs(h)%3];
+}
+/* 파일을 직접 열었을 때(file://) fetch가 막히는 경우의 오프라인 샘플 폴백 */
+
+/* 로딩 애니메이션만 (renderReport는 외부에서 호출) */
+function runLoadingThen(cb){
+  show('loading');
+  const steps = document.querySelectorAll('#view-loading .step');
+  steps.forEach(s => s.classList.remove('on','now'));
+  let i = 0;
+  const tick = () => {
+    if(i>0){ steps[i-1].classList.add('on'); steps[i-1].classList.remove('now'); }
+    if(i < steps.length){ steps[i].classList.add('now'); i++; setTimeout(tick, 300); }
+    else setTimeout(cb, 250);
+  };
+  tick();
+}
+
+/* ---------- 상품명 검색 (URL 아닌 입력) ---------- */
+let SEARCH_INDEX = null;
+async function loadIndex(){
+  if(SEARCH_INDEX) return SEARCH_INDEX;
+  try{ const r = await fetch('verdicts/index.json', {cache:'no-store'});
+       if(r.ok){ SEARCH_INDEX = (await r.json()).items || {}; } }
+  catch(e){ SEARCH_INDEX = {}; }
+  return SEARCH_INDEX || {};
+}
+async function searchProducts(q){
+  q = (q||'').trim(); if(!q) return;
+  const box = $('#search-results');
+  const idx = await loadIndex();
+  if(!Object.keys(idx).length){ // file:// 등 index 로드 불가
+    box.innerHTML = `<div class="sr-empty">상품명 검색은 배포된 사이트에서 동작해요. 파일을 직접 열면 상품 URL로만 조회됩니다.</div>`;
+    box.classList.add('on'); return;
+  }
+  // 띄어쓴 단어는 각각 AND로 검색 (예: "아누아 세럼" → '아누아' AND '세럼' 둘 다 포함)
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = Object.entries(idx)
+    .filter(([g,it]) => { const hay=((it.name||'')+' '+(it.brand||'')).toLowerCase(); return terms.every(t=>hay.includes(t)); })
+    .sort((a,b)=>(a[1].name||'').length-(b[1].name||'').length)   // 짧은(대표) 상품명 우선
+    .slice(0, 40);
+  if(!hits.length){
+    box.innerHTML = `<div class="sr-empty">‘${q}’에 해당하는 추적 상품이 없어요. 아직 추적 목록에 없거나(수집 대기), 상품 URL로 조회해보세요.</div>`;
+    box.classList.add('on'); return;
+  }
+  if(hits.length === 1){ box.classList.remove('on'); box.innerHTML=''; loadGoods(hits[0][0]); return; }
+  box.innerHTML = `<div class="sr-head">‘${q}’ 검색 결과 ${hits.length}개 — 판정서를 볼 상품을 선택하세요</div>` +
+    hits.map(([g,it]) => {
+      const nm=(it.name||''), br=(it.brand||'');
+      const disp = (br && !nm.includes(br)) ? `<b>${br}</b> ${nm}` : nm;
+      const im = it.img ? `<img class="sr-img" src="${it.img}" alt="" loading="lazy" onerror="this.remove()">` : '';
+      return `<button class="sr-item" data-g="${g}">${im}<span>${disp}</span><span class="sr-cur">${(it.cur||0).toLocaleString('ko-KR')}원</span></button>`;
+    }).join('');
+  box.classList.add('on');
+}
+function loadGoods(gno){
+  $('#search-results').classList.remove('on');
+  judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + gno);
+}
+
+async function judgeUrl(u){
+  const m = u.match(/A\d{12}/);
+  if(!m){ searchProducts(u); return; }   // URL이 아니면 상품명 검색으로
+  const gno = m[0];
+  runLoadingThen(async ()=>{
+    try{
+      const res = await fetch('verdicts/' + gno + '.json', {cache:'no-store'});
+      if(res.ok){ CASES['_fetched'] = await res.json(); renderReport('_fetched'); return; }
+      // 200이 아니면(404 등) 추적 목록에 없는 상품
+      show('home');
+      toast(`${gno} — 아직 추적 목록에 없는 상품이에요. 추적 목록은 매일 넓어집니다.`);
+      return;
+    }catch(e){ /* file:// 로 직접 열어 fetch 자체가 막힌 경우 */ }
+    show('home');
+    toast('파일을 직접 열면 조회가 제한돼요 — 배포된 사이트(http)에서 상품 URL을 넣어보세요.');
+  });
+}
+
+$('#go-btn').addEventListener('click', ()=>{
+  const inp = $('#url-input'), u = inp.value.trim();
+  if(!u){ inp.classList.add('err'); setTimeout(()=>inp.classList.remove('err'),400); inp.focus(); return; }
+  judgeUrl(u);
+});
+$('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
+$('#search-results').addEventListener('click', e=>{ const b=e.target.closest('.sr-item'); if(b) loadGoods(b.dataset.g); });
+/* ?g=goodsNo 파라미터로 판정서 바로 열기 (가격 데이터 페이지 카드 → 판정서 동선) */
+{
+  const qg = new URLSearchParams(location.search).get('g');
+  if(qg && /^A\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
+}
+loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').textContent=n.toLocaleString('ko-KR'); });
+
+/* ---------- 오늘의 가격 데이터 티저 (price_teaser.json — 없으면 티저 숨김 유지) ---------- */
+(async ()=>{
+  let d = null;
+  try{ const r = await fetch('price_teaser.json', {cache:'no-store'}); if(r.ok) d = await r.json(); }
+  catch(e){ /* file:// 등 — 티저 생략 */ }
+  if(!d || !d.minis || !d.minis.length) return;
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const VC = {genuine:['v-good','✓ 진짜 할인'], inflated:['v-bad','✕ 부풀림 신호'],
+              honest:['v-flat','정직한 가격'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류']};
+  const c = d.counts || {};
+  const badN = c.inflated||0;
+  $('#t-sub').innerHTML = badN
+    ? `${esc(d.obs_label)} — 오늘 랭킹 Top 30 중 <b class="bad">${badN}개는 '정가'가 부풀려진 할인</b>이었어요`
+    : `${esc(d.obs_label)} — 오늘 랭킹 Top 30의 실제 가격 흐름을 확인하세요`;
+  const stat = (cls,label,n)=> n ? `<span class="t-stat ${cls}">${label} ${n}</span>` : '';
+  $('#t-stats').innerHTML =
+    stat('s-good','✓ 진짜 할인',c.genuine) + stat('s-bad','✕ 부풀림 신호',c.inflated) +
+    stat('s-flat','정직한 가격',c.honest) + stat('s-flat','통상 가격',c.watch) +
+    stat('s-warn','! 판정 보류',c.hold);
+  const CW=260, CH=46, L=6, R=6, T=8, B=5;
+  const mspark = it=>{
+    const pts = it.series||[]; const n = pts.length; if(!n) return '';
+    const vals = pts.map(p=>p[1]);
+    let yMin = Math.min(...vals, it.org||Infinity), yMax = Math.max(...vals, it.org||0);
+    const pad = Math.max((yMax-yMin)*0.14, yMax*0.02); yMin-=pad; yMax+=pad;
+    const x = i => n>1 ? L + (i/(n-1))*(CW-L-R) : CW/2;
+    const y = v => T + (CH-T-B) - ((v-yMin)/(yMax-yMin))*(CH-T-B);
+    let s = `<svg viewBox="0 0 ${CW} ${CH}" aria-hidden="true">`;
+    if(it.org) s += `<line x1="${L}" x2="${CW-R}" y1="${y(it.org)}" y2="${y(it.org)}" stroke="var(--muted)" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.75"/>`;
+    const path = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[1]).toFixed(1)).join('');
+    s += `<path d="${path}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+    return s + `</svg>`;
+  };
+  $('#t-minis').innerHTML = d.minis.slice(0,3).map(it=>{
+    const [cls,label] = VC[it.vtype] || VC.watch;
+    const th = it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
+                      : esc((it.brand||'·').slice(0,1));
+    return `<div class="t-mini">
+      <div class="m-row"><div class="m-thumb">${th}</div>
+      <div class="m-name">${it.rank}위 · ${esc(it.brand)} ${esc(it.name)}</div></div>
+      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}원<span class="m-chip ${cls}">${label}</span></div>
+      ${mspark(it)}
+    </div>`;
+  }).join('');
+  $('#teaser').classList.remove('hidden');
+})();
+$('#back-btn').addEventListener('click', ()=>{ $('#url-input').value=''; show('home'); });
+$('#copy-btn').addEventListener('click', ()=>{
+  const url = location.href;
+  (navigator.clipboard?.writeText(url) || Promise.reject())
+    .then(()=>toast('판정서 링크가 복사되었습니다'))
+    .catch(()=>toast(url));
+});
+/* ---------- 이의제기 (실제 접수: mailto) ---------- */
+const DISPUTE_EMAIL = 'themaric.official@gmail.com';   // 이의제기 접수 이메일
+$('#dispute-addr').textContent = DISPUTE_EMAIL;
+function openDispute(){
+  const id = ($('#r-id')?.textContent || '').trim() || '(번호 없음)';
+  const brand = ($('#r-brand')?.textContent || '').trim();
+  const name = ($('#r-name')?.textContent || '').trim();
+  const vtitle = ($('#r-vtitle')?.textContent || '').trim();
+  const ctx = `${brand} ${name}\n판정서 ${id} · ${vtitle}\n${location.href}`;
+  $('#dispute-ctx').textContent = ctx;
+  const subject = `[더마릭 이의제기] ${id} ${brand} ${name}`.slice(0,120);
+  const body =
+`■ 재검토 대상\n${ctx}\n\n■ 어떤 점이 사실과 다른가요?\n(여기에 작성)\n\n■ 근거 (가격 캡처, 공식 자료 링크 등)\n(여기에 첨부/링크)\n\n■ 회신받을 연락처\n(이메일 또는 담당자)\n`;
+  $('#dispute-mail').href = `mailto:${DISPUTE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  $('#dispute-modal').style.display = 'flex';
+}
+$('#object-btn').addEventListener('click', openDispute);
+$('#foot-dispute')?.addEventListener('click', e=>{ e.preventDefault(); openDispute(); });
+$('#dispute-close').addEventListener('click', ()=>{ $('#dispute-modal').style.display='none'; });
+$('#dispute-modal').addEventListener('click', e=>{ if(e.target.id==='dispute-modal') $('#dispute-modal').style.display='none'; });
+$('#tg-btn').addEventListener('click', ()=>toast('텔레그램 채널은 준비 중이에요 — 오픈 소식은 이 페이지에서 알려드릴게요'));
+$('#api-link').addEventListener('click', e=>{ e.preventDefault(); toast('개발자용 API는 준비 중이에요'); });
+</script>
+</body>
+</html>

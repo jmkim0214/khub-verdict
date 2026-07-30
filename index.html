@@ -255,6 +255,13 @@
     margin-top:14px; padding:11px 14px; border-radius:9px;
     background:var(--page); font-size:12px; color:var(--muted); line-height:1.65;
   }
+  /* 비화장품(디바이스) 고시 사양표 — 2026-07-30 */
+  .spec{margin-top:16px; border-top:1px solid var(--grid);}
+  .spec .row{display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--grid); font-size:13px; color:var(--ink-2);}
+  .spec .row:last-child{border-bottom:none;}
+  .spec .row .k2{flex:none; width:132px; color:var(--muted);}
+  .spec .row .v2{flex:1; color:var(--ink);}
+  @media (max-width:560px){.spec .row{flex-direction:column; gap:1px;} .spec .row .k2{width:auto;}}
   .basis{font-size:13px; color:var(--ink-2);}
   .basis .row{display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--grid);}
   .basis .row:last-child{border-bottom:none;}
@@ -409,7 +416,10 @@
     <div class="card">
       <div class="sec-h"><h3 id="claims-title">② 성분·효능 주장 검증</h3><span class="tag" id="claims-tag">자동 분석</span></div>
       <div class="sec-sub" id="claims-sub">상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.</div>
+      <div class="tiles hidden" id="notice-tiles"></div>
       <div id="r-claims"></div>
+      <div class="spec hidden" id="notice-spec"></div>
+      <div class="neutral hidden" id="notice-note"></div>
     </div>
 
     <div class="card hidden" id="safety-card">
@@ -619,6 +629,21 @@ function renderReport(key){
       </div>
       <span class="badge b-${cl.v}">${cl.b}</span>
     </div>`).join('');
+
+  /* 비화장품(디바이스 등) 고시 블록 — 값이 있을 때만 표시 (화장품은 그대로) */
+  const nt = $('#notice-tiles'), nsp = $('#notice-spec'), nn = $('#notice-note');
+  if(c.noticeTiles && c.noticeTiles.length){
+    nt.classList.remove('hidden');
+    nt.innerHTML = c.noticeTiles.map(([l,val,cls]) =>
+      `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
+  } else nt.classList.add('hidden');
+  if(c.noticeSpec && c.noticeSpec.length){
+    nsp.classList.remove('hidden');
+    nsp.innerHTML = c.noticeSpec.map(([k,v]) =>
+      `<div class="row"><div class="k2">${k}</div><div class="v2">${v}</div></div>`).join('');
+  } else nsp.classList.add('hidden');
+  if(c.noticeNote){ nn.classList.remove('hidden'); nn.innerHTML = c.noticeNote; }
+  else nn.classList.add('hidden');
 
   /* 안전 주의 (성분 기반) — 프로필 있는 실데이터에만 */
   const safetyCard = $('#safety-card');
@@ -866,7 +891,7 @@ $('#search-results').addEventListener('click', e=>{ const b=e.target.closest('.s
 /* ?g=goodsNo 파라미터로 판정서 바로 열기 (가격 데이터 페이지 카드 → 판정서 동선) */
 {
   const qg = new URLSearchParams(location.search).get('g');
-  if(qg && /^A\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
+  if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
 }
 loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').textContent=n.toLocaleString('ko-KR'); });
 
@@ -878,7 +903,8 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   if(!d || !d.minis || !d.minis.length) return;
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const VC = {genuine:['v-good','✓ 진짜 할인'], inflated:['v-bad','✕ 부풀림 신호'],
-              honest:['v-flat','정직한 가격'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류']};
+              honest:['v-flat','정직한 가격'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류'],
+              raised:['v-warn','↑ 정가 인상'], sale_end:['v-warn','↑ 할인 종료']};
   const c = d.counts || {};
   const badN = c.inflated||0;
   $('#t-sub').innerHTML = badN
