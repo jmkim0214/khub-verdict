@@ -159,7 +159,19 @@
     display:flex; align-items:center; justify-content:center; font-size:32px;
     background:var(--series-wash); border:1px solid var(--border);}
   .prod .brand{font-size:12.5px; color:var(--muted); font-weight:600;}
-  .prod .name{font-size:16.5px; font-weight:700; letter-spacing:-0.01em; line-height:1.4;}
+  .prod .name{display:block; font-size:16.5px; font-weight:700; letter-spacing:-0.01em; line-height:1.4;
+              color:inherit; text-decoration:none;}
+  .prod a.name:hover{color:var(--series); text-decoration:underline; text-underline-offset:3px;}
+  .oy-cta{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; color:#fff;
+          background:var(--series); border-radius:999px; padding:8px 15px; text-decoration:none;}
+  .oy-cta:hover{filter:brightness(1.08);}
+  .oy-cta.hidden{display:none;}
+  .empty-sec{margin-top:12px; padding:15px 16px; border:1px dashed var(--baseline); border-radius:12px;
+             background:var(--surface);}
+  .empty-sec .es-t{font-size:14px; font-weight:700;}
+  .empty-sec .es-b{font-size:12.5px; color:var(--ink-2); line-height:1.75; margin-top:6px;}
+  .empty-sec a{color:var(--series); font-weight:700;}
+  .thumb a{display:block; width:100%; height:100%;}
   .prod .opt{font-size:12.5px; color:var(--muted); margin-top:2px;}
   .prod .price-row{margin-top:8px; display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;}
   .prod .cur{font-size:21px; font-weight:800;}
@@ -380,13 +392,14 @@
         <div class="thumb" id="r-thumb"></div>
         <div>
           <div class="brand" id="r-brand"></div>
-          <div class="name" id="r-name"></div>
+          <a class="name" id="r-name" target="_blank" rel="noopener sponsored"></a>
           <div class="opt" id="r-opt"></div>
           <div class="price-row">
             <span class="cur" id="r-cur"></span>
             <span class="strike" id="r-normal"></span>
             <span class="dc" id="r-dc"></span>
           </div>
+          <a class="oy-cta" id="r-oy" target="_blank" rel="noopener sponsored">올리브영에서 상품 보기 →</a>
         </div>
       </div>
       <div class="verdict" id="r-verdict">
@@ -562,6 +575,18 @@ function renderReport(key){
   else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }
   $('#r-brand').textContent = c.brand;
   $('#r-name').textContent = c.name;
+  /* 상품명·CTA·썸네일 → 올리브영(어필리에이트 링크가 있으면 그 링크). 판정과 수수료는 분리 원칙. */
+  const oyHref = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
+  const nameEl = $('#r-name'), ctaEl = $('#r-oy');
+  if(oyHref){
+    nameEl.href = oyHref; nameEl.removeAttribute('aria-disabled');
+    ctaEl.href = oyHref; ctaEl.classList.remove('hidden');
+    const th = $('#r-thumb');
+    th.style.cursor = 'pointer';
+    th.onclick = ()=> window.open(oyHref, '_blank', 'noopener');
+  } else {
+    nameEl.removeAttribute('href'); ctaEl.classList.add('hidden');
+  }
   $('#r-opt').textContent = c.opt;
   $('#r-cur').textContent = won(c.cur);
   const hasDc = c.dcShown && c.normal !== c.cur;
@@ -646,6 +671,23 @@ function renderReport(key){
   if(c.noticeNote){ nn.classList.remove('hidden'); nn.innerHTML = c.noticeNote; }
   else nn.classList.add('hidden');
 
+  /* ② 섹션이 통째로 비는 경우 — 빈 화면 대신 '무엇이 아직 없는지'를 적는다 (2026-07-31).
+     기획세트·신규 등록 상품은 고시 수집이 다음 회차로 밀릴 수 있다. 정보가 없다는 뜻이 아니다. */
+  if(!(c.claims && c.claims.length) && !(c.noticeTiles && c.noticeTiles.length)
+     && !(c.noticeSpec && c.noticeSpec.length)){
+    const oy = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
+    $('#r-claims').innerHTML =
+      `<div class="empty-sec">
+         <div class="es-t">이 상품은 아직 고시 정보를 수집하지 못했습니다</div>
+         <div class="es-b">제조국·제조자·품질보증기준 같은 「상품정보 제공고시」 항목이 <b>아직 더마릭에 들어오지 않았습니다</b>.
+         판매자가 표기하지 않았다는 뜻이 아니라, 이 상품이 아직 수집 순번이 아니라는 뜻입니다 —
+         기획세트·신규 등록 상품에서 자주 생깁니다. 다음 수집 회차에 채워지면 판정서도 새 번호로 갱신됩니다.</div>
+         <div class="es-b" style="margin-top:8px">위 <b>① 가격 진실</b> 판정은 이 항목과 무관하게 매일 갱신되니 그대로 참고하셔도 됩니다.
+         고시 표기를 지금 바로 확인하려면 ${oy ? `<a href="${oy}" target="_blank" rel="noopener sponsored">올리브영 상품 페이지</a>` : '올리브영 상품 페이지'}의
+         「상품정보 제공고시」를 펼쳐 보세요.</div>
+       </div>`;
+  }
+
   /* 안전 주의 (성분 기반) — 프로필 있는 실데이터에만 */
   const safetyCard = $('#safety-card');
   if(c.hasProfile){
@@ -687,7 +729,7 @@ function renderReport(key){
         <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
         <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
         <div class="a-basis">${a.basis}</div>
-        ${a.gno?`<a class="a-link" href="https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=${a.gno}" target="_blank" rel="noopener">올리브영에서 보기 →</a>`:''}
+        ${a.gno?`<a class="a-link" href="${a.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+a.gno}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
       </div>`).join('');
     $('#basis-title').textContent = '④ 판정 근거';
   } else {
@@ -871,7 +913,11 @@ async function judgeUrl(u){
   runLoadingThen(async ()=>{
     try{
       const res = await fetch('verdicts/' + gno + '.json', {cache:'no-store'});
-      if(res.ok){ CASES['_fetched'] = await res.json(); renderReport('_fetched'); return; }
+      if(res.ok){
+        const j = await res.json();
+        if(!j.gno) j.gno = gno;   // 구버전 판정서 JSON 호환 — 상품 링크가 끊기지 않게
+        CASES['_fetched'] = j; renderReport('_fetched'); return;
+      }
       // 200이 아니면(404 등) 추적 목록에 없는 상품
       show('home');
       toast(`${gno} — 아직 추적 목록에 없는 상품이에요. 추적 목록은 매일 넓어집니다.`);
@@ -890,8 +936,18 @@ $('#go-btn').addEventListener('click', ()=>{
 $('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
 $('#search-results').addEventListener('click', e=>{ const b=e.target.closest('.sr-item'); if(b) loadGoods(b.dataset.g); });
 /* ?g=goodsNo 파라미터로 판정서 바로 열기 (가격 데이터 페이지 카드 → 판정서 동선) */
+/* from=device|price → '다른 상품 판정하기'를 눌렀을 때 왔던 목록으로 돌려보낸다 (2026-07-31) */
+const ORIGIN_PAGES = {device:'device.html', price:'price.html', routine:'routine.html'};
+let backTo = null;
 {
-  const qg = new URLSearchParams(location.search).get('g');
+  const q = new URLSearchParams(location.search);
+  const qg = q.get('g');
+  backTo = ORIGIN_PAGES[q.get('from')] || null;
+  if(backTo){
+    const lbl = {'device.html':'← 디바이스 목록으로', 'price.html':'← 가격 데이터로',
+                 'routine.html':'← 루틴 가이드로'}[backTo];
+    if(lbl) $('#back-btn').textContent = lbl;
+  }
   if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
 }
 loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').textContent=n.toLocaleString('ko-KR'); });
@@ -944,7 +1000,10 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   }).join('');
   $('#teaser').classList.remove('hidden');
 })();
-$('#back-btn').addEventListener('click', ()=>{ $('#url-input').value=''; show('home'); });
+$('#back-btn').addEventListener('click', ()=>{
+  if(backTo){ location.href = backTo; return; }   // 디바이스·가격 목록에서 들어왔으면 그 목록으로
+  $('#url-input').value=''; show('home');
+});
 $('#copy-btn').addEventListener('click', ()=>{
   const url = location.href;
   (navigator.clipboard?.writeText(url) || Promise.reject())
