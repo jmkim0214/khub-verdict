@@ -831,27 +831,43 @@ const DEV_FOR = {
 };
 const RC_DEV = DB.filter(p=>p.d && p.m && p.m.length);
 
-// 선택한 축에서 '고민' 집합을 뽑는다 (연령축은 mix를 펼쳐서 포함)
+// 선택한 축에서 '고민 → 가중치'를 뽑는다.
+// 연령축은 mix의 가중치를 그대로 쓴다 — 이걸 버리면 10대와 20대가 같은 결과가 된다(2026-08-02 수정).
 function devConcerns(sel){
-  const out = new Set();
+  const out = {};
+  const add = (k, w) => { if (DEV_FOR[k]) out[k] = Math.max(out[k]||0, w); };
   sel.forEach(v=>{
-    if (DEV_FOR[v]) out.add(v);
+    add(v, 1.0);                                        // 직접 고른 고민은 만점
     const mix = RC_RULES[v] && RC_RULES[v].mix;
-    if (mix) mix.forEach(([k])=>{ if (DEV_FOR[k]) out.add(k); });
+    if (mix) mix.forEach(([k,w])=>add(k, w));            // 연령축 등은 mix 가중치 반영
   });
-  return [...out];
+  return out;                                           // {concern: weight}
 }
-function rcDevScore(p, concerns){
-  const want = new Set(concerns.flatMap(c=>DEV_FOR[c]||[]));
-  const hit = (p.m||[]).filter(m=>want.has(m));
-  if (!hit.length) return null;                       // 표방 방식이 안 맞으면 후보 아님
-  let s = hit.length * 2;
+// 리뷰는 표본이 받쳐줄 때만 점수로 친다.
+// ★5(1건)이 ★4.7(2,509건)을 이기던 문제 — 30건 미만은 0점으로 둔다.
+function rcRevBonus(p){
+  const rt = p.rt || 0, rv = p.rv || 0;
+  if (rv < 30) return 0;
+  if (rt >= 4.5 && rv >= 1000) return 2;
+  if (rt >= 4.5 && rv >= 200)  return 1.5;
+  if (rt >= 4.3) return 1;
+  if (rt >= 4.0) return 0.5;
+  return 0;
+}
+function rcDevScore(p, cw){
+  const mods = new Set(p.m||[]);
+  let match = 0; const served = [], hit = new Set();
+  for (const c in cw){
+    const ms = (DEV_FOR[c]||[]).filter(m=>mods.has(m));
+    if (ms.length){ match += cw[c]; served.push(c); ms.forEach(m=>hit.add(m)); }
+  }
+  if (!match) return null;                              // 표방 방식이 안 맞으면 후보 아님
+  let s = match * 3;                                    // 고민 가중치 합이 1차 축
   if (p.vt === 'genuine') s += 3; else if (p.vt === 'honest') s += 2; else if (p.vt === 'watch') s += 1;
-  if (p.rt >= 4.5 && p.rv >= 1000) s += 2;
-  else if (p.rt >= 4.5 && p.rv >= 100) s += 1;
-  else if (p.rt >= 4.0) s += 0.5;
-  if (p.wr) s += 1;                                   // 무상보증을 고시에 적은 판매자
-  return {s, hit};
+  s += rcRevBonus(p);
+  if (p.wr) s += 1;                                     // 무상보증을 고시에 적은 판매자
+  s += Math.min(0.4, (p.rv||0)/10000);                  // 동점 시 리뷰 많은 쪽 (최대 0.4)
+  return {s:Math.round(s*10)/10, hit:[...hit], served};
 }
 function rcDevTop(concerns, n){
   const ranked = RC_DEV.map(p=>({p, r:rcDevScore(p, concerns)}))
@@ -979,14 +995,16 @@ function rcDevCand(x){
   const oy = OYURL + p.g + (p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + p.ac : '');
   const on = shelf.some(s=>s.g===p.g);
   const mods = (x.r.hit||[]).map(m=>DEV_LABEL[m]||m).join(' · ');
+  const forWhat = (x.r.served||[]).map(c=>RC_RULES[c] && RC_RULES[c].label).filter(Boolean).join('·');
   const facts = [p.wr ? '무상보증 '+p.wr : '보증기간 표기 없음', p.oc ? '제조국 '+p.oc : null]
                 .filter(Boolean).join(' · ');
-  const rev = (p.rt ? `★ ${p.rt}${p.rv?` (${p.rv.toLocaleString('ko-KR')})`:''}` : '');
+  const thin = (p.rv||0) < 30;
+  const rev = (p.rt ? `★ ${p.rt}${p.rv?` (${p.rv.toLocaleString('ko-KR')})`:''}${thin?' 표본 적음':''}` : '');
   return `<div class="cand">
     <div class="c-brand">${esc(p.b)}</div>
     <div class="c-name"><a href="${esc(oy)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">${esc(rcName(p))}<span class="ext"> ↗</span></a></div>
     <div class="c-price">${p.cur?`<b>${p.cur.toLocaleString('ko-KR')}원</b>`:''}${rev?`<span class="c-dc">${esc(rev)}</span>`:''}</div>
-    <div class="c-warn">판매자 표방 방식: ${esc(mods)} · ${esc(facts)}<br>사용 순서·빈도와 함께 쓰면 안 되는 제품은 <b>제조사 안내를 먼저 확인하세요.</b></div>
+    <div class="c-warn">${forWhat?`<b>${esc(forWhat)}</b>용으로 판매자가 표방 · `:''}방식: ${esc(mods)}<br>${esc(facts)}<br>사용 순서·빈도와 함께 쓰면 안 되는 제품은 <b>제조사 안내를 먼저 확인하세요.</b></div>
     <div class="c-acts">
       <button class="${on?'added':''}" onclick="rcToggle('${p.g}')" title="${on?'궁합 검사에서 빼기':'궁합 검사에 담기'}">${on?'✓ 담김':'＋ 담기'}</button>
       <a href="index.html?g=${p.g}&from=routine" target="_blank" rel="noopener" title="가격·판정서 보기">판정</a>
@@ -1073,7 +1091,7 @@ function rcRender(){
 
   // 기기 슬롯 — 루틴 맨 끝, 선택 사항으로만
   const concerns = devConcerns(sel);
-  if (concerns.length) html += rcDevSec(rcDevTop(concerns, RC_N));
+  if (Object.keys(concerns).length) html += rcDevSec(rcDevTop(concerns, RC_N));
   document.getElementById('rc-slots').innerHTML = html;
 
   const nExcl = Object.values(RC_BY).flat().filter(p=>p.vt!=='genuine'&&p.vt!=='honest'&&p.vt!=='watch').length;
