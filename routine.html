@@ -154,6 +154,12 @@
   .cand .c-price b{font-size:13.5px; font-variant-numeric:tabular-nums;}
   .cand .c-dc{color:var(--good-text); font-size:11px; font-weight:700; white-space:nowrap;}
   .cand .c-rt{font-size:11px; color:var(--muted);}
+  .cand .c-why{margin-top:5px; padding-top:6px; border-top:1px dashed var(--grid);}
+  .cand .c-why li{list-style:none; font-size:11.5px; color:var(--ink-2); line-height:1.6;
+    padding-left:12px; position:relative;}
+  .cand .c-why li:before{content:'·'; position:absolute; left:3px; color:var(--series); font-weight:800;}
+  .cand .c-why li.dim{color:var(--muted);}
+  .cand .c-why li.dim:before{color:var(--muted);}
   .vchip2{font-size:10px; font-weight:700; border-radius:999px; padding:1px 7px; white-space:nowrap;}
   .vchip2.v-good{background:var(--good-bg); color:var(--good-text);}
   .vchip2.v-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
@@ -989,6 +995,24 @@ function rcCand(x, note){
     </div>
   </div>`;
 }
+// 이 기기가 왜 이 조합에서 뽑혔는지 — 점수 구성 요소를 그대로 문장으로 편다.
+// 가점이 안 된 항목(보증 미표기·리뷰 표본 부족)도 흐리게 같이 적는다: 없는 것도 판단 근거다.
+const RC_VT_WHY = {genuine:'가격 판정 <b>진짜 할인</b> — 관측 대비 실제로 싸진 구간',
+                   honest:'가격 판정 <b>정직한 가격</b> — 표시 할인 부풀림 없음',
+                   watch:'가격 판정 <b>통상 가격</b> — 부풀림은 없으나 할인 구간도 아님'};
+function rcDevWhy(x){
+  const p = x.p, out = [];
+  const forWhat = (x.r.served||[]).map(c=>RC_RULES[c] && RC_RULES[c].label).filter(Boolean).join('·');
+  const mods = (x.r.hit||[]).map(m=>DEV_LABEL[m]||m).join('·');
+  if (forWhat) out.push([1, `<b>${esc(forWhat)}</b>에 쓰는 방식(${esc(mods)})이라고 <b>판매자가 표방</b>`]);
+  if (RC_VT_WHY[p.vt]) out.push([1, RC_VT_WHY[p.vt]]);
+  const rv = p.rv||0;
+  if (rv >= 30) out.push([1, `리뷰 <b>${rv.toLocaleString('ko-KR')}건</b> · 평점 ★${p.rt}`]);
+  else out.push([0, `리뷰 ${rv?rv+'건':'없음'} — 표본이 적어 점수에 넣지 않았습니다`]);
+  if (p.wr) out.push([1, `판매자가 고시에 <b>무상보증 ${esc(p.wr)}</b>을 적었습니다`]);
+  else out.push([0, '보증기간을 고시에 적지 않았습니다 — 가점 없음']);
+  return `<ul class="c-why">${out.map(([on,t])=>`<li class="${on?'':'dim'}">${t}</li>`).join('')}</ul>`;
+}
 // 기기 카드 — 화장품 카드와 달리 '표방 방식 · 보증 · 제조국'을 싣고, 효능 문구는 싣지 않는다
 function rcDevCand(x){
   const p = x.p;
@@ -1004,7 +1028,8 @@ function rcDevCand(x){
     <div class="c-brand">${esc(p.b)}</div>
     <div class="c-name"><a href="${esc(oy)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">${esc(rcName(p))}<span class="ext"> ↗</span></a></div>
     <div class="c-price">${p.cur?`<b>${p.cur.toLocaleString('ko-KR')}원</b>`:''}${rev?`<span class="c-dc">${esc(rev)}</span>`:''}</div>
-    <div class="c-warn">${forWhat?`<b>${esc(forWhat)}</b>용으로 판매자가 표방 · `:''}방식: ${esc(mods)}<br>${esc(facts)}<br>사용 순서·빈도와 함께 쓰면 안 되는 제품은 <b>제조사 안내를 먼저 확인하세요.</b></div>
+    ${rcDevWhy(x)}
+    <div class="c-warn">${esc(facts)}<br>사용 순서·빈도와 함께 쓰면 안 되는 제품은 <b>제조사 안내를 먼저 확인하세요.</b></div>
     <div class="c-acts">
       <button class="${on?'added':''}" onclick="rcToggle('${p.g}')" title="${on?'궁합 검사에서 빼기':'궁합 검사에 담기'}">${on?'✓ 담김':'＋ 담기'}</button>
       <a href="index.html?g=${p.g}&from=routine" target="_blank" rel="noopener" title="가격·판정서 보기">판정</a>
