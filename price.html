@@ -77,6 +77,39 @@
   .k .sw-line{width:16px; height:2px; background:var(--series); border-radius:2px;}
   .k .sw-ref{width:16px; height:0; border-top:1.5px dashed var(--muted);}
 
+  /* 판정별 필터 줄 (2026-08-10) — 메인 티저의 판정 칩이 ?v= 로 여기 들어온다 */
+  .vfilter{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--grid);
+  }
+  .vf-label{font-size:12px; font-weight:700; color:var(--muted); flex:none;}
+  .vchip-btn{
+    font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+    padding:6px 13px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .vchip-btn:hover{border-color:var(--series); color:var(--ink);}
+  .vchip-btn .n{font-variant-numeric:tabular-nums; opacity:.7; margin-left:4px;}
+  .vchip-btn.on{font-weight:800; color:#fff; background:var(--series); border-color:var(--series);}
+  .vchip-btn.on .n{opacity:.85;}
+  .vchip-btn.on.v-good{background:var(--good-text); border-color:var(--good-text);}
+  .vchip-btn.on.v-bad{background:var(--critical); border-color:var(--critical);}
+  .vchip-btn.on.v-warn{background:var(--warn); border-color:var(--warn); color:#1a1a19;}
+  .filter-note{font-size:12.5px; color:var(--ink-2); margin-top:9px;}
+  .filter-note:empty{display:none;}
+  .linkish{
+    font:inherit; font-size:12.5px; font-weight:700; color:var(--series);
+    background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .empty-grid{
+    margin-top:14px; background:var(--surface); border:1px dashed var(--baseline);
+    border-radius:13px; padding:26px 22px; text-align:center;
+    font-size:13.5px; color:var(--ink-2); line-height:1.7;
+  }
+  .empty-grid b{color:var(--ink);}
+  .hidden{display:none;}
+
   .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
   @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:560px){.grid{grid-template-columns:1fr;}}
@@ -171,6 +204,9 @@
     .obs-note{font-size:11px; padding:4px 10px;}
     .toolbar{margin-top:14px;}
     .chip{padding:6px 12px; font-size:12.5px;}
+    .vfilter{gap:8px; margin-top:10px; padding-top:10px;}
+    .vf-label{width:100%;}
+    .vchip-btn{padding:6px 11px; font-size:12px;}
     .legend{font-size:11.5px; gap:12px;}
     .pcard{padding:13px 14px 10px;}
     .more-note{padding:16px 16px;}
@@ -205,7 +241,14 @@
     </div>
   </div>
 
+  <div class="vfilter">
+    <span class="vf-label">판정별로 보기</span>
+    <div class="chips" id="v-chips"></div>
+  </div>
+  <div class="filter-note" id="filter-note"></div>
+
   <div class="grid" id="grid"></div>
+  <div class="empty-grid hidden" id="empty-grid"></div>
 
   <div class="more-note">
     <div class="q">그 외 상품이 궁금하다면?</div>
@@ -218,7 +261,8 @@
     실선(실제 판매가)이 점선 근처에 <b>가본 적조차 없다면</b>, 그 할인율은 부풀려진 숫자입니다.<br>
     상품명(↗)을 누르면 올리브영 상품 페이지로 이동합니다. 링크에 제휴 코드가 포함되지만,
     <b>제휴 수수료는 판정·순위에 어떤 영향도 주지 않습니다</b> — 부풀림 신호가 뜬 상품에도 똑같이 링크를 답니다.<br>
-    카드의 빈 곳을 누르면 근거가 담긴 판정서로 이동합니다. 판정 칩은 관측 이력 기반 조기 신호이며, 관측이 쌓이면 자동 갱신됩니다.
+    카드의 빈 곳을 누르면 근거가 담긴 판정서로 이동합니다. 판정 칩은 관측 이력 기반 조기 신호이며, 관측이 쌓이면 자동 갱신됩니다.<br>
+    <b>판정별로 보기</b>에서 <b>진짜 할인</b>·<b>부풀림 신호</b> 등 한 가지 판정만 모아 볼 수 있고, 그 화면 주소를 그대로 공유하면 같은 목록이 열립니다.
   </div>
 
   <footer class="site">
@@ -267,10 +311,23 @@ function spark(it){
   return s;
 }
 
-/* ---------- 카드 렌더 ---------- */
-function render(key){
-  const tab = TABS.find(t=>t.key===key) || TABS[0];
-  $('#grid').innerHTML = tab.items.map(it=>{
+/* ---------- 카드 렌더 ----------
+   state.cat = 카테고리 탭 키 / state.v = 판정 필터 (''이면 전체).
+   메인 티저의 판정 칩이 price.html?v=inflated 형태로 여기 바로 들어온다. */
+const state = {cat:'all', v:''};
+const VORDER = ['genuine','inflated','honest','watch','hold','raised','sale_end'];
+function render(){
+  const tab = TABS.find(t=>t.key===state.cat) || TABS[0];
+  const items = state.v ? tab.items.filter(it=>it.vtype===state.v) : tab.items;
+  const view = {items};
+  const eg = $('#empty-grid');
+  if(!items.length){
+    const lbl = (VCHIP[state.v]||['','해당 판정'])[1];
+    eg.classList.remove('hidden');
+    eg.innerHTML = `오늘 <b>${esc(tab.label)}</b>에는 <b>${esc(lbl)}</b> 판정을 받은 상품이 없습니다.<br>
+      판정은 관측이 쌓이면 매 회차 갱신되니 내일 다시 확인해 보세요.`;
+  } else eg.classList.add('hidden');
+  $('#grid').innerHTML = items.map(it=>{
     const [cls,label] = VCHIP[it.vtype] || VCHIP.watch;
     const dc = (it.org && it.org > it.cur) ? Math.round((1-it.cur/it.org)*100) : 0;
     const thumb = it.img
@@ -300,7 +357,9 @@ function render(key){
       <div class="xlab"><span>${first}</span><span>오늘 ${last}</span></div>
     </div>`;
   }).join('');
-  bind(tab);
+  bind(view);
+  syncChips();
+  syncUrl();
 }
 
 /* ---------- 이벤트 ---------- */
@@ -323,23 +382,70 @@ function bind(tab){
       });
       svg.addEventListener('mouseleave', ()=> tt.style.display='none');
     }
-    card.addEventListener('click', ()=>{ location.href = './?g=' + card.dataset.g + '&from=price'; });
+    /* 판정서로 이동 — 지금 보던 필터를 함께 넘겨, 되돌아올 때 같은 화면으로 복귀한다 */
+    card.addEventListener('click', ()=>{
+      let u = './?g=' + card.dataset.g + '&from=price';
+      if(state.cat!=='all') u += '&fcat=' + encodeURIComponent(state.cat);
+      if(state.v) u += '&fv=' + encodeURIComponent(state.v);
+      location.href = u;
+    });
   });
   document.querySelectorAll('a.name').forEach(a=>
     a.addEventListener('click', e=>e.stopPropagation()));
 }
 
-/* ---------- 탭 ---------- */
-$('#cat-chips').innerHTML = TABS.map((t,i)=>
-  `<button class="chip ${i===0?'on':''}" data-key="${t.key}">${t.label}</button>`).join('');
+/* ---------- 카테고리 탭 ---------- */
+$('#cat-chips').innerHTML = TABS.map(t=>
+  `<button class="chip" data-key="${t.key}">${t.label}</button>`).join('');
 document.querySelectorAll('#cat-chips .chip').forEach(ch=>{
-  ch.addEventListener('click', ()=>{
-    document.querySelectorAll('#cat-chips .chip').forEach(c=>c.classList.remove('on'));
-    ch.classList.add('on');
-    render(ch.dataset.key);
-  });
+  ch.addEventListener('click', ()=>{ state.cat = ch.dataset.key; render(); });
 });
-render('all');
+
+/* ---------- 판정 탭 ---------- */
+/* 칩은 현재 카테고리 탭의 실제 집계로 매번 다시 그린다 — 0건 판정을 눌러
+   빈 화면을 보게 되는 일이 없도록. 단, 지금 선택된 판정은 0건이어도 남겨둔다
+   (딥링크로 들어왔는데 칩이 사라져 되돌아갈 곳이 없어지면 안 되므로). */
+function syncChips(){
+  document.querySelectorAll('#cat-chips .chip').forEach(c=>
+    c.classList.toggle('on', c.dataset.key===state.cat));
+  const tab = TABS.find(t=>t.key===state.cat) || TABS[0];
+  const cnt = {};
+  tab.items.forEach(it=>{ cnt[it.vtype] = (cnt[it.vtype]||0) + 1; });
+  $('#v-chips').innerHTML =
+    `<button class="vchip-btn ${state.v?'':'on'}" data-v="">전체<span class="n">${tab.items.length}</span></button>` +
+    VORDER.filter(v=>cnt[v] || v===state.v).map(v=>{
+      const [cls,label] = VCHIP[v];
+      return `<button class="vchip-btn ${cls} ${v===state.v?'on':''}" data-v="${v}">${label}<span class="n">${cnt[v]||0}</span></button>`;
+    }).join('');
+  document.querySelectorAll('#v-chips .vchip-btn').forEach(ch=>{
+    ch.addEventListener('click', ()=>{ state.v = ch.dataset.v; render(); });
+  });
+  const lbl = state.v ? (VCHIP[state.v]||['',''])[1] : '';
+  document.title = state.v
+    ? `더마릭 — ${lbl.replace(/^[✓✕!↑]\s*/,'')} · ${tab.label} 실제 가격`
+    : '더마릭 — 가격 데이터 · 오늘의 올영 랭킹 실제 가격';
+  $('#filter-note').innerHTML = state.v
+    ? `<b>${esc(tab.label)}</b> 중 <b>${esc(lbl)}</b> 판정만 보고 있습니다 · <button class="linkish" id="clear-v">전체 보기</button>`
+    : '';
+  const cv = $('#clear-v');
+  if(cv) cv.addEventListener('click', ()=>{ state.v=''; render(); });
+}
+
+/* 주소로 상태를 유지 — 티저 칩 딥링크(?v=inflated)와 공유 링크가 같은 화면을 연다 */
+function syncUrl(){
+  const p = new URLSearchParams();
+  if(state.cat!=='all') p.set('cat', state.cat);
+  if(state.v) p.set('v', state.v);
+  const qs = p.toString();
+  history.replaceState(null, '', qs ? '?'+qs : location.pathname);
+}
+{
+  const q = new URLSearchParams(location.search);
+  const c = q.get('cat'), v = q.get('v');
+  if(c && TABS.some(t=>t.key===c)) state.cat = c;
+  if(v && VCHIP[v]) state.v = v;
+}
+render();
 </script>
 </body>
 </html>

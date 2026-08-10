@@ -96,23 +96,34 @@
   .chip.real-chip{border-style:solid; border-color:var(--series); background:var(--series-wash);}
   .chip .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px;}
   /* ---------- 메인 티저 (오늘의 가격 데이터) ---------- */
-  .teaser{display:block; cursor:pointer; padding:22px 24px 20px; text-decoration:none; color:inherit; transition:border-color .15s;}
+  .teaser{display:block; padding:22px 24px 20px; color:inherit; transition:border-color .15s;}
   .teaser:hover{border-color:var(--series);}
-  .t-head{display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap;}
+  .t-head{display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap;
+          text-decoration:none; color:inherit; cursor:pointer;}
+  .t-head:hover .t-title{color:var(--series);}
+  .t-head:hover .t-cta{text-decoration:underline; text-underline-offset:3px;}
   .t-title{font-size:16.5px; font-weight:800; letter-spacing:-0.01em;}
   .t-new{font-size:10px; font-weight:800; vertical-align:7px; color:var(--critical); margin-left:3px;}
   .t-sub{font-size:13px; color:var(--ink-2); margin-top:3px;}
   .t-sub b.bad{color:var(--critical);}
   .t-cta{margin-left:auto; font-size:13px; font-weight:700; color:var(--series); white-space:nowrap; padding-top:3px;}
-  .t-stats{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
-  .t-stat{font-size:12px; font-weight:700; border-radius:999px; padding:4px 12px;}
+  .t-stats{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; align-items:center;}
+  .t-stat{font-size:12px; font-weight:700; border-radius:999px; padding:4px 12px;
+          text-decoration:none; display:inline-block; border:1px solid transparent;
+          transition:filter .12s, border-color .12s;}
+  a.t-stat:hover{filter:brightness(0.94); border-color:currentColor;}
   .t-stat.s-good{background:var(--good-bg); color:var(--good-text);}
   .t-stat.s-bad{background:var(--critical-bg); color:var(--critical);}
-  .t-stat.s-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+  .t-stat.s-flat{background:transparent; color:var(--ink-2); border-color:var(--baseline);}
   .t-stat.s-warn{background:var(--warn-bg); color:var(--ink);}
+  .t-stats-hint{font-size:11.5px; color:var(--muted);}
   .t-minis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
   @media (max-width:640px){.t-minis{grid-template-columns:1fr;}}
-  .t-mini{border:1px solid var(--border); border-radius:11px; padding:12px 13px 9px; background:var(--page);}
+  .t-mini{border:1px solid var(--border); border-radius:11px; padding:12px 13px 9px; background:var(--page);
+          text-decoration:none; color:inherit; display:block; transition:border-color .15s, background .15s;}
+  a.t-mini:hover{border-color:var(--series); background:var(--series-wash);}
+  a.t-mini:hover .m-name{color:var(--series);}
+  .t-mini .m-go{font-size:11px; font-weight:700; color:var(--series); margin-top:6px;}
   .t-mini .m-row{display:flex; align-items:center; gap:8px;}
   .t-mini .m-thumb{width:30px; height:30px; border-radius:8px; flex:none; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
@@ -354,19 +365,21 @@
       </div>
     </div>
 
-    <!-- 오늘의 가격 데이터 티저 (price_teaser.json — build_price_page.py 생성) -->
-    <a class="card teaser hidden" id="teaser" href="price.html">
-      <div class="t-head">
+    <!-- 오늘의 가격 데이터 티저 (price_teaser.json — build_price_page.py 생성)
+         2026-08-10: 박스 전체를 한 링크로 묶지 않는다. 제목·CTA는 Top 30 목록,
+         판정 칩은 그 판정만 모아 보는 목록, 미니카드는 각 상품 판정서로 나뉜다. -->
+    <div class="card teaser hidden" id="teaser">
+      <a class="t-head" href="price.html">
         <div>
           <div class="t-title">📉 오늘의 올영 랭킹, 실제 가격으로 보기<span class="t-new">NEW</span></div>
           <div class="t-sub" id="t-sub"></div>
         </div>
         <span class="t-cta">Top 30 전체 보기 →</span>
-      </div>
+      </a>
       <div class="t-stats" id="t-stats"></div>
       <div class="t-minis" id="t-minis"></div>
       <div class="t-foot">매일 오전·저녁 관측 갱신 — <b>내일은 순위도, 판정도 달라집니다</b></div>
-    </a>
+    </div>
   </section>
 
   <!-- ================= LOADING ================= -->
@@ -947,6 +960,13 @@ let backTo = null;
     const lbl = {'device.html':'← 디바이스 목록으로', 'price.html':'← 가격 데이터로',
                  'routine.html':'← 루틴 가이드로'}[backTo];
     if(lbl) $('#back-btn').textContent = lbl;
+    /* 가격 데이터에서 판정·카테고리 필터를 켠 채로 들어왔으면 그 화면 그대로 돌려보낸다 */
+    if(backTo === 'price.html'){
+      const p = new URLSearchParams();
+      if(q.get('fcat')) p.set('cat', q.get('fcat'));
+      if(q.get('fv'))   p.set('v',   q.get('fv'));
+      if([...p].length) backTo += '?' + p.toString();
+    }
   }
   if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
 }
@@ -967,11 +987,15 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   $('#t-sub').innerHTML = badN
     ? `${esc(d.obs_label)} — 오늘 랭킹 Top 30 중 <b class="bad">${badN}개는 '정가'가 부풀려진 할인</b>이었어요`
     : `${esc(d.obs_label)} — 오늘 랭킹 Top 30의 실제 가격 흐름을 확인하세요`;
-  const stat = (cls,label,n)=> n ? `<span class="t-stat ${cls}">${label} ${n}</span>` : '';
+  /* 판정 칩 → 그 판정만 모아 보는 목록 (price.html?v=…) */
+  const stat = (cls,label,n,v)=> n
+    ? `<a class="t-stat ${cls}" href="price.html?v=${v}" title="${esc(label)} 판정 ${n}개만 모아 보기">${label} ${n}</a>` : '';
   $('#t-stats').innerHTML =
-    stat('s-good','✓ 진짜 할인',c.genuine) + stat('s-bad','✕ 부풀림 신호',c.inflated) +
-    stat('s-flat','정직한 가격',c.honest) + stat('s-flat','통상 가격',c.watch) +
-    stat('s-warn','! 판정 보류',c.hold);
+    stat('s-good','✓ 진짜 할인',c.genuine,'genuine') + stat('s-bad','✕ 부풀림 신호',c.inflated,'inflated') +
+    stat('s-flat','정직한 가격',c.honest,'honest') + stat('s-flat','통상 가격',c.watch,'watch') +
+    stat('s-warn','! 판정 보류',c.hold,'hold') +
+    stat('s-warn','↑ 정가 인상',c.raised,'raised') + stat('s-warn','↑ 할인 종료',c.sale_end,'sale_end') +
+    `<span class="t-stats-hint">칩을 누르면 그 판정만 모아 봅니다</span>`;
   const CW=260, CH=46, L=6, R=6, T=8, B=5;
   const mspark = it=>{
     const pts = it.series||[]; const n = pts.length; if(!n) return '';
@@ -987,22 +1011,25 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
     s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
     return s + `</svg>`;
   };
+  /* 미니카드 → 해당 상품의 판정서 (박스 전체가 Top 30으로 가던 동선을 분리) */
   $('#t-minis').innerHTML = d.minis.slice(0,3).map(it=>{
     const [cls,label] = VC[it.vtype] || VC.watch;
     const th = it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
                       : esc((it.brand||'·').slice(0,1));
-    return `<div class="t-mini">
+    return `<a class="t-mini" href="./?g=${esc(it.gno)}&from=home" title="${esc(it.brand)} ${esc(it.name)} 판정서 보기">
       <div class="m-row"><div class="m-thumb">${th}</div>
       <div class="m-name">${it.rank}위 · ${esc(it.brand)} ${esc(it.name)}</div></div>
       <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}원<span class="m-chip ${cls}">${label}</span></div>
       ${mspark(it)}
-    </div>`;
+      <div class="m-go">이 상품 판정서 →</div>
+    </a>`;
   }).join('');
   $('#teaser').classList.remove('hidden');
 })();
 $('#back-btn').addEventListener('click', ()=>{
   if(backTo){ location.href = backTo; return; }   // 디바이스·가격 목록에서 들어왔으면 그 목록으로
   $('#url-input').value=''; show('home');
+  if(location.search) history.replaceState(null, '', location.pathname);
 });
 $('#copy-btn').addEventListener('click', ()=>{
   const url = location.href;
