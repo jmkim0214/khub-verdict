@@ -8,26 +8,15 @@
 <style>
   :root{
     color-scheme: light;
-    --page:#f9f9f7; --surface:#fcfcfb;
-    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
-    --grid:#e1e0d9; --baseline:#c3c2b7;
-    --border:rgba(11,11,11,0.10);
-    --series:#0e6e5c; --series-wash:rgba(14,110,92,0.08);
-    --good:#0ca30c; --good-text:#006300;
-    --warn:#fab219; --serious:#ec835a; --critical:#d03b3b;
-    --good-bg:rgba(12,163,12,0.09); --warn-bg:rgba(250,178,25,0.13);
-    --serious-bg:rgba(236,131,90,0.12); --critical-bg:rgba(208,59,59,0.09);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:where(:not([data-theme="light"])){
-      color-scheme: dark;
-      --page:#0d0d0d; --surface:#1a1a19;
-      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
-      --grid:#2c2c2a; --baseline:#383835;
-      --border:rgba(255,255,255,0.10);
-      --series:#3fae97; --series-wash:rgba(63,174,151,0.14);
-      --good-text:#0ca30c;
-    }
+    --page:#F5F1E6; --surface:#FDFBF5;
+    --ink:#2A2720; --ink-2:#615C50; --muted:#7B745F;
+    --grid:#E6DFCC; --baseline:#CCC3AC;
+    --border:rgba(42,39,32,0.12);
+    --series:#667233; --series-wash:rgba(102,114,51,0.10);
+    --good:#1C6DD0; --good-text:#175FB8;
+    --warn:#C2932F; --serious:#B4653A; --critical:#A8452C;
+    --good-bg:rgba(28,109,208,0.13); --warn-bg:rgba(194,147,47,0.18);
+    --serious-bg:rgba(180,101,58,0.13); --critical-bg:rgba(168,69,44,0.11);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
@@ -154,7 +143,7 @@
   .loading .step.on{color:var(--ink);}
   .loading .step .ic{width:20px; height:20px; border-radius:50%; border:1.5px solid var(--baseline); flex:none;
     display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--page); background:transparent;}
-  .loading .step.on .ic{background:var(--good); border-color:var(--good);}
+  .loading .step.on .ic{background:var(--series); border-color:var(--series);}
   .loading .step.now .ic{border-color:var(--series); border-top-color:transparent; animation:spin .7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -238,8 +227,8 @@
   .claim:last-child{border-bottom:none;}
   .claim .c-body{flex:1;}
   .claim .c-title{font-size:14px; font-weight:700;}
-  .ing-link{font-size:11px; font-weight:600; color:var(--series); text-decoration:none; background:#eef1fe; border-radius:12px; padding:2px 7px; margin-left:6px; white-space:nowrap;}
-  .ing-link:hover{background:#dde4fd;}
+  .ing-link{font-size:11px; font-weight:600; color:var(--series); text-decoration:none; background:var(--series-wash); border-radius:12px; padding:2px 7px; margin-left:6px; white-space:nowrap;}
+  .ing-link:hover{background:rgba(102,114,51,0.18);}
   .claim .c-src{font-size:12px; color:var(--muted); margin-top:1px;}
   .claim .c-note{font-size:13px; color:var(--ink-2); margin-top:5px;}
   .safety-row{display:flex; gap:12px; align-items:flex-start; padding:13px 15px; border-radius:11px; margin-bottom:9px;}
@@ -495,28 +484,28 @@
   </footer>
 </div>
 <!-- ================= 이의제기 모달 ================= -->
-<div id="dispute-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(20,22,28,.55); align-items:center; justify-content:center; padding:20px;">
-  <div style="background:#fff; border-radius:16px; max-width:520px; width:100%; max-height:85vh; overflow:auto; padding:26px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25);">
+<div id="dispute-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(42,39,32,.55); align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--surface); border-radius:16px; max-width:520px; width:100%; max-height:85vh; overflow:auto; padding:26px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25);">
     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
       <span style="font-size:20px;">✋</span>
       <h2 style="font-size:18px; font-weight:800; margin:0;">판정에 이의제기</h2>
-      <button id="dispute-close" style="margin-left:auto; background:none; border:none; font-size:22px; color:#999; cursor:pointer; line-height:1;">×</button>
+      <button id="dispute-close" style="margin-left:auto; background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer; line-height:1;">×</button>
     </div>
-    <p style="font-size:13.5px; color:#555; line-height:1.6; margin:8px 0 14px;">
+    <p style="font-size:13.5px; color:var(--ink-2); line-height:1.6; margin:8px 0 14px;">
       이 판정이 <b>사실과 다르거나 오류</b>가 있다고 보시면 알려주세요. 접수된 건은 근거와 함께 재검토하고,
       오류가 확인되면 <b>즉시 정정 후 판정서를 새 번호로 갱신</b>합니다.
     </p>
-    <div style="background:#f6f7f9; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#444; line-height:1.7; margin-bottom:14px;">
+    <div style="background:var(--page); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--ink-2); line-height:1.7; margin-bottom:14px;">
       <b>재검토 대상 판정서</b><br>
-      <span id="dispute-ctx" style="color:#666;">—</span>
+      <span id="dispute-ctx" style="color:var(--muted);">—</span>
     </div>
-    <ol style="font-size:12.5px; color:#666; line-height:1.7; margin:0 0 16px; padding-left:18px;">
+    <ol style="font-size:12.5px; color:var(--ink-2); line-height:1.7; margin:0 0 16px; padding-left:18px;">
       <li>아래 버튼으로 이메일이 열립니다 (판정서 정보 자동 첨부).</li>
       <li>어떤 부분이 사실과 다른지, 근거(가격 캡처·공식 자료 등)를 적어 보내주세요.</li>
       <li>영업일 <b>7일 이내</b> 검토 결과를 회신드립니다.</li>
     </ol>
-    <a id="dispute-mail" href="#" style="display:block; text-align:center; background:var(--series,#2f6fed); color:#fff; font-weight:700; font-size:14.5px; text-decoration:none; border-radius:11px; padding:13px;">✉️ 이메일로 이의제기 보내기</a>
-    <p style="font-size:11px; color:#aaa; text-align:center; margin-top:10px;">또는 <span id="dispute-addr" style="color:#888;">dispute@themaric.kr</span> 로 직접 보내주셔도 됩니다.</p>
+    <a id="dispute-mail" href="#" style="display:block; text-align:center; background:var(--series); color:#fff; font-weight:700; font-size:14.5px; text-decoration:none; border-radius:11px; padding:13px;">✉️ 이메일로 이의제기 보내기</a>
+    <p style="font-size:11px; color:var(--muted); text-align:center; margin-top:10px;">또는 <span id="dispute-addr" style="color:var(--ink-2);">dispute@themaric.kr</span> 로 직접 보내주셔도 됩니다.</p>
   </div>
 </div>
 <div class="toast" id="toast"></div>

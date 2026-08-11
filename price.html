@@ -9,26 +9,15 @@
 <style>
   :root{
     color-scheme: light;
-    --page:#f9f9f7; --surface:#fcfcfb;
-    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
-    --grid:#e1e0d9; --baseline:#c3c2b7;
-    --border:rgba(11,11,11,0.10);
-    --series:#0e6e5c; --series-wash:rgba(14,110,92,0.08);
-    --good:#0ca30c; --good-text:#006300;
-    --warn:#fab219; --critical:#d03b3b;
-    --good-bg:rgba(12,163,12,0.09); --warn-bg:rgba(250,178,25,0.13);
-    --critical-bg:rgba(208,59,59,0.09);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:where(:not([data-theme="light"])){
-      color-scheme: dark;
-      --page:#0d0d0d; --surface:#1a1a19;
-      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
-      --grid:#2c2c2a; --baseline:#383835;
-      --border:rgba(255,255,255,0.10);
-      --series:#3fae97; --series-wash:rgba(63,174,151,0.14);
-      --good-text:#0ca30c;
-    }
+    --page:#F5F1E6; --surface:#FDFBF5;
+    --ink:#2A2720; --ink-2:#615C50; --muted:#7B745F;
+    --grid:#E6DFCC; --baseline:#CCC3AC;
+    --border:rgba(42,39,32,0.12);
+    --series:#667233; --series-wash:rgba(102,114,51,0.10);
+    --good:#1C6DD0; --good-text:#175FB8;
+    --warn:#C2932F; --critical:#A8452C;
+    --good-bg:rgba(28,109,208,0.13); --warn-bg:rgba(194,147,47,0.18);
+    --critical-bg:rgba(168,69,44,0.11);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
@@ -58,7 +47,7 @@
     font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6;
     border:1px solid var(--baseline); border-radius:14px; padding:4px 12px;
   }
-  .obs-note .live{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--good); margin-right:6px; vertical-align:1px;}
+  .obs-note .live{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--series); margin-right:6px; vertical-align:1px;}
 
   .toolbar{
     display:flex; justify-content:space-between; align-items:center;
@@ -94,7 +83,7 @@
   .vchip-btn.on .n{opacity:.85;}
   .vchip-btn.on.v-good{background:var(--good-text); border-color:var(--good-text);}
   .vchip-btn.on.v-bad{background:var(--critical); border-color:var(--critical);}
-  .vchip-btn.on.v-warn{background:var(--warn); border-color:var(--warn); color:#1a1a19;}
+  .vchip-btn.on.v-warn{background:var(--warn); border-color:var(--warn); color:var(--ink);}
   .filter-note{font-size:12.5px; color:var(--ink-2); margin-top:9px;}
   .filter-note:empty{display:none;}
   .linkish{
