@@ -909,7 +909,10 @@ function loadGoods(gno){
 }
 
 async function judgeUrl(u){
-  const m = u.match(/A\d{12}/);
+  /* 상품번호는 A(화장품)·B(비화장품·디바이스 등) 두 접두사가 모두 쓰인다.
+     A만 받으면 B상품 판정서 512건이 통째로 열리지 않는다 — 티저·가격표·검색 전부
+     ?g=B... 로 들어오는데 여기서 걸러져 '추적 목록에 없는 상품'으로 오인됐다. (2026-08-11) */
+  const m = u.match(/[AB]\d{12}/);
   if(!m){ searchProducts(u); return; }   // URL이 아니면 상품명 검색으로
   const gno = m[0];
   runLoadingThen(async ()=>{
