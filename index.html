@@ -32,8 +32,8 @@
   .logo{font-size:22px; font-weight:800; letter-spacing:-0.03em; color:var(--series);}
   .logo-eng{font-size:10.5px; font-weight:700; letter-spacing:0.22em; color:var(--muted); margin-left:8px; vertical-align:2px;}
   .logo-sub{font-size:12.5px; color:var(--muted); margin-top:2px;}
-  .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:700; color:var(--series); text-decoration:none; border:1px solid var(--baseline); border-radius:999px; padding:7px 15px; white-space:nowrap;}
-  .nav-link:hover{background:var(--series-wash);}
+  .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link:hover{color:var(--series);}
   .card{
     background:var(--surface); border:1px solid var(--border);
     border-radius:14px; padding:26px; margin-top:16px;
@@ -67,7 +67,7 @@
   #search-results{display:none; max-width:560px; margin:14px auto 0; text-align:left;}
   #search-results.on{display:block;}
   #search-results .sr-head{font-size:12.5px; color:var(--muted); margin:0 2px 8px;}
-  #search-results .sr-empty{font-size:13px; color:var(--muted); background:var(--surface); border:1px solid var(--baseline); border-radius:12px; padding:14px 16px;}
+  #search-results .sr-empty{font-size:13px; line-height:1.65; color:#FDFBF5; background:var(--ink-2); border-radius:12px; padding:14px 16px;}
   #search-results .sr-img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;background:var(--series-wash);}
   #search-results .sr-item{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--baseline); border-radius:11px; padding:9px 12px; margin-bottom:7px; font-size:13.5px; color:var(--ink); cursor:pointer; font-family:inherit;}
   #search-results .sr-item:hover{border-color:var(--series); background:var(--series-wash);}
@@ -303,7 +303,7 @@
     header.site > a:first-child{width:100%;}
     .logo{font-size:20px;}
     .logo-sub{white-space:nowrap;}
-    .nav-link{margin-left:0 !important; padding:6px 12px; font-size:12.5px;}
+    .nav-link{margin-left:0 !important; padding:5px 0; font-size:12.5px;}
     .card{padding:20px 16px; border-radius:12px;}
     .hero{padding:30px 16px 26px;}
     .hero h1{font-size:22px;}
@@ -321,6 +321,13 @@
     .tiles{grid-template-columns:repeat(2,1fr);}
     .actions .btn{width:100%; text-align:center;}
   }
+
+  /* 종이 질감 그레인 — 화면 전체에 얹는 고정 오버레이. 외부 이미지 없이 인라인 SVG 노이즈,
+     클릭 통과(pointer-events:none), 인쇄 시 제외. 지우려면 이 블록만 삭제. (2026-08-11) */
+  body::after{content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27240%27%20height%3D%27240%27%3E%3Cfilter%20id%3D%27g%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.9%27%20numOctaves%3D%274%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27240%27%20height%3D%27240%27%20filter%3D%27url%28%23g%29%27%20opacity%3D%270.42%27%2F%3E%3C%2Fsvg%3E");
+    background-size:240px 240px; opacity:0.5; mix-blend-mode:multiply;}
+  @media print{body::after{display:none;}}
 </style>
 </head>
 <body>
@@ -340,7 +347,7 @@
   <section id="view-home">
     <div class="card hero">
       <h1>광고 말고, <span class="u">데이터</span>로 사세요</h1>
-      <p class="lead">올리브영 상품을 검색하면, 그동안 관측한 실제 가격과 식약처 고시 전성분으로 <br>‘정상가 뻥튀기’와 성분 기대 효과를 판정해 드려요.</p>
+      <p class="lead">올리브영 상품을 검색하면, 그동안 관측한 실제 가격과 식약처 고시 전성분으로 <br>‘표시정가 뻥튀기’와 성분 기대 효과를 판정해 드려요.</p>
       <div class="urlbar">
         <input id="url-input" type="text" placeholder="상품 URL 또는 상품명 (예: 아누아 세럼, 토리든 크림)" spellcheck="false">
         <button class="btn" id="go-btn">판정하기</button>
@@ -419,7 +426,7 @@
       <div class="chart-legend" id="r-legend">
         <span class="k"><span class="sw-line"></span>실판매가</span>
         <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
-        <span class="k"><span class="sw-ref"></span>표시 정상가</span>
+        <span class="k"><span class="sw-ref"></span>표시정가</span>
       </div>
       <div class="chart-box">
         <div id="chart"></div>
@@ -595,7 +602,7 @@ function renderReport(key){
   $('#r-normal').textContent = hasDc ? won(c.normal) : '';
   $('#r-dc').textContent = hasDc ? c.dcShown + ' 할인 표시' : '';
   $('#r-dc').style.color = hasDc ? 'var(--critical)' : 'var(--muted)';
-  if(!hasDc) $('#r-dc').textContent = '정가 판매 중 (할인 표시 없음)';
+  if(!hasDc) $('#r-dc').textContent = '표시정가 그대로 판매 중 (할인 표시 없음)';
 
   const v = $('#r-verdict');
   v.className = 'verdict v-' + c.verdict;
@@ -742,7 +749,7 @@ function renderReport(key){
   const obsDays = pts.length>=52 ? 365 : 41;
   $('#r-basis').innerHTML = (c.basis || [
     ['가격 관측', `일 2회 (오전·저녁) 자동 수집 · 최근 ${obsDays}일 / 약 ${obsDays*2}회 관측`],
-    ['판정 기준', hasBand ? '12개월 p10–p90 통상 구간 + 중앙값 대비 실질 할인율 (베이스라인 게이트 적용)' : '관측 90일 미만 시 정상가 진위 판정 보류 (보수적 원칙)'],
+    ['판정 기준', hasBand ? '12개월 p10–p90 통상 구간 + 중앙값 대비 실질 할인율 (베이스라인 게이트 적용)' : '관측 90일 미만 시 표시정가 진위 판정 보류 (보수적 원칙)'],
     ['주장 대조 출처', '식약처 기능성화장품 고시 · 전성분표(함량순 고시 기준)'],
     ['판정서 고정', '발급 시점 데이터로 고정 · 재조회 시 새 번호로 신규 발급'],
   ]).map(([k,val])=>`<div class="row"><span class="k2">${k}</span><span>${val}</span></div>`).join('');
@@ -752,7 +759,7 @@ function renderReport(key){
     ? {pts, cur:c.cur, verdict:c.verdict, normal:c.chart.normal, normalNote:c.chart.normalNote,
        band:null, median:null, note:null}
     : {pts, cur:c.cur, verdict:c.verdict, normal:c.normal,
-       normalNote:`표시 정상가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
+       normalNote:`표시정가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
        band: hasBand?{p10,p90}:null, median: hasBand?med:null,
        note: hasBand?null:'관측 41일 — 통상 구간(밴드) 산출 기준(90일) 미달'};
   drawChart(cfg);
@@ -803,7 +810,7 @@ function drawChart(cfg){
   if(cfg.note){
     s += `<text x="${L+iw*0.38}" y="${T+ih*0.45}" text-anchor="middle" font-size="12" fill="var(--muted)">${cfg.note}</text>`;
   }
-  /* 표시 정상가 기준선 */
+  /* 표시정가 기준선 */
   s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--muted)" stroke-width="1.5"/>`;
   s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--ink-2)" font-weight="600">${cfg.normalNote}</text>`;
   /* 가격 라인 */
@@ -973,7 +980,7 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const VC = {genuine:['v-good','✓ 진짜 할인'], inflated:['v-bad','✕ 부풀림 신호'],
               honest:['v-flat','정직한 가격'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류'],
-              raised:['v-warn','↑ 정가 인상'], sale_end:['v-warn','↑ 할인 종료']};
+              raised:['v-warn','↑ 표시정가 인상'], sale_end:['v-warn','↑ 할인 종료']};
   const c = d.counts || {};
   const badN = c.inflated||0;
   $('#t-sub').innerHTML = badN
@@ -986,7 +993,7 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
     stat('s-good','✓ 진짜 할인',c.genuine,'genuine') + stat('s-bad','✕ 부풀림 신호',c.inflated,'inflated') +
     stat('s-flat','정직한 가격',c.honest,'honest') + stat('s-flat','통상 가격',c.watch,'watch') +
     stat('s-warn','! 판정 보류',c.hold,'hold') +
-    stat('s-warn','↑ 정가 인상',c.raised,'raised') + stat('s-warn','↑ 할인 종료',c.sale_end,'sale_end') +
+    stat('s-warn','↑ 표시정가 인상',c.raised,'raised') + stat('s-warn','↑ 할인 종료',c.sale_end,'sale_end') +
     `<span class="t-stats-hint">칩을 누르면 그 판정만 모아 봅니다</span>`;
   const CW=260, CH=46, L=6, R=6, T=8, B=5;
   const mspark = it=>{
