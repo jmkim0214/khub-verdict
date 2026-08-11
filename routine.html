@@ -215,7 +215,7 @@
   /* ---------- 모바일 (≤640px) ---------- */
   @media (max-width:640px){
     .wrap{padding:0 14px 60px;}
-    header.site{flex-wrap:wrap; row-gap:10px; padding:18px 0 12px;}
+    header.site{flex-wrap:wrap; row-gap:12px; column-gap:22px; padding:18px 0 12px;}
     header.site > div:first-child{width:100%;}
     .logo{font-size:20px;}
     .nav-link{margin-left:0 !important; padding:5px 0; font-size:12.5px;}
@@ -245,9 +245,9 @@
   <header class="site">
     <div><a class="logo" href="index.html">더마릭<span class="logo-eng">THEMARIC</span></a><div class="logo-sub">화장품 가격·성분 검증</div></div>
     <a class="nav-link" href="price.html">가격 데이터</a>
-    <a class="nav-link" style="margin-left:8px" href="device.html">디바이스</a>
+    <a class="nav-link" style="margin-left:20px" href="device.html">디바이스</a>
     <a class="nav-link here" style="margin-left:8px" href="routine.html">루틴 가이드</a>
-    <a class="nav-link" style="margin-left:8px" href="glossary.html">성분 사전</a>
+    <a class="nav-link" style="margin-left:20px" href="glossary.html">성분 사전</a>
   </header>
 
   <div class="tabs">
@@ -1222,9 +1222,9 @@ function rpSVG(d){
   const W = 1080;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
-  // 블랙 테마 팔레트
-  const BG='#0c0c0c', CARD='#181817', MINT='#3fae97', INK='#f2f2ef', SUB='#c3c2b7',
-        MUTED='#8f8d86', WASH='rgba(63,174,151,0.16)', NODE='#222220', NSTK='#3e3e3b', ZSTK='#3a3a37';
+  // 사이트와 같은 베이지·올리브 팔레트 (밝은 배경이라 관계선 색도 함께 어둡게 조정)
+  const BG='#F5F1E6', CARD='#FDFBF5', MINT='#667233', INK='#2A2720', SUB='#615C50',
+        MUTED='#7B745F', WASH='rgba(102,114,51,0.12)', NODE='#F1ECDD', NSTK='#CCC3AC', ZSTK='#E6DFCC';
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
   const amProds = shelf.filter(p=>slotOf(p)[0] !== 'pm').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
@@ -1308,7 +1308,7 @@ function rpSVG(d){
   s += zoneBox(amY, amH) + zoneBox(pmY, pmH);
 
   // ── 관계선 3층 ── 아침끼리=아침 존 위 / 아침↔저녁=두 존 사이 직선 / 저녁끼리=저녁 존 아래 (모두 꺾은선)
-  const COLR = {clash:'#f26060', split:'#f2b52a', dup:'#46c2a8'};
+  const COLR = {clash:'#A8452C', split:'#8A6410', dup:'#2F6B5C'};
   let lines = '', dots = '', icons = '', amI = 0, pmI = 0;
   // 선 한가운데 등급 아이콘 — 테두리 없이, 아이콘 자리만 카드색으로 지워 선을 끊고 얹음
   const marker = (cx, cy, g) => `<circle cx="${cx}" cy="${cy}" r="${ICONR}" fill="${CARD}"/>`
@@ -1362,9 +1362,9 @@ function rpSVG(d){
     let out = `<rect x="${pos.x}" y="${pos.y}" width="${NW}" height="${NH}" rx="15" fill="${NODE}" stroke="${NSTK}" stroke-width="2.5"/>`
       + `<rect x="${pos.x+12}" y="${pos.y+12}" width="${bw}" height="29" rx="8" fill="${WASH}"/>`
       + `<text x="${pos.x+12+bw/2}" y="${pos.y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MINT}">${e2(label)}</text>`;
-    if (showG) out += `<rect x="${pos.x+NW-12-gw}" y="${pos.y+12}" width="${gw}" height="29" rx="8" fill="rgba(143,141,134,0.22)"/>`
+    if (showG) out += `<rect x="${pos.x+NW-12-gw}" y="${pos.y+12}" width="${gw}" height="29" rx="8" fill="rgba(123,116,95,0.20)"/>`
         + `<text x="${pos.x+NW-12-gw/2}" y="${pos.y+32}" text-anchor="middle" font-family="${F}" font-size="15" font-weight="700" fill="${SUB}">공용</text>`;
-    else if (shared) out += `<circle cx="${pos.x+NW-20}" cy="${pos.y+26}" r="6" fill="rgba(143,141,134,0.65)"/>`;
+    else if (shared) out += `<circle cx="${pos.x+NW-20}" cy="${pos.y+26}" r="6" fill="rgba(123,116,95,0.55)"/>`;
     out += `<text x="${pos.x+12}" y="${pos.y+66}" font-family="${F}" font-size="16" fill="${MUTED}">${brand}</text>`
       + `<text x="${pos.x+12}" y="${pos.y+94}" font-family="${F}" font-size="19" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
     return out;
@@ -1376,9 +1376,9 @@ function rpSVG(d){
   // 범례 + 한 줄 요약 + 푸터
   const extra = Math.max(shelf.length - new Set([...amProds, ...pmProds]).size, 0);
   s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="23">`
-    + `<tspan fill="#f26060" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
-    + `<tspan fill="#f2b52a" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
-    + `<tspan fill="#46c2a8" font-weight="700">┅ 🔁 중복</tspan>`
+    + `<tspan fill="#A8452C" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
+    + `<tspan fill="#8A6410" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
+    + `<tspan fill="#2F6B5C" font-weight="700">┅ 🔁 중복</tspan>`
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
   s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
   s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
