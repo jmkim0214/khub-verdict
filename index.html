@@ -513,14 +513,17 @@
       </div>
     </div>
 
+    <!-- TODO(API/MCP 실제 제공 시 복원): 미구현 기능이라 노출 보류 — 2026-08-12
     <div class="dev-teaser">
       개발자이신가요? 이 판정을 <a href="#" id="api-link">API / MCP 도구</a>로 받아 에이전트에 연결할 수 있습니다 — <code>verify_price</code> · <code>check_claim</code>
     </div>
+    -->
   </section>
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
     데이터: 올리브영 공개 가격 관측 (일 2회) · 식약처 고시 전성분 · 개인 리뷰 미수집 (PIPA 준수)<br>
+    올리브영 상품 링크에 제휴 코드가 포함되지만, 제휴 수수료는 판정·순위에 어떤 영향도 주지 않습니다.<br>
     <a href="glossary.html" style="color:var(--series); text-decoration:none;">성분 사전</a>
     · <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
   </footer>
@@ -1134,7 +1137,8 @@ $('#foot-dispute')?.addEventListener('click', e=>{ e.preventDefault(); openDispu
 $('#dispute-close').addEventListener('click', ()=>{ $('#dispute-modal').style.display='none'; });
 $('#dispute-modal').addEventListener('click', e=>{ if(e.target.id==='dispute-modal') $('#dispute-modal').style.display='none'; });
 $('#tg-btn').addEventListener('click', ()=>toast('텔레그램 채널은 준비 중이에요 — 오픈 소식은 이 페이지에서 알려드릴게요'));
-$('#api-link').addEventListener('click', e=>{ e.preventDefault(); toast('개발자용 API는 준비 중이에요'); });
+// dev-teaser 비노출 중 — 요소가 없을 수 있어 옵셔널 처리 (복원 시 그대로 동작)
+$('#api-link')?.addEventListener('click', e=>{ e.preventDefault(); toast('개발자용 API는 준비 중이에요'); });
 </script>
 </body>
 </html>
