@@ -222,6 +222,22 @@
   .finding:last-child{border-bottom:none;}
   .finding .fi{flex:none; width:18px; text-align:center;}
   .finding b{color:var(--ink); font-weight:700;}
+  /* 고시 기준 3층 문구 (2026-08-12) — 1층은 본문, 2·3층은 접어둔다 */
+  .legal{margin-top:18px; border-top:1px solid var(--grid); padding-top:14px;}
+  .legal .lh{font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .legal .lb{margin-top:6px; font-size:13.5px; line-height:1.7; color:var(--ink-2);}
+  .legal .lb b{color:var(--ink); font-weight:700;}
+  .legal .lshort{margin-top:6px; font-size:12.5px; color:var(--ink-3, var(--ink-2)); opacity:.85;}
+  .legal details{margin-top:12px;}
+  .legal summary{cursor:pointer; font-size:13px; color:var(--ink-2); list-style:none;}
+  .legal summary::-webkit-details-marker{display:none;}
+  .legal summary::before{content:'▸ '; }
+  .legal details[open] summary::before{content:'▾ '; }
+  .legal .ld{margin-top:8px; padding:12px 14px; background:var(--soft, rgba(127,127,127,.07));
+             border-radius:8px; font-size:13px; line-height:1.75; color:var(--ink-2);}
+  .legal .ld p{margin:0 0 9px;}
+  .legal .ld p:last-child{margin-bottom:0;}
+  .legal .len{font-size:12px; line-height:1.6; opacity:.8;}
 
   .claim{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--grid); align-items:flex-start;}
   .claim:last-child{border-bottom:none;}
@@ -434,6 +450,7 @@
       </div>
       <div class="tiles" id="r-tiles"></div>
       <div class="findings" id="r-findings"></div>
+      <div class="legal hidden" id="r-legal"></div>
     </div>
 
     <div class="card">
@@ -651,6 +668,23 @@ function renderReport(key){
     const col = ic==='✓' ? 'var(--good-text)' : ic==='✕' ? 'var(--critical)' : 'var(--ink)';
     return `<div class="finding"><span class="fi" style="color:${col};font-weight:800">${ic}</span><span>${txt}</span></div>`;
   }).join('');
+
+  // 고시 기준 3층 문구 — 1층만 펼쳐두고 2·3층은 details로 접는다 (2026-08-12)
+  const lg = c.legal, lgEl = $('#r-legal');
+  if (lg) {
+    lgEl.classList.remove('hidden');
+    lgEl.innerHTML =
+      `<div class="lh">${lg.head}</div>` +
+      `<div class="lb">${fill(lg.body)}</div>` +
+      (lg.short ? `<div class="lshort">※ 관측이 20일에 못 미쳐 확보된 기간만으로 계산했습니다. 관측이 쌓이면 자동 갱신됩니다.</div>` : '') +
+      `<details><summary>왜 20일인가요?</summary><div class="ld">` +
+        `<p>${lg.why}</p><p>${lg.limit}</p>` +
+        `<p class="len">${lg.en}</p>` +
+      `</div></details>`;
+  } else {
+    lgEl.classList.add('hidden');
+    lgEl.innerHTML = '';
+  }
 
   $('#claims-title').textContent = c.claimsTitle || '② 성분·효능 주장 검증';
   $('#claims-tag').textContent = c.claimsTag || '자동 분석';
