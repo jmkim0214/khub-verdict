@@ -154,6 +154,16 @@
   .back{font:inherit; font-size:13px; background:none; border:none; color:var(--ink-2); cursor:pointer; padding:4px 0;}
   .back:hover{color:var(--ink);}
 
+  /* 추적 정지 — 21일 이상 미관측이라 가격 갱신이 멈춘 상품 (2026-08-12) */
+  .paused-bar{display:flex; gap:10px; align-items:flex-start; margin:0 0 16px;
+    padding:11px 13px; border-radius:10px; background:var(--warn-bg);
+    border:1px solid rgba(194,147,47,0.45);}
+  .paused-bar .pb-ico{font-size:15px; line-height:1.35; flex:none;}
+  .paused-bar .pb-t{font-size:13px; font-weight:800; color:var(--warn); letter-spacing:-0.01em;}
+  .paused-bar .pb-s{font-size:12.5px; color:var(--ink-2); margin-top:3px; line-height:1.55;}
+  .prod.is-paused .thumb, .prod.is-paused .price-row{opacity:0.6;}
+  .prod .stale-note{font-size:11.5px; color:var(--warn); font-weight:700; margin-top:4px;}
+
   .prod{display:flex; gap:16px; align-items:flex-start;}
   .thumb{width:72px; height:72px; border-radius:12px; flex:none;
     display:flex; align-items:center; justify-content:center; font-size:32px;
@@ -413,7 +423,14 @@
     </div>
 
     <div class="card">
-      <div class="prod">
+      <div class="paused-bar hidden" id="r-paused">
+        <div class="pb-ico">⏸</div>
+        <div>
+          <div class="pb-t" id="r-paused-t">추적 정지</div>
+          <div class="pb-s" id="r-paused-s"></div>
+        </div>
+      </div>
+      <div class="prod" id="r-prod">
         <div class="thumb" id="r-thumb"></div>
         <div>
           <div class="brand" id="r-brand"></div>
@@ -424,6 +441,7 @@
             <span class="strike" id="r-normal"></span>
             <span class="dc" id="r-dc"></span>
           </div>
+          <div class="stale-note hidden" id="r-stale-note"></div>
           <a class="oy-cta" id="r-oy" target="_blank" rel="noopener sponsored">올리브영에서 상품 보기 →</a>
         </div>
       </div>
@@ -620,6 +638,31 @@ function renderReport(key){
   $('#r-dc').textContent = hasDc ? c.dcShown + ' 할인 표시' : '';
   $('#r-dc').style.color = hasDc ? 'var(--critical)' : 'var(--muted)';
   if(!hasDc) $('#r-dc').textContent = '표시정가 그대로 판매 중 (할인 표시 없음)';
+
+  /* 추적 정지 — 21일 이상 미관측. 가격이 '현재가'가 아님을 먼저 밝힌다. (2026-08-12)
+     단종 확인(discontinued_since)과 '그냥 안 보임'은 다른 사실이므로 문구를 나눈다. */
+  const pz = c.paused;
+  const pzBar = $('#r-paused'), pzNote = $('#r-stale-note'), prodEl = $('#r-prod');
+  if(pz){
+    const seen = (pz.lastSeen||'').replace(/-/g,'.');
+    $('#r-paused-t').textContent = pz.reason === 'discontinued'
+      ? '추적 정지 — 판매 종료 확인됨'
+      : `추적 정지 — ${pz.days}일째 미관측`;
+    $('#r-paused-s').textContent = pz.reason === 'discontinued'
+      ? `${(pz.discontinuedSince||'').replace(/-/g,'.')} 이후 올리브영에서 판매가 확인되지 않습니다. `
+        + `아래 가격은 마지막 관측일(${seen}) 기준이며 더 이상 갱신하지 않습니다. 판정 내용은 기록으로 보존합니다.`
+      : `${seen} 이후 이 상품이 수집 범위에서 관측되지 않아 가격 갱신을 멈췄습니다. `
+        + `품절·판매 종료일 수도, 단순히 수집 대상에서 빠진 것일 수도 있어 단정하지 않습니다. `
+        + `아래 가격은 마지막 관측일 기준입니다.`;
+    pzBar.classList.remove('hidden');
+    prodEl.classList.add('is-paused');
+    pzNote.textContent = `※ ${seen} 마지막 관측가 · 현재가 아님`;
+    pzNote.classList.remove('hidden');
+  } else {
+    pzBar.classList.add('hidden');
+    prodEl.classList.remove('is-paused');
+    pzNote.classList.add('hidden');
+  }
 
   const v = $('#r-verdict');
   v.className = 'verdict v-' + c.verdict;
