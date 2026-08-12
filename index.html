@@ -467,7 +467,9 @@
         <div class="tooltip" id="tooltip"></div>
       </div>
       <div class="tiles" id="r-tiles"></div>
+      <!-- 문장형 요약(findings)은 위 타일·차트와 중복이라 비노출 — 2026-08-12
       <div class="findings" id="r-findings"></div>
+      -->
       <div class="legal hidden" id="r-legal"></div>
     </div>
 
@@ -709,7 +711,9 @@ function renderReport(key){
   $('#r-tiles').innerHTML = tiles.map(([l,val,cls]) =>
     `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
 
-  $('#r-findings').innerHTML = c.findings.map(([ic,raw])=>{
+  // findings 비노출 중 — 요소가 없으면 건너뜀 (마크업 주석만 풀면 그대로 복원)
+  const fndEl = $('#r-findings');
+  if (fndEl) fndEl.innerHTML = c.findings.map(([ic,raw])=>{
     const txt = fill(raw);
     const col = ic==='✓' ? 'var(--good-text)' : ic==='✕' ? 'var(--critical)' : 'var(--ink)';
     return `<div class="finding"><span class="fi" style="color:${col};font-weight:800">${ic}</span><span>${txt}</span></div>`;
