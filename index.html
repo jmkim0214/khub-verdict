@@ -126,13 +126,22 @@
   .t-stat.s-flat{background:transparent; color:var(--ink-2); border-color:var(--baseline);}
   .t-stat.s-warn{background:transparent; color:var(--ink-2); border-color:var(--baseline); border-style:dashed;}
   .t-stats-hint{font-size:11.5px; color:var(--muted);}
+  /* 표시가 플래그 — 등급 칩보다 한 계위 아래 (작게, 사각형) */
+  .t-flags{display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; align-items:center;
+           padding-top:9px; border-top:1px solid var(--grid);}
+  .t-flabel{font-size:11.5px; color:var(--muted);}
+  .t-fstat{font-size:11.5px; font-weight:700; color:var(--critical); text-decoration:none;
+           border:1px solid var(--baseline); border-radius:3px; padding:3px 9px;}
+  .t-fstat:hover{border-color:var(--critical);}
   .t-minis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
   @media (max-width:640px){.t-minis{grid-template-columns:1fr;}}
   .t-mini{border:1px solid var(--border); border-radius:11px; padding:12px 13px 9px; background:var(--page);
           text-decoration:none; color:inherit; display:block; transition:border-color .15s, background .15s;}
   a.t-mini:hover{border-color:var(--series); background:var(--series-wash);}
   a.t-mini:hover .m-name{color:var(--series);}
-  .t-mini .m-top{display:flex; align-items:center; gap:8px;}
+  .t-mini .m-top{display:flex; align-items:center; gap:6px;}
+  .t-mini .m-flag{font-size:10px; font-weight:700; color:var(--critical); border:1px solid var(--baseline);
+                  border-radius:3px; padding:1px 6px; white-space:nowrap;}
   .t-mini .m-rank{margin-left:auto; font-size:11px; color:var(--muted); font-weight:600;}
   .t-mini .m-go{font-size:13px; font-weight:700; color:var(--series); margin-left:auto; flex:none;}
   .t-mini .m-foot{display:flex; align-items:center; gap:8px; margin-top:10px;
@@ -158,14 +167,14 @@
   .t-foot{text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px;
     border-top:1px solid var(--grid); padding-top:12px;}
   .t-foot b{color:var(--ink-2);}
-  .trust{display:grid; grid-template-columns:repeat(2,1fr); margin-top:20px;
-         border-top:1px solid var(--grid); border-bottom:1px solid var(--grid);}
-  .trust .t{text-align:left; padding:20px 18px; border-right:1px solid var(--grid);}
-  .trust .t:last-child{border-right:none;}
+  .trust{display:flex; justify-content:center; gap:64px; flex-wrap:wrap; margin-top:34px;}
+  .trust .t{text-align:center; padding:0;}
   .trust .t b{display:block; font-family:var(--serif); font-size:32px; font-weight:600;
               letter-spacing:0; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;
               white-space:nowrap;}
-  .trust .t span{display:block; font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5;}
+  /* '+' 처럼 숫자 안에 든 span까지 블록이 되어 줄이 갈리던 문제 — 직계만 블록 (2026-08-15) */
+  .trust .t > span{display:block; font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5;}
+  .trust .t b span{display:inline; color:inherit; margin:0;}
   .trust .t span b{display:inline; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink-2);}
 
   /* ---------- LOADING ---------- */
@@ -377,8 +386,7 @@
     .urlbar input{padding:16px 15px; font-size:15px;}
     .btn{padding:16px; font-size:15px; width:100%;}
     .btn.ghost{padding:12px 16px; font-size:13.5px;}
-    .trust{grid-template-columns:repeat(2,1fr); margin-top:16px;}
-    .trust .t{padding:16px 14px;}
+    .trust{gap:34px; margin-top:26px;}
     .trust .t b{font-size:26px;}
     .trust .t span{font-size:11px;}
     .teaser{padding:18px 16px 16px;}
@@ -436,6 +444,7 @@
         <span class="t-cta">Top 30 전체 보기 →</span>
       </a>
       <div class="t-stats" id="t-stats"></div>
+      <div class="t-flags" id="t-flags"></div>
       <div class="t-minis" id="t-minis"></div>
       <div class="t-foot">매일 오전·저녁 관측 갱신 — <b>내일은 순위도, 판정도 달라집니다</b></div>
     </div>
@@ -1110,23 +1119,32 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   catch(e){ /* file:// 등 — 티저 생략 */ }
   if(!d || !d.minis || !d.minis.length) return;
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  const VC = {genuine:['v-good','✓ 진짜 할인'], inflated:['v-bad','✕ 부풀림 신호'],
-              honest:['v-flat','정직한 가격'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류'],
-              raised:['v-warn','↑ 표시정가 인상'], sale_end:['v-warn','↑ 할인 종료']};
-  const c = d.counts || {};
-  const badN = c.inflated||0;
+  /* 2026-08-15: 등급(합쳐서 Top 30)과 플래그(표시가 주의)를 두 계위로 나눴다.
+     '정직한 가격'은 부풀림이 아니면 전부 해당돼 정보가 없어 없앴다. */
+  const VC = {genuine:['v-good','✓ 진짜 할인'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류']};
+  const VEN = {genuine:'HOT DEAL', watch:'NO DEAL', hold:'NO VERDICT'};
+  const FC = {inflated:'✕ 부풀림 신호', raised:'↑ 표시정가 인상', sale_end:'↑ 할인 종료'};
+  const gradeOf = it => it.grade || (VC[it.vtype] ? it.vtype : 'watch');
+  const c = d.counts || {}, fc = d.fcounts || {};
+  const badN = fc.inflated||0;
   $('#t-sub').innerHTML = badN
     ? `${esc(d.obs_label)} — 오늘 랭킹 Top 30 중 <b class="bad">${badN}개는 '정가'가 부풀려진 할인</b>이었어요`
     : `${esc(d.obs_label)} — 오늘 랭킹 Top 30의 실제 가격 흐름을 확인하세요`;
   /* 판정 칩 → 그 판정만 모아 보는 목록 (price.html?v=…) */
   const stat = (cls,label,n,v)=> n
-    ? `<a class="t-stat ${cls}" href="price.html?v=${v}" title="${esc(label)} 판정 ${n}개만 모아 보기">${label} ${n}</a>` : '';
+    ? `<a class="t-stat ${cls}" href="price.html?v=${v}" title="${esc(label)} (${VEN[v]||''}) ${n}개만 모아 보기">${label} ${n}</a>` : '';
+  const fstat = (label,n,f)=> n
+    ? `<a class="t-fstat" href="price.html?f=${f}" title="${esc(label)} ${n}개만 모아 보기">${label} ${n}</a>` : '';
   $('#t-stats').innerHTML =
-    stat('s-good','✓ 진짜 할인',c.genuine,'genuine') + stat('s-bad','✕ 부풀림 신호',c.inflated,'inflated') +
-    stat('s-flat','정직한 가격',c.honest,'honest') + stat('s-flat','통상 가격',c.watch,'watch') +
+    stat('s-good','✓ 진짜 할인',c.genuine,'genuine') +
+    stat('s-flat','통상 가격',c.watch,'watch') +
     stat('s-warn','! 판정 보류',c.hold,'hold') +
-    stat('s-warn','↑ 표시정가 인상',c.raised,'raised') + stat('s-warn','↑ 할인 종료',c.sale_end,'sale_end') +
-    `<span class="t-stats-hint">칩을 누르면 그 판정만 모아 봅니다</span>`;
+    `<span class="t-stats-hint">Top 30을 나눈 판정</span>`;
+  /* 플래그는 등급과 다른 축 — 한 계위 아래로 내린다 */
+  const frow = fstat('✕ 부풀림 신호',fc.inflated,'inflated')
+             + fstat('↑ 표시정가 인상',fc.raised,'raised') + fstat('↑ 할인 종료',fc.sale_end,'sale_end');
+  $('#t-flags').innerHTML = frow
+    ? `<span class="t-flabel">표시가 주의</span>${frow}<span class="t-stats-hint">등급과 별개로 붙는 표기예요</span>` : '';
   const CW=260, CH=46, L=6, R=6, T=8, B=5;
   const mspark = it=>{
     const pts = it.series||[]; const n = pts.length; if(!n) return '';
@@ -1144,7 +1162,8 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   };
   /* 미니카드 → 해당 상품의 판정서 (박스 전체가 Top 30으로 가던 동선을 분리) */
   $('#t-minis').innerHTML = d.minis.slice(0,3).map(it=>{
-    const [cls,label] = VC[it.vtype] || VC.watch;
+    const [cls,label] = VC[gradeOf(it)] || VC.watch;
+    const ftags = (it.flags||[]).map(fl=>`<span class="m-flag">${FC[fl]||fl}</span>`).join('');
     const th = it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
                       : esc((it.brand||'·').slice(0,1));
     /* 2026-08-15: 판정 → 가격 → 이력 → 상품 순서로 뒤집었다. 일반 쇼핑몰은 상품 사진이
@@ -1152,7 +1171,7 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
     const org = (it.org && it.org > it.cur)
       ? `<span class="m-org">표시가 ${it.org.toLocaleString('ko-KR')}원</span>` : '';
     return `<a class="t-mini" href="./?g=${esc(it.gno)}&from=home" title="${esc(it.brand)} ${esc(it.name)} 판정서 보기">
-      <div class="m-top"><span class="m-chip ${cls}">${label}</span><span class="m-rank">${it.rank}위</span></div>
+      <div class="m-top"><span class="m-chip ${cls}">${label}</span>${ftags}<span class="m-rank">${it.rank}위</span></div>
       <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}<span class="w">원</span>${org}</div>
       ${mspark(it)}
       <div class="m-foot"><div class="m-thumb">${th}</div>
