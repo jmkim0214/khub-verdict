@@ -49,6 +49,12 @@
   h1{font-size:23px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
   h1 .u{box-shadow:inset 0 -10px var(--series-wash);}
   p.lead{color:var(--ink-2); margin-top:8px; font-size:14.5px;}
+  /* 히어로 — 가격 데이터·디바이스 페이지와 같은 형식 (흰 박스 없음) (2026-08-15) */
+  .page-head{margin-top:18px;}
+  .page-head h1{font-size:23px; font-weight:800; letter-spacing:-0.02em;}
+  .page-head h1 .u{box-shadow:inset 0 -9px var(--series-wash);}
+  .page-head .sub{font-size:13.5px; color:var(--ink-2); margin-top:5px;}
+  @media (max-width:640px){ .page-head h1{font-size:20px;} }
   h2{font-size:16px; font-weight:800; margin-bottom:10px;}
   .searchbar{position:relative; margin-top:14px;}
   .searchbar input{width:100%; font:inherit; font-size:14.5px; padding:13px 16px; border:1.5px solid var(--baseline); border-radius:10px; background:var(--surface); color:var(--ink); outline:none;}
@@ -275,9 +281,9 @@
   </div>
 
   <div id="view-check">
-  <div class="card" style="text-align:center; padding:32px 24px; margin-top:0;">
-    <h1>내 화장대 <span class="u">루틴 궁합 검사</span></h1>
-    <p class="lead">쓰고 있는 제품을 등록하면, 식약처 고시 전성분 기준으로 <br>같이 쓰면 안 되는 조합·아침/저녁 분리·궁합 좋은 조합을 알려드려요.</p>
+  <div class="page-head">
+    <h1>내 화장대, <span class="u">같이 써도 되는 조합일까요</span></h1>
+    <div class="sub">쓰고 있는 제품을 등록하면 식약처 고시 전성분 기준으로 같이 쓰면 안 되는 조합·중복을 판정합니다. 피부 조건을 고르면 그 조건까지 함께 봅니다.</div>
   </div>
 
   <div class="card">
@@ -1422,80 +1428,64 @@ function rpSVG(d){
   const W = 1080;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
-  // 사이트와 같은 베이지·올리브 팔레트 (밝은 배경이라 관계선 색도 함께 어둡게 조정)
   const BG='#F5F1E8', CARD='#FFFEFB', MINT='#596044', INK='#20221E', SUB='#5B5D55',
         MUTED='#8F9184', WASH='rgba(102,114,51,0.12)', NODE='#F1ECDD', NSTK='rgba(32,34,30,0.20)', ZSTK='rgba(32,34,30,0.10)';
+  const CORAL='#D95C4F';
+  // 2026-08-16: 아침/저녁 두 존을 없앴다. 이 카드가 답하는 질문은 '이것들을 같이 써도 되나'
+  // 하나이고, 시간대는 그 답에 딸린 조건일 뿐인데 존을 나누면 같은 제품이 두 번 그려지고
+  // (공용 제품) 관계선이 세 채널로 흩어져 정작 궁합이 안 보였다.
+  // 이제 한 줄에 다 세우고, 시간 제약이 있는 제품만 노드에 표시한다.
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
-  const amProds = shelf.filter(p=>slotOf(p)[0] !== 'pm').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
-  const pmProds = shelf.filter(p=>slotOf(p)[0] !== 'am').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
+  const MAXN = 8;
+  const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, MAXN);
   const combo = rpCombo();
-  // 조건의 핵심 성분이 비어 있으면 그 '자리'를 저녁 존에 점선 노드로 그린다 (2026-08-15)
+  const headH = combo ? 178 : 150;
   const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
-  const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);   // 선크림 없음 → 아침 존에 빈자리
-  // 조건에 안 맞는 성분을 가진 제품 → 노드에 코랄 '!' 배지 (제품별로 어떤 성분인지도 모은다)
+  const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);
+  // 조건에 안 맞는 성분을 가진 제품 → 노드에 코랄 '!' 배지
   const badProd = new Map();
   if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
     if (!badProd.has(p)) badProd.set(p, []);
     badProd.get(p).push(axKo(x.cls));
   }));
-  const headH = combo ? 178 : 150;
-  // 감점 내역 — 점수 옆이 아니라 아래 줄에 이유로 적는다
+
+  // 한 줄 요약 — 줄바꿈 없이, 길면 글자 크기를 줄여 맞춘다
+  const summary = rpSummary(d);
+  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.56 : 1), 0);
+  const SUM_W = W - 152;
+  const sumSize = Math.max(15, Math.min(25, Math.floor(SUM_W / Math.max(1, textW(summary)))));
+
+  // 감점 내역
   const cuts = [];
   (d.axi||[]).filter(x=>x.cut).forEach(x=>cuts.push(`${x.key==='sun'?'선크림 없음':'활성 과다'} −${x.cut}`));
   if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
   if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
   if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  // 한 줄 요약 — 줄바꿈하지 않고 한 줄로 길게. 길면 글자 크기를 줄여 맞춘다. (2026-08-15)
-  const summary = rpSummary(d);
-  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.56 : 1), 0);
-  const SUM_W = W - 152;                              // 좌우 여백 76씩
-  const sumSize = Math.max(15, Math.min(25, Math.floor(SUM_W / Math.max(1, textW(summary)))));
-  const sLines = [summary];
-  const scoreH = 104 + sLines.length*36 + (cuts.length ? 34 : 0);
+  const scoreH = 104 + 36 + (cuts.length ? 34 : 0);
 
-  // ── 한 줄 배치: 각 존은 노드 1행. 노드 폭은 많은 쪽 개수에 맞춰 폭(W)을 채움 ──
-  const MG = 56, GX = 16, NH = 116, ZHEAD = 52;
-  const pmCount = pmProds.length + gaps.length;
-  const amCount = amProds.length + (sunGap ? 1 : 0);
-  const maxN = Math.max(amCount, pmCount, 1);
-  const NW = Math.max(96, Math.floor((W - MG*2 - (maxN-1)*GX) / maxN));
-  const zoneH = ZHEAD + NH + 12;
+  // ── 레이아웃: 한 줄에 제품 + 빈자리 ──
+  const MG = 56, GX = 16, NH = 128, ZHEAD = 52;
+  const nGhost = gaps.length + (sunGap ? 1 : 0);
+  const N = Math.max(prods.length + nGhost, 1);
+  const NW = Math.max(96, Math.floor((W - MG*2 - (N-1)*GX) / N));
+  const rowX = i => (W - (N*NW + (N-1)*GX))/2 + i*(NW+GX);
 
-  // 관계 분류를 레이아웃보다 먼저 — 3개 채널(아침 위 / 사이 / 저녁 아래) 높이 계산에 필요
-  const amSet = new Set(amProds), pmSet = new Set(pmProds);
-  const segs = [];
-  d.rel.forEach(pr=>{
-    const aAm = amSet.has(pr.A), aPm = pmSet.has(pr.A);
-    const bAm = amSet.has(pr.B), bPm = pmSet.has(pr.B);
-    if (aAm && bAm)      segs.push({g:pr.g, kind:'am', A:pr.A, B:pr.B});
-    else if (aPm && bPm) segs.push({g:pr.g, kind:'pm', A:pr.A, B:pr.B});
-    else if (aAm && bPm) segs.push({g:pr.g, kind:'x',  A:pr.A, B:pr.B});
-    else if (bAm && aPm) segs.push({g:pr.g, kind:'x',  A:pr.B, B:pr.A});
-  });
-  const LSTEP = 38, ICONR = 17;             // 선 간격 / 선 위 아이콘 반지름
-  const nAmSeg = segs.filter(x=>x.kind==='am').length;
-  const nPmSeg = segs.filter(x=>x.kind==='pm').length;
-  const nXSeg  = segs.filter(x=>x.kind==='x').length;
-  const TOPCH = nAmSeg ? (ICONR+8) + nAmSeg*LSTEP : 0;   // 아침 존 위 — 아침끼리 선
-  const BOTCH = nPmSeg ? (ICONR+8) + nPmSeg*LSTEP : 0;   // 저녁 존 아래 — 저녁끼리 선
-  const MIDCH = nXSeg ? Math.max(88, 50 + nXSeg*LSTEP) : 58;   // 두 존 사이 — 교차선
+  // 관계선은 모두 노드 줄 위 한 채널에 쌓는다
+  const inRow = new Set(prods);
+  const segs = d.rel.filter(pr=>inRow.has(pr.A) && inRow.has(pr.B));
+  const LSTEP = 40, ICONR = 18;
+  const TOPCH = segs.length ? (ICONR+10) + segs.length*LSTEP : 0;
 
-  const amY = headH + scoreH + 14 + TOPCH;
-  const amRowY = amY + ZHEAD;
-  const amH = zoneH, pmH = zoneH;
-  const amBot = amY + zoneH;
-  const pmY = amBot + MIDCH;
-  const pmRowY = pmY + ZHEAD;
-  const pmBot = pmY + zoneH;
-  const tailY = pmBot + BOTCH + 26;
+  const zoneY = headH + scoreH + 14 + TOPCH;
+  const rowY = zoneY + ZHEAD;
+  const zoneH = ZHEAD + NH + 14;
+  const tailY = zoneY + zoneH + 26;
   const H = tailY + 40 + 118;
 
-  const rowX = (i, count) => (W - (count*NW + (count-1)*GX))/2 + i*(NW+GX);
-  const amPos = new Map(), pmPos = new Map();
-  amProds.forEach((p,i)=>amPos.set(p, {x: rowX(i, amCount), y: amRowY}));
-  pmProds.forEach((p,i)=>pmPos.set(p, {x: rowX(i, pmCount), y: pmRowY}));
+  const pos = new Map();
+  prods.forEach((p,i)=>pos.set(p, {x: rowX(i), y: rowY}));
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
   s += `<rect width="${W}" height="${H}" fill="${BG}"/>`;
@@ -1507,127 +1497,114 @@ function rpSVG(d){
   const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
   s += `<text x="${W-60}" y="104" text-anchor="end" font-family="${F}" font-size="23" fill="${MUTED}">${date}</text>`;
   if (combo) s += `<text x="60" y="152" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">${e2(combo)} 조합</text>`;
+
   // 점수 스트립
   const sy = headH + 12;
   s += `<rect x="48" y="${sy}" width="${W-96}" height="${scoreH-12}" rx="16" fill="${WASH}"/>`;
   s += `<text x="76" y="${sy+60}" font-family="${F}" font-size="60" font-weight="800" fill="${INK}">${d.score}</text>`;
   s += `<text x="${76 + String(d.score).length*36 + 10}" y="${sy+58}" font-family="${F}" font-size="22" fill="${MUTED}">/100 루틴 궁합</text>`;
-  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · ↔️ ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
+  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">상충 ${d.nClash} · 분리 ${d.nSplit} · 중복 ${d.nDup} · 궁합 ${d.goods} · 제품 ${shelf.length}개</text>`;
   let qy = sy + 98;
-  sLines.forEach(line=>{
-    s += `<text x="76" y="${qy}" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(line)}</text>`;
-    qy += 36;
-  });
-  // 왜 이 점수인지 — 감점 항목을 이유와 함께 (2026-08-15)
+  s += `<text x="76" y="${qy}" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(summary)}</text>`;
+  qy += 36;
   if (cuts.length){
     s += `<text x="76" y="${qy - 4}" font-family="${F}" font-size="21" fill="${SUB}">`
-       + cuts.map((c,i)=>`<tspan fill="${i===0?'#D95C4F':SUB}">${e2(c)}</tspan>`
+       + cuts.map((c,i)=>`<tspan fill="${i===0?CORAL:SUB}">${e2(c)}</tspan>`
            + (i<cuts.length-1 ? `<tspan fill="${MUTED}">  ·  </tspan>` : '')).join('')
        + `</text>`;
   }
 
-  // 존 컨테이너 (테두리만 먼저 — 라벨은 선을 그린 뒤 위에 얹음)
-  const zoneBox = (zy, zh) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`;
-  s += zoneBox(amY, amH) + zoneBox(pmY, pmH);
+  // 존 박스
+  s += `<rect x="48" y="${zoneY}" width="${W-96}" height="${zoneH}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`;
 
-  // ── 관계선 3층 ── 아침끼리=아침 존 위 / 아침↔저녁=두 존 사이 직선 / 저녁끼리=저녁 존 아래 (모두 꺾은선)
-  const COLR = {clash:'#D95C4F', split:'#8A6410', dup:'#2F6B5C'};
-  let lines = '', dots = '', icons = '', amI = 0, pmI = 0;
-  // 선 한가운데 등급 아이콘 — 테두리 없이, 아이콘 자리만 카드색으로 지워 선을 끊고 얹음
-  const marker = (cx, cy, g) => `<circle cx="${cx}" cy="${cy}" r="${ICONR}" fill="${CARD}"/>`
-    + `<text x="${cx}" y="${cy+9}" text-anchor="middle" font-family="${F}" font-size="25">${GRADE_ICON[g]||''}</text>`;
-  segs.forEach(sg=>{
-    const c = COLR[sg.g], dash = sg.g==='dup' ? ' stroke-dasharray="12 10"' : '';
-    const st = `stroke="${c}" stroke-width="5" opacity="0.95" fill="none" stroke-linecap="round" stroke-linejoin="round"${dash}`;
-    if (sg.kind === 'x'){                             // 존 교차: 아침 노드 아래 → 저녁 노드 위, 직선
-      const a = amPos.get(sg.A), b = pmPos.get(sg.B);
-      const x1 = a.x+NW/2, y1 = a.y+NH, x2 = b.x+NW/2, y2 = b.y;
-      lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${st}/>`;
-      dots += `<circle cx="${x1}" cy="${y1}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="8" fill="${c}"/>`;
-      icons += marker((x1+x2)/2, (y1+y2)/2, sg.g);
-    } else if (sg.kind === 'am'){                     // 아침끼리: 위로 올라가는 ㄷ자
-      const a = amPos.get(sg.A), b = amPos.get(sg.B);
-      const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = amRowY;
-      const rise = amY - 22 - amI*LSTEP; amI++;
-      lines += `<path d="M ${x1} ${y0} V ${rise} H ${x2} V ${y0}" ${st}/>`;
-      dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
-      icons += marker((x1+x2)/2, rise, sg.g);
-    } else {                                          // 저녁끼리: 아래로 내려가는 ㄷ자
-      const a = pmPos.get(sg.A), b = pmPos.get(sg.B);
-      const x1 = a.x+NW/2, x2 = b.x+NW/2, y0 = pmRowY+NH;
-      const dip = pmBot + 22 + pmI*LSTEP; pmI++;
-      lines += `<path d="M ${x1} ${y0} V ${dip} H ${x2} V ${y0}" ${st}/>`;
-      dots += `<circle cx="${x1}" cy="${y0}" r="8" fill="${c}"/><circle cx="${x2}" cy="${y0}" r="8" fill="${c}"/>`;
-      icons += marker((x1+x2)/2, dip, sg.g);
-    }
+  // ── 관계선 (모두 줄 위) ──
+  // 아이콘은 이모지 대신 한글 한 글자 — 저장 환경에 이모지 폰트가 없으면 □로 찍힌다.
+  const COLR = {clash:CORAL, split:'#8A6410', dup:'#2F6B5C'};
+  const KOR  = {clash:'상', split:'분', dup:'중'};
+  let lines = '', icons = '';
+  segs.forEach((pr, i)=>{
+    const a = pos.get(pr.A), b = pos.get(pr.B);
+    if (!a || !b) return;
+    const ax = a.x + NW/2, bx = b.x + NW/2;
+    const y = zoneY - (ICONR+10) - i*LSTEP;
+    const col = COLR[pr.g] || MUTED;
+    const dash = pr.g==='dup' ? ' stroke-dasharray="8 7"' : '';
+    lines += `<path d="M${ax},${rowY} L${ax},${y} L${bx},${y} L${bx},${rowY}" fill="none" stroke="${col}" stroke-width="3"${dash} stroke-linejoin="round"/>`;
+    const mx = (ax+bx)/2;
+    icons += `<circle cx="${mx}" cy="${y}" r="${ICONR}" fill="${CARD}"/>`
+          +  `<circle cx="${mx}" cy="${y}" r="${ICONR}" fill="none" stroke="${col}" stroke-width="2.5"/>`
+          +  `<text x="${mx}" y="${y+7}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="${col}">${KOR[pr.g]||'·'}</text>`;
   });
   s += lines + icons;
 
-  // 존 라벨 (선 위에 — 카드색 배경으로 지나가는 선을 가림)
-  const zoneLabel = (zy, label) => `<rect x="64" y="${zy+12}" width="136" height="38" rx="10" fill="${CARD}"/>`
-    + `<text x="74" y="${zy+40}" font-family="${F}" font-size="29" font-weight="800" fill="${INK}">${label}</text>`;
-  s += zoneLabel(amY, '☀️ 아침') + zoneLabel(pmY, '🌙 저녁');
+  // 존 라벨
+  // 관계선이 라벨 위를 지나가지 않게 카드색 바탕을 깔고 얹는다
+  s += `<rect x="66" y="${zoneY+10}" width="150" height="34" fill="${CARD}"/>`
+     + `<text x="76" y="${zoneY+34}" font-family="${F}" font-size="27" font-weight="800" fill="${INK}">내 화장대</text>`;
+  s += `<text x="${W-76}" y="${zoneY+34}" text-anchor="end" font-family="${F}" font-size="21" fill="${MUTED}">사용 순서대로</text>`;
 
-  // 노드 (단일 행 — 폭 NW에 맞춰 폰트·이름 스케일)
-  const node = (p, pos) => {
+  // ── 노드 ──
+  const TIME_KO = {am:'아침만', pm:'저녁만'};
+  const node = (p, q) => {
     const label = rpSlotKo(p);
-    const shared = slotOf(p)[0] === 'both';
+    const slot = slotOf(p)[0];
     const sf = NW < 150 ? 16 : 18;
     const bw = label.length*sf + 14;
     const brandMax = Math.max(3, Math.floor((NW-24)/15));
     const brand = e2((p.b||'').slice(0, brandMax));
     let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
     if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
-    const nameMax = Math.max(3, Math.floor((NW-22)/18));
+    // 배지가 붙는 노드는 이름 자리가 그만큼 줄어든다
+    const nameMax = Math.max(3, Math.floor((NW - 22 - (badProd.has(p) ? 30 : 0))/18));
     if (nm.length > nameMax) nm = nm.slice(0, nameMax-1)+'…';
-    const gw = 36;
-    const showG = shared && NW >= 118 && (bw + gw + 18 <= NW);
-    let out = `<rect x="${pos.x}" y="${pos.y}" width="${NW}" height="${NH}" rx="15" fill="${NODE}" stroke="${NSTK}" stroke-width="2.5"/>`
-      + `<rect x="${pos.x+12}" y="${pos.y+12}" width="${bw}" height="29" rx="8" fill="${WASH}"/>`
-      + `<text x="${pos.x+12+bw/2}" y="${pos.y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MINT}">${e2(label)}</text>`;
-    if (showG) out += `<rect x="${pos.x+NW-12-gw}" y="${pos.y+12}" width="${gw}" height="29" rx="8" fill="rgba(123,116,95,0.20)"/>`
-        + `<text x="${pos.x+NW-12-gw/2}" y="${pos.y+32}" text-anchor="middle" font-family="${F}" font-size="15" font-weight="700" fill="${SUB}">공용</text>`;
-    else if (shared) out += `<circle cx="${pos.x+NW-20}" cy="${pos.y+26}" r="6" fill="rgba(123,116,95,0.55)"/>`;
-    out += `<text x="${pos.x+12}" y="${pos.y+66}" font-family="${F}" font-size="16" fill="${MUTED}">${brand}</text>`
-      + `<text x="${pos.x+12}" y="${pos.y+94}" font-family="${F}" font-size="19" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
-    // 조건에 안 맞는 성분을 가진 제품 표시 — 이모지는 저장 환경에 따라 □로 찍혀 도형으로 그린다
+    let out = `<rect x="${q.x}" y="${q.y}" width="${NW}" height="${NH}" rx="15" fill="${NODE}" stroke="${NSTK}" stroke-width="2.5"/>`
+      + `<rect x="${q.x+12}" y="${q.y+12}" width="${bw}" height="29" rx="8" fill="${WASH}"/>`
+      + `<text x="${q.x+12+bw/2}" y="${q.y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MINT}">${e2(label)}</text>`;
+    // 시간 제약이 있는 제품만 표시한다 — '공용'은 기본값이라 굳이 적지 않는다
+    if (TIME_KO[slot]){
+      const tw = 62;
+      out += `<rect x="${q.x+12}" y="${q.y+48}" width="${tw}" height="26" rx="6" fill="none" stroke="${NSTK}" stroke-width="1.6"/>`
+        + `<text x="${q.x+12+tw/2}" y="${q.y+66}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
+    }
+    const ty = TIME_KO[slot] ? 118 : 96;
+    out += `<text x="${q.x+12}" y="${q.y+ty-22}" font-family="${F}" font-size="16" fill="${MUTED}">${brand}</text>`
+      + `<text x="${q.x+12}" y="${q.y+ty}" font-family="${F}" font-size="19" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
     if (badProd.has(p)){
-      const bx = pos.x + NW - 22, by = pos.y + NH - 22;
-      out += `<circle cx="${bx}" cy="${by}" r="14" fill="#D95C4F"/>`
-        + `<text x="${bx}" y="${by+7}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="#FFFEFB">!</text>`;
+      const bx2 = q.x + NW - 22, by2 = q.y + NH - 22;
+      out += `<circle cx="${bx2}" cy="${by2}" r="14" fill="${CORAL}"/>`
+        + `<text x="${bx2}" y="${by2+7}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="#FFFEFB">!</text>`;
     }
     return out;
   };
-  amProds.forEach(p=>{ s += node(p, amPos.get(p)); });
-  pmProds.forEach(p=>{ s += node(p, pmPos.get(p)); });
-  // 비어 있는 자리 — 점선 노드. '없다'를 말로만 하지 않고 자리로 보여준다.
+  prods.forEach(p=>{ s += node(p, pos.get(p)); });
+
+  // ── 빈자리 (점선) ──
   const ghost = (x, y, ko, l1, l2, hot) => {
     const sf = NW < 150 ? 16 : 18;
     const bw = Math.min(NW-24, ko.length*sf + 14);
-    const st = hot ? '#D95C4F' : NSTK, tc = hot ? '#D95C4F' : MUTED;
+    const st = hot ? CORAL : NSTK, tc = hot ? CORAL : MUTED;
     return `<rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="15" fill="none" stroke="${st}" stroke-width="2.5" stroke-dasharray="7 6"/>`
       + `<rect x="${x+12}" y="${y+12}" width="${bw}" height="29" rx="8" fill="none" stroke="${st}" stroke-width="1.6" stroke-dasharray="5 4"/>`
       + `<text x="${x+12+bw/2}" y="${y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${tc}">${e2(ko)}</text>`
-      + `<text x="${x+12}" y="${y+70}" font-family="${F}" font-size="17" fill="${MUTED}">${e2(l1)}</text>`
-      + `<text x="${x+12}" y="${y+96}" font-family="${F}" font-size="19" font-weight="700" fill="${hot?'#D95C4F':SUB}">${e2(l2)}</text>`;
+      + `<text x="${x+12}" y="${y+76}" font-family="${F}" font-size="17" fill="${MUTED}">${e2(l1)}</text>`
+      + `<text x="${x+12}" y="${y+102}" font-family="${F}" font-size="19" font-weight="700" fill="${hot?CORAL:SUB}">${e2(l2)}</text>`;
   };
-  gaps.forEach((g,k)=>{
-    s += ghost(rowX(pmProds.length + k, pmCount), pmRowY, axKo(g.cls), '이 조건의 핵심', '비어 있는 자리', false);
-  });
-  // 대가설: 선크림은 조합과 무관하게 들어가야 한다 → 아침 존에 코랄 점선으로
-  if (sunGap) s += ghost(rowX(amProds.length, amCount), amRowY, '선크림', '조합과 무관한 기본', '빠져 있어요', true);
-  s += dots;
+  let gi = prods.length;
+  if (sunGap){ s += ghost(rowX(gi), rowY, '선크림', '조합과 무관한 기본', '빠져 있어요', true); gi++; }
+  gaps.forEach(g=>{ s += ghost(rowX(gi), rowY, axKo(g.cls), '이 조건의 핵심', '비어 있는 자리', false); gi++; });
 
-  // 범례 + 한 줄 요약 + 푸터
-  const extra = Math.max(shelf.length - new Set([...amProds, ...pmProds]).size, 0);
-  s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="23">`
-    + `<tspan fill="#D95C4F" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
-    + `<tspan fill="#8A6410" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
-    + `<tspan fill="#2F6B5C" font-weight="700">┅ 🔁 중복</tspan>`
-    + (badProd.size ? `<tspan fill="${MUTED}">   ·   </tspan><tspan fill="#D95C4F" font-weight="700">(!) 조건에 안 맞는 성분</tspan>` : '')
-    + (gaps.length ? `<tspan fill="${MUTED}">   ·   ┈ 비어 있는 자리</tspan>` : '')
+  // ── 범례 + 푸터 ──
+  const extra = Math.max(shelf.length - prods.length, 0);
+  const chip = (col, ko, txt, dash) =>
+    `<tspan fill="${col}" font-weight="800">${dash?'┈':'━'} ${ko}</tspan><tspan fill="${MUTED}"> ${txt}</tspan>`;
+  s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="22">`
+    + chip(COLR.clash,'상','같이 쓰지 마세요') + `<tspan fill="${MUTED}">   ·   </tspan>`
+    + chip(COLR.split,'분','시간대 분리') + `<tspan fill="${MUTED}">   ·   </tspan>`
+    + chip(COLR.dup,'중','성분 중복', true)
+    + (badProd.size ? `<tspan fill="${MUTED}">   ·   </tspan><tspan fill="${CORAL}" font-weight="800">(!) 조건에 안 맞는 성분</tspan>` : '')
+    + (nGhost ? `<tspan fill="${MUTED}">   ·   ┈ 비어 있는 자리</tspan>` : '')
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
-  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
+  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">시간 표기가 없는 제품은 아침·저녁 아무 때나 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
   s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
   return s + '</svg>';
 }
