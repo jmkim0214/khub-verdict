@@ -9,15 +9,15 @@
 <style>
   :root{
     color-scheme: light;
-    --page:#F5F1E6; --surface:#FDFBF5;
-    --ink:#2A2720; --ink-2:#615C50; --muted:#7B745F;
-    --grid:#E6DFCC; --baseline:#CCC3AC;
-    --border:rgba(42,39,32,0.12);
-    --series:#667233; --series-wash:rgba(102,114,51,0.10);
-    --good:#1C6DD0; --good-text:#175FB8;
-    --warn:#C2932F; --serious:#B4653A; --critical:#A8452C;
-    --good-bg:rgba(28,109,208,0.13); --warn-bg:rgba(194,147,47,0.18);
-    --serious-bg:rgba(180,101,58,0.13); --critical-bg:rgba(168,69,44,0.11);
+    --page:#F5F1E8; --surface:#FFFEFB;
+    --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+    --grid:rgba(32,34,30,0.10); --baseline:rgba(32,34,30,0.20);
+    --border:rgba(32,34,30,0.12);
+    --series:#596044; --series-wash:rgba(89,96,68,0.10);
+    --good:#596044; --good-text:#4A5139;
+    --warn:#6B6D62; --serious:#B4653A; --critical:#D95C4F;
+    --good-bg:rgba(89,96,68,0.12); --warn-bg:rgba(32,34,30,0.05);
+    --serious-bg:rgba(180,101,58,0.13); --critical-bg:rgba(217,92,79,0.10);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
@@ -1224,8 +1224,8 @@ function rpSVG(d){
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
   // 사이트와 같은 베이지·올리브 팔레트 (밝은 배경이라 관계선 색도 함께 어둡게 조정)
-  const BG='#F5F1E6', CARD='#FDFBF5', MINT='#667233', INK='#2A2720', SUB='#615C50',
-        MUTED='#7B745F', WASH='rgba(102,114,51,0.12)', NODE='#F1ECDD', NSTK='#CCC3AC', ZSTK='#E6DFCC';
+  const BG='#F5F1E8', CARD='#FFFEFB', MINT='#596044', INK='#20221E', SUB='#5B5D55',
+        MUTED='#8F9184', WASH='rgba(102,114,51,0.12)', NODE='#F1ECDD', NSTK='rgba(32,34,30,0.20)', ZSTK='rgba(32,34,30,0.10)';
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
   const amProds = shelf.filter(p=>slotOf(p)[0] !== 'pm').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
@@ -1309,7 +1309,7 @@ function rpSVG(d){
   s += zoneBox(amY, amH) + zoneBox(pmY, pmH);
 
   // ── 관계선 3층 ── 아침끼리=아침 존 위 / 아침↔저녁=두 존 사이 직선 / 저녁끼리=저녁 존 아래 (모두 꺾은선)
-  const COLR = {clash:'#A8452C', split:'#8A6410', dup:'#2F6B5C'};
+  const COLR = {clash:'#D95C4F', split:'#8A6410', dup:'#2F6B5C'};
   let lines = '', dots = '', icons = '', amI = 0, pmI = 0;
   // 선 한가운데 등급 아이콘 — 테두리 없이, 아이콘 자리만 카드색으로 지워 선을 끊고 얹음
   const marker = (cx, cy, g) => `<circle cx="${cx}" cy="${cy}" r="${ICONR}" fill="${CARD}"/>`
@@ -1377,7 +1377,7 @@ function rpSVG(d){
   // 범례 + 한 줄 요약 + 푸터
   const extra = Math.max(shelf.length - new Set([...amProds, ...pmProds]).size, 0);
   s += `<text x="${W/2}" y="${tailY+16}" text-anchor="middle" font-family="${F}" font-size="23">`
-    + `<tspan fill="#A8452C" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
+    + `<tspan fill="#D95C4F" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#8A6410" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#2F6B5C" font-weight="700">┅ 🔁 중복</tspan>`
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
