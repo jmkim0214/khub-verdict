@@ -132,17 +132,23 @@
           text-decoration:none; color:inherit; display:block; transition:border-color .15s, background .15s;}
   a.t-mini:hover{border-color:var(--series); background:var(--series-wash);}
   a.t-mini:hover .m-name{color:var(--series);}
-  .t-mini .m-go{font-size:11px; font-weight:700; color:var(--series); margin-top:6px;}
-  .t-mini .m-row{display:flex; align-items:center; gap:8px;}
-  .t-mini .m-thumb{width:30px; height:30px; border-radius:8px; flex:none; overflow:hidden;
+  .t-mini .m-top{display:flex; align-items:center; gap:8px;}
+  .t-mini .m-rank{margin-left:auto; font-size:11px; color:var(--muted); font-weight:600;}
+  .t-mini .m-go{font-size:13px; font-weight:700; color:var(--series); margin-left:auto; flex:none;}
+  .t-mini .m-foot{display:flex; align-items:center; gap:8px; margin-top:10px;
+    padding-top:10px; border-top:1px solid var(--grid);}
+  .t-mini .m-thumb{width:28px; height:28px; border-radius:4px; flex:none; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
     background:var(--series-wash); border:1px solid var(--border);
-    font-size:13px; font-weight:800; color:var(--series);}
+    font-size:12px; font-weight:800; color:var(--series);}
   .t-mini .m-thumb img{width:100%; height:100%; object-fit:cover;}
-  .t-mini .m-name{font-size:12px; font-weight:700; line-height:1.35;
+  .t-mini .m-name{font-size:11.5px; font-weight:600; line-height:1.35; color:var(--ink-2);
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .t-mini .m-price{font-size:13px; font-weight:800; margin-top:6px; font-variant-numeric:tabular-nums;
-    display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  /* 가격이 카드에서 가장 강한 요소 */
+  .t-mini .m-price{font-size:26px; font-weight:800; margin-top:10px; letter-spacing:-0.03em;
+    font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .t-mini .m-price .w{font-size:14px; font-weight:600; margin-left:-3px;}
+  .t-mini .m-org{font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:0;}
   .t-mini .m-chip{font-size:10.5px; font-weight:700; border-radius:999px; padding:1px 8px; border:1px solid transparent;}
   .t-mini .m-chip.v-good{background:var(--deal); color:#FFFEFB; border-color:var(--deal);}
   .t-mini .m-chip.v-bad{background:transparent; color:var(--critical); border-color:var(--baseline); border-radius:2px;}
@@ -152,12 +158,13 @@
   .t-foot{text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px;
     border-top:1px solid var(--grid); padding-top:12px;}
   .t-foot b{color:var(--ink-2);}
-  .trust{display:grid; grid-template-columns:repeat(4,1fr); margin-top:20px;
+  .trust{display:grid; grid-template-columns:repeat(2,1fr); margin-top:20px;
          border-top:1px solid var(--grid); border-bottom:1px solid var(--grid);}
   .trust .t{text-align:left; padding:20px 18px; border-right:1px solid var(--grid);}
   .trust .t:last-child{border-right:none;}
   .trust .t b{display:block; font-family:var(--serif); font-size:32px; font-weight:600;
-              letter-spacing:0; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;}
+              letter-spacing:0; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;
+              white-space:nowrap;}
   .trust .t span{display:block; font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5;}
   .trust .t span b{display:inline; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink-2);}
 
@@ -213,8 +220,9 @@
   .prod .dc{font-size:13.5px; font-weight:700; color:var(--critical);}
 
   /* 판정 패널 — 증서 느낌. 상단에 serif 커커, 좌측에 판정색 라인 (2026-08-15) */
-  .verdict{border-radius:4px; padding:16px 20px 18px; margin-top:22px;
+  .verdict{border-radius:4px; padding:18px 22px 20px; margin:0 0 20px;
            background:var(--page); border:1px solid var(--border); border-left:3px solid var(--baseline);}
+  .prod{padding-top:20px; border-top:1px solid var(--grid);}
   .verdict .v-kicker{font-family:var(--serif); font-size:11px; letter-spacing:.30em;
                      text-transform:uppercase; color:var(--gold); margin-bottom:12px;}
   .verdict .v-main{display:flex; gap:14px; align-items:flex-start;}
@@ -370,9 +378,7 @@
     .btn{padding:16px; font-size:15px; width:100%;}
     .btn.ghost{padding:12px 16px; font-size:13.5px;}
     .trust{grid-template-columns:repeat(2,1fr); margin-top:16px;}
-    .trust .t{padding:16px 14px; border-bottom:1px solid var(--grid);}
-    .trust .t:nth-child(2n){border-right:none;}
-    .trust .t:nth-last-child(-n+2){border-bottom:none;}
+    .trust .t{padding:16px 14px;}
     .trust .t b{font-size:26px;}
     .trust .t span{font-size:11px;}
     .teaser{padding:18px 16px 16px;}
@@ -406,8 +412,8 @@
   <!-- ================= HOME ================= -->
   <section id="view-home">
     <div class="hero">
-      <h1>광고 말고,<br><span class="u">데이터</span>로 사세요.</h1>
-      <p class="lead">올리브영 가격을 <b>하루 두 번</b> 관측해<br>지금 이 가격이 진짜인지 판정합니다.</p>
+      <h1>광고 말고, <span class="u">데이터</span>로 사세요.</h1>
+      <p class="lead">올리브영 가격을 <b>하루 두 번</b> 관측해 지금 이 가격이 진짜인지 판정합니다.</p>
       <div class="urlbar">
         <input id="url-input" type="text" placeholder="상품명 또는 올리브영 URL을 붙여보세요" spellcheck="false">
         <button class="btn" id="go-btn">판정하기</button>
@@ -436,10 +442,8 @@
 
     <!-- 숫자 앵커 — 설명 대신 숫자를 먼저 보여준다 (2026-08-15) -->
     <div class="trust">
-      <div class="t"><b id="stat-n">—</b><span>추적 중인 상품<br><b>동일 goodsNo 기준</b></span></div>
-      <div class="t"><b>2</b><span>하루 두 번 관측<br><b>오전 · 저녁</b></span></div>
-      <div class="t"><b>12</b><span>개월 가격 추적<br><b>세일 이후 복귀까지</b></span></div>
-      <div class="t"><b>3,300<span style="font-size:19px">+</span></b><span>화장품 성분 데이터<br><b>식약처 고시 전성분</b></span></div>
+      <div class="t"><b id="stat-n">—</b><span>추적 중인 상품<br><b>URL이 아니라 제품 단위로</b></span></div>
+      <div class="t"><b>3,300<span style="font-size:19px">+</span></b><span>화장품 성분 데이터<br><b>식약처 고시 전성분 기준</b></span></div>
     </div>
   </section>
 
@@ -469,6 +473,18 @@
           <div class="pb-s" id="r-paused-s"></div>
         </div>
       </div>
+      <!-- 2026-08-15: 판정을 상품보다 먼저 놓는다. 쇼핑몰은 상품 → 가격이지만
+           판정서에서 가장 먼저 읽혀야 하는 건 판정이다. -->
+      <div class="verdict" id="r-verdict">
+        <div class="v-kicker">Price Verdict</div>
+        <div class="v-main">
+          <div class="v-ic" id="r-vic"></div>
+          <div>
+            <h2 id="r-vtitle"></h2>
+            <p id="r-vdesc"></p>
+          </div>
+        </div>
+      </div>
       <div class="prod" id="r-prod">
         <div class="thumb" id="r-thumb"></div>
         <div>
@@ -482,16 +498,6 @@
           </div>
           <div class="stale-note hidden" id="r-stale-note"></div>
           <a class="oy-cta" id="r-oy" target="_blank" rel="noopener sponsored">올리브영에서 상품 보기 →</a>
-        </div>
-      </div>
-      <div class="verdict" id="r-verdict">
-        <div class="v-kicker">Price Verdict</div>
-        <div class="v-main">
-          <div class="v-ic" id="r-vic"></div>
-          <div>
-            <h2 id="r-vtitle"></h2>
-            <p id="r-vdesc"></p>
-          </div>
         </div>
       </div>
     </div>
@@ -1133,7 +1139,7 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
     if(it.org) s += `<line x1="${L}" x2="${CW-R}" y1="${y(it.org)}" y2="${y(it.org)}" stroke="var(--muted)" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.75"/>`;
     const path = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[1]).toFixed(1)).join('');
     s += `<path d="${path}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3.4" fill="var(--deal)" stroke="var(--surface)" stroke-width="2"/>`;
     return s + `</svg>`;
   };
   /* 미니카드 → 해당 상품의 판정서 (박스 전체가 Top 30으로 가던 동선을 분리) */
@@ -1141,12 +1147,17 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
     const [cls,label] = VC[it.vtype] || VC.watch;
     const th = it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
                       : esc((it.brand||'·').slice(0,1));
+    /* 2026-08-15: 판정 → 가격 → 이력 → 상품 순서로 뒤집었다. 일반 쇼핑몰은 상품 사진이
+       먼저지만, 더마릭 카드에서 가장 먼저 읽혀야 하는 건 판정이다. 썸네일은 하단으로. */
+    const org = (it.org && it.org > it.cur)
+      ? `<span class="m-org">표시가 ${it.org.toLocaleString('ko-KR')}원</span>` : '';
     return `<a class="t-mini" href="./?g=${esc(it.gno)}&from=home" title="${esc(it.brand)} ${esc(it.name)} 판정서 보기">
-      <div class="m-row"><div class="m-thumb">${th}</div>
-      <div class="m-name">${it.rank}위 · ${esc(it.brand)} ${esc(it.name)}</div></div>
-      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}원<span class="m-chip ${cls}">${label}</span></div>
+      <div class="m-top"><span class="m-chip ${cls}">${label}</span><span class="m-rank">${it.rank}위</span></div>
+      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}<span class="w">원</span>${org}</div>
       ${mspark(it)}
-      <div class="m-go">이 상품 판정서 →</div>
+      <div class="m-foot"><div class="m-thumb">${th}</div>
+        <div class="m-name">${esc(it.brand)} ${esc(it.name)}</div>
+        <span class="m-go">→</span></div>
     </a>`;
   }).join('');
   $('#teaser').classList.remove('hidden');

@@ -95,7 +95,9 @@
   .disclaimer{font-size:12px; color:var(--muted); margin-top:12px; padding-top:10px; border-top:1px dashed var(--grid);}
 
   /* ---------- 탭 ---------- */
-  .tabs{display:flex; gap:8px; margin-top:16px;}
+  /* 2026-08-15: 루틴 가이드 = 내 화장대 검사 하나로 통합. 탭은 숨기되 마크업·JS는 남긴다
+     (추천 루틴 데이터·함수는 그대로 살아 있고 화면에만 안 보인다 — 되돌리려면 이 한 줄만 지운다) */
+  .tabs{display:none; gap:8px; margin-top:16px;}
   .tab{font:inherit; font-size:14px; font-weight:700; cursor:pointer; padding:10px 18px;
     border-radius:11px 11px 0 0; border:1px solid var(--border); border-bottom:none;
     background:var(--page); color:var(--ink-2);}
@@ -284,14 +286,9 @@
     </div>
   </div>
 
-  <div id="out"></div>
-  </div><!-- /view-check -->
-
-  <!-- ================= 추천 루틴 ================= -->
-  <div id="view-reco" style="display:none">
-    <div class="card" style="margin-top:0;">
-      <h1>나에게 맞는 <span class="u">추천 루틴</span></h1>
-      <p class="lead">해당하는 것을 골라주세요 — 축마다 하나씩, 최대 4개까지 조합됩니다 (예: 건성 × 여드름 × 봄 × 10대).</p>
+  <div class="card">
+    <h2>2. 내 피부 조건 <span style="font-size:13px; font-weight:500; color:var(--muted);">(선택)</span></h2>
+    <div class="hint" style="margin-bottom:12px;">고르면 화장대에 <b>그 조건에 필요한 성분이 있는지, 피해야 할 성분이 있는지</b>까지 함께 봐드려요. 안 골라도 궁합 검사는 그대로 됩니다.</div>
       <div class="axgrp"><div class="ax-label">피부타입</div><div class="axchips" data-axis="skin">
         <button class="axchip" data-v="dry">건성</button><button class="axchip" data-v="oily">지성</button>
         <button class="axchip" data-v="combo">복합성</button><button class="axchip" data-v="sens">민감성</button>
@@ -309,6 +306,17 @@
         <button class="axchip" data-v="a10">10대</button><button class="axchip" data-v="a20">20대</button>
         <button class="axchip" data-v="a30">30대</button><button class="axchip" data-v="a40">40대+</button>
       </div></div>
+    <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다.</div>
+  </div>
+
+  <div id="out"></div>
+  </div><!-- /view-check -->
+
+  <!-- ================= 추천 루틴 ================= -->
+  <div id="view-reco" style="display:none">
+    <div class="card" style="margin-top:0;">
+      <h1>나에게 맞는 <span class="u">추천 루틴</span></h1>
+      <p class="lead">해당하는 것을 골라주세요 — 축마다 하나씩, 최대 4개까지 조합됩니다 (예: 건성 × 여드름 × 봄 × 10대).</p>
       <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 3316개 상품에서 고릅니다.</div>
     </div>
 
@@ -340,7 +348,6 @@
       <div class="actions" style="justify-content:center; margin-top:14px;">
         <button class="btn" onclick="rpSavePng()">🖼️ 이미지로 저장</button>
         <button class="btn" onclick="showTab('check')">✏️ 제품 조정</button>
-        <button class="btn" onclick="showTab('reco')">← 추천으로</button>
       </div>
       <div class="hint" style="text-align:center; margin-top:10px;">이미지 한 장으로 저장해 보관하거나 공유할 수 있어요.</div>
     </div>
@@ -656,6 +663,50 @@ function eveningDoubleNotes(){
   return out;
 }
 
+
+// ── 선택한 피부 조건 × 내 화장대 (2026-08-15) ───────────────────────────
+// 추천 루틴의 규칙표(RC_RULES)를 그대로 쓰되, '무엇을 사라'가 아니라
+// '지금 가진 것이 그 조건에 맞는가'만 본다. 없는 성분은 추천이 아니라 공백으로 표시한다.
+function axReview(){
+  if (!rcPicked.length) return '';
+  const sel = rcPicked.map(x=>x.v);
+  const eff = rcEff(sel);
+  const axOrder = ['skin','concern','season','age'];
+  const sorted = [...rcPicked].sort((a,b)=>axOrder.indexOf(a.axis)-axOrder.indexOf(b.axis));
+  const title = sorted.map(x=>RC_RULES[x.v].label).join(' × ');
+
+  const have = {};                                  // 성분 클래스 → 가진 제품들
+  shelf.filter(p=>!p.d).forEach(p=>{
+    for (const cls in (p.a||{})){
+      if (['AHA','BHA','PHA','VITC','ALC','RET','BAKU'].includes(cls) && !isActive(p,cls)) continue;
+      (have[cls] = have[cls] || []).push(short(p));
+    }
+  });
+  const ko = cls => (CLS[cls] ? CLS[cls].ko : cls);
+  const fit = [], avoid = [], gap = [];
+  Object.keys(eff.w).forEach(cls=>{
+    const wt = eff.w[cls];
+    if (wt > 0){ if (have[cls]) fit.push([ko(cls), have[cls]]); else if (wt >= 3) gap.push(ko(cls)); }
+    else if (wt < 0 && have[cls]) avoid.push([ko(cls), have[cls], wt <= -3]);
+  });
+  const row = (icon, label, list) => `<div class="vitem ${label}"><div class="vt">${icon}</div>
+    <div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">${list}</div></div>`;
+  let body = '';
+  if (avoid.length) body += row('⚠️ 이 조건에서는 피하는 게 좋은 성분이 있어요', 'split',
+    avoid.map(([k,ps,hard])=>`<b>${esc(k)}</b>${hard?' (특히 주의)':''} — ${esc(ps.join(', '))}`).join('<br>'));
+  if (fit.length) body += row('✅ 조건에 맞는 성분을 이미 갖고 있어요', 'good',
+    fit.map(([k,ps])=>`<b>${esc(k)}</b> — ${esc(ps.join(', '))}`).join('<br>'));
+  if (gap.length) body += row('◻︎ 이 조건의 핵심 성분 중 화장대에 없는 것', 'note',
+    esc(gap.join(' · ')) + ' <span style="color:var(--muted)">— 없어도 문제는 아니지만, 이 조건을 겨냥한다면 비어 있는 칸이에요.</span>');
+  if (!body) body = `<div style="font-size:13px; color:var(--muted);">선택한 조건과 특별히 부딪히거나 맞아떨어지는 성분이 없어요.</div>`;
+
+  return `<div class="card"><h2>선택한 피부 조건 검토</h2>
+    <div class="hint" style="margin-bottom:12px;"><b>${esc(title)}</b> 기준으로 지금 화장대를 봤어요 — 전성분이 확보된 제품만 대상입니다.</div>
+    <div class="verdict-list">${body}</div>
+    <div class="disclaimer">성분 계열이 있다/없다만 봅니다 — 함량·제형·개인차는 반영하지 않으며 효능을 보증하지 않아요.</div>
+  </div>`;
+}
+
 function render(){
   // chips
   document.getElementById('chips').innerHTML = shelf.map((p,i)=>
@@ -681,11 +732,13 @@ function render(){
       <button class="btn" onclick="if(confirm('등록한 제품을 모두 지울까요?')){shelf=[];saveState();render();}">비우기</button>
     </div></div>`;
 
+  html += axReview();
+
   // matrix (성분 판정 대상 2개 이상일 때) — 기기는 전성분이 없어 매트릭스에서 뺀다
   const mx = shelf.map((p,i)=>[p,i]).filter(([p])=>!p.d);
   const nDev = shelf.length - mx.length;
   if (mx.length >= 2){
-    html += '<div class="card"><h2>2. 상충 매트릭스</h2><div style="overflow-x:auto;"><table class="mtx"><tr><th></th>';
+    html += '<div class="card"><h2>3. 상충 매트릭스</h2><div style="overflow-x:auto;"><table class="mtx"><tr><th></th>';
     mx.forEach(([p])=>{ html += `<th title="${esc(name(p))}">${esc(short(p))}</th>`; });
     html += '</tr>';
     mx.forEach(([p1,i])=>{
@@ -712,7 +765,7 @@ function render(){
   const order = {clash:0, split:1, dup:2, note:3, good:4};
   items.sort((a,b)=>order[a[0]]-order[b[0]]);
   if (items.length){
-    html += '<div class="card"><h2>3. 판정 근거</h2><div class="verdict-list">';
+    html += '<div class="card"><h2>4. 판정 근거</h2><div class="verdict-list">';
     items.forEach(([g,t,sub,why])=>{
       html += `<div class="vitem ${g}"><div class="vt">${esc(t)}</div>`+
         (sub?`<div style="font-size:12.5px; color:var(--muted);">${esc(sub)}</div>`:'')+
@@ -727,7 +780,7 @@ function render(){
     const [slot, why] = slotOf(p);
     (slot==='am'? am : slot==='pm'? pm : both).push([p, why]);
   });
-  html += `<div class="card"><h2>4. 아침 / 저녁 나누기</h2><div class="ampm">
+  html += `<div class="card"><h2>5. 아침 / 저녁 나누기</h2><div class="ampm">
     <div class="slot"><h3>☀️ 아침</h3><ul>`+
     am.map(([p,w])=>`<li>${esc(short(p))}<span class="why">${esc(w)}</span></li>`).join('')+
     both.map(([p])=>`<li style="opacity:.7;">${esc(short(p))}<span class="why">공용 · 아침·저녁 함께</span></li>`).join('')+
@@ -950,7 +1003,7 @@ document.querySelectorAll('.axchips .axchip').forEach(ch=>{
     if (me) rcPicked = rcPicked.filter(x=>x!==me);
     else { rcPicked = rcPicked.filter(x=>x.axis!==axis); rcPicked.push({axis, v}); }
     try{ localStorage.setItem('tmr_reco', JSON.stringify(rcPicked)); }catch(e){}
-    rcSync(); rcRender();
+    rcSync(); rcRender(); render();   /* 2026-08-15: 화장대 검사에도 피부 조건을 반영 */
   });
 });
 function rcSync(){
@@ -1443,8 +1496,7 @@ function showTab(v){
 }
 
 loadState(); render();
-if (location.hash === '#reco'){ showTab('reco'); }
-else { rcSync(); rcRender(); }
+rcSync(); rcRender();   /* 2026-08-15: #reco 딥링크 제거 — 추천 화면은 숨김 상태다 */
 </script>
 </body>
 </html>

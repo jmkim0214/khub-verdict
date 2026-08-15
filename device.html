@@ -25,9 +25,17 @@ header.site{display:flex;align-items:center;gap:10px;padding:24px 0 14px;border-
 .page-head .sub{font-size:13.5px;color:var(--ink-2);margin-top:5px}
 .obs-note{display:inline-block;font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;
  border:1px solid var(--baseline);border-radius:14px;padding:4px 12px}
-.method{margin:16px 0 4px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;
+/* 2026-08-15: 설명 블록이 첫 화면을 다 먹어서 접기(details)로 바꿨다.
+   기본은 한 줄, 궁금한 사람만 펼친다. */
+.method{margin:16px 0 4px;padding:11px 15px;border:1px solid var(--border);border-radius:6px;
  background:var(--surface);font-size:12.5px;color:var(--ink-2);line-height:1.7}
 .method b{color:var(--ink)}
+.method>summary{cursor:pointer;list-style:none;font-size:12.5px;color:var(--ink-2);
+ font-weight:600;letter-spacing:-0.01em}
+.method>summary::-webkit-details-marker{display:none}
+.method>summary::before{content:'▸ ';color:var(--muted)}
+.method[open]>summary::before{content:'▾ '}
+.method[open]>summary{margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--grid)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin-top:18px}
 .card{display:flex;gap:13px;padding:14px;border:1px solid var(--border);border-radius:14px;
  background:var(--surface);text-decoration:none;color:inherit}
@@ -77,11 +85,11 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--grid);font-si
   <div class="sub">뷰티 디바이스의 본체가 옆에 제조국과 무상보증 기간을 나란히 놓았습니다. 판매자가 「상품정보 제공고시」에 적은 값을 그대로 옮겼습니다 — 상세페이지 맨 아래 접혀 있어 아무도 안 보는 표입니다.</div>
   <div class="obs-note">기기 81종 관측 · 제조국 중국 <b>38종</b> · 대한민국 <b>37종</b> · 미국 <b>1종</b> · 무상보증 기간이 고시에 <b>안 적힌</b> 기기 <b>51종</b> · 수집 2026-08-15</div>
 </div>
-<div class="method">
-  <b>왜 이 두 가지인가</b> — 여기 있는 기기는 가격 중앙값이 18만원, 최고 149만원입니다. 화장품과 자릿수가 다릅니다. 그런데 <b>100만원에 가까운 기기 상당수가 무상보증 기간을 고시에 적지 않았습니다.</b> 제조국도 브랜드 이미지와 다른 경우가 많아, 두 항목을 한자리에 모았습니다.<br>
-  <b>표기 그대로입니다</b> — 더마릭이 검증하거나 등급을 매기지 않습니다. <b>‘보증기간 표기 없음’은 보증이 없다는 뜻이 아니라 고시에 안 적혔다는 뜻</b>입니다. 실제 보증 조건은 구매 전 판매자에게 확인하세요.<br>
-  <b>전용 소모품</b>은 올리브영에서 같은 브랜드·같은 모델 라인의 리필/교체 헤드가 확인된 기기에만 표시합니다. 표시가 없다고 소모품이 없는 기기라는 뜻은 아닙니다 — 자사몰이나 다른 채널에는 있을 수 있습니다. 교체 주기는 어디에도 표기가 없어 <b>연간 유지비는 계산하지 않습니다.</b>
-</div>
+<details class="method">
+  <summary>왜 제조국과 보증기간인가</summary>
+  <b>가격대가 화장품과 다릅니다</b> — 여기 있는 기기는 가격 중앙값이 18만원, 최고 149만원입니다. 그런데 <b>100만원에 가까운 기기 상당수가 무상보증 기간을 고시에 적지 않았습니다.</b> 제조국도 브랜드 이미지와 다른 경우가 많아, 두 항목을 한자리에 모았습니다.<br>
+  <b>표기 그대로입니다</b> — 더마릭이 검증하거나 등급을 매기지 않습니다. <b>‘보증기간 표기 없음’은 보증이 없다는 뜻이 아니라 고시에 안 적혔다는 뜻</b>입니다. 실제 보증 조건은 구매 전 판매자에게 확인하세요.
+</details>
 <div class="grid">
 <a class="card" href="./?g=A000000208729&amp;from=device"><img class="th" src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/A00000020872909ko.jpg" alt="" loading="lazy"><div class="body"><div class="br">리쥬란</div><div class="nm">[정품인증이벤트_초음파고주파 더블케어] 리쥬란 리쥬리프 기획(+5만원상당 리쥬란 부스팅 젤200ml 증정)</div><div class="price">1,490,000원</div><div class="tags"><span class="tag origin">제조국 대한민국</span><span class="tag good">무상보증 1년</span></div><div class="mk">제조자 (주) 메디코슨</div></div></a>
 <a class="card" href="./?g=B000000203748&amp;from=device"><img class="th" src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/B00000020374803ko.jpg" alt="" loading="lazy"><div class="body"><div class="br">센텔리안24</div><div class="nm">센텔리안24 마데카 프라임 인피니티 1000샷 HIFU (흡수+초음파 뷰티 디바이스)</div><div class="price">1,100,000원</div><div class="tags"><span class="tag origin">제조국 대한민국</span><span class="tag warnish">보증기간 표기 없음</span></div><div class="mk">제조자 주식회사 메딕콘</div></div></a>
