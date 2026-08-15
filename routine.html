@@ -27,7 +27,7 @@
   /* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
   .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
   header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
-    max-width:1080px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+    max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
   .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
     text-decoration:none; padding:6px 2px; white-space:nowrap;}
   .nav-link + .nav-link{margin-left:20px;}
@@ -1375,6 +1375,12 @@ function rpSVG(d){
   const combo = rpCombo();
   // 조건의 핵심 성분이 비어 있으면 그 '자리'를 저녁 존에 점선 노드로 그린다 (2026-08-15)
   const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
+  // 조건에 안 맞는 성분을 가진 제품 → 노드에 코랄 '!' 배지 (제품별로 어떤 성분인지도 모은다)
+  const badProd = new Map();
+  if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
+    if (!badProd.has(p)) badProd.set(p, []);
+    badProd.get(p).push(axKo(x.cls));
+  }));
   const headH = combo ? 178 : 150;
   // 감점 내역 — 점수 옆이 아니라 아래 줄에 이유로 적는다
   const cuts = [];
@@ -1382,14 +1388,12 @@ function rpSVG(d){
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
   if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
   if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  // 한 줄 요약 (점수 박스 안, 최대 2줄)
+  // 한 줄 요약 — 줄바꿈하지 않고 한 줄로 길게. 길면 글자 크기를 줄여 맞춘다. (2026-08-15)
   const summary = rpSummary(d);
-  let sLines = [summary];
-  if (summary.length > 36){
-    let cut = summary.lastIndexOf(' ', 36); if (cut < 18) cut = 36;
-    sLines = [summary.slice(0,cut), summary.slice(cut).trim()];
-    if (sLines[1].length > 40) sLines[1] = sLines[1].slice(0,39)+'…';
-  }
+  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.56 : 1), 0);
+  const SUM_W = W - 152;                              // 좌우 여백 76씩
+  const sumSize = Math.max(15, Math.min(25, Math.floor(SUM_W / Math.max(1, textW(summary)))));
+  const sLines = [summary];
   const scoreH = 104 + sLines.length*36 + (cuts.length ? 34 : 0);
 
   // ── 한 줄 배치: 각 존은 노드 1행. 노드 폭은 많은 쪽 개수에 맞춰 폭(W)을 채움 ──
@@ -1451,7 +1455,7 @@ function rpSVG(d){
   s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">⛔ ${d.nClash} · ↔️ ${d.nSplit} · 🔁 ${d.nDup} · ✅ ${d.goods} · 제품 ${shelf.length}개</text>`;
   let qy = sy + 98;
   sLines.forEach(line=>{
-    s += `<text x="76" y="${qy}" font-family="${F}" font-size="25" font-weight="600" fill="${INK}">${e2(line)}</text>`;
+    s += `<text x="76" y="${qy}" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(line)}</text>`;
     qy += 36;
   });
   // 왜 이 점수인지 — 감점 항목을 이유와 함께 (2026-08-15)
@@ -1526,6 +1530,12 @@ function rpSVG(d){
     else if (shared) out += `<circle cx="${pos.x+NW-20}" cy="${pos.y+26}" r="6" fill="rgba(123,116,95,0.55)"/>`;
     out += `<text x="${pos.x+12}" y="${pos.y+66}" font-family="${F}" font-size="16" fill="${MUTED}">${brand}</text>`
       + `<text x="${pos.x+12}" y="${pos.y+94}" font-family="${F}" font-size="19" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
+    // 조건에 안 맞는 성분을 가진 제품 표시 — 이모지는 저장 환경에 따라 □로 찍혀 도형으로 그린다
+    if (badProd.has(p)){
+      const bx = pos.x + NW - 22, by = pos.y + NH - 22;
+      out += `<circle cx="${bx}" cy="${by}" r="14" fill="#D95C4F"/>`
+        + `<text x="${bx}" y="${by+7}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="#FFFEFB">!</text>`;
+    }
     return out;
   };
   amProds.forEach(p=>{ s += node(p, amPos.get(p)); });
@@ -1550,6 +1560,7 @@ function rpSVG(d){
     + `<tspan fill="#D95C4F" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#8A6410" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#2F6B5C" font-weight="700">┅ 🔁 중복</tspan>`
+    + (badProd.size ? `<tspan fill="${MUTED}">   ·   </tspan><tspan fill="#D95C4F" font-weight="700">(!) 조건에 안 맞는 성분</tspan>` : '')
     + (gaps.length ? `<tspan fill="${MUTED}">   ·   ┈ 비어 있는 자리</tspan>` : '')
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
   s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
