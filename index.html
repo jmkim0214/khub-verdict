@@ -35,16 +35,29 @@
     background:var(--page); color:var(--ink);
     line-height:1.55; -webkit-font-smoothing:antialiased;
     word-break:keep-all; overflow-wrap:break-word;  /* 한글 어절 단위 줄바꿈 */
-  }
+  ; overflow-x:hidden}
   .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
-  header.site{
-    display:flex; align-items:center; gap:10px; padding:24px 0 14px; border-bottom:1px solid var(--grid); margin-bottom:6px;
+  /* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:1080px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:0;}
+    .nav-first{margin-left:0;}
   }
   .logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1;}
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
   .logo-sub{font-family:var(--serif); font-size:10.5px; letter-spacing:0.28em; color:var(--gold); margin-top:6px; text-transform:uppercase;}
-  .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:6px 2px; white-space:nowrap;}
-  .nav-link:hover{color:var(--series);}
+  
   .card{
     background:var(--surface); border:1px solid var(--border);
     border-radius:6px; padding:26px; margin-top:16px;
@@ -371,11 +384,6 @@
   /* ---------- 모바일 (≤640px) ---------- */
   @media (max-width:640px){
     .wrap{padding:0 14px 60px;}
-    header.site{flex-wrap:wrap; row-gap:12px; column-gap:22px; padding:18px 0 12px;}
-    header.site > a:first-child{width:100%;}
-    .logo{font-size:20px;}
-    .logo-sub{white-space:nowrap;}
-    .nav-link{margin-left:0 !important; padding:5px 0; font-size:12.5px;}
     .card{padding:20px 16px; border-radius:12px;}
     .hero{padding:44px 4px 30px; text-align:left;}
     .hero h1{font-size:32px; letter-spacing:-0.045em;}
@@ -406,16 +414,16 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="site">
-    <a href="./" style="text-decoration:none; color:inherit;">
+  <div class="site-band"><header class="site">
+    <a href="./" style="text-decoration:none;color:inherit">
       <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
       <div class="logo-sub">화장품 가격·성분 검증</div>
     </a>
-    <a class="nav-link" href="price.html">가격 데이터</a>
-    <a class="nav-link" style="margin-left:20px" href="device.html">디바이스</a>
-    <a class="nav-link" style="margin-left:20px" href="routine.html">루틴 가이드</a>
-    <a class="nav-link" style="margin-left:20px" href="glossary.html">성분 사전</a>
-  </header>
+    <a class="nav-link nav-first" href="price.html">가격 데이터</a>
+    <a class="nav-link" href="device.html">디바이스</a>
+    <a class="nav-link" href="routine.html">루틴 가이드</a>
+    <a class="nav-link" href="glossary.html">성분 사전</a>
+  </header></div>
 
   <!-- ================= HOME ================= -->
   <section id="view-home">

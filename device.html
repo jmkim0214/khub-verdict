@@ -10,15 +10,29 @@
  --good:#596044;--good-text:#4A5139;--warn:#6B6D62;--critical:#D95C4F;--warn-bg:rgba(32,34,30,0.05);--critical-bg:rgba(217,92,79,0.10);}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
- background:var(--page);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+ background:var(--page);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word; overflow-x:hidden}
 .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
-header.site{display:flex;align-items:center;gap:10px;padding:24px 0 14px;border-bottom:1px solid var(--grid)}
+/* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:1080px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:0;}
+    .nav-first{margin-left:0;}
+  }
 .logo{font-family:'Cormorant Garamond',Georgia,serif; font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1; text-decoration:none;}
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
   .logo-sub{font-family:'Cormorant Garamond',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
-.nav-link{align-self:center;font-size:13.5px;font-weight:600;color:var(--ink-2);text-decoration:none;
- padding:6px 2px;white-space:nowrap}
-.nav-link.here{color:var(--series);font-weight:800}
+
 .page-head{margin-top:18px}
 .page-head h1{font-size:23px;font-weight:800;letter-spacing:-.02em}
 .page-head h1 .u{box-shadow:inset 0 -9px var(--series-wash)}
@@ -62,7 +76,7 @@ header.site{display:flex;align-items:center;gap:10px;padding:24px 0 14px;border-
 .tag.dim{color:var(--muted);border-style:dashed}
 .mk{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--grid);font-size:11.5px;color:var(--muted);line-height:1.75}
-@media(max-width:640px){header.site{flex-wrap:wrap;row-gap:12px;column-gap:22px}header.site>a:first-child{width:100%}.nav-link{margin-left:0!important;padding:5px 0;font-size:12.5px}.page-head h1{font-size:20px}}
+@media(max-width:640px){header.site>a:first-child{width:100%}.nav-link{margin-left:0!important;padding:5px 0;font-size:12.5px}.page-head h1{font-size:20px}}
 
   /* 종이 질감 그레인 — 화면 전체에 얹는 고정 오버레이. 외부 이미지 없이 인라인 SVG 노이즈,
      클릭 통과(pointer-events:none), 인쇄 시 제외. 지우려면 이 블록만 삭제. (2026-08-11) */
@@ -71,15 +85,16 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--grid);font-si
     background-size:240px 240px; opacity:0.5; mix-blend-mode:multiply;}
   @media print{body::after{display:none;}}
 </style></head><body><div class="wrap">
-<header class="site">
-  <a href="./" style="text-decoration:none;color:inherit">
-    <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
-    <div class="logo-sub">화장품 가격·성분 검증</div>
-  </a>
-  <a class="nav-link" style="margin-left:auto" href="price.html">가격 데이터</a>
-  <a class="nav-link here" style="margin-left:8px" href="device.html">디바이스</a>
-  <a class="nav-link" style="margin-left:20px" href="routine.html">루틴 가이드</a>
-</header>
+<div class="site-band"><header class="site">
+    <a href="./" style="text-decoration:none;color:inherit">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link nav-first" href="price.html">가격 데이터</a>
+    <a class="nav-link here" href="device.html">디바이스</a>
+    <a class="nav-link" href="routine.html">루틴 가이드</a>
+    <a class="nav-link" href="glossary.html">성분 사전</a>
+  </header></div>
 <div class="page-head">
   <h1>이 기기, <span class="u">어디서 만들었고 보증은 며칠일까요</span></h1>
   <div class="sub">뷰티 디바이스의 본체가 옆에 제조국과 무상보증 기간을 나란히 놓았습니다. 판매자가 「상품정보 제공고시」에 적은 값을 그대로 옮겼습니다 — 상세페이지 맨 아래 접혀 있어 아무도 안 보는 표입니다.</div>

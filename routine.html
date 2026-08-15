@@ -22,15 +22,29 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
     background:var(--page); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
-    word-break:keep-all; overflow-wrap:break-word;}
+    word-break:keep-all; overflow-wrap:break-word;; overflow-x:hidden}
   .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
-  header.site{display:flex; align-items:center; gap:10px; padding:24px 0 14px; border-bottom:1px solid var(--grid); margin-bottom:6px;}
+  /* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:1080px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:0;}
+    .nav-first{margin-left:0;}
+  }
   .logo{font-family:'Cormorant Garamond',Georgia,serif; font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1; text-decoration:none;}
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
   .logo-sub{font-family:'Cormorant Garamond',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
-  .nav-link{margin-left:auto; align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:6px 2px; white-space:nowrap;}
-  .nav-link:hover{color:var(--series);}
-  .nav-link.here{color:var(--series); font-weight:800;}
+  
   .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; margin-top:16px;}
   h1{font-size:23px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
   h1 .u{box-shadow:inset 0 -10px var(--series-wash);}
@@ -205,6 +219,10 @@
     border:1px solid var(--series); border-radius:6px; padding:0 6px; line-height:1.6; margin-top:1px;
     background:var(--series-wash); white-space:nowrap;}
   .rp-issues{margin-top:12px; display:flex; flex-direction:column; gap:6px;}
+  .rp-ex{font-size:12px; color:var(--ink-2);}
+  .rp-ex a{color:var(--series); font-weight:700; text-decoration:none; border-bottom:1px solid var(--series);}
+  .rp-ex a:hover{color:var(--ink); border-color:var(--ink);}
+  .rp-ex .rp-verdict{font-size:11.5px; font-weight:600; color:var(--ink-2); border-bottom-color:var(--baseline); margin-left:6px;}
   .rp-issue{font-size:12px; color:var(--ink-2); line-height:1.5; padding:7px 11px; border-radius:8px;}
   .rp-issue.clash{background:var(--critical-bg);}
   .rp-issue.split{background:var(--warn-bg);}
@@ -217,10 +235,6 @@
   /* ---------- 모바일 (≤640px) ---------- */
   @media (max-width:640px){
     .wrap{padding:0 14px 60px;}
-    header.site{flex-wrap:wrap; row-gap:12px; column-gap:22px; padding:18px 0 12px;}
-    header.site > div:first-child{width:100%;}
-    .logo{font-size:20px;}
-    .nav-link{margin-left:0 !important; padding:5px 0; font-size:12.5px;}
     .card{padding:18px 15px;}
     h1{font-size:20px;}
     p.lead{font-size:13.5px;}
@@ -244,13 +258,16 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="site">
-    <div><a class="logo" href="index.html">더마릭<span class="logo-eng">THEMARIC</span></a><div class="logo-sub">화장품 가격·성분 검증</div></div>
-    <a class="nav-link" href="price.html">가격 데이터</a>
-    <a class="nav-link" style="margin-left:20px" href="device.html">디바이스</a>
-    <a class="nav-link here" style="margin-left:8px" href="routine.html">루틴 가이드</a>
-    <a class="nav-link" style="margin-left:20px" href="glossary.html">성분 사전</a>
-  </header>
+  <div class="site-band"><header class="site">
+    <a href="./" style="text-decoration:none;color:inherit">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link nav-first" href="price.html">가격 데이터</a>
+    <a class="nav-link" href="device.html">디바이스</a>
+    <a class="nav-link here" href="routine.html">루틴 가이드</a>
+    <a class="nav-link" href="glossary.html">성분 사전</a>
+  </header></div>
 
   <div class="tabs">
     <button class="tab on" id="tab-check" onclick="showTab('check')">내 화장대 검사</button>
@@ -1269,8 +1286,14 @@ function rpData(){
       s:x.ps.map(short).join(', ')}));
     a.ax.gap.forEach(x=>{
       const pick = axPick(x.cls, a.ax.eff);
-      axIssues.push({g:'note', t:`${a.ax.title} 조건의 핵심 성분이 없어요 — ${axKo(x.cls)}`,
-        s: pick ? `예: ${pick.p.b} ${rcName(pick.p)}` : ''});
+      let h = '';
+      if (pick){
+        const oy = OYURL + pick.p.g + (pick.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + pick.p.ac : '');
+        const price = pick.p.cur ? ` <span style="color:var(--muted)">${pick.p.cur.toLocaleString('ko-KR')}원</span>` : '';
+        h = `예: <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(pick.p.b)} ${esc(rcName(pick.p))} ↗</a>${price}`
+          + ` <a href="index.html?g=${pick.p.g}&from=routine" target="_blank" rel="noopener" class="rp-verdict">판정 ↗</a>`;
+      }
+      axIssues.push({g:'note', t:`${a.ax.title} 조건의 핵심 성분이 없어요 — ${axKo(x.cls)}`, s:'', h});
     });
   }
   const issues = [
@@ -1350,7 +1373,15 @@ function rpSVG(d){
   const amProds = shelf.filter(p=>slotOf(p)[0] !== 'pm').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
   const pmProds = shelf.filter(p=>slotOf(p)[0] !== 'am').sort((a,b)=>seq(a)-seq(b)).slice(0,8);
   const combo = rpCombo();
+  // 조건의 핵심 성분이 비어 있으면 그 '자리'를 저녁 존에 점선 노드로 그린다 (2026-08-15)
+  const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
   const headH = combo ? 178 : 150;
+  // 감점 내역 — 점수 옆이 아니라 아래 줄에 이유로 적는다
+  const cuts = [];
+  if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
+  if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
+  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
+  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
   // 한 줄 요약 (점수 박스 안, 최대 2줄)
   const summary = rpSummary(d);
   let sLines = [summary];
@@ -1359,11 +1390,12 @@ function rpSVG(d){
     sLines = [summary.slice(0,cut), summary.slice(cut).trim()];
     if (sLines[1].length > 40) sLines[1] = sLines[1].slice(0,39)+'…';
   }
-  const scoreH = 104 + sLines.length*36;
+  const scoreH = 104 + sLines.length*36 + (cuts.length ? 34 : 0);
 
   // ── 한 줄 배치: 각 존은 노드 1행. 노드 폭은 많은 쪽 개수에 맞춰 폭(W)을 채움 ──
   const MG = 56, GX = 16, NH = 116, ZHEAD = 52;
-  const maxN = Math.max(amProds.length, pmProds.length, 1);
+  const pmCount = pmProds.length + gaps.length;
+  const maxN = Math.max(amProds.length, pmCount, 1);
   const NW = Math.max(96, Math.floor((W - MG*2 - (maxN-1)*GX) / maxN));
   const zoneH = ZHEAD + NH + 12;
 
@@ -1399,7 +1431,7 @@ function rpSVG(d){
   const rowX = (i, count) => (W - (count*NW + (count-1)*GX))/2 + i*(NW+GX);
   const amPos = new Map(), pmPos = new Map();
   amProds.forEach((p,i)=>amPos.set(p, {x: rowX(i, amProds.length), y: amRowY}));
-  pmProds.forEach((p,i)=>pmPos.set(p, {x: rowX(i, pmProds.length), y: pmRowY}));
+  pmProds.forEach((p,i)=>pmPos.set(p, {x: rowX(i, pmCount), y: pmRowY}));
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
   s += `<rect width="${W}" height="${H}" fill="${BG}"/>`;
@@ -1422,6 +1454,13 @@ function rpSVG(d){
     s += `<text x="76" y="${qy}" font-family="${F}" font-size="25" font-weight="600" fill="${INK}">${e2(line)}</text>`;
     qy += 36;
   });
+  // 왜 이 점수인지 — 감점 항목을 이유와 함께 (2026-08-15)
+  if (cuts.length){
+    s += `<text x="76" y="${qy - 4}" font-family="${F}" font-size="21" fill="${SUB}">`
+       + cuts.map((c,i)=>`<tspan fill="${i===0?'#D95C4F':SUB}">${e2(c)}</tspan>`
+           + (i<cuts.length-1 ? `<tspan fill="${MUTED}">  ·  </tspan>` : '')).join('')
+       + `</text>`;
+  }
 
   // 존 컨테이너 (테두리만 먼저 — 라벨은 선을 그린 뒤 위에 얹음)
   const zoneBox = (zy, zh) => `<rect x="48" y="${zy}" width="${W-96}" height="${zh}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`;
@@ -1491,6 +1530,18 @@ function rpSVG(d){
   };
   amProds.forEach(p=>{ s += node(p, amPos.get(p)); });
   pmProds.forEach(p=>{ s += node(p, pmPos.get(p)); });
+  // 비어 있는 자리 — 점선 노드. '없다'를 말로만 하지 않고 자리로 보여준다.
+  gaps.forEach((g,k)=>{
+    const x = rowX(pmProds.length + k, pmCount), y = pmRowY;
+    const ko = axKo(g.cls);
+    const sf = NW < 150 ? 16 : 18;
+    const bw = Math.min(NW-24, ko.length*sf + 14);
+    s += `<rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="15" fill="none" stroke="${NSTK}" stroke-width="2.5" stroke-dasharray="7 6"/>`
+       + `<rect x="${x+12}" y="${y+12}" width="${bw}" height="29" rx="8" fill="none" stroke="${NSTK}" stroke-width="1.6" stroke-dasharray="5 4"/>`
+       + `<text x="${x+12+bw/2}" y="${y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MUTED}">${e2(ko)}</text>`
+       + `<text x="${x+12}" y="${y+70}" font-family="${F}" font-size="17" fill="${MUTED}">이 조건의 핵심</text>`
+       + `<text x="${x+12}" y="${y+96}" font-family="${F}" font-size="19" font-weight="700" fill="${SUB}">비어 있는 자리</text>`;
+  });
   s += dots;
 
   // 범례 + 한 줄 요약 + 푸터
@@ -1499,6 +1550,7 @@ function rpSVG(d){
     + `<tspan fill="#D95C4F" font-weight="700">━ ⛔ 상충</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#8A6410" font-weight="700">━ ↔️ 분리 필요</tspan><tspan fill="${MUTED}">   ·   </tspan>`
     + `<tspan fill="#2F6B5C" font-weight="700">┅ 🔁 중복</tspan>`
+    + (gaps.length ? `<tspan fill="${MUTED}">   ·   ┈ 비어 있는 자리</tspan>` : '')
     + (extra>0 ? `<tspan fill="${MUTED}">   (외 ${extra}개 생략)</tspan>` : '') + `</text>`;
   s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">‘공용’ = 아침·저녁 함께 쓰는 단계 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
   s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
@@ -1508,26 +1560,12 @@ function rpSVG(d){
 function rpRender(){
   const d = rpData();
   const issues = d.issues.slice(0, 6);
-  // 빠진 성분이 있으면 그 성분이 든 제품을 한 줄씩 — 리포트가 다음 행동까지 알려주게
-  let fill = '';
-  if (d.ax && d.ax.gap.length){
-    const rows = d.ax.gap.map(x=>{
-      const pick = axPick(x.cls, d.ax.eff);
-      if (!pick) return '';
-      const oy = OYURL + pick.p.g + (pick.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + pick.p.ac : '');
-      const price = pick.p.cur ? `${pick.p.cur.toLocaleString('ko-KR')}원` : '';
-      return `<div class="rp-issue note"><b>${esc(axKo(x.cls))}</b>가 비어 있어요 —
-        <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(pick.p.b)} ${esc(rcName(pick.p))}</a>
-        <span style="color:var(--muted)">${price}</span>
-        <a href="index.html?g=${pick.p.g}&from=routine" target="_blank" rel="noopener" style="font-size:11px">판정</a></div>`;
-    }).filter(Boolean).join('');
-    if (rows) fill = `<div class="rp-issues" style="margin-top:10px">${rows}
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">예시는 전성분 함량 순위 × 가격 판정만으로 골랐고, 제휴 수수료는 선정에 관여하지 않아요.</div></div>`;
-  }
   document.getElementById('rp-card').innerHTML = rpSVG(d) +
     (issues.length ? `<div class="rp-issues" style="margin-top:12px">${issues.map(x=>
-      `<div class="rp-issue ${x.g}">${GRADE_ICON[x.g]||''} <b>${esc(x.t)}</b>${x.s?`<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>`:''}</div>`).join('')}</div>` : '')
-    + fill;
+      `<div class="rp-issue ${x.g}">${GRADE_ICON[x.g]||''} <b>${esc(x.t)}</b>`
+      + (x.s ? `<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>` : '')
+      + (x.h ? `<br><span class="rp-ex">${x.h}</span>` : '')
+      + `</div>`).join('')}</div>` : '');
 }
 
 function rpSavePng(){
