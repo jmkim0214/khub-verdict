@@ -660,8 +660,10 @@ function analyzeShelf(){
   const ax = axDiff();
   const axAvoid = ax ? Math.min(24, ax.avoid.length * 8) : 0;
   const axGap   = ax ? Math.min(15, ax.gap.length * 5) : 0;
-  const score = Math.max(0, 100 - nClash*25 - nSplit*8 - axAvoid - axGap);
-  return {modes, pairs, flags, nClash, nSplit, nDup, score, ax, axAvoid, axGap};
+  const axi = axioms();
+  const axiCut = axi.reduce((a,x)=>a + (x.cut||0), 0);
+  const score = Math.max(0, 100 - nClash*25 - nSplit*8 - axAvoid - axGap - axiCut);
+  return {modes, pairs, flags, nClash, nSplit, nDup, score, ax, axAvoid, axGap, axi, axiCut};
 }
 
 // 저녁에 같은 슬롯(세럼·토너 등) 제품을 2개 이상 담았을 때: 병용해도 되는지 / 하나만 쓸지 안내.
@@ -695,6 +697,46 @@ function eveningDoubleNotes(){
 //   avoid : 조건에서 피하는 게 좋은데 갖고 있는 것
 //   gap   : 조건의 핵심 성분(가중치 3 이상)인데 화장대에 없는 것
 const AX_STRICT = ['AHA','BHA','PHA','VITC','ALC','RET','BAKU'];
+
+// ── 대가설: 조합과 무관하게 성립하는 기본 원칙 (2026-08-15) ──────────────
+// 고민 조합·계절·연령이 뭐든 바뀌지 않는 것들만 여기 둔다. 조건별 판단은 axDiff가 맡는다.
+// 감점은 '선크림 없음'에만 건다 — 클렌저·크림은 안 쓰는 게 아니라 '등록 안 했을' 가능성이
+// 크고, 그걸 점수로 깎으면 도구가 사용자를 틀렸다고 우기게 된다. 활성 과다는 등록된 사실이라 감점.
+const AX_ACT = ['RET','AHA','BHA','VITC'];
+function axioms(){
+  const cos = shelf.filter(p=>!p.d);
+  const slotKo = p => rpSlotKo(p);
+  const hasSun  = cos.some(isSun);
+  const hasMoist = cos.some(p=>['크림','로션','올인원'].includes(slotKo(p)));
+  const hasClean = cos.some(p=>slotKo(p)==='클렌저' || p.w);
+  const acts = AX_ACT.filter(c=>cos.some(p=>has(p,c)));
+  const actKo = acts.map(c=>CLS[c]?CLS[c].ko:c);
+  const out = [];
+  if (!hasSun){
+    const strong = acts.length > 0;
+    out.push({key:'sun', g:'clash', cut: strong ? 20 : 15, icon:'sun',
+      t:'선크림이 없어요 — 어떤 조합에도 들어가는 단계예요',
+      s: strong
+        ? `${actKo.join('·')}를 쓰는 동안에는 자외선차단이 한 세트예요. 안 바르면 이 성분들이 하는 일을 상쇄합니다.`
+        : '자외선 차단은 피부고민·계절·나이와 무관하게 기본 단계예요.'});
+  } else {
+    out.push({key:'sun', g:'good', cut:0, ok:true, t:'선크림 있음 — 기본은 지켰어요', s:''});
+  }
+  if (!hasMoist)
+    out.push({key:'moist', g:'note', cut:0,
+      t:'보습·장벽 마무리 단계가 안 보여요',
+      s:'크림·로션·올인원 중 하나로 마무리해야 앞 단계가 날아가지 않아요. 이미 쓰고 있다면 등록만 안 된 걸 수 있어요 — 점수에는 반영하지 않았어요.'});
+  if (!hasClean)
+    out.push({key:'clean', g:'note', cut:0,
+      t:'클렌징 단계가 안 보여요',
+      s:'등록만 안 하셨을 수 있어 점수에는 반영하지 않았어요.'});
+  if (acts.length >= 3)
+    out.push({key:'acts', g:'split', cut:5,
+      t:`활성 성분을 한꺼번에 ${acts.length}종 쓰고 있어요 — ${actKo.join('·')}`,
+      s:'자극은 성분별로 따로가 아니라 합쳐서 누적돼요. 하나씩 2~4주 간격으로 들이고, 겹치는 날은 줄이는 게 일반적 권고예요.'});
+  return out;
+}
+
 function axDiff(){
   // rcPicked는 아래에서 let으로 선언된다 — 초기 렌더가 먼저 도는 경로를 위한 TDZ 방어
   let picked;
@@ -741,6 +783,16 @@ function axPick(cls, eff){
   return best;
 }
 
+function axiomCard(list){
+  if (!list) list = analyzeShelf().axi;
+  if (!list.length) return '';
+  const row = x => `<div class="vitem ${x.g}"><div class="vt">${x.ok?'✅ ':''}${esc(x.t)}${x.cut?` <span style="color:var(--critical)">−${x.cut}</span>`:''}</div>`
+    + (x.s?`<div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">${esc(x.s)}</div>`:'') + `</div>`;
+  return `<div class="card"><h2>기본 원칙</h2>
+    <div class="hint" style="margin-bottom:12px;">고민 조합·계절·나이가 무엇이든 바뀌지 않는 것들이에요.</div>
+    <div class="verdict-list">${list.map(row).join('')}</div></div>`;
+}
+
 function axReview(){
   const ax = axDiff();
   if (!ax) return '';
@@ -783,7 +835,7 @@ function render(){
   const out = document.getElementById('out');
   if (shelf.length < 1){ out.innerHTML = '<div class="card"><div class="empty">제품을 등록하면 결과가 여기에 표시돼요.</div></div>'; return; }
 
-  const {pairs, flags, nClash, nSplit, nDup, score} = analyzeShelf();
+  const {pairs, flags, nClash, nSplit, nDup, score, axi} = analyzeShelf();
 
   let html = '';
 
@@ -797,6 +849,7 @@ function render(){
       <button class="btn" onclick="if(confirm('등록한 제품을 모두 지울까요?')){shelf=[];saveState();render();}">비우기</button>
     </div></div>`;
 
+  html += axiomCard(axi);
   html += axReview();
 
   // matrix (성분 판정 대상 2개 이상일 때) — 기기는 전성분이 없어 매트릭스에서 뺀다
@@ -1297,6 +1350,7 @@ function rpData(){
     });
   }
   const issues = [
+    ...(a.axi||[]).filter(x=>!x.ok).map(x=>({g:x.g, t:x.t, s:x.s})),
     ...a.pairs.filter(p=>p.grade!=='good').map(p=>({g:p.grade, t:p.title, s:`${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`})),
     ...a.flags.filter(f=>f[0]==='clash'||f[0]==='split').map(f=>({g:f[0], t:f[1], s:''})),
     ...axIssues,
@@ -1341,6 +1395,9 @@ function rpJosa(w, a, b){  // a: 받침O(과/은), b: 받침X(와/는)
 }
 function rpSummary(d){
   const nm = p => `${p.b ? p.b+' ' : ''}${rpSlotKo(p)}`;
+  // 대가설 위반이 있으면 그게 먼저다 — 조건보다 앞선다 (2026-08-15)
+  const sun = (d.axi||[]).find(x=>x.key==='sun' && x.cut);
+  if (sun) return '선크림이 빠졌어요 — 어떤 조합에도 들어가야 하는 단계예요.';
   // 조건 결함이 있으면 그게 이 리포트의 첫 문장이다 (2026-08-15)
   if (d.ax && d.ax.avoid.length)
     return `${d.ax.title} 조건에선 ${axKo(d.ax.avoid[0].cls)}를 피하는 게 좋아요.`;
@@ -1375,6 +1432,7 @@ function rpSVG(d){
   const combo = rpCombo();
   // 조건의 핵심 성분이 비어 있으면 그 '자리'를 저녁 존에 점선 노드로 그린다 (2026-08-15)
   const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
+  const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);   // 선크림 없음 → 아침 존에 빈자리
   // 조건에 안 맞는 성분을 가진 제품 → 노드에 코랄 '!' 배지 (제품별로 어떤 성분인지도 모은다)
   const badProd = new Map();
   if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
@@ -1384,6 +1442,7 @@ function rpSVG(d){
   const headH = combo ? 178 : 150;
   // 감점 내역 — 점수 옆이 아니라 아래 줄에 이유로 적는다
   const cuts = [];
+  (d.axi||[]).filter(x=>x.cut).forEach(x=>cuts.push(`${x.key==='sun'?'선크림 없음':'활성 과다'} −${x.cut}`));
   if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
   if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
@@ -1399,7 +1458,8 @@ function rpSVG(d){
   // ── 한 줄 배치: 각 존은 노드 1행. 노드 폭은 많은 쪽 개수에 맞춰 폭(W)을 채움 ──
   const MG = 56, GX = 16, NH = 116, ZHEAD = 52;
   const pmCount = pmProds.length + gaps.length;
-  const maxN = Math.max(amProds.length, pmCount, 1);
+  const amCount = amProds.length + (sunGap ? 1 : 0);
+  const maxN = Math.max(amCount, pmCount, 1);
   const NW = Math.max(96, Math.floor((W - MG*2 - (maxN-1)*GX) / maxN));
   const zoneH = ZHEAD + NH + 12;
 
@@ -1434,7 +1494,7 @@ function rpSVG(d){
 
   const rowX = (i, count) => (W - (count*NW + (count-1)*GX))/2 + i*(NW+GX);
   const amPos = new Map(), pmPos = new Map();
-  amProds.forEach((p,i)=>amPos.set(p, {x: rowX(i, amProds.length), y: amRowY}));
+  amProds.forEach((p,i)=>amPos.set(p, {x: rowX(i, amCount), y: amRowY}));
   pmProds.forEach((p,i)=>pmPos.set(p, {x: rowX(i, pmCount), y: pmRowY}));
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
@@ -1541,17 +1601,21 @@ function rpSVG(d){
   amProds.forEach(p=>{ s += node(p, amPos.get(p)); });
   pmProds.forEach(p=>{ s += node(p, pmPos.get(p)); });
   // 비어 있는 자리 — 점선 노드. '없다'를 말로만 하지 않고 자리로 보여준다.
-  gaps.forEach((g,k)=>{
-    const x = rowX(pmProds.length + k, pmCount), y = pmRowY;
-    const ko = axKo(g.cls);
+  const ghost = (x, y, ko, l1, l2, hot) => {
     const sf = NW < 150 ? 16 : 18;
     const bw = Math.min(NW-24, ko.length*sf + 14);
-    s += `<rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="15" fill="none" stroke="${NSTK}" stroke-width="2.5" stroke-dasharray="7 6"/>`
-       + `<rect x="${x+12}" y="${y+12}" width="${bw}" height="29" rx="8" fill="none" stroke="${NSTK}" stroke-width="1.6" stroke-dasharray="5 4"/>`
-       + `<text x="${x+12+bw/2}" y="${y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MUTED}">${e2(ko)}</text>`
-       + `<text x="${x+12}" y="${y+70}" font-family="${F}" font-size="17" fill="${MUTED}">이 조건의 핵심</text>`
-       + `<text x="${x+12}" y="${y+96}" font-family="${F}" font-size="19" font-weight="700" fill="${SUB}">비어 있는 자리</text>`;
+    const st = hot ? '#D95C4F' : NSTK, tc = hot ? '#D95C4F' : MUTED;
+    return `<rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="15" fill="none" stroke="${st}" stroke-width="2.5" stroke-dasharray="7 6"/>`
+      + `<rect x="${x+12}" y="${y+12}" width="${bw}" height="29" rx="8" fill="none" stroke="${st}" stroke-width="1.6" stroke-dasharray="5 4"/>`
+      + `<text x="${x+12+bw/2}" y="${y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${tc}">${e2(ko)}</text>`
+      + `<text x="${x+12}" y="${y+70}" font-family="${F}" font-size="17" fill="${MUTED}">${e2(l1)}</text>`
+      + `<text x="${x+12}" y="${y+96}" font-family="${F}" font-size="19" font-weight="700" fill="${hot?'#D95C4F':SUB}">${e2(l2)}</text>`;
+  };
+  gaps.forEach((g,k)=>{
+    s += ghost(rowX(pmProds.length + k, pmCount), pmRowY, axKo(g.cls), '이 조건의 핵심', '비어 있는 자리', false);
   });
+  // 대가설: 선크림은 조합과 무관하게 들어가야 한다 → 아침 존에 코랄 점선으로
+  if (sunGap) s += ghost(rowX(amProds.length, amCount), amRowY, '선크림', '조합과 무관한 기본', '빠져 있어요', true);
   s += dots;
 
   // 범례 + 한 줄 요약 + 푸터
