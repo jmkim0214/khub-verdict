@@ -137,8 +137,9 @@
   .bgchips{display:flex; gap:7px; flex-wrap:wrap;}
   .bg-line{display:flex; align-items:baseline; gap:8px; padding:11px 0; border-bottom:1px solid var(--grid); flex-wrap:wrap;}
   .bg-line:last-of-type{border-bottom:none;}
-  .bg-slot{flex:none; width:58px; font-size:11.5px; font-weight:800; color:var(--series);
-    background:var(--series-wash); border-radius:6px; padding:3px 0; text-align:center;}
+  .bg-slot{flex:none; min-width:58px; font-size:11.5px; font-weight:800; color:var(--series);
+    background:var(--series-wash); border-radius:6px; padding:3px 8px; text-align:center;}
+  .bg-slot.gf{color:var(--ink-2); background:transparent; border:1px dashed var(--baseline);}
   .bg-nm{flex:1; min-width:150px; font-size:13px; line-height:1.45;}
   .bg-nm .b{color:var(--muted); font-size:11.5px; display:block;}
   .bg-nm a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--baseline);}
@@ -840,22 +841,14 @@ function axReview(){
   const row = (icon, cls, body) => `<div class="vitem ${cls}"><div class="vt">${icon}</div>
     <div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">${body}</div></div>`;
   let body = '';
-  if (ax.avoid.length) body += row('⚠️ 이 조건에서는 피하는 게 좋은 성분이 있어요', 'split',
+  if (ax.avoid.length) body += row('⚠️ 이 조건에선 피하는 게 좋은 성분이 있어요', 'split',
     ax.avoid.map(x=>`<b>${esc(axKo(x.cls))}</b>${x.hard?' (특히 주의)':''} — ${esc(x.ps.map(short).join(', '))}`).join('<br>'));
   if (ax.fit.length) body += row('✅ 조건에 맞는 성분을 이미 갖고 있어요', 'good',
     ax.fit.map(x=>`<b>${esc(axKo(x.cls))}</b> — ${esc(x.ps.map(short).join(', '))}`).join('<br>'));
   if (ax.gap.length){
-    const lines = ax.gap.map(x=>{
-      const pick = axPick(x.cls, ax.eff);
-      if (!pick) return `<b>${esc(axKo(x.cls))}</b>`;
-      const oy = OYURL + pick.p.g + (pick.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + pick.p.ac : '');
-      const price = pick.p.cur ? `${pick.p.cur.toLocaleString('ko-KR')}원` : '';
-      return `<b>${esc(axKo(x.cls))}</b> — 예: <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(pick.p.b)} ${esc(rcName(pick.p))}</a>`
-           + (price?` <span style="color:var(--muted)">${price}</span>`:'')
-           + ` <a href="index.html?g=${pick.p.g}&from=routine" target="_blank" rel="noopener" style="font-size:11.5px">판정</a>`;
-    }).join('<br>');
     body += row('◻︎ 이 조건의 핵심 성분 중 화장대에 없는 것', 'note',
-      lines + '<div style="color:var(--muted); margin-top:6px">없어도 문제는 아니지만, 이 조건을 겨냥한다면 비어 있는 칸이에요. 예시는 <b>전성분 함량 순위 × 가격 판정</b>만으로 고른 것이고 제휴 수수료는 선정에 관여하지 않아요.</div>');
+      ax.gap.map(x=>`<b>${esc(axKo(x.cls))}</b>`).join(' · ')
+      + '<div style="color:var(--muted); margin-top:6px">리포트 카드에서 예산을 고르면 빠진 단계를 추천해드려요.</div>');
   }
   if (!body) body = `<div style="font-size:13px; color:var(--muted);">선택한 조건과 특별히 부딪히거나 맞아떨어지는 성분이 없어요.</div>`;
   return `<div class="card"><h2>선택한 피부 조건 검토</h2>
@@ -962,7 +955,9 @@ function rcSlot(p){
   if (/맨즈|남성|포맨|옴므|homme|for\s?men|mr\./i.test(p.b+' '+t)) return null;   // 성별 특정 상품 제외
   if (c.indexOf('클렌징') === 0) return 'cleanser';
   if (p.w) return null;                                    // 그 외 워시오프(필링젤 등) 제외
-  if (/^선/.test(c) || /선크림|선세럼|선에센스|선쿠션|선스틱|선로션/.test(t)) return 'sun';
+  // 괄호 안 증정 구성('(+선세럼 15ml)')이 본품 분류를 바꾸면 안 된다 (2026-08-17)
+  const tMain = t.replace(/\([^)]*\)/g, '').replace(/\+[^\s]*/g, '');
+  if (/^선/.test(c) || /선크림|선세럼|선에센스|선쿠션|선스틱|선로션/.test(tMain)) return 'sun';
   if (c === '스킨/토너' || c === '패드' || c === '미스트') return 'toner';
   if (c === '에센스/세럼/앰플') return 'serum';
   if (c === '크림' || c === '올인원' || /로션|에멀전/.test(c)) return 'cream';
@@ -1317,23 +1312,13 @@ function rpData(){
     const [slot] = slotOf(p);
     (slot==='am'? am : slot==='pm'? pm : both).push(p);
   });
-  // 선택한 피부 조건 결함도 리포트 이슈로 올린다 — 점수에서 이미 깎였으므로 이유가 보여야 한다.
+  // 선택한 피부 조건 결함 — 피해야 할 성분만 이슈로. (2026-08-17: '없는 성분 + 예시 링크'는
+  // 삭제 — 바로 아래 예산 추천이 같은 일을 더 잘한다. 조합 이름은 카드 상단에 이미 있어 반복하지 않는다)
   const axIssues = [];
   if (a.ax){
     a.ax.avoid.forEach(x=>axIssues.push({g:'split',
-      t:`${a.ax.title} 조건에선 피하는 게 좋은 성분 — ${axKo(x.cls)}`,
+      t:`이 조건에선 피하는 게 좋은 성분 — ${axKo(x.cls)}`,
       s:x.ps.map(short).join(', ')}));
-    a.ax.gap.forEach(x=>{
-      const pick = axPick(x.cls, a.ax.eff);
-      let h = '';
-      if (pick){
-        const oy = OYURL + pick.p.g + (pick.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + pick.p.ac : '');
-        const price = pick.p.cur ? ` <span style="color:var(--muted)">${pick.p.cur.toLocaleString('ko-KR')}원</span>` : '';
-        h = `예: <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(pick.p.b)} ${esc(rcName(pick.p))} ↗</a>${price}`
-          + ` <a href="index.html?g=${pick.p.g}&from=routine" target="_blank" rel="noopener" class="rp-verdict">판정 ↗</a>`;
-      }
-      axIssues.push({g:'note', t:`${a.ax.title} 조건의 핵심 성분이 없어요 — ${axKo(x.cls)}`, s:'', h});
-    });
   }
   const issues = [
     ...(a.axi||[]).filter(x=>!x.ok).map(x=>({g:x.g, t:x.t, s:x.s})),
@@ -1386,9 +1371,9 @@ function rpSummary(d){
   if (sun) return '선크림이 빠졌어요 — 어떤 조합에도 들어가야 하는 단계예요.';
   // 조건 결함이 있으면 그게 이 리포트의 첫 문장이다 (2026-08-15)
   if (d.ax && d.ax.avoid.length)
-    return `${d.ax.title} 조건에선 ${axKo(d.ax.avoid[0].cls)}를 피하는 게 좋아요.`;
+    return `이 조건에선 ${axKo(d.ax.avoid[0].cls)}를 피하는 게 좋아요.`;
   if (d.ax && d.ax.gap.length)
-    return `궁합은 괜찮지만 ${d.ax.title} 조건의 ${axKo(d.ax.gap[0].cls)}가 화장대에 없어요.`;
+    return `궁합은 괜찮지만 이 조건의 핵심인 ${axKo(d.ax.gap[0].cls)}가 화장대에 없어요.`;
   if (!d.rel.length)
     return d.score >= 90 ? '아주 좋은 궁합이에요 — 지금 조합 그대로 쓰셔도 좋아요.'
                          : '특별한 충돌 없이 무난한 조합이에요.';
@@ -1645,12 +1630,27 @@ const BG_SLOTS = [['cleanser','클렌저',true],['toner','토너',false],
                   ['serum','세럼',false],['cream','크림',true],['sun','선크림',true]];
 let bgBudget = 0;
 function bgValue(p, r, gapCls){
-  let v = r.s
-       + (p.rdc ? Math.min(6, p.rdc/5) : 0)      // 지금 싸진 폭
-       + (p.vt === 'genuine' ? 3 : 0);           // 진짜 할인 판정
-  // 조건의 핵심 성분이 비어 있다면, 그 성분이 든 제품이 빈칸을 두 개 채운다
-  if (gapCls) for (const cls of gapCls) if (p.a && p.a[cls]) v += 4;
+  // 1순위 = 조건 적합(성분 점수). 가격·세일은 보조 신호로만. (2026-08-17)
+  let v = r.s * 2
+       + (p.rdc ? Math.min(3, p.rdc/8) : 0)
+       + (p.vt === 'genuine' ? 2 : 0);
+  if (gapCls) for (const cls of gapCls) if (p.a && p.a[cls]) v += 6;
   return v;
+}
+// 조건에서 피해야 할 성분이 든 제품은 아예 후보에서 뺀다 — 추천해놓고
+// 궁합 검사가 경고를 띄우는 자기모순이 있었다. (2026-08-17)
+function bgAvoidSet(eff){
+  const out = new Set();
+  Object.keys(eff.w).forEach(c=>{ if (eff.w[c] <= -1) out.add(c); });
+  return out;
+}
+function bgOk(p, avoid){
+  for (const cls of avoid){
+    if (!p.a || !p.a[cls]) continue;
+    if (AX_STRICT.includes(cls) && !isActive(p, cls)) continue;
+    return false;
+  }
+  return true;
 }
 function bgHaveSlots(){
   // 화장대에 이미 있는 단계 — 그 단계는 추천하지 않는다
@@ -1670,15 +1670,24 @@ function bgSolve(budget){
   const have = bgHaveSlots();
   const ax = axDiff();
   const gapCls = new Set(ax ? ax.gap.map(x=>x.cls) : []);
-  const slots = BG_SLOTS.filter(([key])=>!have.has(key));
+  const avoid = bgAvoidSet(eff);
+  // 채울 것 = 빠진 단계 + 조건의 공백 성분 (2026-08-17)
+  const slots = BG_SLOTS.filter(([key])=>!have.has(key)).map(([key,ko,req])=>({key,ko,req}));
+  (ax ? ax.gap.slice(0,2) : []).forEach(g=>{
+    slots.push({key:'gap:'+g.cls, ko:axKo(g.cls), req:false, gcls:g.cls});
+  });
   if (!slots.length) return {v:0, picks:[], full:true};
   const U = 100, B = Math.floor(budget/U);
   let dp = new Array(B+1).fill(null);
   dp[0] = {v:0, picks:[]};
-  for (const [key, ko, req] of slots){
-    const list = (RC_BY[key]||[]).map(p=>({p, r:rcScore(p, eff)}))
-      .filter(x=>x.r && x.r.s > 0 && x.p.cur > 0)
-      .map(x=>({p:x.p, v:bgValue(x.p, x.r, gapCls), c:x.p.cur}))
+  for (const {key, ko, req, gcls} of slots){
+    const pool = gcls
+      ? ['serum','toner','cream'].flatMap(k=>RC_BY[k]||[]).filter(p=>p.a && p.a[gcls]
+          && !(AX_STRICT.includes(gcls) && !isActive(p, gcls)))
+      : (RC_BY[key]||[]);
+    const list = pool.map(p=>({p, r:rcScore(p, eff)}))
+      .filter(x=>x.r && x.r.s > 0 && x.p.cur > 0 && bgOk(x.p, avoid) && !shelf.some(sp=>sp.g===x.p.g))
+      .map(x=>({p:x.p, v:bgValue(x.p, x.r, gapCls), c:x.p.cur, gcls}))
       .sort((a,b)=>b.v-a.v).slice(0, 16);
     const nd = new Array(B+1).fill(null);
     for (let b=0; b<=B; b++){
@@ -1696,6 +1705,16 @@ function bgSolve(budget){
   }
   let best = null;
   for (let b=0; b<=B; b++) if (dp[b] && (!best || dp[b].v > best.v)) best = dp[b];
+  if (best){
+    // 성분 채우기 픽이 다른 픽과 중복되면(같은 제품이거나 그 성분을 이미 커버) 정리
+    const seen = new Set(); const out = [];
+    for (const pick of best.picks){
+      if (seen.has(pick.p.g)) continue;
+      if (pick.gcls && out.some(x=>x.p !== pick.p && x.p.a && x.p.a[pick.gcls])) continue;
+      seen.add(pick.p.g); out.push(pick);
+    }
+    best = {...best, picks: out};
+  }
   return best;
 }
 function bgRender(){
@@ -1716,16 +1735,15 @@ function bgRender(){
     const p = x.p;
     const oy = OYURL + p.g + (p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + p.ac : '');
     return `<div class="bg-line">
-      <span class="bg-slot">${esc(x.ko)}</span>
+      <span class="bg-slot${x.gcls?' gf':''}">${esc(x.ko)}</span>
       <span class="bg-nm"><span class="b">${esc(p.b)}</span>
         <a href="${esc(oy)}" target="_blank" rel="noopener sponsored">${esc(rcName(p))} ↗</a></span>
       <span class="bg-p">${p.cur.toLocaleString('ko-KR')}원</span>
       ${p.rdc?`<span class="bg-dc">추적가 −${p.rdc}%</span>`:''}
     </div>`;
   }).join('');
-  const combo = rcPicked.length ? rcPicked.map(x=>RC_RULES[x.v].label).join(' × ') + ' · ' : '';
   box.innerHTML = `<div style="margin-top:14px">
-    <div class="hint" style="margin-bottom:6px">${esc(combo)}빠진 ${best.picks.length}단계를 ${(bgBudget/10000)}만원 안에서${nDeal?` · 지금 세일 중 ${nDeal}개`:''}</div>
+    <div class="hint" style="margin-bottom:6px">빠진 단계·성분 ${best.picks.length}개를 ${(bgBudget/10000)}만원 안에서${nDeal?` · 지금 세일 중 ${nDeal}개`:''}</div>
     ${rows}
     <div class="bg-sum"><span class="t">${total.toLocaleString('ko-KR')}원</span>
       <span class="r">예산 ${bgBudget.toLocaleString('ko-KR')}원 · ${(bgBudget-total).toLocaleString('ko-KR')}원 남음</span></div>
@@ -1739,7 +1757,9 @@ function bgRender(){
 }
 function bgAddAll(){
   (window._bgLast?.best.picks||[]).forEach(x=>{ if(!shelf.some(s=>s.g===x.p.g)) addProd(x.p.g); });
-  rcToast('궁합 검사에 담았어요 — 위에서 결과를 확인하세요');
+  rpRender(); bgRender();          // 리포트 화면에 바로 반영 (2026-08-17)
+  rcToast('리포트에 반영했어요');
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 function bgCopy(){
   const d = window._bgLast; if (!d) return;
