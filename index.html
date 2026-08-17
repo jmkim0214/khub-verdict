@@ -437,7 +437,7 @@
   <section id="view-home">
     <div class="hero">
       <h1>광고 말고, <span class="u">데이터</span>로 사세요.</h1>
-      <p class="lead">올리브영 가격을 <b>하루 두 번</b> 관측해 지금 이 가격이 진짜인지 판정합니다.</p>
+      <p class="lead">올리브영 가격을 <b>하루 두 번</b> 관측해 판정합니다.</p>
       <div class="urlbar">
         <input id="url-input" type="text" placeholder="상품명 또는 올리브영 URL을 붙여보세요" spellcheck="false">
         <button class="btn" id="go-btn">판정하기</button>
@@ -454,7 +454,7 @@
       <a class="t-head" href="price.html">
         <div>
           <div class="t-title">TODAY'S OLIVE YOUNG</div>
-          <div class="t-kr">오늘의 올영 랭킹, 실제 가격으로 보기</div>
+          <div class="t-kr">오늘의 올영 랭킹, 실제 가격으로</div>
           <div class="t-sub" id="t-sub"></div>
         </div>
         <span class="t-cta">Top 30 전체 보기 →</span>
@@ -462,7 +462,7 @@
       <div class="t-stats" id="t-stats"></div>
       <div class="t-flags" id="t-flags"></div>
       <div class="t-minis" id="t-minis"></div>
-      <div class="t-foot">매일 오전·저녁 관측 갱신 — <b>내일은 순위도, 판정도 달라집니다</b></div>
+      <div class="t-foot">매일 오전·저녁 갱신 — <b>내일은 판정도 달라집니다</b></div>
     </div>
 
     <!-- 숫자 앵커 — 설명 대신 숫자를 먼저 보여준다 (2026-08-15) -->
@@ -1147,9 +1147,10 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   const gradeOf = it => it.grade || (VC[it.vtype] ? it.vtype : 'watch');
   const c = d.counts || {}, fc = d.fcounts || {};
   const badN = fc.inflated||0;
+  /* 2026-08-17: 관측 날짜는 뺀다 — 오늘 데이터인 게 기본값이고, 모바일에서 두 줄을 먹는다 */
   $('#t-sub').innerHTML = badN
-    ? `${esc(d.obs_label)} — 오늘 랭킹 Top 30 중 <b class="bad">${badN}개는 '정가'가 부풀려진 할인</b>이었어요`
-    : `${esc(d.obs_label)} — 오늘 랭킹 Top 30의 실제 가격 흐름을 확인하세요`;
+    ? `Top 30 중 <b class="bad">${badN}개는 부풀려진 할인</b>`
+    : `Top 30의 실제 가격 흐름`;
   /* 판정 칩 → 그 판정만 모아 보는 목록 (price.html?v=…) */
   const stat = (cls,label,n,v)=> n
     ? `<a class="t-stat ${cls}" href="price.html?v=${v}" title="${esc(label)} (${VEN[v]||''}) ${n}개만 모아 보기">${label} ${n}</a>` : '';
@@ -1158,13 +1159,11 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
   $('#t-stats').innerHTML =
     stat('s-good','✓ 진짜 할인',c.genuine,'genuine') +
     stat('s-flat','통상 가격',c.watch,'watch') +
-    stat('s-warn','! 판정 보류',c.hold,'hold') +
-    `<span class="t-stats-hint">Top 30을 나눈 판정</span>`;
+    stat('s-warn','! 판정 보류',c.hold,'hold');
   /* 플래그는 등급과 다른 축 — 한 계위 아래로 내린다 */
   const frow = fstat('✕ 부풀림 신호',fc.inflated,'inflated')
              + fstat('↑ 표시정가 인상',fc.raised,'raised') + fstat('↑ 할인 종료',fc.sale_end,'sale_end');
-  $('#t-flags').innerHTML = frow
-    ? `<span class="t-flabel">표시가 주의</span>${frow}<span class="t-stats-hint">등급과 별개로 붙는 표기예요</span>` : '';
+  $('#t-flags').innerHTML = frow ? `<span class="t-flabel">표시가 주의</span>${frow}` : '';
   const CW=260, CH=46, L=6, R=6, T=8, B=5;
   const mspark = it=>{
     const pts = it.series||[]; const n = pts.length; if(!n) return '';
