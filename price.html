@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>더마릭 — 가격 데이터 · 오늘의 올영 랭킹 실제 가격</title>
+<title>더마릭 — 오늘의 올영 Top 30 실제 가격</title>
 <meta name="description" content="올리브영 랭킹 Top 30의 일자별 실제 판매가 그래프. 표시 할인율이 아닌 관측된 가격 흐름으로 진짜 할인을 확인하세요.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -242,7 +242,7 @@
       <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
       <div class="logo-sub">화장품 가격·성분 검증</div>
     </a>
-    <a class="nav-link nav-first here" href="price.html">가격 데이터</a>
+    <a class="nav-link nav-first here" href="price.html">올영 Top 30</a>
     <a class="nav-link" href="device.html">디바이스</a>
     <a class="nav-link" href="routine.html">루틴 가이드</a>
     <a class="nav-link" href="glossary.html">성분 사전</a>
@@ -256,10 +256,6 @@
 
   <div class="toolbar">
     <div class="chips" id="cat-chips" style="display:none"></div>
-    <div class="legend">
-      <span class="k"><span class="sw-line"></span>실판매가</span>
-      <span class="k"><span class="sw-ref"></span>표시정가</span>
-    </div>
   </div>
 
   <div class="vfilter">
@@ -277,12 +273,9 @@
   </div>
 
   <div class="method-note">
-    점선(<b>올영이 표시한 표시정가</b>)은 상품 페이지에 "정가"라고 적혀 있는 가격이에요.
-    실선(실제 판매가)이 점선 근처에 <b>가본 적조차 없다면</b>, 그 할인율은 부풀려진 숫자입니다.<br>
-    상품명(↗)을 누르면 올리브영 상품 페이지로 이동합니다. 링크에 제휴 코드가 포함되지만,
-    <b>제휴 수수료는 판정·순위에 어떤 영향도 주지 않습니다</b> — 부풀림 신호가 뜬 상품에도 똑같이 링크를 답니다.<br>
-    카드의 빈 곳을 누르면 근거가 담긴 판정서로 이동합니다. 판정 칩은 관측 이력 기반 조기 신호이며, 관측이 쌓이면 자동 갱신됩니다.<br>
-    <b>판정별로 보기</b>에서 <b>진짜 할인</b>·<b>부풀림 신호</b> 등 한 가지 판정만 모아 볼 수 있고, 그 화면 주소를 그대로 공유하면 같은 목록이 열립니다.
+    <b>부풀림 신호 기준</b> — 표시정가가 평소 판매가(관측 중앙값)보다 <b>30% 이상</b> 높고,
+    그 가격에 실제로 판 날이 관측 기간의 <b>15% 미만</b>일 때.
+    표시가격 광고의 기준이 되는 '종전거래가격'(그 가격에 실제로 팔린 실적이 있어야 한다) 개념을 참고한 더마릭 자체 기준입니다.
   </div>
 
   <footer class="site">
@@ -319,10 +312,10 @@ function shownLine(it){
   const dc = (it.org && it.org > it.cur) ? Math.round((1-it.cur/it.org)*100) : 0;
   if (!dc) return `<div class="shown-sub">할인 표시 없음</div>`;
   const g = gradeOf(it);
-  let tail = '';
-  if (g === 'genuine') tail = ` <b class="ok">이력과 일치</b>`;
-  else if (it.d_at != null && it.nd) tail = ` — 이 가격에 판 날 ${it.d_at}일/${it.nd}일`;
-  return `<div class="shown-sub">올영 표시: <s>${won(it.org)}</s> ${dc}%${tail}</div>`;
+  if (g === 'genuine')
+    return `<div class="shown-sub">올영 표시 할인 ${dc}% — <b class="ok">실제 이력과 일치</b></div>`;
+  const r = it.med ? Math.max(0, Math.round((1 - it.cur/it.med)*100)) : 0;
+  return `<div class="shown-sub">올영 표시 정가는 ${won(it.org)}이지만 관측 가격은 ${won(it.med||it.cur)} — 실질 할인 ${r}%</div>`;
 }
 const flagsOf = it => it.flags || [];
 /* 오늘 관측이면 날짜 생략 — 어제 이전 데이터일 때만 날짜를 보여 정직하게 (2026-08-17) */
