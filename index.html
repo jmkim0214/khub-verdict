@@ -170,7 +170,8 @@
   .t-mini .m-price{font-size:26px; font-weight:800; margin-top:10px; letter-spacing:-0.03em;
     font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
   .t-mini .m-price .w{font-size:14px; font-weight:600; margin-left:-3px;}
-  .t-mini .m-org{font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:0;}
+  .t-mini .m-real{font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:0;}
+  .t-mini .m-real.hot{color:var(--critical); font-weight:800;}
   .t-mini .m-chip{font-size:10.5px; font-weight:700; border-radius:999px; padding:1px 8px; border:1px solid transparent;}
   .t-mini .m-chip.v-good{background:var(--deal); color:#FFFEFB; border-color:var(--deal);}
   .t-mini .m-chip.v-bad{background:transparent; color:var(--critical); border-color:var(--baseline); border-radius:2px;}
@@ -1184,11 +1185,17 @@ loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').
                       : esc((it.brand||'·').slice(0,1));
     /* 2026-08-15: 판정 → 가격 → 이력 → 상품 순서로 뒤집었다. 일반 쇼핑몰은 상품 사진이
        먼저지만, 더마릭 카드에서 가장 먼저 읽혀야 하는 건 판정이다. 썸네일은 하단으로. */
-    const org = (it.org && it.org > it.cur)
-      ? `<span class="m-org">표시가 ${it.org.toLocaleString('ko-KR')}원</span>` : '';
+    /* B안과 같은 문법 — 표시가 대신 평소가 대비 (2026-08-17) */
+    let real = '';
+    if (it.med){
+      const r = Math.round((1 - it.cur/it.med)*100);
+      real = r >= 3 ? `<span class="m-real hot">평소보다 −${r}%</span>`
+           : r <= -3 ? `<span class="m-real">평소보다 +${-r}%</span>`
+           : `<span class="m-real">평소가 그대로</span>`;
+    }
     return `<a class="t-mini" href="./?g=${esc(it.gno)}&from=home" title="${esc(it.brand)} ${esc(it.name)} 판정서 보기">
       <div class="m-top"><span class="m-chip ${cls}">${label}</span>${ftags}<span class="m-rank">${it.rank}위</span></div>
-      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}<span class="w">원</span>${org}</div>
+      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}<span class="w">원</span>${real}</div>
       ${mspark(it)}
       <div class="m-foot"><div class="m-thumb">${th}</div>
         <div class="m-name">${esc(it.brand)} ${esc(it.name)}</div>
