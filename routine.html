@@ -135,8 +135,11 @@
   .axchip.on{background:var(--series); color:#fff; border-color:var(--series); font-weight:700;}
   /* 예산 루틴 (2026-08-16) — 칩 모양은 축 칩과 같게, 컨테이너 클래스는 분리(축 리스너와 충돌 방지) */
   .bgchips{display:flex; gap:7px; flex-wrap:wrap;}
-  .bg-line{display:flex; align-items:baseline; gap:8px; padding:11px 0; border-bottom:1px solid var(--grid); flex-wrap:wrap;}
+  .bg-line{display:flex; align-items:baseline; gap:8px; padding:11px 0; border-bottom:1px solid var(--grid); flex-wrap:wrap; cursor:pointer;}
   .bg-line:last-of-type{border-bottom:none;}
+  .bg-line input[type=checkbox]{width:17px; height:17px; accent-color:var(--series); align-self:center; flex:none; cursor:pointer;}
+  .bg-line.off .bg-nm, .bg-line.off .bg-p, .bg-line.off .bg-slot{opacity:.45;}
+  .bg-line.off .bg-dc{opacity:.35;}
   .bg-slot{flex:none; min-width:58px; font-size:11.5px; font-weight:800; color:var(--series);
     background:var(--series-wash); border-radius:6px; padding:3px 8px; text-align:center;}
   .bg-slot.gf{color:var(--ink-2); background:transparent; border:1px dashed var(--baseline);}
@@ -396,16 +399,12 @@
     <div class="rp-wrap">
       <div id="rp-card"></div>
 
-      <!-- 빠진 단계 채우기 (2026-08-17) — 리포트가 보여준 빈자리를 예산 안에서 채운다 -->
+      <!-- 빠진 단계·성분 채우기 (2026-08-17 v2) — 장바구니 방식.
+           예산 안 조합 최적화는 버렸다: 다 담기엔 예산이 늘 모자랐고, 고르는 재미도 없었다.
+           빈칸마다 대표 추천 1개, 담을 것만 체크, 합계는 실시간. -->
       <div class="card" id="bg-card">
-        <h2>루틴에 빠진 상품, 예산 안에서 추천해드려요</h2>
-        <div class="hint" style="margin-bottom:12px;">지금 실제로 싸진 제품 위주로, 없는 단계만 채워요.</div>
-        <div class="bgchips" id="bg-chips">
-          <button class="axchip" data-b="20000">2만원</button>
-          <button class="axchip" data-b="30000">3만원</button>
-          <button class="axchip" data-b="50000">5만원</button>
-          <button class="axchip" data-b="100000">10만원</button>
-        </div>
+        <h2>루틴에 빠진 상품, 채워드릴게요</h2>
+        <div class="hint" style="margin-bottom:12px;">빠진 단계·성분마다 대표 추천 하나씩 — 담을 것만 골라보세요.</div>
         <div id="bg-out"></div>
       </div>
       <div class="actions" style="justify-content:center; margin-top:14px;">
@@ -1317,9 +1316,33 @@ function rpData(){
   // 삭제 — 바로 아래 예산 추천이 같은 일을 더 잘한다. 조합 이름은 카드 상단에 이미 있어 반복하지 않는다)
   const axIssues = [];
   if (a.ax){
-    a.ax.avoid.forEach(x=>axIssues.push({g:'split',
-      t:`이 조건에선 피하는 게 좋은 성분 — ${axKo(x.cls)}`,
-      s:x.ps.map(short).join(', ')}));
+    const avoidSet = bgAvoidSet(a.ax.eff);
+    const slotKey = p => {
+      const ko = rpSlotKo(p);
+      if (ko === '클렌저') return 'cleanser';
+      if (ko === '토너' || ko === '패드' || ko === '미스트') return 'toner';
+      if (ko === '세럼') return 'serum';
+      if (['크림','로션','올인원'].includes(ko)) return 'cream';
+      if (ko === '선크림') return 'sun';
+      return null;
+    };
+    const seen = new Set();
+    a.ax.avoid.forEach(x=>{
+      // 같은 단계에서 조건에 맞고 회피 성분 없는 대체 상품 1개씩
+      const reps = x.ps.slice(0,2).map(p=>{
+        const key = slotKey(p);
+        if (!key || seen.has(p.g)) return '';
+        seen.add(p.g);
+        const b = bgBest(RC_BY[key]||[], a.ax.eff, avoidSet, null);
+        if (!b) return '';
+        const oy = OYURL + b.p.g + (b.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + b.p.ac : '');
+        return `${esc(short(p))} 대신 → <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(b.p.b)} ${esc(rcName(b.p))} ↗</a>`
+             + (b.p.cur ? ` <span style="color:var(--muted)">${b.p.cur.toLocaleString('ko-KR')}원</span>` : '');
+      }).filter(Boolean).join('<br>');
+      axIssues.push({g:'split',
+        t:`이 조건에선 피하는 게 좋은 성분 — ${axKo(x.cls)}`,
+        s:x.ps.map(short).join(', '), h:reps});
+    });
   }
   const issues = [
     ...(a.axi||[]).filter(x=>x.ok).map(x=>({g:'good', t:x.t, s:''})),
@@ -1643,23 +1666,18 @@ function rpSavePng(){
 }
 
 
-// ── 예산 루틴 챌린지 (2026-08-16) ────────────────────────────────────
-// "3만원으로 풀루틴이 되나?" — 지금 관측상 실제로 싸진 제품만으로 슬롯을 채운다.
-// 선택은 배낭(knapsack) DP: 슬롯당 1개, 필수 슬롯(클렌저·크림·선크림)은 반드시 채운다.
-// 선크림이 필수인 이유는 대가설과 같다 — 조합과 무관하게 들어가는 단계다.
+// ── 루틴 빈칸 채우기 (2026-08-17 v2, 장바구니 방식) ─────────────────────
+// 빠진 단계 + 조건 공백 성분마다 대표 추천 1개. 체크한 것만 합산·담기.
 const BG_SLOTS = [['cleanser','클렌저',true],['toner','토너',false],
                   ['serum','세럼',false],['cream','크림',true],['sun','선크림',true]];
-let bgBudget = 0;
 function bgValue(p, r, gapCls){
-  // 1순위 = 조건 적합(성분 점수). 가격·세일은 보조 신호로만. (2026-08-17)
   let v = r.s * 2
        + (p.rdc ? Math.min(3, p.rdc/8) : 0)
-       + (p.vt === 'genuine' ? 2 : 0);
+       + (p.vt === 'genuine' ? 2 : 0)
+       - Math.min(3, (p.cur||0)/25000);   // 적합도가 비슷하면 싼 쪽 (2026-08-17)
   if (gapCls) for (const cls of gapCls) if (p.a && p.a[cls]) v += 6;
   return v;
 }
-// 조건에서 피해야 할 성분이 든 제품은 아예 후보에서 뺀다 — 추천해놓고
-// 궁합 검사가 경고를 띄우는 자기모순이 있었다. (2026-08-17)
 function bgAvoidSet(eff){
   const out = new Set();
   Object.keys(eff.w).forEach(c=>{ if (eff.w[c] <= -1) out.add(c); });
@@ -1674,7 +1692,6 @@ function bgOk(p, avoid){
   return true;
 }
 function bgHaveSlots(){
-  // 화장대에 이미 있는 단계 — 그 단계는 추천하지 않는다
   const have = new Set();
   shelf.forEach(p=>{
     const ko = rpSlotKo(p);
@@ -1686,120 +1703,88 @@ function bgHaveSlots(){
   });
   return have;
 }
-function bgSolve(budget){
-  const eff = rcEff(rcPicked.map(x=>x.v));
-  const have = bgHaveSlots();
-  const ax = axDiff();
-  const gapCls = new Set(ax ? ax.gap.map(x=>x.cls) : []);
-  const avoid = bgAvoidSet(eff);
-  // 채울 것 = 빠진 단계 + 조건의 공백 성분 (2026-08-17)
-  const slots = BG_SLOTS.filter(([key])=>!have.has(key)).map(([key,ko,req])=>({key,ko,req}));
-  (ax ? ax.gap.slice(0,2) : []).forEach(g=>{
-    slots.push({key:'gap:'+g.cls, ko:axKo(g.cls), req:false, gcls:g.cls});
-  });
-  if (!slots.length) return {v:0, picks:[], full:true};
-  const U = 100, B = Math.floor(budget/U);
-  let dp = new Array(B+1).fill(null);
-  dp[0] = {v:0, picks:[]};
-  for (const {key, ko, req, gcls} of slots){
-    const pool = gcls
-      ? ['serum','toner','cream'].flatMap(k=>RC_BY[k]||[]).filter(p=>p.a && p.a[gcls]
-          && !(AX_STRICT.includes(gcls) && !isActive(p, gcls)))
-      : (RC_BY[key]||[]);
-    const list = pool.map(p=>({p, r:rcScore(p, eff)}))
-      .filter(x=>x.r && x.r.s > 0 && x.p.cur > 0 && bgOk(x.p, avoid) && !shelf.some(sp=>sp.g===x.p.g))
-      .map(x=>({p:x.p, v:bgValue(x.p, x.r, gapCls), c:x.p.cur, gcls}))
-      .sort((a,b)=>b.v-a.v).slice(0, 16);
-    const nd = new Array(B+1).fill(null);
-    for (let b=0; b<=B; b++){
-      const cur = dp[b];
-      if (!cur) continue;
-      if (!req && (!nd[b] || nd[b].v < cur.v)) nd[b] = cur;      // 이 슬롯은 건너뛰기 가능
-      for (const it of list){
-        const nb = b + Math.ceil(it.c/U);
-        if (nb > B) continue;
-        const v = cur.v + it.v;
-        if (!nd[nb] || nd[nb].v < v) nd[nb] = {v, picks:[...cur.picks, {ko, ...it}]};
-      }
-    }
-    dp = nd;
-  }
+function bgBest(pool, eff, avoid, gapCls){
   let best = null;
-  for (let b=0; b<=B; b++) if (dp[b] && (!best || dp[b].v > best.v)) best = dp[b];
-  if (best){
-    // 성분 채우기 픽이 다른 픽과 중복되면(같은 제품이거나 그 성분을 이미 커버) 정리
-    const seen = new Set(); const out = [];
-    for (const pick of best.picks){
-      if (seen.has(pick.p.g)) continue;
-      if (pick.gcls && out.some(x=>x.p !== pick.p && x.p.a && x.p.a[pick.gcls])) continue;
-      seen.add(pick.p.g); out.push(pick);
-    }
-    best = {...best, picks: out};
-  }
+  pool.forEach(p=>{
+    if (!p.cur || shelf.some(sp=>sp.g===p.g)) return;
+    if (!bgOk(p, avoid)) return;
+    const r = rcScore(p, eff);
+    if (!r || r.s <= 0) return;
+    const v = bgValue(p, r, gapCls);
+    if (!best || v > best.v) best = {p, v, c:p.cur};
+  });
   return best;
 }
+// 슬롯 키 → 후보 풀 (성분 채우기는 세럼·토너·크림에서 찾는다)
+function bgSuggest(){
+  const eff = rcEff(rcPicked.map(x=>x.v));
+  const avoid = bgAvoidSet(eff);
+  const ax = axDiff();
+  const gapCls = new Set(ax ? ax.gap.map(x=>x.cls) : []);
+  const have = bgHaveSlots();
+  const out = [];
+  BG_SLOTS.forEach(([key, ko])=>{
+    if (have.has(key)) return;
+    const b = bgBest(RC_BY[key]||[], eff, avoid, gapCls);
+    if (b) out.push({ko, ...b});
+  });
+  (ax ? ax.gap.slice(0,3) : []).forEach(g=>{
+    // 슬롯 추천이 이미 그 성분을 커버하면 건너뛴다
+    if (out.some(x=>x.p.a && x.p.a[g.cls])) return;
+    const pool = ['serum','toner','cream'].flatMap(k=>RC_BY[k]||[])
+      .filter(p=>p.a && p.a[g.cls] && !(AX_STRICT.includes(g.cls) && !isActive(p, g.cls)));
+    const b = bgBest(pool, eff, avoid, gapCls);
+    if (b && !out.some(x=>x.p.g===b.p.g)) out.push({ko:axKo(g.cls), gcls:g.cls, ...b});
+  });
+  return out;
+}
+let bgUnpicked = new Set();    // 명시적으로 해제한 것만 기억 — 새 항목은 기본 체크
+const bgOn = g => !bgUnpicked.has(g);
 function bgRender(){
   const box = document.getElementById('bg-out');
-  if (!bgBudget){ box.innerHTML = ''; return; }
-  const best = bgSolve(bgBudget);
-  if (best && best.full){
-    box.innerHTML = `<div class="empty" style="margin-top:12px">루틴에 빈 단계가 없어요 — 클렌저·토너·세럼·크림·선크림이 다 있습니다.</div>`;
+  const items = bgSuggest();
+  window._bgItems = items;
+  if (!items.length){
+    box.innerHTML = `<div class="empty">루틴에 빈 단계·성분이 없어요. 이대로 쓰시면 됩니다.</div>`;
     return;
   }
-  if (!best || !best.picks.length){
-    box.innerHTML = `<div class="empty" style="margin-top:12px">${bgBudget.toLocaleString('ko-KR')}원으로는 빠진 단계를 채우지 못했어요. 예산을 올려보세요.</div>`;
-    return;
-  }
-  const total = best.picks.reduce((a,x)=>a + x.c, 0);
-  const nDeal = best.picks.filter(x=>x.p.rdc).length;
-  const rows = best.picks.map(x=>{
+  const rows = items.map(x=>{
     const p = x.p;
     const oy = OYURL + p.g + (p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + p.ac : '');
-    return `<div class="bg-line">
+    const on = bgOn(p.g);
+    return `<label class="bg-line${on?'':' off'}">
+      <input type="checkbox" ${on?'checked':''} onchange="bgToggle('${p.g}')">
       <span class="bg-slot${x.gcls?' gf':''}">${esc(x.ko)}</span>
       <span class="bg-nm"><span class="b">${esc(p.b)}</span>
-        <a href="${esc(oy)}" target="_blank" rel="noopener sponsored">${esc(rcName(p))} ↗</a></span>
+        <a href="${esc(oy)}" target="_blank" rel="noopener sponsored" onclick="event.stopPropagation()">${esc(rcName(p))} ↗</a></span>
       <span class="bg-p">${p.cur.toLocaleString('ko-KR')}원</span>
       ${p.rdc?`<span class="bg-dc">추적가 −${p.rdc}%</span>`:''}
-    </div>`;
+    </label>`;
   }).join('');
-  box.innerHTML = `<div style="margin-top:14px">
-    <div class="hint" style="margin-bottom:6px">빠진 단계·성분 ${best.picks.length}개를 ${(bgBudget/10000)}만원 안에서${nDeal?` · 지금 세일 중 ${nDeal}개`:''}</div>
-    ${rows}
-    <div class="bg-sum"><span class="t">${total.toLocaleString('ko-KR')}원</span>
-      <span class="r">예산 ${bgBudget.toLocaleString('ko-KR')}원 · ${(bgBudget-total).toLocaleString('ko-KR')}원 남음</span></div>
+  const sel = items.filter(x=>bgOn(x.p.g));
+  const total = sel.reduce((a,x)=>a+x.c, 0);
+  const nSel = sel.length;
+  box.innerHTML = rows
+    + `<div class="bg-sum"><span class="t">${total.toLocaleString('ko-KR')}원</span>
+       <span class="r">${nSel}개 선택</span></div>
     <div class="bg-acts">
-      <button class="btn" onclick="bgAddAll()">이 루틴 궁합 검사에 담기</button>
-      <button class="btn" onclick="bgCopy()">결과 복사</button>
+      <button class="btn" ${nSel?'':'disabled'} onclick="bgAddAll()">${nSel?`${nSel}개 담고 리포트 갱신`:'담을 상품을 골라주세요'}</button>
     </div>
-    <div class="disclaimer">관측 시점 가격 기준 · 전성분 함량 × 가격 판정만으로 선정 (제휴 수수료 무관, 부풀림 판정 상품 제외)</div>
-  </div>`;
-  window._bgLast = {best, total};
+    <div class="disclaimer">추천은 전성분 함량 × 가격 판정 기준 · 조건에서 피해야 할 성분이 든 제품은 제외 · 제휴 수수료 무관</div>`;
+}
+function bgToggle(g){
+  if (bgUnpicked.has(g)) bgUnpicked.delete(g); else bgUnpicked.add(g);
+  bgRender();
 }
 function bgAddAll(){
-  (window._bgLast?.best.picks||[]).forEach(x=>{ if(!shelf.some(s=>s.g===x.p.g)) addProd(x.p.g); });
-  rpRender(); bgRender();          // 리포트 화면에 바로 반영 (2026-08-17)
+  (window._bgItems||[]).filter(x=>bgOn(x.p.g)).forEach(x=>{
+    if (!shelf.some(sp=>sp.g===x.p.g)) addProd(x.p.g);
+  });
+  bgUnpicked = new Set();
+  rpRender(); bgRender();
   rcToast('리포트에 반영했어요');
   window.scrollTo({top:0, behavior:'smooth'});
 }
-function bgCopy(){
-  const d = window._bgLast; if (!d) return;
-  const combo = rcPicked.length ? rcPicked.map(x=>RC_RULES[x.v].label).join(' × ') : '';
-  const lines = d.best.picks.map(x=>`· ${x.ko} ${x.p.b} ${rcName(x.p)} ${x.p.cur.toLocaleString('ko-KR')}원${x.p.rdc?` (추적가 −${x.p.rdc}%)`:''}`);
-  const txt = `${(bgBudget/10000)}만원 루틴 챌린지${combo?` — ${combo}`:''}\n`
-    + lines.join('\n')
-    + `\n합계 ${d.total.toLocaleString('ko-KR')}원 / 예산 ${bgBudget.toLocaleString('ko-KR')}원`
-    + `\n더마릭 themaric.kr/routine.html`;
-  navigator.clipboard.writeText(txt).then(()=>rcToast('복사했어요 — 친구한테 보내보세요'));
-}
-document.querySelectorAll('#bg-chips .axchip').forEach(ch=>{
-  ch.addEventListener('click', ()=>{
-    const v = +ch.dataset.b;
-    bgBudget = (bgBudget === v) ? 0 : v;
-    document.querySelectorAll('#bg-chips .axchip').forEach(c=>c.classList.toggle('on', +c.dataset.b === bgBudget));
-    bgRender();
-  });
-});
 
 // ── 탭 전환 ──
 function showTab(v){
