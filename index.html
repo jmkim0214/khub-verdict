@@ -367,6 +367,14 @@
     margin-top:16px; padding:14px 16px; border-radius:10px;
     border:1px dashed var(--baseline); font-size:12.5px; color:var(--muted); line-height:1.65;
   }
+  /* 접힌 신뢰 고지 — 한 줄 요약, 펼치면 전문 (2026-08-16) */
+  .fine{margin-top:14px;}
+  .fine summary{cursor:pointer; list-style:none; font-size:12px; color:var(--muted); line-height:1.6;}
+  .fine summary::-webkit-details-marker{display:none;}
+  .fine summary::before{content:'▸ ';}
+  .fine[open] summary::before{content:'▾ ';}
+  .fine .fd{margin-top:8px; padding:11px 13px; border-radius:8px; border:1px dashed var(--baseline);
+    font-size:12px; color:var(--muted); line-height:1.65;}
   .actions{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
   .dev-teaser{
     margin-top:28px; text-align:center; font-size:12.5px; color:var(--muted);
@@ -434,7 +442,7 @@
         <input id="url-input" type="text" placeholder="상품명 또는 올리브영 URL을 붙여보세요" spellcheck="false">
         <button class="btn" id="go-btn">판정하기</button>
       </div>
-      <div class="hint">상품 URL을 넣으면 바로 판정, 상품명을 넣으면 추적 목록에서 검색합니다</div>
+      <div class="hint">URL은 바로 판정 · 상품명은 검색</div>
       <div id="search-results"></div>
       <p class="pillars">가격 이력 · 할인 진위 · 성분 검증</p>
     </div>
@@ -540,7 +548,7 @@
 
     <div class="card">
       <div class="sec-h"><h3 id="claims-title">② 성분·효능 주장 검증</h3><span class="tag" id="claims-tag">자동 분석</span></div>
-      <div class="sec-sub" id="claims-sub">상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.</div>
+      <div class="sec-sub" id="claims-sub">마케팅 주장 vs 성분표·기능성 고시</div>
       <div class="tiles hidden" id="notice-tiles"></div>
       <div id="r-claims"></div>
       <div class="spec hidden" id="notice-spec"></div>
@@ -549,9 +557,12 @@
 
     <div class="card hidden" id="safety-card">
       <div class="sec-h"><h3>안전 주의 (성분 기반)</h3><span class="tag">전성분 자동 스캔</span></div>
-      <div class="sec-sub">전성분표에서 임신·수유 중 회피 권고 성분과 알레르기 유발 가능 성분을 자동 표시합니다.</div>
+      <div class="sec-sub">임신·수유 회피 권고 · 알레르기 유발 가능 성분</div>
       <div id="r-safety"></div>
-      <div class="neutral" style="margin-top:14px">본 표시는 <b>전성분표 기반의 일반 정보</b>이며 개인의 의학적 진단이 아닙니다. 특정 성분에 민감하거나 임신·수유 중이라면 성분표를 직접 확인하고 의사·약사 등 전문가와 상담하세요.</div>
+      <details class="fine">
+        <summary>전성분표 기반 일반 정보 — 개인의 의학적 진단이 아닙니다</summary>
+        <div class="fd">특정 성분에 민감하거나 임신·수유 중이라면 성분표를 직접 확인하고 의사·약사 등 전문가와 상담하세요.</div>
+      </details>
     </div>
 
     <div class="card" id="alts-card">
@@ -559,20 +570,22 @@
       <div class="sec-sub" id="alts-sub"></div>
       <div class="alts-banner hidden" id="alts-banner"><span class="ab-ic">✓</span><span id="alts-banner-txt"></span></div>
       <div class="alts" id="r-alts"></div>
-      <div class="alts-note">
-        <b>정렬 기준 고지</b> — 비교·추천 순위는 <b>성분 유사도 × 자체 가격 판정</b>만으로 정해지며, 브랜드가 비용을 지불해 노출되거나 순위를 바꿀 수 없습니다. 상품 링크에 제휴 수수료가 붙는 경우에도 수수료율은 판정·순위에 어떤 영향도 주지 않습니다(분리 원칙). 각 상품의 판정 칩은 해당 상품의 최신 판정서에서 가져옵니다.
-      </div>
+      <!-- 2026-08-16: 신뢰 고지는 한 줄 요약 + 접기. 전문이 항상 펼쳐져 있으면 아무도 안 읽고
+           판정서만 길어진다 — '있다는 사실'이 신뢰의 근거고, 전문은 찾는 사람에게만. -->
+      <details class="fine">
+        <summary>순위는 성분 유사도 × 가격 판정만으로 — 광고·제휴는 관여하지 않습니다</summary>
+        <div class="fd">비교·추천 순위는 <b>성분 유사도 × 자체 가격 판정</b>만으로 정해지며, 브랜드가 비용을 지불해 노출되거나 순위를 바꿀 수 없습니다. 상품 링크에 제휴 수수료가 붙는 경우에도 수수료율은 판정·순위에 어떤 영향도 주지 않습니다(분리 원칙). 각 상품의 판정 칩은 해당 상품의 최신 판정서에서 가져옵니다.</div>
+      </details>
     </div>
 
     <div class="card">
       <div class="sec-h"><h3 id="basis-title">④ 판정 근거</h3></div>
       <div class="basis" id="r-basis"></div>
-      <div class="neutral">
-        <b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.
-      </div>
-      <div class="neutral" style="margin-top:10px">
-        <b>이의제기·정정 정책</b> — 본 판정은 <b>공개 관측 데이터와 식약처 고시 전성분</b>에 근거한 <b>자동 분석 결과</b>이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 <b>근거와 함께 재검토</b>하며, 오류가 확인되면 <b>즉시 정정하고 판정서를 새 번호로 갱신</b>합니다. 처리 경과는 접수하신 연락처로 회신드립니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 <b>일반 참고 정보</b>로, 개별 제품의 효능·안전을 단정하지 않습니다.
-      </div>
+      <details class="fine">
+        <summary>판정은 광고·제휴와 분리 · 발급 후 고정 · 누구나 이의제기 가능</summary>
+        <div class="fd"><b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.</div>
+        <div class="fd"><b>이의제기·정정 정책</b> — 본 판정은 공개 관측 데이터와 식약처 고시 전성분에 근거한 자동 분석 결과이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 근거와 함께 재검토하며, 오류가 확인되면 즉시 정정하고 판정서를 새 번호로 갱신합니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 일반 참고 정보로, 개별 제품의 효능·안전을 단정하지 않습니다.</div>
+      </details>
       <div class="actions">
         <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
         <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
@@ -589,8 +602,7 @@
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
-    데이터: 올리브영 공개 가격 관측 (일 2회) · 식약처 고시 전성분 · 개인 리뷰 미수집 (PIPA 준수)<br>
-    올리브영 상품 링크에 제휴 코드가 포함되지만, 제휴 수수료는 판정·순위에 어떤 영향도 주지 않습니다.<br>
+    올리브영 공개 가격 관측 (일 2회) · 식약처 고시 전성분 · 제휴 수수료는 판정에 무관<br>
     <a href="glossary.html" style="color:var(--series); text-decoration:none;">성분 사전</a>
     · <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
   </footer>
@@ -803,7 +815,7 @@ function renderReport(key){
 
   $('#claims-title').textContent = c.claimsTitle || '② 성분·효능 주장 검증';
   $('#claims-tag').textContent = c.claimsTag || '자동 분석';
-  $('#claims-sub').textContent = c.claimsSub || '상품 페이지의 마케팅 주장을 성분표·기능성 고시·공개 근거와 대조합니다.';
+  $('#claims-sub').textContent = c.claimsSub || '마케팅 주장 vs 성분표·기능성 고시';
   $('#r-claims').innerHTML = c.claims.map(cl=>`
     <div class="claim">
       <div class="c-body">

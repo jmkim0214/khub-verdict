@@ -150,6 +150,12 @@
   .bg-sum .t{font-size:24px; font-weight:800; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;}
   .bg-sum .r{font-size:12.5px; color:var(--muted);}
   .bg-acts{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .qmark{font:inherit; font-size:12px; font-weight:700; width:20px; height:20px; border-radius:50%;
+    border:1px solid var(--baseline); background:transparent; color:var(--muted); cursor:pointer;
+    vertical-align:2px; margin-left:4px; padding:0; line-height:1;}
+  .qmark:hover{border-color:var(--series); color:var(--series);}
+  .qhint{display:none;}
+  .qhint.on{display:block;}
   .rc-note{font-size:12px; color:var(--muted); margin-top:12px;}
   .rc-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
   .rc-head h2{font-size:18px; margin-bottom:0;}
@@ -300,16 +306,16 @@
   <div id="view-check">
   <div class="page-head">
     <h1>내 화장대, <span class="u">같이 써도 되는 조합일까요</span></h1>
-    <div class="sub">쓰고 있는 제품을 등록하면 식약처 고시 전성분 기준으로 같이 쓰면 안 되는 조합·중복을 판정합니다. 피부 조건을 고르면 그 조건까지 함께 봅니다.</div>
+    <div class="sub">제품을 등록하면 전성분 기준으로 궁합을 판정합니다.</div>
   </div>
 
   <div class="card">
-    <h2>1. 제품 등록</h2>
+    <h2>1. 제품 등록 <button class="qmark" onclick="this.parentNode.parentNode.querySelector('.qhint').classList.toggle('on')" aria-label="도움말">?</button></h2>
     <div class="searchbar">
       <input id="q" type="search" placeholder="제품명이나 브랜드 검색 (예: 아누아, 레티놀)" autocomplete="off">
       <div class="sresults" id="sr"></div>
     </div>
-    <div class="hint">전성분이 확보된 3665개 상품에서 검색돼요. 목록에 없는 제품은 아래 ‘직접 입력’으로 전성분을 붙여넣으면 함께 검사돼요.<br><b>뷰티 기기는 아직 검사 대상이 아닙니다</b> — 기기는 전성분 표기가 없어 성분으로 따질 근거가 없어요. 상세페이지에서 성분·사용 금기를 확보하는 대로 반영할 예정입니다.</div>
+    <div class="hint qhint">전성분 확보 3665개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
     <details style="margin-top:10px;">
       <summary style="font-size:13px; color:var(--series); cursor:pointer; font-weight:600;">직접 입력 (전성분 붙여넣기)</summary>
       <div style="margin-top:10px;">
@@ -328,7 +334,7 @@
 
   <div class="card">
     <h2>2. 내 피부 조건 <span style="font-size:13px; font-weight:500; color:var(--muted);">(선택)</span></h2>
-    <div class="hint" style="margin-bottom:12px;">고르면 화장대에 <b>그 조건에 필요한 성분이 있는지, 피해야 할 성분이 있는지</b>까지 함께 봐드려요. 안 골라도 궁합 검사는 그대로 됩니다.</div>
+    <div class="hint" style="margin-bottom:12px;">고르면 조건에 필요한·피해야 할 성분까지 함께 봅니다.</div>
       <div class="axgrp"><div class="ax-label">피부타입</div><div class="axchips" data-axis="skin">
         <button class="axchip" data-v="dry">건성</button><button class="axchip" data-v="oily">지성</button>
         <button class="axchip" data-v="combo">복합성</button><button class="axchip" data-v="sens">민감성</button>
@@ -346,13 +352,13 @@
         <button class="axchip" data-v="a10">10대</button><button class="axchip" data-v="a20">20대</button>
         <button class="axchip" data-v="a30">30대</button><button class="axchip" data-v="a40">40대+</button>
       </div></div>
-    <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다.</div>
+    <div class="rc-note">다시 누르면 해제 · 하나만 골라도 동작</div>
   </div>
 
   <!-- ================= 예산 루틴 챌린지 (2026-08-16) ================= -->
   <div class="card">
     <h2>3. 예산 루틴 챌린지 <span style="font-size:13px; font-weight:500; color:var(--muted);">(선택)</span></h2>
-    <div class="hint" style="margin-bottom:12px;">예산을 고르면 <b>지금 실제로 싸진 제품</b>만으로 풀루틴 한 벌을 짜드려요. 위에서 고른 피부 조건이 반영됩니다.</div>
+    <div class="hint" style="margin-bottom:12px;">지금 실제로 싸진 제품만으로 풀루틴을 짜드려요.</div>
     <div class="bgchips" id="bg-chips">
       <button class="axchip" data-b="20000">2만원</button>
       <button class="axchip" data-b="30000">3만원</button>
@@ -402,16 +408,13 @@
         <button class="btn" onclick="rpSavePng()">🖼️ 이미지로 저장</button>
         <button class="btn" onclick="showTab('check')">✏️ 제품 조정</button>
       </div>
-      <div class="hint" style="text-align:center; margin-top:10px;">이미지 한 장으로 저장해 보관하거나 공유할 수 있어요.</div>
+
     </div>
   </div><!-- /view-result -->
   <div class="rc-toast" id="rc-toast"></div>
 
   <footer>
-    루틴 궁합 검사는 식약처 고시 전성분(함량순 표기)과 공개된 성분학 일반 권고를 기준으로 한 <b>참고 정보</b>예요.
-    개인의 피부 상태에 따라 다를 수 있고, 의학적 판단이 필요한 경우 전문가와 상담하세요.
-    제품 전성분은 리뉴얼로 변경될 수 있어요.
-    <br>올리브영 상품 링크에 제휴 코드가 포함되지만, 제휴 수수료는 판정·순위에 어떤 영향도 주지 않습니다.
+    전성분(함량순)·성분학 일반 권고 기준의 참고 정보 · 개인차 있음 · 제휴 수수료는 판정에 무관
     <br>© 더마릭 THEMARIC — <a href="index.html" style="color:var(--series);">가격·성분 판정</a> · <a href="glossary.html" style="color:var(--series);">성분 사전</a>
   </footer>
 </div>
@@ -825,7 +828,7 @@ function axiomCard(list){
   const row = x => `<div class="vitem ${x.g}"><div class="vt">${x.ok?'✅ ':''}${esc(x.t)}${x.cut?` <span style="color:var(--critical)">−${x.cut}</span>`:''}</div>`
     + (x.s?`<div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">${esc(x.s)}</div>`:'') + `</div>`;
   return `<div class="card"><h2>기본 원칙</h2>
-    <div class="hint" style="margin-bottom:12px;">고민 조합·계절·나이가 무엇이든 바뀌지 않는 것들이에요.</div>
+
     <div class="verdict-list">${list.map(row).join('')}</div></div>`;
 }
 
@@ -854,9 +857,9 @@ function axReview(){
   }
   if (!body) body = `<div style="font-size:13px; color:var(--muted);">선택한 조건과 특별히 부딪히거나 맞아떨어지는 성분이 없어요.</div>`;
   return `<div class="card"><h2>선택한 피부 조건 검토</h2>
-    <div class="hint" style="margin-bottom:12px;"><b>${esc(ax.title)}</b> 기준으로 지금 화장대를 봤어요 — 전성분이 확보된 제품만 대상입니다.</div>
+    <div class="hint" style="margin-bottom:12px;"><b>${esc(ax.title)}</b> 기준</div>
     <div class="verdict-list">${body}</div>
-    <div class="disclaimer">성분 계열이 있다/없다만 봅니다 — 함량·제형·개인차는 반영하지 않으며 효능을 보증하지 않아요.</div>
+    <div class="disclaimer">성분 계열 유무만 판단 · 함량·제형·개인차 미반영</div>
   </div>`;
 }
 
@@ -1784,8 +1787,7 @@ function bgRender(){
       <button class="btn" onclick="bgAddAll()">이 루틴 궁합 검사에 담기</button>
       <button class="btn" onclick="bgCopy()">결과 복사</button>
     </div>
-    <div class="disclaimer">가격은 관측 시점 기준이라 지금은 다를 수 있어요. 후보는 <b>전성분 함량 순위 × 실측 가격 판정</b>으로 고르며,
-      제휴 수수료는 선정에 영향을 주지 않습니다. 표시정가 부풀림 판정을 받은 상품은 후보에서 빠집니다.</div>
+    <div class="disclaimer">관측 시점 가격 기준 · 전성분 함량 × 가격 판정만으로 선정 (제휴 수수료 무관, 부풀림 판정 상품 제외)</div>
   </div>`;
   window._bgLast = {best, total};
 }
