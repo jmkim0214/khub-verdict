@@ -355,18 +355,7 @@
     <div class="rc-note">다시 누르면 해제 · 하나만 골라도 동작</div>
   </div>
 
-  <!-- ================= 예산 루틴 챌린지 (2026-08-16) ================= -->
-  <div class="card">
-    <h2>3. 예산 루틴 챌린지 <span style="font-size:13px; font-weight:500; color:var(--muted);">(선택)</span></h2>
-    <div class="hint" style="margin-bottom:12px;">지금 실제로 싸진 제품만으로 풀루틴을 짜드려요.</div>
-    <div class="bgchips" id="bg-chips">
-      <button class="axchip" data-b="20000">2만원</button>
-      <button class="axchip" data-b="30000">3만원</button>
-      <button class="axchip" data-b="50000">5만원</button>
-      <button class="axchip" data-b="100000">10만원</button>
-    </div>
-    <div id="bg-out"></div>
-  </div>
+
 
   <div id="out"></div>
   </div><!-- /view-check -->
@@ -404,6 +393,19 @@
   <div id="view-result" style="display:none">
     <div class="rp-wrap">
       <div id="rp-card"></div>
+
+      <!-- 빠진 단계 채우기 (2026-08-17) — 리포트가 보여준 빈자리를 예산 안에서 채운다 -->
+      <div class="card" id="bg-card">
+        <h2>루틴에 빠진 상품, 예산 안에서 추천해드려요</h2>
+        <div class="hint" style="margin-bottom:12px;">지금 실제로 싸진 제품 위주로, 없는 단계만 채워요.</div>
+        <div class="bgchips" id="bg-chips">
+          <button class="axchip" data-b="20000">2만원</button>
+          <button class="axchip" data-b="30000">3만원</button>
+          <button class="axchip" data-b="50000">5만원</button>
+          <button class="axchip" data-b="100000">10만원</button>
+        </div>
+        <div id="bg-out"></div>
+      </div>
       <div class="actions" style="justify-content:center; margin-top:14px;">
         <button class="btn" onclick="rpSavePng()">🖼️ 이미지로 저장</button>
         <button class="btn" onclick="showTab('check')">✏️ 제품 조정</button>
@@ -891,65 +893,9 @@ function render(){
   html += axiomCard(axi);
   html += axReview();
 
-  // matrix (성분 판정 대상 2개 이상일 때) — 기기는 전성분이 없어 매트릭스에서 뺀다
-  const mx = shelf.map((p,i)=>[p,i]).filter(([p])=>!p.d);
-  const nDev = shelf.length - mx.length;
-  if (mx.length >= 2){
-    html += '<div class="card"><h2>3. 상충 매트릭스</h2><div style="overflow-x:auto;"><table class="mtx"><tr><th></th>';
-    mx.forEach(([p])=>{ html += `<th title="${esc(name(p))}">${esc(short(p))}</th>`; });
-    html += '</tr>';
-    mx.forEach(([p1,i])=>{
-      html += `<tr><th class="rowh" title="${esc(name(p1))}">${esc(short(p1))}</th>`;
-      mx.forEach(([p2,j])=>{
-        if (i===j){ html += '<td class="c-self">—</td>'; return; }
-        const k = i<j? pairs.find(x=>x.i===i&&x.j===j) : pairs.find(x=>x.i===j&&x.j===i);
-        if (!k){ html += `<td title="특이 조합 없음">·</td>`; }
-        else html += `<td class="c-${k.grade}" title="${esc(k.title)}">${GRADE_ICON[k.grade]}</td>`;
-      });
-      html += '</tr>';
-    });
-    html += '</table></div><div class="legend"><span>⛔ 같이 쓰지 마세요</span><span>↔️ 시간대·요일 분리</span><span>🔁 유사 성분 중복</span><span>✅ 궁합 좋음</span><span>· 특이사항 없음</span></div>';
-    if (nDev) html += `<div class="disclaimer">등록한 기기 ${nDev}개는 전성분이 없어 이 매트릭스에서 뺐어요 — 성분으로 따질 근거가 없기 때문이에요. 기기는 아래 아침/저녁 배치에만 표시됩니다.</div>`;
-    html += '</div>';
-  }
-
-  // verdicts
-  const items = [
-    ...pairs.map(p=>[p.grade, GRADE_ICON[p.grade]+' '+p.title, `${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`, p.why]),
-    ...flags.map(f=>[f[0], (GRADE_ICON[f[0]]||'')+' '+f[1], '', f[2]]),
-    ...eveningDoubleNotes().map(n=>[n[0], (GRADE_ICON[n[0]]||'')+' '+n[1], '', n[2]]),
-  ];
-  const order = {clash:0, split:1, dup:2, note:3, good:4};
-  items.sort((a,b)=>order[a[0]]-order[b[0]]);
-  if (items.length){
-    html += '<div class="card"><h2>4. 판정 근거</h2><div class="verdict-list">';
-    items.forEach(([g,t,sub,why])=>{
-      html += `<div class="vitem ${g}"><div class="vt">${esc(t)}</div>`+
-        (sub?`<div style="font-size:12.5px; color:var(--muted);">${esc(sub)}</div>`:'')+
-        `<div class="why">${esc(why)}</div></div>`;
-    });
-    html += '</div></div>';
-  }
-
-  // AM/PM
-  const am=[], pm=[], both=[];
-  shelf.forEach(p=>{
-    const [slot, why] = slotOf(p);
-    (slot==='am'? am : slot==='pm'? pm : both).push([p, why]);
-  });
-  html += `<div class="card"><h2>5. 아침 / 저녁 나누기</h2><div class="ampm">
-    <div class="slot"><h3>☀️ 아침</h3><ul>`+
-    am.map(([p,w])=>`<li>${esc(short(p))}<span class="why">${esc(w)}</span></li>`).join('')+
-    both.map(([p])=>`<li style="opacity:.7;">${esc(short(p))}<span class="why">공용 · 아침·저녁 함께</span></li>`).join('')+
-    `</ul></div><div class="slot"><h3>🌙 저녁</h3><ul>`+
-    pm.map(([p,w])=>`<li>${esc(short(p))}<span class="why">${esc(w)}</span></li>`).join('')+
-    both.map(([p])=>`<li style="opacity:.7;">${esc(short(p))}<span class="why">공용 · 아침·저녁 함께</span></li>`).join('')+
-    `</ul></div></div>`;
-  // 격일 제안: 저녁에 RET와 산이 모두 있으면
-  const pmRet = shelf.some(p=>!p.w&&!p.v&&has(p,'RET')), pmAcid = shelf.some(p=>!p.w&&!p.v&&STRONGACID(p));
-  if (pmRet && pmAcid)
-    html += `<div class="vitem split" style="margin-top:12px;"><div class="vt">📅 저녁 격일 운영 제안</div><div class="why">저녁에 레티노이드와 산이 겹쳐요. 예: 월·수·금 저녁 레티노이드 / 화·토 저녁 산, 나머지 날은 진정·보습 위주로. 초기엔 주 2회부터 늘리세요.</div></div>`;
-  html += `<div class="disclaimer">판정은 전성분 <b>포함 여부와 표기 순위</b> 기준의 일반 권고예요. 실제 함량·제형(pH·캡슐화)에 따라 체감은 다를 수 있어요.</div>`;
+  // 2026-08-17: 상충 매트릭스·판정 근거·아침/저녁 나누기 섹션 제거 —
+  // 리포트 카드가 그 내용을 다 담고, 화면엔 점수·기본 원칙·조건 검토만 남긴다.
+  // (계산 로직 evalPair/slotOf/eveningDoubleNotes는 리포트가 계속 쓴다)
 
   out.innerHTML = html;
 }
@@ -1459,212 +1405,188 @@ function rpSummary(d){
   return opening + pair + act + more;
 }
 function rpSVG(d){
-  const W = 1080;
+  /* 2026-08-17 v3 — 세로 나열 리디자인. 이 카드는 기능 화면이 아니라 '공유하고 싶은 한 장'이다.
+     제품을 세로로 쌓고, 관계선은 왼쪽 레일에 얇게. 아이콘은 전부 벡터(이모지 금지). */
+  const W = 1080, MG = 84;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const F = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
-  const BG='#F5F1E8', CARD='#FFFEFB', MINT='#596044', INK='#20221E', SUB='#5B5D55',
-        MUTED='#8F9184', WASH='rgba(102,114,51,0.12)', NODE='#F1ECDD', NSTK='rgba(32,34,30,0.20)', ZSTK='rgba(32,34,30,0.10)';
-  const CORAL='#D95C4F';
-  // 2026-08-16: 아침/저녁 두 존을 없앴다. 이 카드가 답하는 질문은 '이것들을 같이 써도 되나'
-  // 하나이고, 시간대는 그 답에 딸린 조건일 뿐인데 존을 나누면 같은 제품이 두 번 그려지고
-  // (공용 제품) 관계선이 세 채널로 흩어져 정작 궁합이 안 보였다.
-  // 이제 한 줄에 다 세우고, 시간 제약이 있는 제품만 노드에 표시한다.
+  const F  = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  const FS = "'Noto Serif KR','Cormorant Garamond',Georgia,serif";
+  const BG='#F5F1E8', CARD='#FFFEFB', OLIVE='#596044', INK='#20221E', SUB='#5B5D55',
+        MUTED='#8F9184', WASH='rgba(89,96,68,0.10)', NODE='#F7F3EA', HAIR='rgba(32,34,30,0.14)',
+        GOLD='#B49A62', CORAL='#D95C4F', CORALSOFT='rgba(217,92,79,0.10)';
+  const COLR = {clash:CORAL, split:'#9A7A2E', dup:'#4E7A6A'};
+
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
-  const MAXN = 8;
-  const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, MAXN);
-  const combo = rpCombo();
-  const headH = combo ? 196 : 164;
+  const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, 7);
   const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
   const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);
-  // 조건에 안 맞는 성분을 가진 제품 → 노드에 코랄 '!' 배지
   const badProd = new Map();
   if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
     if (!badProd.has(p)) badProd.set(p, []);
     badProd.get(p).push(axKo(x.cls));
   }));
 
-  // 한 줄 요약 — 줄바꿈 없이, 길면 글자 크기를 줄여 맞춘다
-  const summary = rpSummary(d);
-  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.56 : 1), 0);
-  const SUM_W = W - 152;
-  const sumSize = Math.max(15, Math.min(25, Math.floor(SUM_W / Math.max(1, textW(summary)))));
+  // 행 목록: 제품 → (선크림 빈자리) → (조건 빈자리)
+  const rows = prods.map(p=>({t:'p', p}));
+  if (sunGap) rows.push({t:'g', ko:'선크림', sub:'조합과 무관한 기본 단계', hot:true});
+  gaps.forEach(g=>rows.push({t:'g', ko:axKo(g.cls), sub:'이 조건의 핵심 성분', hot:false}));
 
-  // 감점 내역
+  // 관계선: 왼쪽 레일. 겹치지 않게 레인 배정
+  const idx = new Map(); prods.forEach((p,i)=>idx.set(p,i));
+  const rel = d.rel.filter(pr=>idx.has(pr.A) && idx.has(pr.B)).slice(0,3);
+  const RAILSTEP = 40;
+  const railW = rel.length ? 26 + rel.length*RAILSTEP : 0;
+
+  // 요약·감점 (줄바꿈 없이, 길면 축소)
+  const summary = rpSummary(d);
+  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.55 : 1), 0);
+  const sumW = W - MG*2;
+  const sumSize = Math.max(17, Math.min(27, Math.floor(sumW / Math.max(1, textW(summary)))));
   const cuts = [];
   (d.axi||[]).filter(x=>x.cut).forEach(x=>cuts.push(`${x.key==='sun'?'선크림 없음':'활성 과다'} −${x.cut}`));
   if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
-  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  const scoreH = 118 + 40 + (cuts.length ? 38 : 0);
+  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid}`);
+  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap}`);
 
-  // ── 레이아웃: 한 줄에 제품 + 빈자리 ──
-  const MG = 68, GX = 20, NH = 136, ZHEAD = 62;
-  const nGhost = gaps.length + (sunGap ? 1 : 0);
-  const N = Math.max(prods.length + nGhost, 1);
-  const NW = Math.max(96, Math.floor((W - MG*2 - (N-1)*GX) / N));
-  const rowX = i => (W - (N*NW + (N-1)*GX))/2 + i*(NW+GX);
-
-  // 관계선은 모두 노드 줄 위 한 채널에 쌓는다
-  const inRow = new Set(prods);
-  const segs = d.rel.filter(pr=>inRow.has(pr.A) && inRow.has(pr.B));
-  const LSTEP = 40, ICONR = 18;
-  const TOPCH = segs.length ? (ICONR+10) + segs.length*LSTEP : 0;
-
-  const zoneY = headH + scoreH + 34 + TOPCH;
-  const rowY = zoneY + ZHEAD;
-  const zoneH = ZHEAD + NH + 22;
-  const tailY = zoneY + zoneH + 46;
-  const H = tailY + 60 + 128;
-
-  const pos = new Map();
-  prods.forEach((p,i)=>pos.set(p, {x: rowX(i), y: rowY}));
+  // ── 세로 레이아웃 커서 ──
+  const RH = 108, RGAP = 16;
+  const combo = rpCombo();
+  const headB = 208;                                   // 브랜드 헤더 블록 끝
+  const scoreB = headB + 150 + (cuts.length ? 40 : 0); // 점수 블록 끝
+  const listY = scoreB + 46;
+  const listB = listY + rows.length*(RH+RGAP) - RGAP;
+  const legY = listB + 52;
+  const H = legY + 46 + 108;
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
   s += `<rect width="${W}" height="${H}" fill="${BG}"/>`;
-  s += `<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="30" fill="${CARD}" stroke="${MINT}" stroke-width="3"/>`;
-  // 헤더
-  s += `<text x="60" y="106" font-family="${F}" font-size="45" font-weight="800" fill="${MINT}">더마릭</text>`;
-  s += `<text x="222" y="106" font-family="${F}" font-size="28" font-weight="700" fill="${SUB}">루틴 리포트</text>`;
+  s += `<rect x="28" y="28" width="${W-56}" height="${H-56}" rx="34" fill="${CARD}"/>`;
+  s += `<rect x="28" y="28" width="${W-56}" height="${H-56}" rx="34" fill="none" stroke="${HAIR}" stroke-width="1.5"/>`;
+  s += `<rect x="44" y="44" width="${W-88}" height="${H-88}" rx="24" fill="none" stroke="${OLIVE}" stroke-width="2"/>`;
+
+  // ── 헤더: 세리프 워드마크 + 골드 서명 ──
+  s += `<text x="${W/2}" y="128" text-anchor="middle" font-family="${FS}" font-size="44" font-weight="700" fill="${INK}" letter-spacing="6">더마릭</text>`;
+  s += `<text x="${W/2}" y="166" text-anchor="middle" font-family="${FS}" font-size="17" fill="${GOLD}" letter-spacing="7">ROUTINE REPORT</text>`;
   const today = new Date();
   const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-  s += `<text x="${W-60}" y="104" text-anchor="end" font-family="${F}" font-size="23" fill="${MUTED}">${date}</text>`;
-  if (combo) s += `<text x="60" y="152" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">${e2(combo)} 조합</text>`;
+  s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">${combo ? e2(combo)+' 조합 · ' : ''}${date}</text>`;
 
-  // 점수 스트립
-  const sy = headH + 12;
-  s += `<rect x="48" y="${sy}" width="${W-96}" height="${scoreH-12}" rx="16" fill="${WASH}"/>`;
-  s += `<text x="76" y="${sy+60}" font-family="${F}" font-size="60" font-weight="800" fill="${INK}">${d.score}</text>`;
-  s += `<text x="${76 + String(d.score).length*36 + 10}" y="${sy+58}" font-family="${F}" font-size="22" fill="${MUTED}">/100 루틴 궁합</text>`;
-  s += `<text x="${W-76}" y="${sy+56}" text-anchor="end" font-family="${F}" font-size="25" fill="${SUB}">상충 ${d.nClash} · 분리 ${d.nSplit} · 중복 ${d.nDup} · 잘 맞음 ${d.goods} · 제품 ${shelf.length}개</text>`;
-  let qy = sy + 104;
-  s += `<text x="76" y="${qy}" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(summary)}</text>`;
-  qy += 40;
-  if (cuts.length){
-    s += `<text x="76" y="${qy - 4}" font-family="${F}" font-size="21" fill="${SUB}">`
-       + cuts.map((c,i)=>`<tspan fill="${i===0?CORAL:SUB}">${e2(c)}</tspan>`
-           + (i<cuts.length-1 ? `<tspan fill="${MUTED}">  ·  </tspan>` : '')).join('')
-       + `</text>`;
-  }
+  // ── 점수 ──
+  const sc = String(d.score);
+  s += `<text x="${W/2}" y="${headB+92}" text-anchor="middle" font-family="${FS}" font-size="104" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-size="30" fill="${MUTED}" font-weight="400"> /100</tspan></text>`;
+  s += `<text x="${W/2}" y="${headB+134}" text-anchor="middle" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(summary)}</text>`;
+  if (cuts.length)
+    s += `<text x="${W/2}" y="${headB+170}" text-anchor="middle" font-family="${F}" font-size="20" fill="${CORAL}">${e2(cuts.join('  ·  '))}</text>`;
 
-  // 존 박스
-  s += `<rect x="48" y="${zoneY}" width="${W-96}" height="${zoneH}" rx="20" fill="none" stroke="${ZSTK}" stroke-width="2.5"/>`;
+  // 구분선
+  s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
 
-  // ── 관계선 (모두 줄 위) ──
-  // 아이콘은 이모지 대신 한글 한 글자 — 저장 환경에 이모지 폰트가 없으면 □로 찍힌다.
-  const COLR = {clash:CORAL, split:'#8A6410', dup:'#2F6B5C'};
-  // 이모지는 저장 환경에 폰트가 없으면 □로 찍히고, 한글 한 글자는 아이콘으로 안 읽힌다.
-  // 그래서 직접 그린다: ✕(상충) / ↔(분리) / 겹친 원(중복). (2026-08-16)
-  const glyph = (g, cx, cy, col) => {
+  // ── 관계선 (왼쪽 레일) ──
+  const rowY = i => listY + i*(RH+RGAP);
+  const rowCY = i => rowY(i) + RH/2;
+  const RX = MG + railW;                     // 행 시작 x
+  const RW = W - MG - RX;                    // 행 폭
+  let lines = '', glyphs = '';
+  const glyph = (g, cx, cy) => {
+    const col = COLR[g];
+    let ic = '';
     if (g === 'clash')
-      return `<path d="M${cx-6.5},${cy-6.5} L${cx+6.5},${cy+6.5} M${cx+6.5},${cy-6.5} L${cx-6.5},${cy+6.5}" `
-           + `stroke="${col}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
-    if (g === 'split')
-      return `<path d="M${cx-9},${cy} L${cx-2},${cy} M${cx-9},${cy} l4,-4 M${cx-9},${cy} l4,4 `
-           + `M${cx+2},${cy} L${cx+9},${cy} M${cx+9},${cy} l-4,-4 M${cx+9},${cy} l-4,4" `
-           + `stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-    return `<circle cx="${cx-3.6}" cy="${cy}" r="5.2" fill="none" stroke="${col}" stroke-width="2.4"/>`
-         + `<circle cx="${cx+3.6}" cy="${cy}" r="5.2" fill="none" stroke="${col}" stroke-width="2.4"/>`;
+      ic = `<path d="M${cx-6},${cy-6} L${cx+6},${cy+6} M${cx+6},${cy-6} L${cx-6},${cy+6}" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`;
+    else if (g === 'split')
+      ic = `<path d="M${cx-8},${cy} L${cx+8},${cy} M${cx-8},${cy} l4,-4.5 M${cx-8},${cy} l4,4.5 M${cx+8},${cy} l-4,-4.5 M${cx+8},${cy} l-4,4.5" stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+    else
+      ic = `<circle cx="${cx-3.4}" cy="${cy}" r="5" fill="none" stroke="${col}" stroke-width="2.4"/><circle cx="${cx+3.4}" cy="${cy}" r="5" fill="none" stroke="${col}" stroke-width="2.4"/>`;
+    return `<circle cx="${cx}" cy="${cy}" r="17" fill="${CARD}"/><circle cx="${cx}" cy="${cy}" r="17" fill="none" stroke="${col}" stroke-width="2.2"/>` + ic;
   };
-  let lines = '', icons = '';
-  segs.forEach((pr, i)=>{
-    const a = pos.get(pr.A), b = pos.get(pr.B);
-    if (!a || !b) return;
-    const ax = a.x + NW/2, bx = b.x + NW/2;
-    const y = zoneY - (ICONR+10) - i*LSTEP;
+  rel.forEach((pr, k)=>{
+    const a = rowCY(idx.get(pr.A)), b = rowCY(idx.get(pr.B));
+    const x = RX - 26 - k*RAILSTEP;
     const col = COLR[pr.g] || MUTED;
-    const dash = pr.g==='dup' ? ' stroke-dasharray="8 7"' : '';
-    lines += `<path d="M${ax},${rowY} L${ax},${y} L${bx},${y} L${bx},${rowY}" fill="none" stroke="${col}" stroke-width="3"${dash} stroke-linejoin="round"/>`;
-    const mx = (ax+bx)/2;
-    icons += `<circle cx="${mx}" cy="${y}" r="${ICONR}" fill="${CARD}"/>`
-          +  `<circle cx="${mx}" cy="${y}" r="${ICONR}" fill="none" stroke="${col}" stroke-width="2.5"/>`
-          +  glyph(pr.g, mx, y, col);
+    const dash = pr.g==='dup' ? ' stroke-dasharray="7 6"' : '';
+    lines += `<path d="M${RX},${a} L${x},${a} L${x},${b} L${RX},${b}" fill="none" stroke="${col}" stroke-width="2.6"${dash} stroke-linejoin="round"/>`;
+    glyphs += glyph(pr.g, x, (a+b)/2);
   });
-  s += lines + icons;
+  s += lines;
 
-  // 존 라벨
-  // 관계선이 라벨 위를 지나가지 않게 카드색 바탕을 깔고 얹는다
-  s += `<rect x="66" y="${zoneY+10}" width="150" height="34" fill="${CARD}"/>`
-     + `<text x="76" y="${zoneY+34}" font-family="${F}" font-size="27" font-weight="800" fill="${INK}">내 화장대</text>`;
-  s += `<text x="${W-76}" y="${zoneY+34}" text-anchor="end" font-family="${F}" font-size="21" fill="${MUTED}">사용 순서대로</text>`;
-
-  // ── 노드 ──
+  // ── 제품 행 (세로) ──
   const TIME_KO = {am:'아침만', pm:'저녁만'};
-  const node = (p, q) => {
+  rows.forEach((r, i)=>{
+    const y = rowY(i);
+    if (r.t === 'g'){
+      const st = r.hot ? CORAL : 'rgba(32,34,30,0.30)';
+      s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${st}" stroke-width="2.2" stroke-dasharray="8 7"/>`;
+      s += `<text x="${RX+30}" y="${y+46}" font-family="${F}" font-size="25" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
+      s += `<text x="${RX+30}" y="${y+78}" font-family="${F}" font-size="18" fill="${MUTED}">${e2(r.sub)} — 비어 있는 자리</text>`;
+      return;
+    }
+    const p = r.p;
+    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="${NODE}"/>`;
+    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${HAIR}" stroke-width="1.2"/>`;
+    // 슬롯 칩
     const label = rpSlotKo(p);
-    const slot = slotOf(p)[0];
-    const sf = NW < 150 ? 16 : 18;
-    const bw = label.length*sf + 14;
-    const brandMax = Math.max(3, Math.floor((NW-24)/15));
-    const brand = e2((p.b||'').slice(0, brandMax));
+    const bw = label.length*17 + 22;
+    s += `<rect x="${RX+22}" y="${y+22}" width="${bw}" height="30" rx="15" fill="${WASH}"/>`;
+    s += `<text x="${RX+22+bw/2}" y="${y+43}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
+    // 브랜드 (칩 옆)
+    s += `<text x="${RX+22+bw+14}" y="${y+43}" font-family="${F}" font-size="17" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
+    // 제품명
     let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
     if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
-    // 배지가 붙는 노드는 이름 자리가 그만큼 줄어든다
-    const nameMax = Math.max(3, Math.floor((NW - 22 - (badProd.has(p) ? 30 : 0))/18));
+    const slot = slotOf(p)[0];
+    const rightPad = (TIME_KO[slot] ? 108 : 0) + (badProd.has(p) ? 52 : 0) + 30;
+    const nameMax = Math.floor((RW - 52 - rightPad) / 22);
     if (nm.length > nameMax) nm = nm.slice(0, nameMax-1)+'…';
-    let out = `<rect x="${q.x}" y="${q.y}" width="${NW}" height="${NH}" rx="15" fill="${NODE}" stroke="${NSTK}" stroke-width="2.5"/>`
-      + `<rect x="${q.x+12}" y="${q.y+12}" width="${bw}" height="29" rx="8" fill="${WASH}"/>`
-      + `<text x="${q.x+12+bw/2}" y="${q.y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${MINT}">${e2(label)}</text>`;
-    // 시간 제약이 있는 제품만 표시한다 — '공용'은 기본값이라 굳이 적지 않는다
-    if (TIME_KO[slot]){
-      const tw = 62;
-      out += `<rect x="${q.x+12}" y="${q.y+48}" width="${tw}" height="26" rx="6" fill="none" stroke="${NSTK}" stroke-width="1.6"/>`
-        + `<text x="${q.x+12+tw/2}" y="${q.y+66}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
-    }
-    const ty = TIME_KO[slot] ? 118 : 96;
-    out += `<text x="${q.x+12}" y="${q.y+ty-22}" font-family="${F}" font-size="16" fill="${MUTED}">${brand}</text>`
-      + `<text x="${q.x+12}" y="${q.y+ty}" font-family="${F}" font-size="19" font-weight="600" fill="${INK}">${e2(nm)}</text>`;
+    s += `<text x="${RX+26}" y="${y+84}" font-family="${F}" font-size="23" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
+    // 오른쪽: 시간 태그 + 조건 배지
+    let rx = RX + RW - 26;
     if (badProd.has(p)){
-      const bx2 = q.x + NW - 22, by2 = q.y + NH - 22;
-      out += `<circle cx="${bx2}" cy="${by2}" r="14" fill="${CORAL}"/>`
-        + `<text x="${bx2}" y="${by2+7}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="800" fill="#FFFEFB">!</text>`;
+      s += `<circle cx="${rx-16}" cy="${y+RH/2}" r="16" fill="${CORAL}"/>`
+        +  `<text x="${rx-16}" y="${y+RH/2+7}" text-anchor="middle" font-family="${F}" font-size="20" font-weight="800" fill="${CARD}">!</text>`;
+      rx -= 52;
     }
-    return out;
-  };
-  prods.forEach(p=>{ s += node(p, pos.get(p)); });
-
-  // ── 빈자리 (점선) ──
-  const ghost = (x, y, ko, l1, l2, hot) => {
-    const sf = NW < 150 ? 16 : 18;
-    const bw = Math.min(NW-24, ko.length*sf + 14);
-    const st = hot ? CORAL : NSTK, tc = hot ? CORAL : MUTED;
-    return `<rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="15" fill="none" stroke="${st}" stroke-width="2.5" stroke-dasharray="7 6"/>`
-      + `<rect x="${x+12}" y="${y+12}" width="${bw}" height="29" rx="8" fill="none" stroke="${st}" stroke-width="1.6" stroke-dasharray="5 4"/>`
-      + `<text x="${x+12+bw/2}" y="${y+32}" text-anchor="middle" font-family="${F}" font-size="${sf}" font-weight="800" fill="${tc}">${e2(ko)}</text>`
-      + `<text x="${x+12}" y="${y+76}" font-family="${F}" font-size="17" fill="${MUTED}">${e2(l1)}</text>`
-      + `<text x="${x+12}" y="${y+102}" font-family="${F}" font-size="19" font-weight="700" fill="${hot?CORAL:SUB}">${e2(l2)}</text>`;
-  };
-  let gi = prods.length;
-  if (sunGap){ s += ghost(rowX(gi), rowY, '선크림', '조합과 무관한 기본', '빠져 있어요', true); gi++; }
-  gaps.forEach(g=>{ s += ghost(rowX(gi), rowY, axKo(g.cls), '이 조건의 핵심', '비어 있는 자리', false); gi++; });
-
-  // ── 범례 + 푸터 ──
-  const extra = Math.max(shelf.length - prods.length, 0);
-  const LG_F = 21, LG_GAP = 30, LG_ICON = 30;
-  const items = [{g:'clash', t:'같이 쓰지 마세요'}, {g:'split', t:'시간대 분리'}, {g:'dup', t:'성분 중복'}];
-  if (badProd.size) items.push({g:'bad', t:'조건에 안 맞는 성분'});
-  if (nGhost) items.push({g:'ghost', t:'비어 있는 자리'});
-  const lw = it => LG_ICON + 6 + textW(it.t)*LG_F;
-  const total = items.reduce((a,it)=>a + lw(it), 0) + LG_GAP*(items.length-1);
-  let lx = W/2 - total/2;
-  items.forEach(it=>{
-    const cx = lx + LG_ICON/2, cy = tailY + 10;
-    if (it.g === 'bad'){
-      s += `<circle cx="${cx}" cy="${cy}" r="11" fill="${CORAL}"/>`
-        +  `<text x="${cx}" y="${cy+6}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="800" fill="#FFFEFB">!</text>`;
-    } else if (it.g === 'ghost'){
-      s += `<rect x="${cx-11}" y="${cy-9}" width="22" height="18" rx="4" fill="none" stroke="${NSTK}" stroke-width="2" stroke-dasharray="4 3"/>`;
-    } else {
-      s += `<circle cx="${cx}" cy="${cy}" r="12" fill="none" stroke="${COLR[it.g]}" stroke-width="2.2"/>`
-        +  glyph(it.g, cx, cy, COLR[it.g]);
+    if (TIME_KO[slot]){
+      const tw = 88;
+      s += `<rect x="${rx-tw}" y="${y+RH/2-16}" width="${tw}" height="32" rx="16" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
+        +  `<text x="${rx-tw/2}" y="${y+RH/2+7}" text-anchor="middle" font-family="${F}" font-size="17" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
     }
-    s += `<text x="${lx + LG_ICON + 6}" y="${cy+7}" font-family="${F}" font-size="${LG_F}" fill="${SUB}">${e2(it.t)}</text>`;
-    lx += lw(it) + LG_GAP;
   });
-  if (extra>0) s += `<text x="${W/2}" y="${tailY+44}" text-anchor="middle" font-family="${F}" font-size="19" fill="${MUTED}">외 ${extra}개는 카드에서 생략됐어요</text>`;
-  s += `<text x="${W/2}" y="${H-82}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">시간 표기가 없는 제품은 아침·저녁 아무 때나 · 식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
-  s += `<text x="${W/2}" y="${H-46}" text-anchor="middle" font-family="${F}" font-size="26" font-weight="700" fill="${MINT}">themaric.kr</text>`;
+  s += glyphs;
+
+  // ── 범례: 실제로 쓰인 것만, 아이콘·간격 정렬 ──
+  const used = [];
+  if (rel.some(r=>r.g==='clash')) used.push({g:'clash', t:'같이 쓰지 마세요'});
+  if (rel.some(r=>r.g==='split')) used.push({g:'split', t:'시간대 분리'});
+  if (rel.some(r=>r.g==='dup'))   used.push({g:'dup',   t:'성분 중복'});
+  if (badProd.size) used.push({g:'bad', t:'조건에 안 맞는 성분'});
+  if (sunGap || gaps.length) used.push({g:'ghost', t:'비어 있는 자리'});
+  if (used.length){
+    const IC = 26, GAPX = 34, LF = 20;
+    const lw = it => IC + 9 + textW(it.t)*LF;
+    const total = used.reduce((a,it)=>a+lw(it),0) + GAPX*(used.length-1);
+    let lx = W/2 - total/2;
+    used.forEach(it=>{
+      const cx = lx + IC/2, cy = legY;
+      if (it.g === 'bad')
+        s += `<circle cx="${cx}" cy="${cy}" r="12" fill="${CORAL}"/><text x="${cx}" y="${cy+6.5}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="800" fill="${CARD}">!</text>`;
+      else if (it.g === 'ghost')
+        s += `<rect x="${cx-12}" y="${cy-10}" width="24" height="20" rx="5" fill="none" stroke="rgba(32,34,30,0.35)" stroke-width="2" stroke-dasharray="4.5 3.5"/>`;
+      else {
+        const col = COLR[it.g];
+        s += `<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="${col}" stroke-width="2.2"/>`;
+        if (it.g==='clash') s += `<path d="M${cx-4.6},${cy-4.6} L${cx+4.6},${cy+4.6} M${cx+4.6},${cy-4.6} L${cx-4.6},${cy+4.6}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
+        else if (it.g==='split') s += `<path d="M${cx-6},${cy} L${cx+6},${cy} M${cx-6},${cy} l3,-3.4 M${cx-6},${cy} l3,3.4 M${cx+6},${cy} l-3,-3.4 M${cx+6},${cy} l-3,3.4" stroke="${col}" stroke-width="2" stroke-linecap="round" fill="none"/>`;
+        else s += `<circle cx="${cx-2.6}" cy="${cy}" r="3.8" fill="none" stroke="${col}" stroke-width="1.8"/><circle cx="${cx+2.6}" cy="${cy}" r="3.8" fill="none" stroke="${col}" stroke-width="1.8"/>`;
+      }
+      s += `<text x="${lx+IC+9}" y="${cy+7}" font-family="${F}" font-size="${LF}" fill="${SUB}">${e2(it.t)}</text>`;
+      lx += lw(it) + GAPX;
+    });
+  }
+
+  // ── 푸터 ──
+  s += `<text x="${W/2}" y="${H-96}" text-anchor="middle" font-family="${F}" font-size="18" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
+  s += `<text x="${W/2}" y="${H-58}" text-anchor="middle" font-family="${FS}" font-size="22" fill="${GOLD}" letter-spacing="4">themaric.kr</text>`;
   return s + '</svg>';
 }
 
@@ -1722,20 +1644,41 @@ function rpSavePng(){
 const BG_SLOTS = [['cleanser','클렌저',true],['toner','토너',false],
                   ['serum','세럼',false],['cream','크림',true],['sun','선크림',true]];
 let bgBudget = 0;
-function bgValue(p, r){
-  return r.s
+function bgValue(p, r, gapCls){
+  let v = r.s
        + (p.rdc ? Math.min(6, p.rdc/5) : 0)      // 지금 싸진 폭
        + (p.vt === 'genuine' ? 3 : 0);           // 진짜 할인 판정
+  // 조건의 핵심 성분이 비어 있다면, 그 성분이 든 제품이 빈칸을 두 개 채운다
+  if (gapCls) for (const cls of gapCls) if (p.a && p.a[cls]) v += 4;
+  return v;
+}
+function bgHaveSlots(){
+  // 화장대에 이미 있는 단계 — 그 단계는 추천하지 않는다
+  const have = new Set();
+  shelf.forEach(p=>{
+    const ko = rpSlotKo(p);
+    if (ko === '클렌저') have.add('cleanser');
+    else if (ko === '토너' || ko === '패드' || ko === '미스트') have.add('toner');
+    else if (ko === '세럼') have.add('serum');
+    else if (['크림','로션','올인원'].includes(ko)) have.add('cream');
+    else if (ko === '선크림') have.add('sun');
+  });
+  return have;
 }
 function bgSolve(budget){
   const eff = rcEff(rcPicked.map(x=>x.v));
+  const have = bgHaveSlots();
+  const ax = axDiff();
+  const gapCls = new Set(ax ? ax.gap.map(x=>x.cls) : []);
+  const slots = BG_SLOTS.filter(([key])=>!have.has(key));
+  if (!slots.length) return {v:0, picks:[], full:true};
   const U = 100, B = Math.floor(budget/U);
   let dp = new Array(B+1).fill(null);
   dp[0] = {v:0, picks:[]};
-  for (const [key, ko, req] of BG_SLOTS){
+  for (const [key, ko, req] of slots){
     const list = (RC_BY[key]||[]).map(p=>({p, r:rcScore(p, eff)}))
       .filter(x=>x.r && x.r.s > 0 && x.p.cur > 0)
-      .map(x=>({p:x.p, v:bgValue(x.p, x.r), c:x.p.cur}))
+      .map(x=>({p:x.p, v:bgValue(x.p, x.r, gapCls), c:x.p.cur}))
       .sort((a,b)=>b.v-a.v).slice(0, 16);
     const nd = new Array(B+1).fill(null);
     for (let b=0; b<=B; b++){
@@ -1759,9 +1702,12 @@ function bgRender(){
   const box = document.getElementById('bg-out');
   if (!bgBudget){ box.innerHTML = ''; return; }
   const best = bgSolve(bgBudget);
+  if (best && best.full){
+    box.innerHTML = `<div class="empty" style="margin-top:12px">루틴에 빈 단계가 없어요 — 클렌저·토너·세럼·크림·선크림이 다 있습니다.</div>`;
+    return;
+  }
   if (!best || !best.picks.length){
-    box.innerHTML = `<div class="empty" style="margin-top:12px">${bgBudget.toLocaleString('ko-KR')}원으로는 클렌저·크림·선크림을 다 채우지 못했어요.
-      예산을 올리거나, 지금 세일 중인 제품이 늘어나는 날 다시 눌러보세요.</div>`;
+    box.innerHTML = `<div class="empty" style="margin-top:12px">${bgBudget.toLocaleString('ko-KR')}원으로는 빠진 단계를 채우지 못했어요. 예산을 올려보세요.</div>`;
     return;
   }
   const total = best.picks.reduce((a,x)=>a + x.c, 0);
@@ -1779,7 +1725,7 @@ function bgRender(){
   }).join('');
   const combo = rcPicked.length ? rcPicked.map(x=>RC_RULES[x.v].label).join(' × ') + ' · ' : '';
   box.innerHTML = `<div style="margin-top:14px">
-    <div class="hint" style="margin-bottom:6px">${esc(combo)}${(bgBudget/10000)}만원 루틴 — ${best.picks.length}단계${nDeal?` · 지금 세일 중 ${nDeal}개`:''}</div>
+    <div class="hint" style="margin-bottom:6px">${esc(combo)}빠진 ${best.picks.length}단계를 ${(bgBudget/10000)}만원 안에서${nDeal?` · 지금 세일 중 ${nDeal}개`:''}</div>
     ${rows}
     <div class="bg-sum"><span class="t">${total.toLocaleString('ko-KR')}원</span>
       <span class="r">예산 ${bgBudget.toLocaleString('ko-KR')}원 · ${(bgBudget-total).toLocaleString('ko-KR')}원 남음</span></div>
@@ -1822,7 +1768,7 @@ function showTab(v){
   document.getElementById('tab-check').classList.toggle('on', v==='check');
   document.getElementById('tab-reco').classList.toggle('on', v==='reco');
   if (v==='reco'){ rcSync(); rcRender(); }
-  if (v==='result'){ rpRender(); }
+  if (v==='result'){ rpRender(); if (typeof bgRender === 'function') bgRender(); }
   rcBar();
   window.scrollTo({top:0});
 }
