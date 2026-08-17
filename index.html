@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
   /* 브랜드 팔레트 v2 (2026-08-15) — 아이보리 / 딥올리브 / 차콜 / 골드,
      코랄은 '가격이 진짜 움직인 순간'에만. 이전 팔레트는 index.html.bak_redesign_* 참조. */
@@ -27,7 +27,7 @@
     --warn:#6B6D62; --serious:#B4653A; --critical:#D95C4F;
     --good-bg:rgba(89,96,68,0.12); --warn-bg:rgba(32,34,30,0.05);
     --serious-bg:rgba(180,101,58,0.12); --critical-bg:rgba(217,92,79,0.10);
-    --serif:"Cormorant Garamond","Times New Roman",serif;
+    --serif:"Cormorant Garamond","Noto Serif KR","Times New Roman",serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
@@ -442,7 +442,6 @@
         <input id="url-input" type="text" placeholder="상품명 또는 올리브영 URL을 붙여보세요" spellcheck="false">
         <button class="btn" id="go-btn">판정하기</button>
       </div>
-      <div class="hint">URL은 바로 판정 · 상품명은 검색</div>
       <div id="search-results"></div>
       <p class="pillars">가격 이력 · 할인 진위 · 성분 검증</p>
     </div>
@@ -454,7 +453,6 @@
       <a class="t-head" href="price.html">
         <div>
           <div class="t-title">TODAY'S OLIVE YOUNG</div>
-          <div class="t-kr">오늘의 올영 랭킹, 실제 가격으로</div>
           <div class="t-sub" id="t-sub"></div>
         </div>
         <span class="t-cta">Top 30 전체 보기 →</span>
@@ -487,7 +485,7 @@
   <section id="view-report" class="hidden">
     <div class="report-top">
       <button class="back" id="back-btn">← 다른 상품 판정하기</button>
-      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">실측 데이터 · 조기 신호</span>판정서 <b id="r-id"></b> · 발급 <span id="r-time"></span></div>
+      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">조기 신호</span><b id="r-id"></b> · <span id="r-time"></span></div>
     </div>
 
     <div class="card">
@@ -602,9 +600,8 @@
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
-    올리브영 공개 가격 관측 (일 2회) · 식약처 고시 전성분 · 제휴 수수료는 판정에 무관<br>
-    <a href="glossary.html" style="color:var(--series); text-decoration:none;">성분 사전</a>
-    · <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
+    올리브영 상품 링크에는 제휴 코드가 포함되며 더마릭이 수수료를 받을 수 있습니다 — 수수료는 판정에 영향을 주지 않습니다.<br>
+    <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
   </footer>
 </div>
 <!-- ================= 이의제기 모달 ================= -->
@@ -694,8 +691,8 @@ function renderReport(key){
   $('#r-time').textContent = !c.vid
     ? `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} KST`
     : isPreview
-      ? `판정 프리뷰 (조회 시 자동 생성) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
-      : `발급 대장 기록됨 (verdicts) · 조회 ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
+      ? `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
+      : `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} 발급`;
 
   if(c.img){ $('#r-thumb').innerHTML = `<img src="${c.img}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:11px;" onerror="this.remove()">`; }
   else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }

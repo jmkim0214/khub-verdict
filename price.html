@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>더마릭 — 가격 데이터 · 오늘의 올영 랭킹 실제 가격</title>
 <meta name="description" content="올리브영 랭킹 Top 30의 일자별 실제 판매가 그래프. 표시 할인율이 아닌 관측된 가격 흐름으로 진짜 할인을 확인하세요.">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: light;
@@ -44,9 +44,9 @@
     .nav-link + .nav-link{margin-left:0;}
     .nav-first{margin-left:0;}
   }
-  .logo{font-family:'Cormorant Garamond',Georgia,serif; font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1; text-decoration:none;}
+  .logo{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif; font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1; text-decoration:none;}
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
-  .logo-sub{font-family:'Cormorant Garamond',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
+  .logo-sub{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
   
 
   .page-head{margin-top:18px;}
@@ -240,19 +240,18 @@
   <div class="page-head">
     <h1>오늘의 올영 랭킹, <span class="u">실제 가격</span>으로</h1>
     <div class="sub">할인율 숫자가 아니라, 관측된 가격 흐름 그대로.</div>
-    <div class="obs-note"><span class="live"></span><span id="obs-label"></span> · 하루 2회 관측 · 매일 갱신</div>
+    <div class="obs-note"><span class="live"></span><span id="obs-label"></span> · 하루 2회 · 매일 갱신</div>
   </div>
 
   <div class="toolbar">
     <div class="chips" id="cat-chips"></div>
     <div class="legend">
-      <span class="k"><span class="sw-line"></span>실제 판매가</span>
-      <span class="k"><span class="sw-ref"></span>올영이 표시한 표시정가</span>
+      <span class="k"><span class="sw-line"></span>실판매가</span>
+      <span class="k"><span class="sw-ref"></span>표시정가</span>
     </div>
   </div>
 
   <div class="vfilter">
-    <span class="vf-label">판정별로 보기</span>
     <div class="chips" id="v-chips"></div>
   </div>
   <div class="filter-note" id="filter-note"></div>
