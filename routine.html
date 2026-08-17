@@ -258,6 +258,7 @@
   .rp-issue.split{background:var(--warn-bg);}
   .rp-issue.dup{background:var(--series-wash);}
   .rp-issue.note{background:rgba(137,135,129,0.12);}
+  .rp-issue.good{background:var(--series-wash);}
   .rp-issue b{color:var(--ink);}
   .rp-foot{margin-top:14px; padding-top:10px; border-top:1px dashed var(--baseline);
     font-size:10.5px; color:var(--muted); text-align:center; line-height:1.6;}
@@ -883,8 +884,8 @@ function render(){
       <button class="btn" onclick="if(confirm('등록한 제품을 모두 지울까요?')){shelf=[];saveState();render();}">비우기</button>
     </div></div>`;
 
-  html += axiomCard(axi);
-  html += axReview();
+  // 2026-08-17: '기본 원칙'·'조건 검토' 카드 제거 — 리포트 카드와 전부 겹쳤다.
+  // (axiomCard/axReview 함수는 리포트 계산이 재사용하므로 남긴다)
 
   // 2026-08-17: 상충 매트릭스·판정 근거·아침/저녁 나누기 섹션 제거 —
   // 리포트 카드가 그 내용을 다 담고, 화면엔 점수·기본 원칙·조건 검토만 남긴다.
@@ -1321,6 +1322,7 @@ function rpData(){
       s:x.ps.map(short).join(', ')}));
   }
   const issues = [
+    ...(a.axi||[]).filter(x=>x.ok).map(x=>({g:'good', t:x.t, s:''})),
     ...(a.axi||[]).filter(x=>!x.ok).map(x=>({g:x.g, t:x.t, s:x.s})),
     ...a.pairs.filter(p=>p.grade!=='good').map(p=>({g:p.grade, t:p.title, s:`${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`})),
     ...a.flags.filter(f=>f[0]==='clash'||f[0]==='split').map(f=>({g:f[0], t:f[1], s:''})),
@@ -1370,8 +1372,10 @@ function rpSummary(d){
   const sun = (d.axi||[]).find(x=>x.key==='sun' && x.cut);
   if (sun) return '선크림이 빠졌어요 — 어떤 조합에도 들어가야 하는 단계예요.';
   // 조건 결함이 있으면 그게 이 리포트의 첫 문장이다 (2026-08-15)
-  if (d.ax && d.ax.avoid.length)
-    return `이 조건에선 ${axKo(d.ax.avoid[0].cls)}를 피하는 게 좋아요.`;
+  if (d.ax && d.ax.avoid.length){
+    const k = axKo(d.ax.avoid[0].cls);
+    return `이 조건에선 ${k}${rpJosa(k,'을','를')} 피하는 게 좋아요.`;
+  }
   if (d.ax && d.ax.gap.length)
     return `궁합은 괜찮지만 이 조건의 핵심인 ${axKo(d.ax.gap[0].cls)}가 화장대에 없어요.`;
   if (!d.rel.length)
@@ -1388,6 +1392,18 @@ function rpSummary(d){
                 : '조정이 필요한 화장대예요 — ';
   const more = d.rel.length > 1 ? ` (외 ${d.rel.length-1}건)` : '';
   return opening + pair + act + more;
+}
+// 기분 좋아지는 한 줄 — 리포트는 성적표가 아니라 자랑거리여야 공유된다 (2026-08-17)
+function rpPersona(d){
+  const n = shelf.length;
+  const acts = ['RET','AHA','BHA','PHA','VITC','NIA','PEP'].filter(c=>shelf.some(p=>has(p,c))).length;
+  if (d.score >= 90 && n >= 5) return '이 정도면 저희가 배워야 할 화장대인데요.';
+  if (d.score >= 85) return '성분 궁합까지 챙기는, 흔치 않은 타입이에요.';
+  if (n >= 7) return '화장대에 진심인 코덕 인정.';
+  if (acts >= 3) return '활성 성분을 겁 없이 다루는, 공부한 타입이군요.';
+  if (n <= 3 && d.score >= 70) return '필요한 것만 딱 갖춰 쓰는 똑똑한 타입이군요.';
+  if (d.ax && d.ax.fit.length >= 3) return '조건에 맞는 성분을 이미 골라 쓰고 계시네요.';
+  return '화장대를 점검해본 것만으로 이미 상위권이에요.';
 }
 function rpSVG(d){
   /* 2026-08-17 v3 — 세로 나열 리디자인. 이 카드는 기능 화면이 아니라 '공유하고 싶은 한 장'이다.
@@ -1428,18 +1444,22 @@ function rpSVG(d){
   const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.55 : 1), 0);
   const sumW = W - MG*2;
   const sumSize = Math.max(17, Math.min(27, Math.floor(sumW / Math.max(1, textW(summary)))));
+  // 감점 내역 — 무엇이 깎였는지 이름까지 한 줄에 (2026-08-17)
   const cuts = [];
   (d.axi||[]).filter(x=>x.cut).forEach(x=>cuts.push(`${x.key==='sun'?'선크림 없음':'활성 과다'} −${x.cut}`));
   if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
-  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid}`);
-  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap}`);
+  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
+  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')} 없음)`);
+  const cutsTxt = cuts.join('  ·  ');
+  const cutsSize = Math.max(15, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
 
   // ── 세로 레이아웃 커서 ──
   const RH = 108, RGAP = 16;
   const combo = rpCombo();
+  const persona = rpPersona(d);
   const headB = 208;                                   // 브랜드 헤더 블록 끝
-  const scoreB = headB + 150 + (cuts.length ? 40 : 0); // 점수 블록 끝
+  const scoreB = headB + 188 + (cuts.length ? 38 : 0); // 점수 + 아부 + 요약 + 감점
   const listY = scoreB + 46;
   const listB = listY + rows.length*(RH+RGAP) - RGAP;
   const legY = listB + 52;
@@ -1461,9 +1481,10 @@ function rpSVG(d){
   // ── 점수 ──
   const sc = String(d.score);
   s += `<text x="${W/2}" y="${headB+92}" text-anchor="middle" font-family="${FS}" font-size="104" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-size="30" fill="${MUTED}" font-weight="400"> /100</tspan></text>`;
-  s += `<text x="${W/2}" y="${headB+134}" text-anchor="middle" font-family="${F}" font-size="${sumSize}" font-weight="600" fill="${INK}">${e2(summary)}</text>`;
+  s += `<text x="${W/2}" y="${headB+140}" text-anchor="middle" font-family="${F}" font-size="27" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
+  s += `<text x="${W/2}" y="${headB+176}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize,22)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
   if (cuts.length)
-    s += `<text x="${W/2}" y="${headB+170}" text-anchor="middle" font-family="${F}" font-size="20" fill="${CORAL}">${e2(cuts.join('  ·  '))}</text>`;
+    s += `<text x="${W/2}" y="${headB+212}" text-anchor="middle" font-family="${F}" font-size="${cutsSize}" fill="${CORAL}">${e2(cutsTxt)}</text>`;
 
   // 구분선
   s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
