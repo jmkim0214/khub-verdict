@@ -23,6 +23,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic
   .nav-link:hover{color:var(--series);}
   .nav-link.here{color:var(--series); font-weight:800;}
   @media (max-width:640px){
+    .wrap{padding:0 14px 60px;}
     header.site{padding:18px 16px 12px; column-gap:18px;}
     header.site > a:first-child{width:100%;}
     .nav-link{font-size:12.5px; padding:5px 0;}
@@ -33,6 +34,11 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
   .logo-sub{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
 
+.subtabs{display:flex; gap:8px; margin-top:16px;}
+.subtabs .stab{font-size:13px; font-weight:700; padding:8px 16px; border-radius:999px;
+    border:1px solid var(--baseline); color:var(--ink-2); text-decoration:none; white-space:nowrap;}
+.subtabs .stab.on{background:var(--series); color:#fff; border-color:var(--series);}
+.subtabs .stab:not(.on):hover{border-color:var(--series); color:var(--series);}
 .page-head{margin-top:18px}
 .page-head h1{font-size:23px;font-weight:800;letter-spacing:-.02em}
 .page-head h1 .u{box-shadow:inset 0 -9px var(--series-wash)}
@@ -100,11 +106,14 @@ footer.site{margin-top:48px;text-align:center;font-size:12px;color:var(--muted);
       <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
       <div class="logo-sub">화장품 가격·성분 검증</div>
     </a>
-    <a class="nav-link nav-first" href="price.html">올영 Top 30</a>
-    <a class="nav-link here" href="device.html">디바이스</a>
+    <a class="nav-link nav-first here" href="price.html">판정서</a>
     <a class="nav-link" href="routine.html">루틴 가이드</a>
     <a class="nav-link" href="glossary.html">성분 사전</a>
   </header></div>
+<div class="subtabs">
+  <a class="stab" href="price.html">오늘의 올영 Top 30</a>
+  <a class="stab on" href="device.html">디바이스</a>
+</div>
 <div class="page-head">
   <h1>이 기기, <span class="u">보증은 며칠일까요</span></h1>
   <div class="sub">제조국과 무상보증 — 판매자 고시 표기 그대로.</div>

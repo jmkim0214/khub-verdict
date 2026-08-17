@@ -143,6 +143,7 @@
   .bg-slot{flex:none; min-width:58px; font-size:11.5px; font-weight:800; color:var(--series);
     background:var(--series-wash); border-radius:6px; padding:3px 8px; text-align:center;}
   .bg-slot.gf{color:var(--ink-2); background:transparent; border:1px dashed var(--baseline);}
+  .bg-slot i{display:block; font-style:normal; font-size:9.5px; font-weight:600; color:var(--muted); margin-top:1px;}
   .bg-nm{flex:1; min-width:150px; font-size:13px; line-height:1.45;}
   .bg-nm .b{color:var(--muted); font-size:11.5px; display:block;}
   .bg-nm a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--baseline);}
@@ -262,6 +263,9 @@
   .rp-issue.dup{background:var(--series-wash);}
   .rp-issue.note{background:rgba(137,135,129,0.12);}
   .rp-issue.good{background:var(--series-wash);}
+  .rp-issue.bad{background:var(--critical-bg);}
+  .rp-issue.ghost{background:var(--critical-bg);}
+  .rp-ic{vertical-align:-4px; margin-right:3px;}
   .rp-issue b{color:var(--ink);}
   .rp-foot{margin-top:14px; padding-top:10px; border-top:1px dashed var(--baseline);
     font-size:10.5px; color:var(--muted); text-align:center; line-height:1.6;}
@@ -297,8 +301,7 @@
       <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
       <div class="logo-sub">화장품 가격·성분 검증</div>
     </a>
-    <a class="nav-link nav-first" href="price.html">올영 Top 30</a>
-    <a class="nav-link" href="device.html">디바이스</a>
+    <a class="nav-link nav-first" href="price.html">판정서</a>
     <a class="nav-link here" href="routine.html">루틴 가이드</a>
     <a class="nav-link" href="glossary.html">성분 사전</a>
   </header></div>
@@ -805,6 +808,12 @@ function axDiff(){
           title: sorted.map(x=>RC_RULES[x.v].label).join(' × ')};
 }
 function axKo(cls){ return CLS[cls] ? CLS[cls].ko : cls; }
+// 성분 계열 → 담당 기능 (빈자리·추천에 함께 표기, 2026-08-17)
+const AX_ROLE = {RET:'주름·재생', BAKU:'순한 주름 케어', PEP:'탄력', ADEN:'주름 기능성',
+  CERA:'장벽·보습', HYAL:'수분', PANT:'진정·보습', CICA:'진정', AZE:'진정·톤',
+  NIA:'톤·피지', VITC:'미백·항산화', VITCD:'비타민C 유도체', AHA:'각질', BHA:'모공 각질',
+  PHA:'순한 각질', PDRN:'재생'};
+function axRole(cls){ return AX_ROLE[cls] || ''; }
 // 빠진 성분이 상위 함량으로 든 제품 1개 — 추천이 아니라 '이런 게 있다'는 예시.
 function axPick(cls, eff){
   let best = null;
@@ -1339,14 +1348,14 @@ function rpData(){
         return `${esc(short(p))} 대신 → <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(b.p.b)} ${esc(rcName(b.p))} ↗</a>`
              + (b.p.cur ? ` <span style="color:var(--muted)">${b.p.cur.toLocaleString('ko-KR')}원</span>` : '');
       }).filter(Boolean).join('<br>');
-      axIssues.push({g:'split',
+      axIssues.push({g:'bad',
         t:`이 조건에선 피하는 게 좋은 성분 — ${axKo(x.cls)}`,
         s:x.ps.map(short).join(', '), h:reps});
     });
   }
   const issues = [
     ...(a.axi||[]).filter(x=>x.ok).map(x=>({g:'good', t:x.t, s:''})),
-    ...(a.axi||[]).filter(x=>!x.ok).map(x=>({g:x.g, t:x.t, s:x.s})),
+    ...(a.axi||[]).filter(x=>!x.ok).map(x=>({g:(x.key==='sun'?'ghost':x.g), t:x.t, s:x.s})),
     ...a.pairs.filter(p=>p.grade!=='good').map(p=>({g:p.grade, t:p.title, s:`${short(shelf[p.i])} ↔ ${short(shelf[p.j])}`})),
     ...a.flags.filter(f=>f[0]==='clash'||f[0]==='split').map(f=>({g:f[0], t:f[1], s:''})),
     ...axIssues,
@@ -1454,7 +1463,8 @@ function rpSVG(d){
   // 행 목록: 제품 → (선크림 빈자리) → (조건 빈자리)
   const rows = prods.map(p=>({t:'p', p}));
   if (sunGap) rows.push({t:'g', ko:'선크림', sub:'조합과 무관한 기본 단계', hot:true});
-  gaps.forEach(g=>rows.push({t:'g', ko:axKo(g.cls), sub:'이 조건의 핵심 성분', hot:false}));
+  gaps.forEach(g=>rows.push({t:'g', ko:axKo(g.cls),
+    sub:(axRole(g.cls)?axRole(g.cls)+' 담당':'이 조건의 핵심 성분'), hot:false}));
 
   // 관계선: 왼쪽 레일. 겹치지 않게 레인 배정
   const idx = new Map(); prods.forEach((p,i)=>idx.set(p,i));
@@ -1473,7 +1483,9 @@ function rpSVG(d){
   if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
   if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
   if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>axKo(x.cls)).join('·')} 없음)`);
+  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>{
+    const r = axRole(x.cls); return (r?r+' 담당 ':'')+axKo(x.cls);
+  }).join('·')} 없음)`);
   const cutsTxt = cuts.join('  ·  ');
   const cutsSize = Math.max(15, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
 
@@ -1619,12 +1631,33 @@ function rpSVG(d){
   return s + '</svg>';
 }
 
+// 이슈 목록 아이콘 — 리포트 카드의 벡터와 같은 도형 (이모지 금지)
+function rpIcon(g){
+  const C = {clash:'#D95C4F', split:'#9A7A2E', dup:'#4E7A6A', good:'#596044',
+             bad:'#D95C4F', ghost:'rgba(32,34,30,0.45)', note:'#8F9184'};
+  const col = C[g] || C.note;
+  const wrap = inner => `<svg class="rp-ic" width="18" height="18" viewBox="0 0 26 26">${inner}</svg>`;
+  if (g === 'bad')
+    return wrap(`<circle cx="13" cy="13" r="12" fill="${col}"/><text x="13" y="18.5" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFEFB">!</text>`);
+  if (g === 'ghost')
+    return wrap(`<rect x="3" y="5" width="20" height="16" rx="4" fill="none" stroke="${col}" stroke-width="2.2" stroke-dasharray="4 3"/>`);
+  const ring = `<circle cx="13" cy="13" r="11.5" fill="none" stroke="${col}" stroke-width="2.2"/>`;
+  if (g === 'clash')
+    return wrap(ring + `<path d="M8.7,8.7 L17.3,17.3 M17.3,8.7 L8.7,17.3" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`);
+  if (g === 'split')
+    return wrap(ring + `<path d="M7.5,13 L18.5,13 M7.5,13 l3,-3.2 M7.5,13 l3,3.2 M18.5,13 l-3,-3.2 M18.5,13 l-3,3.2" stroke="${col}" stroke-width="2" stroke-linecap="round" fill="none"/>`);
+  if (g === 'dup')
+    return wrap(ring + `<circle cx="10.6" cy="13" r="3.6" fill="none" stroke="${col}" stroke-width="1.8"/><circle cx="15.4" cy="13" r="3.6" fill="none" stroke="${col}" stroke-width="1.8"/>`);
+  if (g === 'good')
+    return wrap(`<circle cx="13" cy="13" r="12" fill="${col}"/><path d="M7.8,13.4 l3.4,3.4 L18.4,9.6" stroke="#FFFEFB" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
+  return wrap(ring + `<path d="M13,11.5 L13,18" stroke="${col}" stroke-width="2.2" stroke-linecap="round"/><circle cx="13" cy="8.3" r="1.5" fill="${col}"/>`);
+}
 function rpRender(){
   const d = rpData();
   const issues = d.issues.slice(0, 6);
   document.getElementById('rp-card').innerHTML = rpSVG(d) +
     (issues.length ? `<div class="rp-issues" style="margin-top:12px">${issues.map(x=>
-      `<div class="rp-issue ${x.g}">${GRADE_ICON[x.g]||''} <b>${esc(x.t)}</b>`
+      `<div class="rp-issue ${x.g}">${rpIcon(x.g)} <b>${esc(x.t)}</b>`
       + (x.s ? `<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>` : '')
       + (x.h ? `<br><span class="rp-ex">${x.h}</span>` : '')
       + `</div>`).join('')}</div>` : '');
@@ -1734,7 +1767,8 @@ function bgSuggest(){
     const pool = ['serum','toner','cream'].flatMap(k=>RC_BY[k]||[])
       .filter(p=>p.a && p.a[g.cls] && !(AX_STRICT.includes(g.cls) && !isActive(p, g.cls)));
     const b = bgBest(pool, eff, avoid, gapCls);
-    if (b && !out.some(x=>x.p.g===b.p.g)) out.push({ko:axKo(g.cls), gcls:g.cls, ...b});
+    if (b && !out.some(x=>x.p.g===b.p.g))
+      out.push({ko:axKo(g.cls), role:axRole(g.cls), gcls:g.cls, ...b});
   });
   return out;
 }
@@ -1754,7 +1788,7 @@ function bgRender(){
     const on = bgOn(p.g);
     return `<label class="bg-line${on?'':' off'}">
       <input type="checkbox" ${on?'checked':''} onchange="bgToggle('${p.g}')">
-      <span class="bg-slot${x.gcls?' gf':''}">${esc(x.ko)}</span>
+      <span class="bg-slot${x.gcls?' gf':''}">${esc(x.ko)}${x.role?`<i>${esc(x.role)}</i>`:''}</span>
       <span class="bg-nm"><span class="b">${esc(p.b)}</span>
         <a href="${esc(oy)}" target="_blank" rel="noopener sponsored" onclick="event.stopPropagation()">${esc(rcName(p))} ↗</a></span>
       <span class="bg-p">${p.cur.toLocaleString('ko-KR')}원</span>
@@ -1787,7 +1821,12 @@ function bgAddAll(){
 }
 
 // ── 탭 전환 ──
-function showTab(v){
+// 리포트에서 브라우저 뒤로가기를 누르면 사이트를 떠나지 않고 검사 화면으로 (2026-08-17)
+window.addEventListener('popstate', e=>{
+  if (document.getElementById('view-result').style.display !== 'none') showTab('check', true);
+});
+function showTab(v, fromPop){
+  if (v === 'result' && !fromPop) history.pushState({v:'result'}, '');
   document.getElementById('view-check').style.display  = v==='check' ? '' : 'none';
   document.getElementById('view-reco').style.display   = v==='reco' ? '' : 'none';
   document.getElementById('view-result').style.display = v==='result' ? '' : 'none';
