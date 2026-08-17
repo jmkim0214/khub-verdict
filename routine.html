@@ -144,6 +144,8 @@
     background:var(--series-wash); border-radius:6px; padding:3px 8px; text-align:center;}
   .bg-slot.gf{color:var(--ink-2); background:transparent; border:1px dashed var(--baseline);}
   .bg-slot i{display:block; font-style:normal; font-size:9.5px; font-weight:600; color:var(--muted); margin-top:1px;}
+  .bg-nm .cov{font-style:normal; font-size:10.5px; font-weight:700; color:var(--series);
+    background:var(--series-wash); border-radius:3px; padding:1px 6px; margin-left:5px; white-space:nowrap;}
   .bg-nm{flex:1; min-width:150px; font-size:13px; line-height:1.45;}
   .bg-nm .b{color:var(--muted); font-size:11.5px; display:block;}
   .bg-nm a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--baseline);}
@@ -411,6 +413,7 @@
         <div id="bg-out"></div>
       </div>
       <div class="actions" style="justify-content:center; margin-top:14px;">
+        <button class="btn" onclick="rpShare()">🔗 루틴 공유</button>
         <button class="btn" onclick="rpSavePng()">🖼️ 이미지로 저장</button>
         <button class="btn" onclick="showTab('check')">✏️ 제품 조정</button>
       </div>
@@ -425,7 +428,6 @@
   </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
 <script>
 /* 2026-08-18: 상품 데이터(1.2MB)를 routine_data.json으로 분리 — LTE에서 4~6초 걸리던
    첫 로딩이 셸만 먼저 뜨고, 데이터는 뒤에서 채워진다. DB 준비 전 UI는 로딩 문구로 방어. */
@@ -1461,7 +1463,7 @@ function rpSVG(d){
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
   const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, 7);
-  const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
+  const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,3) : []);
   const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);
   const badProd = new Map();
   if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
@@ -1502,25 +1504,10 @@ function rpSVG(d){
   const RH = 118, RGAP = 18;
   const combo = rpCombo();
   const persona = rpPersona(d);
-  // 루틴 이어받기 QR (2026-08-18) — 카드가 이미지로 돌 때 친구가 등록 없이 이어받는 유일한 길
-  const qrIds = shelf.filter(p=>p.g).map(p=>p.g).join(',');
-  let qrSvg = '', qrOk = false;
-  if (qrIds && typeof qrcode === 'function'){
-    try{
-      const qr = qrcode(0, 'M');
-      qr.addData('https://themaric.kr/routine.html#g=' + qrIds);
-      qr.make();
-      const N = qr.getModuleCount(), Q = 104, cell = Q / N;
-      let cells = '';
-      for (let ry=0; ry<N; ry++) for (let cx=0; cx<N; cx++)
-        if (qr.isDark(ry,cx)) cells += `<rect x="${(cx*cell).toFixed(2)}" y="${(ry*cell).toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}"/>`;
-      qrSvg = cells; qrOk = true;
-    }catch(e){ /* 데이터가 너무 길면 QR 생략 */ }
-  }
+
   // 인스타 스토리 비율(1080×1920) 고정 — 남는 높이는 헤더 위·목록 아래로 분배 (2026-08-18)
-  const qrPad = (shelf.some(p=>p.g) && typeof qrcode === 'function') ? 64 : 0;
   const natural = 208 + 196 + (cuts.length ? 42 : 0) + 46
-                + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118 + qrPad;
+                + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118;
   const H = Math.max(1920, natural);
   const slack = H - natural;
   const OFF = Math.floor(slack * 0.45);                // 블록 전체를 아래로 — 위 45% / 아래 55%
@@ -1655,15 +1642,9 @@ function rpSVG(d){
     });
   }
 
-  // ── 푸터 (+QR) ──
-  if (qrOk){
-    const qx = W - 84 - 116, qy = H - 190;
-    s += `<rect x="${qx-8}" y="${qy-8}" width="120" height="120" rx="10" fill="#FFFFFF" stroke="${HAIR}" stroke-width="1.5"/>`;
-    s += `<g transform="translate(${qx},${qy})" fill="${INK}">${qrSvg}</g>`;
-    s += `<text x="${qx+52}" y="${qy+136}" text-anchor="middle" font-family="${F}" font-size="16" fill="${MUTED}">이 루틴 이어받기</text>`;
-  }
-  s += `<text x="${qrOk ? MG : W/2}" y="${H-100}" text-anchor="${qrOk?'start':'middle'}" font-family="${F}" font-size="20" fill="${MUTED}">전성분 기준 · 개인차 있음</text>`;
-  s += `<text x="${qrOk ? MG : W/2}" y="${H-58}" text-anchor="${qrOk?'start':'middle'}" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="5">themaric.kr</text>`;
+  // ── 푸터 ──
+  s += `<text x="${W/2}" y="${H-100}" text-anchor="middle" font-family="${F}" font-size="20" fill="${MUTED}">전성분 기준 · 개인차 있음</text>`;
+  s += `<text x="${W/2}" y="${H-58}" text-anchor="middle" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="5">themaric.kr</text>`;
   return s + '</svg>';
 }
 
@@ -1699,6 +1680,16 @@ function rpRender(){
       + `</div>`).join('')}</div>` : '');
 }
 
+// 링크 공유 — QR 대신 (모바일에서 QR은 같은 화면이라 못 찍는다, 2026-08-18)
+async function rpShare(){
+  const ids = shelf.filter(p=>p.g).map(p=>p.g).join(',');
+  if (!ids){ rcToast('검색으로 등록한 제품이 있어야 공유할 수 있어요'); return; }
+  const url = 'https://themaric.kr/routine.html#g=' + ids;
+  try{
+    if (navigator.share){ await navigator.share({title:'더마릭 루틴 리포트', url}); return; }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  navigator.clipboard.writeText(url).then(()=>rcToast('루틴 링크를 복사했어요 — 친구가 열면 이 루틴이 그대로 담겨요'));
+}
 function rpSavePng(){
   const d = rpData();
   let svg = rpSVG(d);
@@ -1795,7 +1786,11 @@ function bgSuggest(){
   BG_SLOTS.forEach(([key, ko])=>{
     if (have.has(key)) return;
     const b = bgBest(RC_BY[key]||[], eff, avoid, gapCls);
-    if (b) out.push({ko, ...b});
+    if (b){
+      // 이 추천이 공백 성분까지 채우면 표기 — 카드의 '비어 있는 자리'와 말이 이어진다 (2026-08-18)
+      const covers = [...gapCls].filter(c=>b.p.a && b.p.a[c]).map(axKo);
+      out.push({ko, covers, ...b});
+    }
   });
   (ax ? ax.gap.slice(0,3) : []).forEach(g=>{
     // 슬롯 추천이 이미 그 성분을 커버하면 건너뛴다
@@ -1825,7 +1820,7 @@ function bgRender(){
     return `<label class="bg-line${on?'':' off'}">
       <input type="checkbox" ${on?'checked':''} onchange="bgToggle('${p.g}')">
       <span class="bg-slot${x.gcls?' gf':''}">${esc(x.ko)}${x.role?`<i>${esc(x.role)}</i>`:''}</span>
-      <span class="bg-nm"><span class="b">${esc(p.b)}</span>
+      <span class="bg-nm"><span class="b">${esc(p.b)}${x.covers&&x.covers.length?` <em class="cov">빈자리 ${esc(x.covers.join('·'))} 채움</em>`:''}</span>
         <a href="${esc(oy)}" target="_blank" rel="noopener sponsored" onclick="event.stopPropagation()">${esc(rcName(p))} ↗</a></span>
       <span class="bg-p">${p.cur.toLocaleString('ko-KR')}원</span>
       ${p.rdc?`<span class="bg-dc">추적가 −${p.rdc}%</span>`:''}
