@@ -1499,7 +1499,7 @@ function rpSVG(d){
   const cutsSize = Math.max(15, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
 
   // ── 세로 레이아웃 커서 ──
-  const RH = 108, RGAP = 16;
+  const RH = 118, RGAP = 18;
   const combo = rpCombo();
   const persona = rpPersona(d);
   // 루틴 이어받기 QR (2026-08-18) — 카드가 이미지로 돌 때 친구가 등록 없이 이어받는 유일한 길
@@ -1517,13 +1517,18 @@ function rpSVG(d){
       qrSvg = cells; qrOk = true;
     }catch(e){ /* 데이터가 너무 길면 QR 생략 */ }
   }
-  const headB = 208;                                   // 브랜드 헤더 블록 끝
-  const scoreB = headB + 188 + (cuts.length ? 38 : 0); // 점수 + 아부 + 요약 + 감점
+  // 인스타 스토리 비율(1080×1920) 고정 — 남는 높이는 헤더 위·목록 아래로 분배 (2026-08-18)
+  const qrPad = (shelf.some(p=>p.g) && typeof qrcode === 'function') ? 64 : 0;
+  const natural = 208 + 196 + (cuts.length ? 42 : 0) + 46
+                + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118 + qrPad;
+  const H = Math.max(1920, natural);
+  const slack = H - natural;
+  const OFF = Math.floor(slack * 0.45);                // 블록 전체를 아래로 — 위 45% / 아래 55%
+  const headB = 208 + OFF;
+  const scoreB = headB + 196 + (cuts.length ? 42 : 0);
   const listY = scoreB + 46;
   const listB = listY + rows.length*(RH+RGAP) - RGAP;
   const legY = listB + 52;
-  const qrPad = (shelf.some(p=>p.g) && typeof qrcode === 'function') ? 64 : 0;
-  const H = legY + 46 + 108 + qrPad;
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
   s += `<rect width="${W}" height="${H}" fill="${BG}"/>`;
@@ -1532,19 +1537,19 @@ function rpSVG(d){
   s += `<rect x="44" y="44" width="${W-88}" height="${H-88}" rx="24" fill="none" stroke="${OLIVE}" stroke-width="2"/>`;
 
   // ── 헤더: 세리프 워드마크 + 골드 서명 ──
-  s += `<text x="${W/2}" y="128" text-anchor="middle" font-family="${FS}" font-size="44" font-weight="700" fill="${INK}" letter-spacing="6">더마릭</text>`;
-  s += `<text x="${W/2}" y="166" text-anchor="middle" font-family="${FS}" font-size="17" fill="${GOLD}" letter-spacing="7">ROUTINE REPORT</text>`;
+  s += `<text x="${W/2}" y="${128+OFF}" text-anchor="middle" font-family="${FS}" font-size="50" font-weight="700" fill="${INK}" letter-spacing="7">더마릭</text>`;
+  s += `<text x="${W/2}" y="${170+OFF}" text-anchor="middle" font-family="${FS}" font-size="19" fill="${GOLD}" letter-spacing="8">ROUTINE REPORT</text>`;
   const today = new Date();
   const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-  s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="21" fill="${MUTED}">${combo ? e2(combo)+' 조합 · ' : ''}${date}</text>`;
+  s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="24" fill="${MUTED}">${combo ? e2(combo)+' · ' : ''}${date}</text>`;
 
   // ── 점수 ──
   const sc = String(d.score);
-  s += `<text x="${W/2}" y="${headB+92}" text-anchor="middle" font-family="${FS}" font-size="104" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-size="30" fill="${MUTED}" font-weight="400"> /100</tspan></text>`;
-  s += `<text x="${W/2}" y="${headB+140}" text-anchor="middle" font-family="${F}" font-size="27" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
-  s += `<text x="${W/2}" y="${headB+176}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize,22)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
+  s += `<text x="${W/2}" y="${headB+96}" text-anchor="middle" font-family="${FS}" font-size="112" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-size="32" fill="${MUTED}" font-weight="400"> /100</tspan></text>`;
+  s += `<text x="${W/2}" y="${headB+146}" text-anchor="middle" font-family="${F}" font-size="30" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
+  s += `<text x="${W/2}" y="${headB+184}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize+2,24)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
   if (cuts.length)
-    s += `<text x="${W/2}" y="${headB+212}" text-anchor="middle" font-family="${F}" font-size="${cutsSize}" fill="${CORAL}">${e2(cutsTxt)}</text>`;
+    s += `<text x="${W/2}" y="${headB+222}" text-anchor="middle" font-family="${F}" font-size="${Math.min(cutsSize+2,22)}" fill="${CORAL}">${e2(cutsTxt)}</text>`;
 
   // 구분선
   s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
@@ -1583,8 +1588,8 @@ function rpSVG(d){
     if (r.t === 'g'){
       const st = r.hot ? CORAL : 'rgba(32,34,30,0.30)';
       s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${st}" stroke-width="2.2" stroke-dasharray="8 7"/>`;
-      s += `<text x="${RX+30}" y="${y+46}" font-family="${F}" font-size="25" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
-      s += `<text x="${RX+30}" y="${y+78}" font-family="${F}" font-size="18" fill="${MUTED}">${e2(r.sub)} — 비어 있는 자리</text>`;
+      s += `<text x="${RX+30}" y="${y+50}" font-family="${F}" font-size="28" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
+      s += `<text x="${RX+30}" y="${y+86}" font-family="${F}" font-size="21" fill="${MUTED}">${e2(r.sub)} — 비어 있어요</text>`;
       return;
     }
     const p = r.p;
@@ -1592,19 +1597,19 @@ function rpSVG(d){
     s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${HAIR}" stroke-width="1.2"/>`;
     // 슬롯 칩
     const label = rpSlotKo(p);
-    const bw = label.length*17 + 22;
-    s += `<rect x="${RX+22}" y="${y+22}" width="${bw}" height="30" rx="15" fill="${WASH}"/>`;
-    s += `<text x="${RX+22+bw/2}" y="${y+43}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
+    const bw = label.length*19 + 24;
+    s += `<rect x="${RX+22}" y="${y+20}" width="${bw}" height="34" rx="17" fill="${WASH}"/>`;
+    s += `<text x="${RX+22+bw/2}" y="${y+44}" text-anchor="middle" font-family="${F}" font-size="18" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
     // 브랜드 (칩 옆)
-    s += `<text x="${RX+22+bw+14}" y="${y+43}" font-family="${F}" font-size="17" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
+    s += `<text x="${RX+22+bw+14}" y="${y+44}" font-family="${F}" font-size="19" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
     // 제품명
     let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
     if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
     const slot = slotOf(p)[0];
     const rightPad = (TIME_KO[slot] ? 108 : 0) + (badProd.has(p) ? 52 : 0) + 30;
-    const nameMax = Math.floor((RW - 52 - rightPad) / 22);
+    const nameMax = Math.floor((RW - 52 - rightPad) / 25);
     if (nm.length > nameMax) nm = nm.slice(0, nameMax-1)+'…';
-    s += `<text x="${RX+26}" y="${y+84}" font-family="${F}" font-size="23" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
+    s += `<text x="${RX+26}" y="${y+90}" font-family="${F}" font-size="26" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
     // 오른쪽: 시간 태그 + 조건 배지
     let rx = RX + RW - 26;
     if (badProd.has(p)){
@@ -1613,9 +1618,9 @@ function rpSVG(d){
       rx -= 52;
     }
     if (TIME_KO[slot]){
-      const tw = 88;
-      s += `<rect x="${rx-tw}" y="${y+RH/2-16}" width="${tw}" height="32" rx="16" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
-        +  `<text x="${rx-tw/2}" y="${y+RH/2+7}" text-anchor="middle" font-family="${F}" font-size="17" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
+      const tw = 96;
+      s += `<rect x="${rx-tw}" y="${y+RH/2-18}" width="${tw}" height="36" rx="18" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
+        +  `<text x="${rx-tw/2}" y="${y+RH/2+8}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
     }
   });
   s += glyphs;
@@ -1628,7 +1633,7 @@ function rpSVG(d){
   if (badProd.size) used.push({g:'bad', t:'조건에 안 맞는 성분'});
   if (sunGap || gaps.length) used.push({g:'ghost', t:'비어 있는 자리'});
   if (used.length){
-    const IC = 26, GAPX = 34, LF = 20;
+    const IC = 28, GAPX = 36, LF = 22;
     const lw = it => IC + 9 + textW(it.t)*LF;
     const total = used.reduce((a,it)=>a+lw(it),0) + GAPX*(used.length-1);
     let lx = W/2 - total/2;
@@ -1655,10 +1660,10 @@ function rpSVG(d){
     const qx = W - 84 - 116, qy = H - 190;
     s += `<rect x="${qx-8}" y="${qy-8}" width="120" height="120" rx="10" fill="#FFFFFF" stroke="${HAIR}" stroke-width="1.5"/>`;
     s += `<g transform="translate(${qx},${qy})" fill="${INK}">${qrSvg}</g>`;
-    s += `<text x="${qx+52}" y="${qy+134}" text-anchor="middle" font-family="${F}" font-size="14" fill="${MUTED}">이 루틴 이어받기</text>`;
+    s += `<text x="${qx+52}" y="${qy+136}" text-anchor="middle" font-family="${F}" font-size="16" fill="${MUTED}">이 루틴 이어받기</text>`;
   }
-  s += `<text x="${qrOk ? MG : W/2}" y="${H-96}" text-anchor="${qrOk?'start':'middle'}" font-family="${F}" font-size="18" fill="${MUTED}">식약처 고시 전성분(함량순) 기준 · 개인차 있음</text>`;
-  s += `<text x="${qrOk ? MG : W/2}" y="${H-58}" text-anchor="${qrOk?'start':'middle'}" font-family="${FS}" font-size="22" fill="${GOLD}" letter-spacing="4">themaric.kr</text>`;
+  s += `<text x="${qrOk ? MG : W/2}" y="${H-100}" text-anchor="${qrOk?'start':'middle'}" font-family="${F}" font-size="20" fill="${MUTED}">전성분 기준 · 개인차 있음</text>`;
+  s += `<text x="${qrOk ? MG : W/2}" y="${H-58}" text-anchor="${qrOk?'start':'middle'}" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="5">themaric.kr</text>`;
   return s + '</svg>';
 }
 

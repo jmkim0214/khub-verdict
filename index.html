@@ -70,6 +70,13 @@
   .hero p.lead{color:var(--ink-2); margin-top:16px; font-size:15px;}
   .hero p.lead b{color:var(--ink); font-weight:700;}
   .pillars{margin-top:18px; font-size:12.5px; color:var(--muted); letter-spacing:.02em;}
+  .kakao-band{display:flex; align-items:center; justify-content:center; gap:8px;
+    max-width:580px; margin:22px auto 0; padding:13px 18px; border-radius:4px;
+    border:1px solid var(--baseline); background:var(--surface); text-decoration:none;
+    font-size:13.5px; font-weight:700; color:var(--ink); transition:border-color .15s;}
+  .kakao-band:hover{border-color:var(--deal);}
+  .kakao-band .dot{width:8px; height:8px; border-radius:50%; background:var(--deal); flex:none;}
+  .kakao-band .go{color:var(--deal); margin-left:2px;}
   .urlbar{display:flex; gap:8px; margin:30px auto 0; max-width:580px;}
   .urlbar input{
     flex:1; font:inherit; font-size:15px; padding:17px 18px;
@@ -446,6 +453,10 @@
       </div>
       <div id="search-results"></div>
       <p class="pillars">가격 이력 · 할인 진위 · 성분 검증</p>
+      <!-- 오픈채팅 URL은 아래 한 곳만 바꾸면 됨 (2026-08-18) -->
+      <a class="kakao-band" href="https://open.kakao.com/o/REPLACE_ME" target="_blank" rel="noopener">
+        <span class="dot"></span>진짜 할인만 골라 보내는 카톡 핫딜방<span class="go">입장 →</span>
+      </a>
     </div>
 
     <!-- 오늘의 가격 데이터 티저 (price_teaser.json — build_price_page.py 생성)
