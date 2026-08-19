@@ -1453,7 +1453,7 @@ function rpSVG(d){
      제품을 세로로 쌓고, 관계선은 왼쪽 레일에 얇게. 아이콘은 전부 벡터(이모지 금지). */
   const W = 1080, MG = 84;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const F  = "Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+  const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
   const FS = "'Noto Serif KR','Cormorant Garamond',Georgia,serif";
   const BG='#F5F1E8', CARD='#FFFEFB', OLIVE='#596044', INK='#20221E', SUB='#5B5D55',
         MUTED='#8F9184', WASH='rgba(89,96,68,0.10)', NODE='#F7F3EA', HAIR='rgba(32,34,30,0.14)',
@@ -1678,6 +1678,7 @@ function rpRender(){
       + (x.s ? `<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>` : '')
       + (x.h ? `<br><span class="rp-ex">${x.h}</span>` : '')
       + `</div>`).join('')}</div>` : '');
+  rpWarmFonts();   // 저장용 폰트 서브셋 미리 받아두기 (2026-08-19)
 }
 
 // 링크 공유 — QR 대신 (모바일에서 QR은 같은 화면이라 못 찍는다, 2026-08-18)
@@ -1690,16 +1691,160 @@ async function rpShare(){
   }catch(e){ if (e && e.name === 'AbortError') return; }
   navigator.clipboard.writeText(url).then(()=>rcToast('루틴 링크를 복사했어요 — 친구가 열면 이 루틴이 그대로 담겨요'));
 }
-function rpSavePng(){
+// ── 저장용 SVG에 웹폰트 임베드 (2026-08-19) ──────────────────────────────
+// 화면의 카드는 페이지 안에 인라인된 SVG라 페이지가 이미 받아둔 웹폰트를 그대로 쓴다.
+// 그런데 저장은 그 SVG를 <img>에 태워 canvas로 굽는 경로라, <img> 안의 SVG는
+// 격리된 문서로 렌더돼 페이지 폰트도 외부 폰트 URL도 못 본다 → iOS 기본 폰트로 폴백.
+// 그래서 저장 직전에 '그 카드에 실제로 쓰인 글자'가 속한 서브셋 woff2만 골라 받아
+// base64 @font-face로 SVG 안에 심는다. 한글 전체(수 MB)가 아니라 보통 10~15조각(≈300KB).
+const RP_FONT_CSS = [
+  'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css',
+  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap'
+];
+let _rpFaces = null;                 // 파싱된 @font-face 목록 (1회)
+const _rpFontData = new Map();       // woff2 URL → base64 (세션 캐시)
+
+function rpParseRanges(s){
+  const out = [];
+  for (const t of s.split(',')){
+    const v = t.trim().replace(/^u\+/i, '');
+    if (!v) continue;
+    if (v.includes('-')){ const [a,b] = v.split('-'); out.push([parseInt(a,16), parseInt(b,16)]); }
+    else if (v.includes('?')){ out.push([parseInt(v.replace(/\?/g,'0'),16), parseInt(v.replace(/\?/g,'f'),16)]); }
+    else { const n = parseInt(v,16); out.push([n,n]); }
+  }
+  return out;
+}
+async function rpLoadFaces(){
+  if (_rpFaces) return _rpFaces;
+  const faces = [];
+  for (const cssUrl of RP_FONT_CSS){
+    let css;
+    try{ css = await (await fetch(cssUrl)).text(); }catch(e){ continue; }
+    const re = /@font-face\s*\{([^}]*)\}/g;
+    let m;
+    while ((m = re.exec(css))){
+      const b = m[1];
+      const fam = /font-family:\s*['"]?([^;'"}]+)/.exec(b);
+      const src = /url\(\s*['"]?([^'")]+)/.exec(b);
+      const ur  = /unicode-range:\s*([^;}]+)/.exec(b);
+      const fmt = /format\(\s*['"]?([^'")]+)/.exec(b);
+      if (!fam || !src) continue;
+      const wRaw = (/font-weight:\s*([^;}]+)/.exec(b) || [,'400'])[1].trim().split(/\s+/).map(Number);
+      faces.push({
+        family: fam[1].trim(),
+        style: (/font-style:\s*([^;}]+)/.exec(b) || [,'normal'])[1].trim(),
+        wmin: wRaw[0] || 400, wmax: wRaw[1] || wRaw[0] || 400,
+        ranges: ur ? rpParseRanges(ur[1]) : null,     // null = 전 범위
+        // 가변 폰트는 woff2-variations로 선언돼 있다 — 원본 표기를 그대로 살린다
+        fmt: fmt ? fmt[1].trim() : 'woff2',
+        url: new URL(src[1].trim(), cssUrl).href
+      });
+    }
+  }
+  _rpFaces = faces;
+  return faces;
+}
+// SVG의 <text>를 훑어 (폰트 목록, 굵기)별로 실제 쓰인 글자를 모은다.
+function rpTextGroups(svg){
+  const groups = new Map();
+  const add = (fams, w, txt) => {
+    const key = fams.join('|') + '||' + w;
+    if (!groups.has(key)) groups.set(key, {fams, w, chars:new Set()});
+    const set = groups.get(key).chars;
+    for (const ch of txt) set.add(ch);
+  };
+  const unesc = s => s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  const famList = s => s.split(',').map(x=>x.trim().replace(/^['"]|['"]$/g,'')).filter(Boolean);
+  const re = /<text\b([^>]*)>([\s\S]*?)<\/text>/g;
+  let m;
+  while ((m = re.exec(svg))){
+    const attrs = m[1], inner = m[2];
+    const fm = /font-family="([^"]*)"/.exec(attrs);
+    if (!fm) continue;
+    const fams = famList(fm[1]);
+    const w = +((/font-weight="(\d+)"/.exec(attrs) || [,'400'])[1]);
+    // tspan이 굵기를 덮어쓰는 경우가 있어 (예: 점수의 '/100') 분리해서 센다
+    let rest = inner;
+    const ts = /<tspan\b([^>]*)>([\s\S]*?)<\/tspan>/g;
+    let t;
+    while ((t = ts.exec(inner))){
+      const tw = +((/font-weight="(\d+)"/.exec(t[1]) || [, String(w)])[1]);
+      add(fams, tw, unesc(t[2].replace(/<[^>]*>/g,'')));
+    }
+    rest = rest.replace(ts, '');
+    add(fams, w, unesc(rest.replace(/<[^>]*>/g,'')));
+  }
+  return [...groups.values()];
+}
+// 글자마다 CSS 폰트 폴백을 그대로 흉내 내 '실제로 쓰일 face'만 고른다.
+// (그래서 Noto Serif KR이 커버하는 라틴 때문에 Cormorant까지 받는 낭비가 없다)
+function rpPickFaces(groups, faces){
+  const covers = (f, cp) => !f.ranges || f.ranges.some(([a,b])=>cp>=a && cp<=b);
+  const dist = (f, w) => (w >= f.wmin && w <= f.wmax) ? 0 : Math.min(Math.abs(w-f.wmin), Math.abs(w-f.wmax));
+  const need = new Set();
+  for (const g of groups){
+    for (const ch of g.chars){
+      const cp = ch.codePointAt(0);
+      if (cp === 32 || cp === 10 || cp === 9) continue;
+      for (const fam of g.fams){
+        const cands = faces.filter(f => f.family.toLowerCase() === fam.toLowerCase() && covers(f, cp));
+        if (!cands.length) continue;                 // 이 패밀리엔 없는 글자 → 다음 폴백으로
+        cands.sort((a,b)=>dist(a,g.w)-dist(b,g.w));
+        need.add(cands[0]);
+        break;
+      }
+    }
+  }
+  return [...need];
+}
+async function rpFontB64(url){
+  if (_rpFontData.has(url)) return _rpFontData.get(url);
+  const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  let s = '';
+  for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i+0x8000));
+  const b64 = btoa(s);
+  _rpFontData.set(url, b64);
+  return b64;
+}
+async function rpFontStyle(svg){
+  const faces = await rpLoadFaces();
+  if (!faces.length) return '';
+  const need = rpPickFaces(rpTextGroups(svg), faces);
+  const out = [];
+  for (const f of need){
+    let b64;
+    try{ b64 = await rpFontB64(f.url); }catch(e){ continue; }   // 한 조각 실패해도 나머지는 살린다
+    out.push(`@font-face{font-family:'${f.family}';font-style:${f.style};font-display:block;`
+      + `font-weight:${f.wmin === f.wmax ? f.wmin : f.wmin + ' ' + f.wmax};`
+      + `src:url(data:font/woff2;base64,${b64}) format('${f.fmt}');`
+      + (f.ranges ? `unicode-range:${f.ranges.map(([a,b])=>a===b?`U+${a.toString(16)}`:`U+${a.toString(16)}-${b.toString(16)}`).join(',')};` : '')
+      + `}`);
+  }
+  return out.length ? `<defs><style type="text/css">${out.join('')}</style></defs>` : '';
+}
+// 카드가 그려질 때 미리 받아둔다 — 저장 버튼을 눌렀을 때 await가 길어지면
+// iOS에서 공유 시트(navigator.share)의 사용자 제스처 창을 놓칠 수 있다.
+function rpWarmFonts(){
+  try{ rpFontStyle(rpSVG(rpData())).catch(()=>{}); }catch(e){}
+}
+
+async function rpSavePng(){
   const d = rpData();
   let svg = rpSVG(d);
   const vb = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
   const PW = +vb[1], PH = +vb[2];
   svg = svg.replace('class="rp-svg"', `width="${PW}" height="${PH}"`);
+  // 폰트 임베드 (실패해도 저장은 계속 — 예전처럼 기본 폰트로 나간다)
+  try{
+    const style = await rpFontStyle(svg);
+    if (style) svg = svg.replace(/>/, m => m + style);   // 함수 치환 — base64에 $ 패턴이 먹히지 않게
+  }catch(e){}
   const img = new Image();
   img.onload = ()=>{
     const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
     cv.getContext('2d').drawImage(img, 0, 0, PW, PH);
+    if (img._rpUrl) URL.revokeObjectURL(img._rpUrl);
     cv.toBlob(async b=>{
       const today = new Date();
       const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
@@ -1721,8 +1866,25 @@ function rpSavePng(){
       rcToast('리포트 이미지를 저장했어요');
     });
   };
-  img.onerror = ()=>rcToast('이미지 생성에 실패했어요 — 스크린샷으로 저장해 주세요');
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  // 폰트를 심으면 SVG가 커진다(≈1MB) → data URL 대신 blob URL.
+  // blob은 같은 출처라 canvas가 오염되지 않는다. 실패하면 예전 data URL로 되돌린다.
+  let triedFallback = false;
+  img.onerror = ()=>{
+    if (!triedFallback){
+      triedFallback = true;
+      if (img._rpUrl){ URL.revokeObjectURL(img._rpUrl); img._rpUrl = null; }
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      return;
+    }
+    rcToast('이미지 생성에 실패했어요 — 스크린샷으로 저장해 주세요');
+  };
+  try{
+    img._rpUrl = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
+    img.src = img._rpUrl;
+  }catch(e){
+    triedFallback = true;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
 }
 
 
