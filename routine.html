@@ -1540,14 +1540,17 @@ function rpSVG(d){
   if (d.dupCut)  cutList.push({t:'성분 중복',        v:d.dupCut});
   if (d.axAvoid && d.ax) cutList.push({t:'조건에 안 맞는 성분', v:d.axAvoid});
   if (d.axGap   && d.ax) cutList.push({t:'핵심 성분 공백',     v:d.axGap});
-  if (!d.fit && !d.ax)   cutList.push({t:'조건 미선택',        v:8});
-  const cuts = cutList.sort((a,b)=>b.v-a.v).slice(0,3).map(x=>`${x.t} −${x.v}`);
+  // 만점 기준이 92+fit(8) 이라, fit 을 못 받으면 8점이 '보이지 않는 감점'이 된다.
+  // 표기하지 않으면 카드의 뺄셈이 100과 안 맞아 "왜 53점이지?"가 된다 (2026-08-19)
+  if (!d.fit) cutList.push({t: d.ax ? '조건 미충족' : '조건 미선택', v:8});
+  // 상위 3개만 자르면 합이 안 맞는다 — 전부 싣고 대신 글자를 줄인다
+  const cutsTxt = cutList.sort((a,b)=>b.v-a.v).map(x=>`${x.t} −${x.v}`).join(' · ');
 
   // ── 세로 레이아웃 커서 ──
   // 행 압축 (2026-08-19): 제품이 많아도 1080×1920(9:16)을 지키려고 행 높이와 글자를
   // 같은 비율 K로 함께 줄인다. 폭(RW)은 그대로라 글자가 작아진 만큼 제품명이 더 들어간다.
   // K가 하한(0.70)에 닿으면 그때부터는 카드가 아래로 길어진다.
-  const FIXED_H = 208 + 196 + 46 + 52 + 46 + 118;   // 감점 줄은 점수 옆으로 옮겨 높이를 안 먹는다
+  const FIXED_H = 208 + 234 + 46 + 52 + 46 + 118;   // 234 = 워드마크~요약. 감점 한 줄 포함
   const RH0 = 118, RGAP0 = 18;
   let K = 1;
   if (rows.length){
@@ -1560,13 +1563,13 @@ function rpSVG(d){
   const persona = rpPersona(d);
 
   // 인스타 스토리 비율(1080×1920) 고정 — 남는 높이는 헤더 위·목록 아래로 분배 (2026-08-18)
-  const natural = 208 + 196 + 46
+  const natural = 208 + 234 + 46
                 + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118;
   const H = Math.max(1920, natural);
   const slack = H - natural;
   const OFF = Math.floor(slack * 0.45);                // 블록 전체를 아래로 — 위 45% / 아래 55%
   const headB = 208 + OFF;
-  const scoreB = headB + 196;
+  const scoreB = headB + 234;
   const listY = scoreB + 46;
   const listB = listY + rows.length*(RH+RGAP) - RGAP;
   const legY = listB + 52;
@@ -1589,19 +1592,16 @@ function rpSVG(d){
 
   // ── 점수 ── 옛날식 숫자(Cormorant)로 — 자릿수마다 높이가 달라 숫자가 덜 딱딱하다
   const sc = String(d.score);
-  const scB = headB + 96;
+  const scB = headB + 92;
   s += `<text x="${W/2}" y="${scB}" text-anchor="middle" font-family="${FN}" font-size="112" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-family="${F}" font-size="32" fill="${MUTED}" font-weight="500"> /100</tspan></text>`;
-  // 감점 사유 — 점수 오른쪽에 작게. 자릿수당 0.50em은 Cormorant 숫자 최대폭(0.49em) 기준 안전값
-  if (cuts.length){
-    const blockW = sc.length*0.50*112 + 2.28*32;
-    const cx0 = W/2 + blockW/2 + 14;
-    const y0 = scB - 26 - (cuts.length-1)*13;
-    cuts.forEach((c,i)=>{
-      s += `<text x="${cx0}" y="${y0 + i*26}" font-family="${F}" font-size="18" font-weight="600" fill="${CORAL}">${e2(c)}</text>`;
-    });
+  // 감점 사유 — 점수 바로 아래 한 줄. 오른쪽에 쌓으면 폭이 350px뿐이라 다 못 싣는다.
+  // 가운데 정렬 한 줄이면 912px 를 쓰므로 항목을 자르지 않아도 된다 (2026-08-19)
+  if (cutsTxt){
+    const cSize = Math.max(13, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
+    s += `<text x="${W/2}" y="${headB+148}" text-anchor="middle" font-family="${F}" font-size="${cSize}" font-weight="600" fill="${CORAL}">${e2(cutsTxt)}</text>`;
   }
-  s += `<text x="${W/2}" y="${headB+146}" text-anchor="middle" font-family="${F}" font-size="30" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
-  s += `<text x="${W/2}" y="${headB+184}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize+2,24)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
+  s += `<text x="${W/2}" y="${headB+190}" text-anchor="middle" font-family="${F}" font-size="30" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
+  s += `<text x="${W/2}" y="${headB+222}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize+2,24)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
 
   // 구분선
   s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
