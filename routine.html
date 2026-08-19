@@ -1462,7 +1462,7 @@ function rpSVG(d){
 
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
-  const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, 7);
+  const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, 12);
   const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,3) : []);
   const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);
   const badProd = new Map();
@@ -1501,7 +1501,18 @@ function rpSVG(d){
   const cutsSize = Math.max(15, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
 
   // ── 세로 레이아웃 커서 ──
-  const RH = 118, RGAP = 18;
+  // 행 압축 (2026-08-19): 제품이 많아도 1080×1920(9:16)을 지키려고 행 높이와 글자를
+  // 같은 비율 K로 함께 줄인다. 폭(RW)은 그대로라 글자가 작아진 만큼 제품명이 더 들어간다.
+  // K가 하한(0.70)에 닿으면 그때부터는 카드가 아래로 길어진다.
+  const FIXED_H = 208 + 196 + (cuts.length ? 42 : 0) + 46 + 52 + 46 + 118;
+  const RH0 = 118, RGAP0 = 18;
+  let K = 1;
+  if (rows.length){
+    const need = rows.length*(RH0+RGAP0) - RGAP0;
+    if (need > 1920 - FIXED_H) K = Math.max(0.70, (1920 - FIXED_H) / need);
+  }
+  const RH = Math.floor(RH0*K), RGAP = Math.floor(RGAP0*K);   // 반올림하면 몇 px 넘쳐 9:16이 깨진다
+  const kk = v => Math.round(v*K*10)/10;
   const combo = rpCombo();
   const persona = rpPersona(d);
 
@@ -1574,40 +1585,40 @@ function rpSVG(d){
     const y = rowY(i);
     if (r.t === 'g'){
       const st = r.hot ? CORAL : 'rgba(32,34,30,0.30)';
-      s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${st}" stroke-width="2.2" stroke-dasharray="8 7"/>`;
-      s += `<text x="${RX+30}" y="${y+50}" font-family="${F}" font-size="28" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
-      s += `<text x="${RX+30}" y="${y+86}" font-family="${F}" font-size="21" fill="${MUTED}">${e2(r.sub)} — 비어 있어요</text>`;
+      s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="none" stroke="${st}" stroke-width="2.2" stroke-dasharray="8 7"/>`;
+      s += `<text x="${RX+kk(30)}" y="${y+kk(50)}" font-family="${F}" font-size="${kk(28)}" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
+      s += `<text x="${RX+kk(30)}" y="${y+kk(86)}" font-family="${F}" font-size="${kk(21)}" fill="${MUTED}">${e2(r.sub)} — 비어 있어요</text>`;
       return;
     }
     const p = r.p;
-    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="${NODE}"/>`;
-    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="18" fill="none" stroke="${HAIR}" stroke-width="1.2"/>`;
+    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="${NODE}"/>`;
+    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="none" stroke="${HAIR}" stroke-width="1.2"/>`;
     // 슬롯 칩
     const label = rpSlotKo(p);
-    const bw = label.length*19 + 24;
-    s += `<rect x="${RX+22}" y="${y+20}" width="${bw}" height="34" rx="17" fill="${WASH}"/>`;
-    s += `<text x="${RX+22+bw/2}" y="${y+44}" text-anchor="middle" font-family="${F}" font-size="18" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
+    const bw = label.length*kk(19) + kk(24);
+    s += `<rect x="${RX+kk(22)}" y="${y+kk(20)}" width="${bw}" height="${kk(34)}" rx="${kk(17)}" fill="${WASH}"/>`;
+    s += `<text x="${RX+kk(22)+bw/2}" y="${y+kk(44)}" text-anchor="middle" font-family="${F}" font-size="${kk(18)}" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
     // 브랜드 (칩 옆)
-    s += `<text x="${RX+22+bw+14}" y="${y+44}" font-family="${F}" font-size="19" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
+    s += `<text x="${RX+kk(22)+bw+kk(14)}" y="${y+kk(44)}" font-family="${F}" font-size="${kk(19)}" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
     // 제품명
     let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
     if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
     const slot = slotOf(p)[0];
-    const rightPad = (TIME_KO[slot] ? 108 : 0) + (badProd.has(p) ? 52 : 0) + 30;
-    const nameMax = Math.floor((RW - 52 - rightPad) / 25);
+    const rightPad = (TIME_KO[slot] ? kk(108) : 0) + (badProd.has(p) ? kk(52) : 0) + kk(30);
+    const nameMax = Math.floor((RW - kk(52) - rightPad) / kk(25));
     if (nm.length > nameMax) nm = nm.slice(0, nameMax-1)+'…';
-    s += `<text x="${RX+26}" y="${y+90}" font-family="${F}" font-size="26" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
+    s += `<text x="${RX+kk(26)}" y="${y+kk(90)}" font-family="${F}" font-size="${kk(26)}" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
     // 오른쪽: 시간 태그 + 조건 배지
-    let rx = RX + RW - 26;
+    let rx = RX + RW - kk(26);
     if (badProd.has(p)){
-      s += `<circle cx="${rx-16}" cy="${y+RH/2}" r="16" fill="${CORAL}"/>`
-        +  `<text x="${rx-16}" y="${y+RH/2+7}" text-anchor="middle" font-family="${F}" font-size="20" font-weight="800" fill="${CARD}">!</text>`;
-      rx -= 52;
+      s += `<circle cx="${rx-kk(16)}" cy="${y+RH/2}" r="${kk(16)}" fill="${CORAL}"/>`
+        +  `<text x="${rx-kk(16)}" y="${y+RH/2+kk(7)}" text-anchor="middle" font-family="${F}" font-size="${kk(20)}" font-weight="800" fill="${CARD}">!</text>`;
+      rx -= kk(52);
     }
     if (TIME_KO[slot]){
-      const tw = 96;
-      s += `<rect x="${rx-tw}" y="${y+RH/2-18}" width="${tw}" height="36" rx="18" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
-        +  `<text x="${rx-tw/2}" y="${y+RH/2+8}" text-anchor="middle" font-family="${F}" font-size="19" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
+      const tw = kk(96);
+      s += `<rect x="${rx-tw}" y="${y+RH/2-kk(18)}" width="${tw}" height="${kk(36)}" rx="${kk(18)}" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
+        +  `<text x="${rx-tw/2}" y="${y+RH/2+kk(8)}" text-anchor="middle" font-family="${F}" font-size="${kk(19)}" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
     }
   });
   s += glyphs;
