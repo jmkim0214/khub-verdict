@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>루틴 가이드 — 더마릭</title>
 <meta name="description" content="쓰고 있는 화장품들을 등록하면 성분 기준으로 같이 쓰면 안 되는 조합, 아침/저녁 분리, 궁합 좋은 조합을 알려드려요. 식약처 고시 전성분 기반.">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: light;
@@ -1484,6 +1484,7 @@ function rpSVG(d){
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
   const FS = "'Noto Serif KR','Cormorant Garamond',Georgia,serif";
+  const FN = "'Cormorant Garamond',Georgia,serif";   // 점수 숫자 전용 — 옛날식(높이가 들쭉날쭉한) 숫자
   const BG='#F5F1E8', CARD='#FFFEFB', OLIVE='#596044', INK='#20221E', SUB='#5B5D55',
         MUTED='#8F9184', WASH='rgba(89,96,68,0.10)', NODE='#F7F3EA', HAIR='rgba(32,34,30,0.14)',
         GOLD='#B49A62', CORAL='#D95C4F', CORALSOFT='rgba(217,92,79,0.10)';
@@ -1517,25 +1518,23 @@ function rpSVG(d){
   const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.55 : 1), 0);
   const sumW = W - MG*2;
   const sumSize = Math.max(17, Math.min(27, Math.floor(sumW / Math.max(1, textW(summary)))));
-  // 감점 내역 — 무엇이 깎였는지 이름까지 한 줄에 (2026-08-17)
-  const cuts = [];
-  (d.axi||[]).filter(x=>x.cut).forEach(x=>cuts.push(`${x.cutKo||'감점'} −${x.cut}`));
-  if (d.nClash) cuts.push(`상충 −${d.nClash*25}`);
-  if (d.nSplit) cuts.push(`분리 필요 −${d.nSplit*8}`);
-  if (d.dupCut) cuts.push(`성분 중복 −${d.dupCut}`);
-  if (!d.fit && !d.ax) cuts.push('조건 미선택 −8');
-  if (d.axAvoid && d.ax) cuts.push(`조건에 안 맞는 성분 −${d.axAvoid} (${d.ax.avoid.slice(0,2).map(x=>axKo(x.cls)).join('·')})`);
-  if (d.axGap && d.ax) cuts.push(`핵심 성분 공백 −${d.axGap} (${d.ax.gap.slice(0,2).map(x=>{
-    const r = axRole(x.cls); return (r?r+' 담당 ':'')+axKo(x.cls);
-  }).join('·')} 없음)`);
-  const cutsTxt = cuts.join('  ·  ');
-  const cutsSize = Math.max(15, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
+  // 감점 내역 (2026-08-19 개편): 점수 오른쪽에 작게 쌓는다.
+  // 자리가 좁으니 라벨+숫자만 — 어떤 성분이 왜 깎였는지 상세는 아래 목록·이슈가 맡는다.
+  const cutList = [];
+  (d.axi||[]).filter(x=>x.cut).forEach(x=>cutList.push({t:x.cutKo||'감점', v:x.cut}));
+  if (d.nClash)  cutList.push({t:'상충',            v:d.nClash*25});
+  if (d.nSplit)  cutList.push({t:'분리 필요',        v:d.nSplit*8});
+  if (d.dupCut)  cutList.push({t:'성분 중복',        v:d.dupCut});
+  if (d.axAvoid && d.ax) cutList.push({t:'조건에 안 맞는 성분', v:d.axAvoid});
+  if (d.axGap   && d.ax) cutList.push({t:'핵심 성분 공백',     v:d.axGap});
+  if (!d.fit && !d.ax)   cutList.push({t:'조건 미선택',        v:8});
+  const cuts = cutList.sort((a,b)=>b.v-a.v).slice(0,3).map(x=>`${x.t} −${x.v}`);
 
   // ── 세로 레이아웃 커서 ──
   // 행 압축 (2026-08-19): 제품이 많아도 1080×1920(9:16)을 지키려고 행 높이와 글자를
   // 같은 비율 K로 함께 줄인다. 폭(RW)은 그대로라 글자가 작아진 만큼 제품명이 더 들어간다.
   // K가 하한(0.70)에 닿으면 그때부터는 카드가 아래로 길어진다.
-  const FIXED_H = 208 + 196 + (cuts.length ? 42 : 0) + 46 + 52 + 46 + 118;
+  const FIXED_H = 208 + 196 + 46 + 52 + 46 + 118;   // 감점 줄은 점수 옆으로 옮겨 높이를 안 먹는다
   const RH0 = 118, RGAP0 = 18;
   let K = 1;
   if (rows.length){
@@ -1548,13 +1547,13 @@ function rpSVG(d){
   const persona = rpPersona(d);
 
   // 인스타 스토리 비율(1080×1920) 고정 — 남는 높이는 헤더 위·목록 아래로 분배 (2026-08-18)
-  const natural = 208 + 196 + (cuts.length ? 42 : 0) + 46
+  const natural = 208 + 196 + 46
                 + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118;
   const H = Math.max(1920, natural);
   const slack = H - natural;
   const OFF = Math.floor(slack * 0.45);                // 블록 전체를 아래로 — 위 45% / 아래 55%
   const headB = 208 + OFF;
-  const scoreB = headB + 196 + (cuts.length ? 42 : 0);
+  const scoreB = headB + 196;
   const listY = scoreB + 46;
   const listB = listY + rows.length*(RH+RGAP) - RGAP;
   const legY = listB + 52;
@@ -1566,19 +1565,30 @@ function rpSVG(d){
   s += `<rect x="44" y="44" width="${W-88}" height="${H-88}" rx="24" fill="none" stroke="${OLIVE}" stroke-width="2"/>`;
 
   // ── 헤더: 세리프 워드마크 + 골드 서명 ──
-  s += `<text x="${W/2}" y="${128+OFF}" text-anchor="middle" font-family="${FS}" font-size="50" font-weight="700" fill="${INK}" letter-spacing="7">더마릭</text>`;
-  s += `<text x="${W/2}" y="${170+OFF}" text-anchor="middle" font-family="${FS}" font-size="19" fill="${GOLD}" letter-spacing="8">ROUTINE REPORT</text>`;
+  // 날짜는 오른쪽 상단 주석으로 뺀다 (2026-08-19) — 가운데 줄은 조건 조합만 남긴다
   const today = new Date();
   const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-  s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="24" fill="${MUTED}">${combo ? e2(combo)+' · ' : ''}${date}</text>`;
+  s += `<text x="${W-MG}" y="104" text-anchor="end" font-family="${F}" font-size="19" fill="${MUTED}" letter-spacing="1">${date}</text>`;
+  s += `<text x="${W/2}" y="${128+OFF}" text-anchor="middle" font-family="${FS}" font-size="50" font-weight="700" fill="${INK}" letter-spacing="7">더마릭</text>`;
+  s += `<text x="${W/2}" y="${168+OFF}" text-anchor="middle" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="8">ROUTINE REPORT</text>`;
+  if (combo)
+    s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="24" fill="${MUTED}">${e2(combo)}</text>`;
 
-  // ── 점수 ──
+  // ── 점수 ── 옛날식 숫자(Cormorant)로 — 자릿수마다 높이가 달라 숫자가 덜 딱딱하다
   const sc = String(d.score);
-  s += `<text x="${W/2}" y="${headB+96}" text-anchor="middle" font-family="${FS}" font-size="112" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-size="32" fill="${MUTED}" font-weight="400"> /100</tspan></text>`;
+  const scB = headB + 96;
+  s += `<text x="${W/2}" y="${scB}" text-anchor="middle" font-family="${FN}" font-size="112" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-family="${F}" font-size="32" fill="${MUTED}" font-weight="500"> /100</tspan></text>`;
+  // 감점 사유 — 점수 오른쪽에 작게. 자릿수당 0.50em은 Cormorant 숫자 최대폭(0.49em) 기준 안전값
+  if (cuts.length){
+    const blockW = sc.length*0.50*112 + 2.28*32;
+    const cx0 = W/2 + blockW/2 + 14;
+    const y0 = scB - 26 - (cuts.length-1)*13;
+    cuts.forEach((c,i)=>{
+      s += `<text x="${cx0}" y="${y0 + i*26}" font-family="${F}" font-size="18" font-weight="600" fill="${CORAL}">${e2(c)}</text>`;
+    });
+  }
   s += `<text x="${W/2}" y="${headB+146}" text-anchor="middle" font-family="${F}" font-size="30" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
   s += `<text x="${W/2}" y="${headB+184}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize+2,24)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
-  if (cuts.length)
-    s += `<text x="${W/2}" y="${headB+222}" text-anchor="middle" font-family="${F}" font-size="${Math.min(cutsSize+2,22)}" fill="${CORAL}">${e2(cutsTxt)}</text>`;
 
   // 구분선
   s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
@@ -1741,7 +1751,7 @@ async function rpShare(){
 // base64 @font-face로 SVG 안에 심는다. 한글 전체(수 MB)가 아니라 보통 10~15조각(≈300KB).
 const RP_FONT_CSS = [
   'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css',
-  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap'
 ];
 let _rpFaces = null;                 // 파싱된 @font-face 목록 (1회)
 const _rpFontData = new Map();       // woff2 URL → base64 (세션 캐시)
@@ -1812,7 +1822,9 @@ function rpTextGroups(svg){
     let t;
     while ((t = ts.exec(inner))){
       const tw = +((/font-weight="(\d+)"/.exec(t[1]) || [, String(w)])[1]);
-      add(fams, tw, unesc(t[2].replace(/<[^>]*>/g,'')));
+      // tspan이 폰트를 갈아끼우는 경우가 있다 (점수의 '/100'은 세리프 숫자 옆에 산세리프)
+      const tf = /font-family="([^"]*)"/.exec(t[1]);
+      add(tf ? famList(tf[1]) : fams, tw, unesc(t[2].replace(/<[^>]*>/g,'')));
     }
     rest = rest.replace(ts, '');
     add(fams, w, unesc(rest.replace(/<[^>]*>/g,'')));
