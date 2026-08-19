@@ -758,22 +758,30 @@ const AX_STRICT = ['AHA','BHA','PHA','VITC','ALC','RET','BAKU'];
 // 고민 조합·계절·연령이 뭐든 바뀌지 않는 것들만 여기 둔다. 조건별 판단은 axDiff가 맡는다.
 // 감점은 '선크림 없음'에만 건다 — 클렌저·크림은 안 쓰는 게 아니라 '등록 안 했을' 가능성이
 // 크고, 그걸 점수로 깎으면 도구가 사용자를 틀렸다고 우기게 된다. 활성 과다는 등록된 사실이라 감점.
-const AX_ACT = ['RET','AHA','BHA','VITC'];
+// 두 목록은 쓰임이 다르다 (2026-08-19에 분리).
+// AX_ACT : 선크림 없이 쓰면 위험이 커지는 광민감 계열 — '선크림 없음' 감점을 15→20으로 올리는 근거.
+//          BPO 추가: FDA가 BPO 함유 OTC 여드름약에 자외선 노출 경고를 라벨로 요구한다.
+//          아젤라익산은 일부러 뺐다 — 자극 성분이긴 하나 UV·가시광을 흡수하지 않아 광민감을 높이지 않는다.
+// AX_IRR : 자극이 누적되는 계열 — '활성 과다' 판정용. 여기엔 아젤라익산도 들어간다.
+const AX_ACT = ['RET','AHA','BHA','VITC','BPO'];
+const AX_IRR = ['RET','AHA','BHA','VITC','BPO','AZE'];
 function axioms(){
   const cos = shelf.filter(p=>!p.d);
   const slotKo = p => rpSlotKo(p);
   const hasSun  = cos.some(isSun);
   const hasMoist = cos.some(p=>['크림','로션','올인원'].includes(slotKo(p)));
   const hasClean = cos.some(p=>slotKo(p)==='클렌저' || p.w);
-  const acts = AX_ACT.filter(c=>cos.some(p=>has(p,c)));
+  const acts = AX_ACT.filter(c=>cos.some(p=>has(p,c)));       // 광민감 — 선크림 판정용
   const actKo = acts.map(c=>CLS[c]?CLS[c].ko:c);
+  const irrs = AX_IRR.filter(c=>cos.some(p=>has(p,c)));       // 자극 누적 — 활성 과다 판정용
+  const irrKo = irrs.map(c=>CLS[c]?CLS[c].ko:c);
   const out = [];
   if (!hasSun){
     const strong = acts.length > 0;
     out.push({key:'sun', g:'clash', cut: strong ? 20 : 15, icon:'sun', cutKo:'선크림 없음',
       t:'선크림이 없어요 — 어떤 조합에도 들어가는 단계예요',
       s: strong
-        ? `${actKo.join('·')}를 쓰는 동안에는 자외선차단이 한 세트예요. 안 바르면 이 성분들이 하는 일을 상쇄합니다.`
+        ? `${actKo.join('·')}를 쓰는 동안에는 자외선차단이 한 세트예요. 안 바르면 이 성분들이 하는 일을 상쇄하고, 같은 햇빛에도 더 쉽게 붉어지거나 탑니다.`
         : '자외선 차단은 피부고민·계절·나이와 무관하게 기본 단계예요.'});
   } else {
     out.push({key:'sun', g:'good', cut:0, ok:true, t:'선크림 있음 — 기본은 지켰어요', s:''});
@@ -786,9 +794,9 @@ function axioms(){
     out.push({key:'clean', g:'note', cut:0,
       t:'클렌징 단계가 안 보여요',
       s:'등록만 안 하셨을 수 있어 점수에는 반영하지 않았어요.'});
-  if (acts.length >= 3)
+  if (irrs.length >= 3)
     out.push({key:'acts', g:'split', cut:5, cutKo:'활성 과다',
-      t:`활성 성분을 한꺼번에 ${acts.length}종 쓰고 있어요 — ${actKo.join('·')}`,
+      t:`활성 성분을 한꺼번에 ${irrs.length}종 쓰고 있어요 — ${irrKo.join('·')}`,
       s:'자극은 성분별로 따로가 아니라 합쳐서 누적돼요. 하나씩 2~4주 간격으로 들이고, 겹치는 날은 줄이는 게 일반적 권고예요.'});
   // 같은 단계 과다 (2026-08-19): 성분이 안 겹쳐도 세럼 7개짜리 루틴은 현실적으로 유지되지 않는다.
   // 그전엔 이 판정 자체가 없어서 같은 단계를 몇 개 담든 점수에 아무 영향이 없었다.
