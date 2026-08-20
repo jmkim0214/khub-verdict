@@ -1499,12 +1499,18 @@ const RP_CAT_EN = {'클렌저':'CLEANSER','토너':'TONER','패드':'PAD','미�
 //   "리들샷 100 에센스 30ml 더블 기획 +피디알엔…" → "리들샷 100 에센스 30ml"
 //   '+' 뒤 기획·리필 구성은 제거하되 "10% + 징크 1%" 처럼 앞에 %가 있으면 제품명이므로 유지.
 //   3D · 0.3% 같은 숫자+문자 표기는 용량으로 오인하지 않는다.
-const RP_UNIT = /(?:^|[^A-Za-z0-9])(\d+(?:\.\d+)?)\s?(ml|mL|ML|g|G|kg|ea|정|매|호)(?![A-Za-z0-9가-힣])/;
+// 2026-08-20: 용량 자체도 지운다. "갈색병 세럼 30ml 기획/단품" → "갈색병 세럼"
+// 첫 그룹이 용량 앞 글자를 먹으므로 자르는 위치는 m.index + m[1].length 다.
+const RP_UNIT = /(^|[^A-Za-z0-9])(\d+(?:\.\d+)?)\s?(ml|mL|ML|g|G|kg|ea|정|매|호)(?![A-Za-z0-9가-힣])/;
 function rpTrimName(t){
   t = String(t||'').trim();
   if (t.indexOf('+') >= 0 && t.split('+')[0].indexOf('%') < 0) t = t.split('+')[0].trim();
   const m = t.match(RP_UNIT);
-  if (m) return t.slice(0, m.index + m[0].length).trim();
+  if (m){
+    const head = t.slice(0, m.index + m[1].length).replace(/[\s,·\/(\[-]+$/,'').trim();
+    if (head.length >= 2) return head;        // 용량만 남는 이름은 원문을 지킨다
+    return t.slice(0, m.index + m[0].length).trim();
+  }
   return t.split(/\s*[\/(]/)[0].trim();
 }
 
@@ -1585,6 +1591,15 @@ function rpSVG(d){
   let s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+
           '" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">';
   s += '<rect width="'+W+'" height="'+H+'" fill="'+BG+'"/>';
+  // 종이 질감 — 웹에는 body::after 로 그레인이 얹히는데 저장본(SVG만 래스터)에는 없어서
+  // 다운로드하면 배경이 밋밋해 보였다. 카드 안에 넣어 둘을 맞춘다 (2026-08-20).
+  // 글자 위가 아니라 배경 위에만 깔아서 텍스트는 또렷하게 남긴다.
+  s += '<filter id="rpGrain" x="0" y="0" width="100%" height="100%">'
+     + '<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/>'
+     + '<feColorMatrix type="saturate" values="0"/></filter>';
+  // fill 을 배경색으로 둔다 — 필터를 못 그리는 렌더러에서 rect 기본색(검정)이
+  // 회색 막처럼 덮이는 사고를 막는 안전장치다.
+  s += '<rect width="'+W+'" height="'+H+'" fill="'+BG+'" filter="url(#rpGrain)" opacity="0.14"/>';
 
   // ── 1. 브랜드 바 ───────────────────────────────────────
   s += T(MG, 78, 'THEMARIC', {serif:1, s:19, w:500, ls:5});
@@ -1655,17 +1670,20 @@ function rpSVG(d){
     s += T(MG, cy+5, RP_CAT_EN[rpSlotKo(p)] || 'CARE', {s:13, w:500, ls:0.9, c:'#242424'});
     let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
     if (p.b && nm.indexOf(p.b) === 0) nm = rpTrimName(nm.slice(p.b.length).trim());
-    const bad = badProd.has(p) ? '<tspan fill="'+OLIVE+'" dx="7">*</tspan>' : '';
+    const bad = badProd.has(p) ? '<tspan fill="'+OLIVE+'"> *</tspan>' : '';
     const brand = String(p.b||'').slice(0,16);
+    const tag = TIME_KO[slotOf(p)[0]];
+    // 제품명을 키우되(21px) 태그 자리를 침범하면 그만큼 줄인다
+    const avail = CW - CAT_W - (tag ? 76 : 0) - 16;
+    const nSize = Math.max(16, Math.min(21, Math.floor(avail / Math.max(1, textW(nm)))));
     if (brand){
-      s += T(MG+CAT_W, cy-8, brand, {s:13, c:META});
-      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+18)+'" font-family="'+F+'" font-size="18" font-weight="600" fill="'+
+      s += T(MG+CAT_W, cy-10, brand, {s:13, c:META});
+      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+19)+'" font-family="'+F+'" font-size="'+nSize+'" font-weight="600" fill="'+
            INK+'">'+e2(nm)+bad+'</text>';
     } else {
-      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+6)+'" font-family="'+F+'" font-size="18" font-weight="600" fill="'+
+      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+7)+'" font-family="'+F+'" font-size="'+nSize+'" font-weight="600" fill="'+
            INK+'">'+e2(nm)+bad+'</text>';
     }
-    const tag = TIME_KO[slotOf(p)[0]];
     if (tag){
       const tw = 62;
       s += '<rect x="'+(W-MG-tw)+'" y="'+(cy-13.5)+'" width="'+tw+'" height="27" rx="13.5" fill="none" stroke="'+
@@ -1938,14 +1956,22 @@ async function rpSavePng(){
       const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
       const fname = `themaric_routine_${ymd}.png`;
       // 모바일(iOS 등): 공유 시트 → '이미지 저장'으로 사진 앱에 바로 저장
-      try{
-        const file = new File([b], fname, {type:'image/png'});
-        if (navigator.canShare && navigator.canShare({files:[file]})){
-          await navigator.share({files:[file], title:'더마릭 루틴 리포트'});
-          rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
-          return;
-        }
-      }catch(e){ if (e && e.name === 'AbortError') return; /* 취소 — 조용히 종료 */ }
+      // 공유 시트는 iOS 에서만 쓴다 (2026-08-20).
+      // 데스크톱·안드로이드 크롬도 canShare 를 true 로 돌려주는 바람에
+      // '저장'을 눌렀는데 앱 목록만 뜨고 파일이 안 받아지는 일이 있었다.
+      // iOS 는 blob 다운로드가 사진 앱으로 안 들어가서 공유 시트가 사실상 유일한 경로다.
+      const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent)
+                 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS){
+        try{
+          const file = new File([b], fname, {type:'image/png'});
+          if (navigator.canShare && navigator.canShare({files:[file]})){
+            await navigator.share({files:[file], title:'더마릭 루틴 리포트'});
+            rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
+            return;
+          }
+        }catch(e){ if (e && e.name === 'AbortError') return; /* 취소 — 조용히 종료 */ }
+      }
       // 데스크톱/미지원 브라우저: 파일 다운로드
       const a = document.createElement('a');
       a.href = URL.createObjectURL(b);
