@@ -1582,9 +1582,15 @@ function rpSVG(d){
   // ── 세로 리듬 ──────────────────────────────────────────
   const ROW_H = 72, TOP = 656;
   const tableEnd = TOP + rows.length*ROW_H;
-  const notes = Math.min(4, rel.length + badProd.size);   // 4건 넘으면 카드가 끝없이 길어진다
+  // 빠진 단계는 표에도 있지만 주석에서 한 줄로 다시 접어준다 (2026-08-20)
+  const missKo = [];
+  if (sunGap) missKo.push('선크림');
+  gaps.forEach(g=>missKo.push((axRole(g.cls) ? axRole(g.cls)+' ' : '') + axKo(g.cls)));
+  const nBad  = Math.min(badProd.size, Math.max(0, 4 - rel.length));  // 4건 넘으면 카드가 끝없이 길어진다
+  const notes = rel.length + nBad + (missKo.length ? 1 : 0);
+  const NOTE_H = 62;
   const blockTop = tableEnd + 38;
-  const blockEnd = blockTop + 72 + notes*90;
+  const blockEnd = blockTop + 30 + notes*NOTE_H;
   const H = Math.max(1920, blockEnd + 90 + 324);
   const footY = H - 324;
 
@@ -1705,38 +1711,44 @@ function rpSVG(d){
     s += T(gx+7, y0-11, String(k+1), {s:13, w:500, c:col});
   });
 
-  // ── 5. 노트 + 상세 (통합 블록) ─────────────────────────
-  const note = rpNote(d, nClash, nSplit, nDup, sunGap, gaps.length, badProd.size);
-  s += T(MG, blockTop+23, note[0], {s:22, w:600});
-  s += T(MG, blockTop+51, note[1], {s:16, c:SUB});
-  if (notes) s += T(W-MG, blockTop+23, 'ROUTINE NOTES', {serif:1, s:13, w:500, ls:3, c:SUB, a:'end'});
-  s += HR(blockTop+72, HAIR);
+  // ── 5. 주석 ────────────────────────────────────────────
+  // 2026-08-20: 헤드라인과 처방 문장을 걷어냈다. 표 바로 밑에 라벨 + 걸린 제품만.
+  if (notes) s += T(W-MG, blockTop+14, 'ROUTINE NOTES', {serif:1, s:13, w:500, ls:3, c:SUB, a:'end'});
+  s += HR(blockTop+30, HAIR);
 
-  const REL_T   = {clash:'같이 쓰지 마세요', split:'시간대 분리', dup:'성분 중복'};
-  const REL_FIX = {
-    clash:'같은 밤에 겹치면 자극이 커질 수 있어요. 하루씩 번갈아 쓰세요.',
-    split:'시간대를 나누면 둘 다 살릴 수 있어요. 하나는 아침으로 옮기세요.',
-    dup:  '유사 성분이라 하나면 충분해요. 한쪽을 비우면 효과가 또렷해져요.'
+  const REL_T = {clash:'같이 쓰지 마세요', split:'시간대 분리', dup:'성분 중복'};
+  // 표의 제품명과 같은 규칙으로 다듬는다 — [카테고리] 와 중복 브랜드를 지운다
+  const shortNm = p => {
+    let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
+    if (p.b && nm.indexOf(p.b) === 0) nm = rpTrimName(nm.slice(p.b.length).trim());
+    return (p.b ? p.b+' ' : '') + nm;
   };
-  const shortNm = p => (p.b ? p.b+' ' : '') + rpTrimName(String(p.t||''));
-  let ny = blockTop + 72;
+  // 제품 줄은 길어지면 알아서 줄인다 (14 → 11px)
+  const subLine = (y, t) => T(MG+24, y, t,
+    {s: Math.max(11, Math.min(14, Math.floor((CW-24) / Math.max(1, textW(t))))), c:META});
+
+  let ny = blockTop + 30;
   rel.forEach((r, k)=>{
     const col = (r.g === 'dup') ? SUB : OLIVE;
-    s += T(MG, ny+34, String(k+1), {s:13, w:500, c:col});
-    s += T(MG+24, ny+35, r.t || REL_T[r.g], {s:20, w:600});
-    s += T(MG+24, ny+58, shortNm(r.A)+' · '+shortNm(r.B), {s:14, c:META});
-    s += T(MG+24, ny+81, REL_FIX[r.g] || '', {s:14, c:col});
-    ny += 90;
+    s += T(MG, ny+30, String(k+1), {s:13, w:500, c:col});
+    s += T(MG+24, ny+31, r.t || REL_T[r.g], {s:19, w:600});
+    s += subLine(ny+53,shortNm(r.A)+' · '+shortNm(r.B));
+    ny += NOTE_H;
   });
-  let nLeft = notes - rel.length;
+  let nLeft = nBad;
   badProd.forEach((cls, p)=>{
     if (nLeft-- <= 0) return;
-    s += T(MG, ny+34, '*', {s:14, w:600, c:OLIVE});
-    s += T(MG+24, ny+35, '조건에 안 맞는 성분 — '+cls.join('·'), {s:20, w:600});
-    s += T(MG+24, ny+58, shortNm(p), {s:14, c:META});
-    s += T(MG+24, ny+81, '이 조건에선 피하는 쪽이 편해요. 다음엔 다른 걸 골라보세요.', {s:14, c:OLIVE});
-    ny += 90;
+    s += T(MG, ny+30, '*', {s:14, w:600, c:OLIVE});
+    s += T(MG+24, ny+31, '조건에 안 맞는 성분 — '+cls.join('·'), {s:19, w:600});
+    s += subLine(ny+53,shortNm(p));
+    ny += NOTE_H;
   });
+  if (missKo.length){
+    s += T(MG, ny+30, '·', {s:14, w:600, c:SUB});
+    s += T(MG+24, ny+31, '빠진 단계', {s:19, w:600});
+    s += subLine(ny+53,missKo.join(' · '));
+    ny += NOTE_H;
+  }
 
   // ── 6. 푸터 ────────────────────────────────────────────
   s += HR(footY, HAIR);
