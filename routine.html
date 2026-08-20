@@ -325,7 +325,7 @@
       <input id="q" type="search" placeholder="제품명이나 브랜드 검색 (예: 아누아, 레티놀)" autocomplete="off">
       <div class="sresults" id="sr"></div>
     </div>
-    <div class="hint qhint">전성분 확보 3928개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
+    <div class="hint qhint">전성분 확보 4050개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
     <details style="margin-top:10px;">
       <summary style="font-size:13px; color:var(--series); cursor:pointer; font-weight:600;">직접 입력 (전성분 붙여넣기)</summary>
       <div style="margin-top:10px;">
@@ -375,7 +375,7 @@
     <div class="card" style="margin-top:0;">
       <h1>나에게 맞는 <span class="u">추천 루틴</span></h1>
       <p class="lead">해당하는 것을 골라주세요 — 축마다 하나씩, 최대 4개까지 조합됩니다 (예: 건성 × 여드름 × 봄 × 10대).</p>
-      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 3928개 상품에서 고릅니다.</div>
+      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 4050개 상품에서 고릅니다.</div>
     </div>
 
     <div class="card" id="rc-result" style="display:none">
@@ -1463,25 +1463,42 @@ function rpSummary(d){
   return opening + pair + act + more;
 }
 // 기분 좋아지는 한 줄 — 리포트는 성적표가 아니라 자랑거리여야 공유된다 (2026-08-17)
+// 2026-08-19: [앞문장, 강조어] 배열 — 히어로에서 강조어만 올리브로 조판한다
 function rpPersona(d){
   const n = shelf.length;
   const acts = ['RET','AHA','BHA','PHA','VITC','NIA','PEP'].filter(c=>shelf.some(p=>has(p,c))).length;
-  // 점수가 낮을 땐 아부하지 않는다 — 대신 '점검한 행동'을 인정한다 (2026-08-18)
-  if (d.score < 40) return '오늘이 이 화장대의 터닝포인트예요.';
-  if (d.score < 60) return '고칠 곳이 보인다는 건, 이미 절반은 한 거예요.';
-  if (d.score >= 90 && n >= 5) return '이 정도면 저희가 배워야 할 화장대인데요.';
-  if (d.score >= 85) return '성분 궁합까지 챙기는, 흔치 않은 타입이에요.';
-  if (n >= 7) return '화장대에 진심인 코덕 인정.';
-  if (acts >= 3) return '활성 성분을 겁 없이 다루는, 공부한 타입이군요.';
-  if (n <= 3 && d.score >= 70) return '필요한 것만 딱 갖춰 쓰는 똑똑한 타입이군요.';
-  if (d.ax && d.ax.fit.length >= 3) return '조건에 맞는 성분을 이미 골라 쓰고 계시네요.';
-  return '화장대를 점검해본 것만으로 이미 상위권이에요.';
+  if (d.score < 40)  return ['오늘이 이 화장대의 ', '터닝포인트예요.'];
+  if (d.score < 60)  return ['고칠 곳이 보인다는 건 ', '이미 절반은 한 거예요.'];
+  if (d.score >= 90 && n >= 5) return ['저희가 배워야 할 ', '화장대인데요.'];
+  if (d.score >= 85) return ['성분 궁합까지 챙기는 ', '흔치 않은 타입.'];
+  if (n >= 7)        return ['화장대에 진심인 ', '코덕 인정.'];
+  if (acts >= 3)     return ['활성 성분을 겁 없이 다루는 ', '공부한 타입.'];
+  if (n <= 3 && d.score >= 70) return ['필요한 것만 딱 갖춰 쓰는 ', '똑똑한 타입.'];
+  if (d.ax && d.ax.fit.length >= 3) return ['조건에 맞는 성분을 ', '이미 골라 쓰는 중.'];
+  return ['점검해본 것만으로 ', '이미 상위권이에요.'];
 }
+
+// 하단 노트 헤드라인 — 가장 큰 문제 하나만 고른다
+function rpNote(d, nClash, nSplit, nDup, sunGap, nGap, nAvoid){
+  if (sunGap) return ['선크림이 없어요.',            '주름·탄력 루틴의 절반은 여기서 나와요.'];
+  if (nAvoid) return ['조건에 안 맞는 성분.',        '이 조건에선 피하는 쪽이 편해요.'];
+  if (nClash) return ['성분 상충 ' + nClash + '건.', '같은 밤에 겹치지 않게 나눠 쓰세요.'];
+  if (nSplit) return ['시간대 분리 ' + nSplit + '건.', '하루씩 번갈아 쓰면 둘 다 살릴 수 있어요.'];
+  if (nDup)   return ['성분 중복 ' + nDup + '건.',   '비우면 진짜 효과가 보여요.'];
+  if (nGap)   return ['기본이 비어 있어요.',        '한 칸만 채워도 점수가 올라가요.'];
+  if (d.score >= 85) return ['잘 짜인 루틴.',       '지금 조합 그대로 두셔도 좋아요.'];
+  return ['특별한 충돌은 없어요.', '지금 루틴을 유지해도 괜찮아요.'];
+}
+
+// 카테고리 영문 표기 — 좌측 컬럼이 한글보다 조용해진다
+const RP_CAT_EN = {'클렌저':'CLEANSER','토너':'TONER','패드':'PAD','미스트':'MIST',
+  '세럼':'SERUM','로션':'LOTION','올인원':'ALL-IN-ONE','크림':'CREAM','선크림':'SUNSCREEN',
+  '마스크':'MASK','패치':'PATCH','워시오프':'WASH-OFF'};
+
 // 제품명 절삭 (2026-08-19) — 첫 용량 토큰(ml/g/정…)까지만 남기고 뒤는 버린다.
 //   "리들샷 100 에센스 30ml 더블 기획 +피디알엔…" → "리들샷 100 에센스 30ml"
-//   '+' 뒤에 붙는 기획·리필 구성은 통째로 제거. 단 "10% + 징크 1%" 처럼
-//   앞쪽에 %가 있으면 제품명의 일부이므로 자르지 않는다.
-//   3D · 0.3% 처럼 숫자+문자가 붙은 표기는 용량으로 오인하지 않는다.
+//   '+' 뒤 기획·리필 구성은 제거하되 "10% + 징크 1%" 처럼 앞에 %가 있으면 제품명이므로 유지.
+//   3D · 0.3% 같은 숫자+문자 표기는 용량으로 오인하지 않는다.
 const RP_UNIT = /(?:^|[^A-Za-z0-9])(\d+(?:\.\d+)?)\s?(ml|mL|ML|g|G|kg|ea|정|매|호)(?![A-Za-z0-9가-힣])/;
 function rpTrimName(t){
   t = String(t||'').trim();
@@ -1490,49 +1507,61 @@ function rpTrimName(t){
   if (m) return t.slice(0, m.index + m[0].length).trim();
   return t.split(/\s*[\/(]/)[0].trim();
 }
-function rpSVG(d){
-  /* 2026-08-17 v3 — 세로 나열 리디자인. 이 카드는 기능 화면이 아니라 '공유하고 싶은 한 장'이다.
-     제품을 세로로 쌓고, 관계선은 왼쪽 레일에 얇게. 아이콘은 전부 벡터(이모지 금지). */
-  const W = 1080, MG = 84;
-  const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
-  const FS = "'Noto Serif KR','Cormorant Garamond',Georgia,serif";
-  const FN = "'Cormorant Garamond',Georgia,serif";   // 점수 숫자 전용 — 옛날식(높이가 들쭉날쭉한) 숫자
-  const BG='#F5F1E8', CARD='#FFFEFB', OLIVE='#596044', INK='#20221E', SUB='#5B5D55',
-        MUTED='#8F9184', WASH='rgba(89,96,68,0.10)', NODE='#F7F3EA', HAIR='rgba(32,34,30,0.14)',
-        GOLD='#B49A62', CORAL='#D95C4F', CORALSOFT='rgba(217,92,79,0.10)';
-  const COLR = {clash:CORAL, split:'#9A7A2E', dup:'#4E7A6A'};
 
+function rpSVG(d){
+  /* 2026-08-19 v4 — 에디토리얼 조판.
+     장식을 걷어내고 타이포·여백·1px 선만 남긴다. 색은 올리브 하나.
+     관계는 왼쪽 거터의 브래킷으로 표시하되, 가로 팔은 '걸린 제품'에만 뻗는다.
+     세로선만 그으면 사이에 낀 무관한 제품까지 포함으로 읽히기 때문. */
+  const W = 1080, MG = 60, CW = W - MG*2, CAT_W = 145;
+  const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif";
+  const FS = "'Cormorant Garamond', Georgia, serif";
+  const BG='#F6F4F2', INK='#191919', SEC='#464646', SUB='#6E6E6D', LGRAY='#BEBDBA',
+        DIV='#E7E5E2', HAIR='#C8C5C0', OLIVE='#6A715E', RING='#9D9D99', META='#777572';
+
+  const textW = t => [...String(t)].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.5 : 1), 0);
+  const T = (x, y, t, o) => {
+    o = o || {};
+    const at = ['x="'+x+'"','y="'+y+'"',
+      'font-family="'+(o.serif ? FS : F)+'"',
+      'font-size="'+(o.s||18)+'"','fill="'+(o.c||INK)+'"'];
+    if (o.w)  at.push('font-weight="'+o.w+'"');
+    if (o.ls) at.push('letter-spacing="'+o.ls+'"');
+    if (o.a)  at.push('text-anchor="'+o.a+'"');
+    return '<text '+at.join(' ')+'>'+e2(t)+'</text>';
+  };
+  const HR = (y, c, x0, x1) => {
+    const a = (x0===undefined?MG:x0), b = (x1===undefined?W-MG:x1);
+    return '<rect x="'+a+'" y="'+y+'" width="'+(b-a)+'" height="1" fill="'+(c||DIV)+'"/>';
+  };
+
+  // ── 데이터 ─────────────────────────────────────────────
   const SLOT_SEQ = ['클렌저','토너','패드','미스트','세럼','로션','올인원','크림','선크림'];
   const seq = p => { const i = SLOT_SEQ.indexOf(rpSlotKo(p)); return i<0 ? 90 : i; };
   const prods = [...shelf].sort((a,b)=>seq(a)-seq(b)).slice(0, 12);
-  const gaps = (d.ax && d.ax.gap ? d.ax.gap.slice(0,3) : []);
+  const gaps  = (d.ax && d.ax.gap ? d.ax.gap.slice(0,2) : []);
   const sunGap = (d.axi||[]).some(x=>x.key==='sun' && x.cut);
+
+  // 조건에 안 맞는 성분 — 제품별로 모아둔다
   const badProd = new Map();
   if (d.ax) d.ax.avoid.forEach(x=>x.ps.forEach(p=>{
     if (!badProd.has(p)) badProd.set(p, []);
     badProd.get(p).push(axKo(x.cls));
   }));
 
-  // 행 목록: 제품 → (선크림 빈자리) → (조건 빈자리)
-  const rows = prods.map(p=>({t:'p', p}));
-  if (sunGap) rows.push({t:'g', ko:'선크림', sub:'조합과 무관한 기본 단계', hot:true});
-  gaps.forEach(g=>rows.push({t:'g', ko:axKo(g.cls),
-    sub:(axRole(g.cls)?axRole(g.cls)+' 담당':'이 조건의 핵심 성분'), hot:false}));
-
-  // 관계선: 왼쪽 레일. 겹치지 않게 레인 배정
   const idx = new Map(); prods.forEach((p,i)=>idx.set(p,i));
-  const rel = d.rel.filter(pr=>idx.has(pr.A) && idx.has(pr.B)).slice(0,3);
-  const RAILSTEP = 40;
-  const railW = rel.length ? 26 + rel.length*RAILSTEP : 0;
+  const rel = (d.rel||[]).filter(r=>idx.has(r.A) && idx.has(r.B) && idx.get(r.A)!==idx.get(r.B)).slice(0,3);
+  const nClash = rel.filter(r=>r.g==='clash').length;
+  const nSplit = rel.filter(r=>r.g==='split').length;
+  const nDup   = rel.filter(r=>r.g==='dup').length;
 
-  // 요약·감점 (줄바꿈 없이, 길면 축소)
-  const summary = rpSummary(d);
-  const textW = t => [...t].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.55 : 1), 0);
-  const sumW = W - MG*2;
-  const sumSize = Math.max(17, Math.min(27, Math.floor(sumW / Math.max(1, textW(summary)))));
-  // 감점 내역 (2026-08-19 개편): 점수 오른쪽에 작게 쌓는다.
-  // 자리가 좁으니 라벨+숫자만 — 어떤 성분이 왜 깎였는지 상세는 아래 목록·이슈가 맡는다.
+  const rows = prods.map(p=>({t:'p', p}));
+  if (sunGap) rows.push({t:'g', cat:'SUNSCREEN', ko:'선크림이 비어 있어요'});
+  gaps.forEach(g=>rows.push({t:'g', cat:'MISSING',
+    ko:(axRole(g.cls) ? axRole(g.cls)+' 담당 ' : '') + axKo(g.cls) + ' 없음'}));
+
+  // ── 감점: 항목을 자르지 않는다 (합이 100-점수와 맞아야 한다) ──
   const cutList = [];
   (d.axi||[]).filter(x=>x.cut).forEach(x=>cutList.push({t:x.cutKo||'감점', v:x.cut}));
   if (d.nClash)  cutList.push({t:'상충',            v:d.nClash*25});
@@ -1541,176 +1570,167 @@ function rpSVG(d){
   if (d.axAvoid && d.ax) cutList.push({t:'조건에 안 맞는 성분', v:d.axAvoid});
   if (d.axGap   && d.ax) cutList.push({t:'핵심 성분 공백',     v:d.axGap});
   // 만점 기준이 92+fit(8) 이라, fit 을 못 받으면 8점이 '보이지 않는 감점'이 된다.
-  // 표기하지 않으면 카드의 뺄셈이 100과 안 맞아 "왜 53점이지?"가 된다 (2026-08-19)
   if (!d.fit) cutList.push({t: d.ax ? '조건 미충족' : '조건 미선택', v:8});
-  // 상위 3개만 자르면 합이 안 맞는다 — 전부 싣고 대신 글자를 줄인다
-  const cutsTxt = cutList.sort((a,b)=>b.v-a.v).map(x=>`${x.t} −${x.v}`).join(' · ');
+  cutList.sort((a,b)=>b.v-a.v);
 
-  // ── 세로 레이아웃 커서 ──
-  // 행 압축 (2026-08-19): 제품이 많아도 1080×1920(9:16)을 지키려고 행 높이와 글자를
-  // 같은 비율 K로 함께 줄인다. 폭(RW)은 그대로라 글자가 작아진 만큼 제품명이 더 들어간다.
-  // K가 하한(0.70)에 닿으면 그때부터는 카드가 아래로 길어진다.
-  const FIXED_H = 208 + 234 + 46 + 52 + 46 + 118;   // 234 = 워드마크~요약. 감점 한 줄 포함
-  const RH0 = 118, RGAP0 = 18;
-  let K = 1;
-  if (rows.length){
-    const need = rows.length*(RH0+RGAP0) - RGAP0;
-    if (need > 1920 - FIXED_H) K = Math.max(0.70, (1920 - FIXED_H) / need);
-  }
-  const RH = Math.floor(RH0*K), RGAP = Math.floor(RGAP0*K);   // 반올림하면 몇 px 넘쳐 9:16이 깨진다
-  const kk = v => Math.round(v*K*10)/10;
+  // ── 세로 리듬 ──────────────────────────────────────────
+  const ROW_H = 72, TOP = 656;
+  const tableEnd = TOP + rows.length*ROW_H;
+  const notes = Math.min(4, rel.length + badProd.size);   // 4건 넘으면 카드가 끝없이 길어진다
+  const blockTop = tableEnd + 38;
+  const blockEnd = blockTop + 72 + notes*90;
+  const H = Math.max(1920, blockEnd + 90 + 324);
+  const footY = H - 324;
+
+  let s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+
+          '" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">';
+  s += '<rect width="'+W+'" height="'+H+'" fill="'+BG+'"/>';
+
+  // ── 1. 브랜드 바 ───────────────────────────────────────
+  s += T(MG, 78, 'THEMARIC', {serif:1, s:19, w:500, ls:5});
+  const t0 = new Date();
+  const date = t0.getFullYear()+'.'+String(t0.getMonth()+1).padStart(2,'0')+'.'+String(t0.getDate()).padStart(2,'0');
+  s += T(W-MG, 78, date, {s:16, c:SUB, ls:1, a:'end'});
+  s += HR(115, HAIR);
+
+  // ── 2. 마스트헤드 + 점수 ───────────────────────────────
+  s += T(MG, 248, '더마릭',     {s:72, w:800, ls:-3.5});
+  s += T(MG, 336, '루틴 리포트', {s:72, w:800, ls:-3.5});
   const combo = rpCombo();
-  const persona = rpPersona(d);
+  if (combo) s += T(MG, 375, combo, {s:19, c:SUB});
 
-  // 인스타 스토리 비율(1080×1920) 고정 — 남는 높이는 헤더 위·목록 아래로 분배 (2026-08-18)
-  const natural = 208 + 234 + 46
-                + rows.length*(RH+RGAP) - RGAP + 52 + 46 + 118;
-  const H = Math.max(1920, natural);
-  const slack = H - natural;
-  const OFF = Math.floor(slack * 0.45);                // 블록 전체를 아래로 — 위 45% / 아래 55%
-  const headB = 208 + OFF;
-  const scoreB = headB + 234;
-  const listY = scoreB + 46;
-  const listB = listY + rows.length*(RH+RGAP) - RGAP;
-  const legY = listB + 52;
+  const CX = 828, CY = 268, R = 100;
+  s += '<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+RING+'" stroke-width="1"/>';
+  s += '<path id="rpArc" d="M'+(CX-78)+','+CY+' a78,78 0 0 1 156,0" fill="none"/>';
+  s += '<text font-family="'+FS+'" font-size="12" font-weight="500" letter-spacing="3.4" fill="'+SUB+
+       '"><textPath href="#rpArc" startOffset="50%" text-anchor="middle">ROUTINE SCORE</textPath></text>';
+  // 숫자와 /100 은 한 <text> 안에서 이어 붙인다 — 폭을 추정하면 반드시 어긋난다
+  s += '<text x="'+CX+'" y="'+(CY+30)+'" text-anchor="middle" font-family="'+FS+
+       '" font-size="96" font-weight="500" fill="'+INK+'">'+e2(String(d.score))+
+       '<tspan font-family="'+F+'" font-size="25" fill="'+SUB+'"> /100</tspan></text>';
 
-  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">`;
-  s += `<rect width="${W}" height="${H}" fill="${BG}"/>`;
-  s += `<rect x="28" y="28" width="${W-56}" height="${H-56}" rx="34" fill="${CARD}"/>`;
-  s += `<rect x="28" y="28" width="${W-56}" height="${H-56}" rx="34" fill="none" stroke="${HAIR}" stroke-width="1.5"/>`;
-  s += `<rect x="44" y="44" width="${W-88}" height="${H-88}" rx="24" fill="none" stroke="${OLIVE}" stroke-width="2"/>`;
+  // ── 3. 히어로 — 무조건 한 줄, 따옴표 없음 ───────────────
+  const per = rpPersona(d);
+  const h1 = Array.isArray(per) ? per[0] : String(per), h2 = Array.isArray(per) ? per[1] : '';
+  const hSize = Math.max(30, Math.min(58, Math.floor(CW / Math.max(1, textW(h1+h2)))));
+  s += '<text x="'+MG+'" y="512" font-family="'+F+'" font-size="'+hSize+
+       '" font-weight="300" letter-spacing="'+(-(hSize*0.038).toFixed(2))+'" fill="'+INK+'">'
+     + e2(h1) + '<tspan fill="'+OLIVE+'">' + e2(h2) + '</tspan></text>';
 
-  // ── 헤더: 세리프 워드마크 + 골드 서명 ──
-  // 날짜는 오른쪽 상단 주석으로 뺀다 (2026-08-19) — 가운데 줄은 조건 조합만 남긴다
-  const today = new Date();
-  const date = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-  s += `<text x="${W-MG}" y="104" text-anchor="end" font-family="${F}" font-size="19" fill="${MUTED}" letter-spacing="1">${date}</text>`;
-  s += `<text x="${W/2}" y="${128+OFF}" text-anchor="middle" font-family="${FS}" font-size="50" font-weight="700" fill="${INK}" letter-spacing="7">더마릭</text>`;
-  s += `<text x="${W/2}" y="${168+OFF}" text-anchor="middle" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="8">ROUTINE REPORT</text>`;
-  if (combo)
-    s += `<text x="${W/2}" y="${headB-6}" text-anchor="middle" font-family="${F}" font-size="24" fill="${MUTED}">${e2(combo)}</text>`;
+  // 한 줄 요약 — 앞의 한 덩어리만 진하게
+  const summary = rpSummary(d);
+  const cut = summary.indexOf(' — ');
+  const sKey = cut > 0 ? summary.slice(0, cut+1) : '';
+  const sRest = cut > 0 ? summary.slice(cut+3) : summary;
+  const sSize = Math.max(16, Math.min(25, Math.floor(CW / Math.max(1, textW(summary)+1))));
+  s += '<text x="'+MG+'" y="566" font-family="'+F+'" font-size="'+sSize+'" fill="'+SUB+'">'
+     + (sKey ? '<tspan font-weight="600" fill="'+INK+'">'+e2(sKey)+'</tspan><tspan dx="7">'+e2(sRest)+'</tspan>'
+             : e2(sRest)) + '</text>';
 
-  // ── 점수 ── 옛날식 숫자(Cormorant)로 — 자릿수마다 높이가 달라 숫자가 덜 딱딱하다
-  const sc = String(d.score);
-  const scB = headB + 92;
-  s += `<text x="${W/2}" y="${scB}" text-anchor="middle" font-family="${FN}" font-size="112" font-weight="700" fill="${d.score>=80?OLIVE:d.score>=50?INK:CORAL}">${sc}<tspan font-family="${F}" font-size="32" fill="${MUTED}" font-weight="500"> /100</tspan></text>`;
-  // 감점 사유 — 점수 바로 아래 한 줄. 오른쪽에 쌓으면 폭이 350px뿐이라 다 못 싣는다.
-  // 가운데 정렬 한 줄이면 912px 를 쓰므로 항목을 자르지 않아도 된다 (2026-08-19)
-  if (cutsTxt){
-    const cSize = Math.max(13, Math.min(20, Math.floor((W - MG*2) / Math.max(1, textW(cutsTxt)))));
-    s += `<text x="${W/2}" y="${headB+148}" text-anchor="middle" font-family="${F}" font-size="${cSize}" font-weight="600" fill="${CORAL}">${e2(cutsTxt)}</text>`;
+  // ── 감점 한 줄 — 우측 정렬. 폭 추정 없이 tspan 으로 이어 붙인다 ──
+  if (cutList.length){
+    // tspan + text-anchor="end" 조합은 렌더러마다 기준점 계산이 달라 잘린다.
+    // 메타 한 줄이라 색 구분을 포기하고 단일 텍스트로 간다 — 우측 정렬이 확실해진다.
+    const flat = cutList.map(x=>x.t+' −'+x.v).join('  ·  ');
+    const dSize = Math.max(13, Math.min(17, Math.floor(CW / Math.max(1, textW(flat)))));
+    s += T(W-MG, 616, flat, {s:dSize, c:SEC, a:'end'});
   }
-  s += `<text x="${W/2}" y="${headB+190}" text-anchor="middle" font-family="${F}" font-size="30" font-weight="800" fill="${INK}">${e2(persona)}</text>`;
-  s += `<text x="${W/2}" y="${headB+222}" text-anchor="middle" font-family="${F}" font-size="${Math.min(sumSize+2,24)}" font-weight="500" fill="${SUB}">${e2(summary)}</text>`;
 
-  // 구분선
-  s += `<line x1="${MG}" x2="${W-MG}" y1="${listY-24}" y2="${listY-24}" stroke="${HAIR}" stroke-width="1"/>`;
-
-  // ── 관계선 (왼쪽 레일) ──
-  const rowY = i => listY + i*(RH+RGAP);
-  const rowCY = i => rowY(i) + RH/2;
-  const RX = MG + railW;                     // 행 시작 x
-  const RW = W - MG - RX;                    // 행 폭
-  let lines = '', glyphs = '';
-  const glyph = (g, cx, cy) => {
-    const col = COLR[g];
-    let ic = '';
-    if (g === 'clash')
-      ic = `<path d="M${cx-6},${cy-6} L${cx+6},${cy+6} M${cx+6},${cy-6} L${cx-6},${cy+6}" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`;
-    else if (g === 'split')
-      ic = `<path d="M${cx-8},${cy} L${cx+8},${cy} M${cx-8},${cy} l4,-4.5 M${cx-8},${cy} l4,4.5 M${cx+8},${cy} l-4,-4.5 M${cx+8},${cy} l-4,4.5" stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-    else
-      ic = `<circle cx="${cx-3.4}" cy="${cy}" r="5" fill="none" stroke="${col}" stroke-width="2.4"/><circle cx="${cx+3.4}" cy="${cy}" r="5" fill="none" stroke="${col}" stroke-width="2.4"/>`;
-    return `<circle cx="${cx}" cy="${cy}" r="17" fill="${CARD}"/><circle cx="${cx}" cy="${cy}" r="17" fill="none" stroke="${col}" stroke-width="2.2"/>` + ic;
-  };
-  rel.forEach((pr, k)=>{
-    const a = rowCY(idx.get(pr.A)), b = rowCY(idx.get(pr.B));
-    const x = RX - 26 - k*RAILSTEP;
-    const col = COLR[pr.g] || MUTED;
-    const dash = pr.g==='dup' ? ' stroke-dasharray="7 6"' : '';
-    lines += `<path d="M${RX},${a} L${x},${a} L${x},${b} L${RX},${b}" fill="none" stroke="${col}" stroke-width="2.6"${dash} stroke-linejoin="round"/>`;
-    glyphs += glyph(pr.g, x, (a+b)/2);
-  });
-  s += lines;
-
-  // ── 제품 행 (세로) ──
+  // ── 4. 루틴 표 ─────────────────────────────────────────
+  s += HR(TOP-24, HAIR);
+  const rowCY = i => TOP + i*ROW_H + ROW_H/2;
   const TIME_KO = {am:'아침만', pm:'저녁만'};
+
   rows.forEach((r, i)=>{
-    const y = rowY(i);
+    const cy = rowCY(i);
     if (r.t === 'g'){
-      const st = r.hot ? CORAL : 'rgba(32,34,30,0.30)';
-      s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="none" stroke="${st}" stroke-width="2.2" stroke-dasharray="8 7"/>`;
-      s += `<text x="${RX+kk(30)}" y="${y+kk(50)}" font-family="${F}" font-size="${kk(28)}" font-weight="800" fill="${r.hot?CORAL:MUTED}">${e2(r.ko)}</text>`;
-      s += `<text x="${RX+kk(30)}" y="${y+kk(86)}" font-family="${F}" font-size="${kk(21)}" fill="${MUTED}">${e2(r.sub)} — 비어 있어요</text>`;
+      s += T(MG, cy+5, r.cat, {s:13, w:500, ls:0.9, c:META});
+      s += '<rect x="'+(MG+CAT_W)+'" y="'+(cy-18)+'" width="'+(CW-CAT_W)+'" height="36" fill="none" stroke="'+
+           LGRAY+'" stroke-width="1" stroke-dasharray="6 5"/>';
+      s += T(MG+CAT_W+16, cy+6, r.ko, {s:18, w:500, c:META});
+      s += HR(TOP + (i+1)*ROW_H, DIV);
       return;
     }
     const p = r.p;
-    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="${NODE}"/>`;
-    s += `<rect x="${RX}" y="${y}" width="${RW}" height="${RH}" rx="${kk(18)}" fill="none" stroke="${HAIR}" stroke-width="1.2"/>`;
-    // 슬롯 칩
-    const label = rpSlotKo(p);
-    const bw = label.length*kk(19) + kk(24);
-    s += `<rect x="${RX+kk(22)}" y="${y+kk(20)}" width="${bw}" height="${kk(34)}" rx="${kk(17)}" fill="${WASH}"/>`;
-    s += `<text x="${RX+kk(22)+bw/2}" y="${y+kk(44)}" text-anchor="middle" font-family="${F}" font-size="${kk(18)}" font-weight="800" fill="${OLIVE}">${e2(label)}</text>`;
-    // 브랜드 (칩 옆)
-    s += `<text x="${RX+kk(22)+bw+kk(14)}" y="${y+kk(44)}" font-family="${F}" font-size="${kk(19)}" fill="${MUTED}">${e2((p.b||'').slice(0,14))}</text>`;
-    // 제품명
-    let nm = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();
-    if (p.b && nm.indexOf(p.b)===0) nm = nm.slice(p.b.length).trim();
-    nm = rpTrimName(nm);                      // 기획 구성은 카드에 싣지 않는다
-    const slot = slotOf(p)[0];
-    const rightPad = (TIME_KO[slot] ? kk(108) : 0) + (badProd.has(p) ? kk(52) : 0) + kk(30);
-    const nameMax = Math.floor((RW - kk(52) - rightPad) / kk(25));
-    if (nm.length > nameMax) nm = nm.slice(0, nameMax-1)+'…';
-    s += `<text x="${RX+kk(26)}" y="${y+kk(90)}" font-family="${F}" font-size="${kk(26)}" font-weight="700" fill="${INK}">${e2(nm)}</text>`;
-    // 오른쪽: 시간 태그 + 조건 배지
-    let rx = RX + RW - kk(26);
-    if (badProd.has(p)){
-      s += `<circle cx="${rx-kk(16)}" cy="${y+RH/2}" r="${kk(16)}" fill="${CORAL}"/>`
-        +  `<text x="${rx-kk(16)}" y="${y+RH/2+kk(7)}" text-anchor="middle" font-family="${F}" font-size="${kk(20)}" font-weight="800" fill="${CARD}">!</text>`;
-      rx -= kk(52);
+    s += T(MG, cy+5, RP_CAT_EN[rpSlotKo(p)] || 'CARE', {s:13, w:500, ls:0.9, c:'#242424'});
+    let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
+    if (p.b && nm.indexOf(p.b) === 0) nm = rpTrimName(nm.slice(p.b.length).trim());
+    const bad = badProd.has(p) ? '<tspan fill="'+OLIVE+'" dx="7">*</tspan>' : '';
+    const brand = String(p.b||'').slice(0,16);
+    if (brand){
+      s += T(MG+CAT_W, cy-8, brand, {s:13, c:META});
+      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+18)+'" font-family="'+F+'" font-size="18" font-weight="600" fill="'+
+           INK+'">'+e2(nm)+bad+'</text>';
+    } else {
+      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+6)+'" font-family="'+F+'" font-size="18" font-weight="600" fill="'+
+           INK+'">'+e2(nm)+bad+'</text>';
     }
-    if (TIME_KO[slot]){
-      const tw = kk(96);
-      s += `<rect x="${rx-tw}" y="${y+RH/2-kk(18)}" width="${tw}" height="${kk(36)}" rx="${kk(18)}" fill="none" stroke="rgba(32,34,30,0.25)" stroke-width="1.6"/>`
-        +  `<text x="${rx-tw/2}" y="${y+RH/2+kk(8)}" text-anchor="middle" font-family="${F}" font-size="${kk(19)}" font-weight="700" fill="${SUB}">${TIME_KO[slot]}</text>`;
+    const tag = TIME_KO[slotOf(p)[0]];
+    if (tag){
+      const tw = 62;
+      s += '<rect x="'+(W-MG-tw)+'" y="'+(cy-13.5)+'" width="'+tw+'" height="27" rx="13.5" fill="none" stroke="'+
+           LGRAY+'" stroke-width="1"/>';
+      s += T(W-MG-tw/2, cy+5, tag, {s:13, c:'#555555', a:'middle'});
     }
+    s += HR(TOP + (i+1)*ROW_H, DIV);
   });
-  s += glyphs;
 
-  // ── 범례: 실제로 쓰인 것만, 아이콘·간격 정렬 ──
-  const used = [];
-  if (rel.some(r=>r.g==='clash')) used.push({g:'clash', t:'같이 쓰지 마세요'});
-  if (rel.some(r=>r.g==='split')) used.push({g:'split', t:'시간대 분리'});
-  if (rel.some(r=>r.g==='dup'))   used.push({g:'dup',   t:'성분 중복'});
-  if (badProd.size) used.push({g:'bad', t:'조건에 안 맞는 성분'});
-  if (sunGap || gaps.length) used.push({g:'ghost', t:'비어 있는 자리'});
-  if (used.length){
-    const IC = 28, GAPX = 36, LF = 22;
-    const lw = it => IC + 9 + textW(it.t)*LF;
-    const total = used.reduce((a,it)=>a+lw(it),0) + GAPX*(used.length-1);
-    let lx = W/2 - total/2;
-    used.forEach(it=>{
-      const cx = lx + IC/2, cy = legY;
-      if (it.g === 'bad')
-        s += `<circle cx="${cx}" cy="${cy}" r="12" fill="${CORAL}"/><text x="${cx}" y="${cy+6.5}" text-anchor="middle" font-family="${F}" font-size="16" font-weight="800" fill="${CARD}">!</text>`;
-      else if (it.g === 'ghost')
-        s += `<rect x="${cx-12}" y="${cy-10}" width="24" height="20" rx="5" fill="none" stroke="rgba(32,34,30,0.35)" stroke-width="2" stroke-dasharray="4.5 3.5"/>`;
-      else {
-        const col = COLR[it.g];
-        s += `<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="${col}" stroke-width="2.2"/>`;
-        if (it.g==='clash') s += `<path d="M${cx-4.6},${cy-4.6} L${cx+4.6},${cy+4.6} M${cx+4.6},${cy-4.6} L${cx-4.6},${cy+4.6}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
-        else if (it.g==='split') s += `<path d="M${cx-6},${cy} L${cx+6},${cy} M${cx-6},${cy} l3,-3.4 M${cx-6},${cy} l3,3.4 M${cx+6},${cy} l-3,-3.4 M${cx+6},${cy} l-3,3.4" stroke="${col}" stroke-width="2" stroke-linecap="round" fill="none"/>`;
-        else s += `<circle cx="${cx-2.6}" cy="${cy}" r="3.8" fill="none" stroke="${col}" stroke-width="1.8"/><circle cx="${cx+2.6}" cy="${cy}" r="3.8" fill="none" stroke="${col}" stroke-width="1.8"/>`;
-      }
-      s += `<text x="${lx+IC+9}" y="${cy+7}" font-family="${F}" font-size="${LF}" fill="${SUB}">${e2(it.t)}</text>`;
-      lx += lw(it) + GAPX;
-    });
-  }
+  // ── 관계 브래킷 — 걸린 제품에만 팔이 뻗는다 ─────────────
+  rel.forEach((r, k)=>{
+    const gx = MG + CAT_W - 17 - k*16;
+    const col = (r.g === 'dup') ? SUB : OLIVE;
+    const dash = (r.g === 'dup') ? ' stroke-dasharray="5 5"' : '';
+    const a = rowCY(idx.get(r.A)), b = rowCY(idx.get(r.B));
+    const y0 = Math.min(a,b), y1 = Math.max(a,b);
+    s += '<path d="M'+gx+','+y0+' L'+gx+','+y1+'" stroke="'+col+'" stroke-width="1" fill="none"'+dash+'/>';
+    [a,b].forEach(y=>{ s += '<rect x="'+gx+'" y="'+y+'" width="13" height="1" fill="'+col+'"/>'; });
+    s += T(gx+7, y0-11, String(k+1), {s:13, w:500, c:col});
+  });
 
-  // ── 푸터 ──
-  s += `<text x="${W/2}" y="${H-100}" text-anchor="middle" font-family="${F}" font-size="20" fill="${MUTED}">전성분 기준 · 개인차 있음</text>`;
-  s += `<text x="${W/2}" y="${H-58}" text-anchor="middle" font-family="${FS}" font-size="26" fill="${GOLD}" letter-spacing="5">themaric.kr</text>`;
+  // ── 5. 노트 + 상세 (통합 블록) ─────────────────────────
+  const note = rpNote(d, nClash, nSplit, nDup, sunGap, gaps.length, badProd.size);
+  s += T(MG, blockTop+23, note[0], {s:22, w:600});
+  s += T(MG, blockTop+51, note[1], {s:16, c:SUB});
+  if (notes) s += T(W-MG, blockTop+23, 'ROUTINE NOTES', {serif:1, s:13, w:500, ls:3, c:SUB, a:'end'});
+  s += HR(blockTop+72, HAIR);
+
+  const REL_T   = {clash:'같이 쓰지 마세요', split:'시간대 분리', dup:'성분 중복'};
+  const REL_FIX = {
+    clash:'같은 밤에 겹치면 자극이 커질 수 있어요. 하루씩 번갈아 쓰세요.',
+    split:'시간대를 나누면 둘 다 살릴 수 있어요. 하나는 아침으로 옮기세요.',
+    dup:  '유사 성분이라 하나면 충분해요. 한쪽을 비우면 효과가 또렷해져요.'
+  };
+  const shortNm = p => (p.b ? p.b+' ' : '') + rpTrimName(String(p.t||''));
+  let ny = blockTop + 72;
+  rel.forEach((r, k)=>{
+    const col = (r.g === 'dup') ? SUB : OLIVE;
+    s += T(MG, ny+34, String(k+1), {s:13, w:500, c:col});
+    s += T(MG+24, ny+35, r.t || REL_T[r.g], {s:20, w:600});
+    s += T(MG+24, ny+58, shortNm(r.A)+' · '+shortNm(r.B), {s:14, c:META});
+    s += T(MG+24, ny+81, REL_FIX[r.g] || '', {s:14, c:col});
+    ny += 90;
+  });
+  let nLeft = notes - rel.length;
+  badProd.forEach((cls, p)=>{
+    if (nLeft-- <= 0) return;
+    s += T(MG, ny+34, '*', {s:14, w:600, c:OLIVE});
+    s += T(MG+24, ny+35, '조건에 안 맞는 성분 — '+cls.join('·'), {s:20, w:600});
+    s += T(MG+24, ny+58, shortNm(p), {s:14, c:META});
+    s += T(MG+24, ny+81, '이 조건에선 피하는 쪽이 편해요. 다음엔 다른 걸 골라보세요.', {s:14, c:OLIVE});
+    ny += 90;
+  });
+
+  // ── 6. 푸터 ────────────────────────────────────────────
+  s += HR(footY, HAIR);
+  const foot = [];
+  if (nClash) foot.push('성분 상충 '+nClash+'건');
+  if (nSplit) foot.push('시간대 분리 '+nSplit+'건');
+  if (nDup)   foot.push('성분 중복 '+nDup+'건');
+  if (badProd.size) foot.push('조건에 안 맞는 성분 '+badProd.size+'개');
+  s += T(MG, footY+32, foot.join(' · ') || '제품 '+shelf.length+'개', {s:14, c:SUB});
+  s += T(W-MG, footY+32, '전성분 기준 · 개인차 있음', {s:14, c:SUB, a:'end'});
+  s += T(W/2, footY+106, 'themaric.kr', {serif:1, s:19, w:500, ls:5.5, c:OLIVE, a:'middle'});
+
   return s + '</svg>';
 }
 
