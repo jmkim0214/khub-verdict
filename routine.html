@@ -269,6 +269,14 @@
   .rp-issue.ghost{background:var(--critical-bg);}
   .rp-ic{vertical-align:-4px; margin-right:3px;}
   .rp-issue b{color:var(--ink);}
+  /* 같은 종류의 이슈는 한 블록으로 묶는다 (2026-08-21) */
+  .rp-issue .rp-n{font-size:11px; font-weight:700; color:var(--muted); margin-left:5px;}
+  .rp-issue .rp-sub{margin:4px 0 0; padding:0; list-style:none;}
+  .rp-issue .rp-sub li{font-size:11px; color:var(--muted); line-height:1.55;
+    padding-left:10px; position:relative;}
+  .rp-issue .rp-sub li::before{content:'·'; position:absolute; left:1px; color:var(--baseline);}
+  .rp-issue .rp-sub.one li{padding-left:0;}
+  .rp-issue .rp-sub.one li::before{content:none;}
   .rp-foot{margin-top:14px; padding-top:10px; border-top:1px dashed var(--baseline);
     font-size:10.5px; color:var(--muted); text-align:center; line-height:1.6;}
 
@@ -1785,14 +1793,30 @@ function rpIcon(g){
     return wrap(`<circle cx="13" cy="13" r="12" fill="${col}"/><path d="M7.8,13.4 l3.4,3.4 L18.4,9.6" stroke="#FFFEFB" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
   return wrap(ring + `<path d="M13,11.5 L13,18" stroke="${col}" stroke-width="2.2" stroke-linecap="round"/><circle cx="13" cy="8.3" r="1.5" fill="${col}"/>`);
 }
+// 같은 제목·같은 등급의 이슈는 한 블록으로 접는다 (2026-08-21)
+//   "유사 성분 — …" 이 3번 반복되던 자리에 제목 한 번 + 짝 3줄.
+//   순서는 처음 나온 자리를 지킨다 — 정렬을 다시 하면 심각도 흐름이 깨진다.
+function rpGroupIssues(list){
+  const out = [], by = new Map();
+  list.forEach(x=>{
+    const k = x.g + '|' + x.t;
+    let e = by.get(k);
+    if (!e){ e = {g:x.g, t:x.t, ss:[], hs:[]}; by.set(k, e); out.push(e); }
+    if (x.s && e.ss.indexOf(x.s) < 0) e.ss.push(x.s);
+    if (x.h && e.hs.indexOf(x.h) < 0) e.hs.push(x.h);
+  });
+  return out;
+}
 function rpRender(){
   const d = rpData();
-  const issues = d.issues.slice(0, 6);
+  const issues = rpGroupIssues(d.issues).slice(0, 6);
   document.getElementById('rp-card').innerHTML = rpSVG(d) +
     (issues.length ? `<div class="rp-issues" style="margin-top:12px">${issues.map(x=>
       `<div class="rp-issue ${x.g}">${rpIcon(x.g)} <b>${esc(x.t)}</b>`
-      + (x.s ? `<br><span style="font-size:11px;color:var(--muted)">${esc(x.s)}</span>` : '')
-      + (x.h ? `<br><span class="rp-ex">${x.h}</span>` : '')
+      + (x.ss.length > 1 ? `<span class="rp-n">${x.ss.length}건</span>` : '')
+      + (x.ss.length ? `<ul class="rp-sub${x.ss.length>1?'':' one'}">`
+          + x.ss.map(s=>`<li>${esc(s)}</li>`).join('') + `</ul>` : '')
+      + (x.hs.length ? `<div class="rp-ex" style="margin-top:4px">${x.hs.join('<br>')}</div>` : '')
       + `</div>`).join('')}</div>` : '');
   rpWarmFonts();   // 저장용 폰트 서브셋 미리 받아두기 (2026-08-19)
 }
