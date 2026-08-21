@@ -542,7 +542,16 @@ function name(p){
   const t = String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim();  // [프로모 태그] 제거
   return (p.b && !t.includes(p.b) ? p.b+' ' : '') + t;
 }
-function short(p){ const n = name(p); return n.length>22 ? n.slice(0,21)+'…' : n; }
+// 2026-08-21: 리포트 카드와 같은 규칙으로 맞춘다 — [태그] 제거 → 용량 직전까지 절삭
+//   → 중복 브랜드 제거 → 브랜드 재부착. 기획·리필 구성과 용량은 화면에 내보내지 않는다.
+//   rpTrimName / RP_UNIT 은 아래쪽에 선언돼 있지만 호출은 로드 후라 문제되지 않는다.
+function shortName(p){
+  let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
+  const b = String(p.b||'').trim();
+  if (b && nm.indexOf(b) === 0) nm = rpTrimName(nm.slice(b.length).trim());
+  return (b && !nm.includes(b) ? b+' ' : '') + nm;
+}
+function short(p){ const n = shortName(p); return n.length>30 ? n.slice(0,29)+'…' : n; }
 
 // ── 쌍 평가 ──────────────────────────────────────────────────────
 // 유사 성분 중복 — 오탐 억제 3중 게이트:
@@ -1387,7 +1396,10 @@ function rpData(){
         const b = bgBest(RC_BY[key]||[], a.ax.eff, avoidSet, null);
         if (!b) return '';
         const oy = OYURL + b.p.g + (b.p.ac ? '&utm_source=shutter&utm_medium=affiliate&utm_content=' + b.p.ac : '');
-        return `${esc(short(p))} 대신 → <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(b.p.b)} ${esc(rcName(b.p))} ↗</a>`
+        // 링크 이름도 카드와 같은 규칙으로 자른다 (2026-08-21). 가격은 기획 구성 기준이라
+        // 이름에서 '기획'이 사라지면 오해가 생겨서, 원문에 기획/세트 표기가 있으면 꼬리표로 남긴다.
+        const kit = /기획|세트|리필|증정|\+/.test(String(b.p.t||'')) ? ' <span style="color:var(--muted)">기획</span>' : '';
+        return `${esc(short(p))} 대신 → <a href="${oy}" target="_blank" rel="noopener sponsored">${esc(shortName(b.p))} ↗</a>${kit}`
              + (b.p.cur ? ` <span style="color:var(--muted)">${b.p.cur.toLocaleString('ko-KR')}원</span>` : '');
       }).filter(Boolean).join('<br>');
       axIssues.push({g:'bad',
@@ -1725,12 +1737,8 @@ function rpSVG(d){
   s += HR(blockTop+30, HAIR);
 
   const REL_T = {clash:'같이 쓰지 마세요', split:'시간대 분리', dup:'성분 중복'};
-  // 표의 제품명과 같은 규칙으로 다듬는다 — [카테고리] 와 중복 브랜드를 지운다
-  const shortNm = p => {
-    let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
-    if (p.b && nm.indexOf(p.b) === 0) nm = rpTrimName(nm.slice(p.b.length).trim());
-    return (p.b ? p.b+' ' : '') + nm;
-  };
+  // 표·이슈 목록과 같은 규칙 — 단일 출처는 shortName() 이다 (2026-08-21)
+  const shortNm = shortName;
   // 제품 줄은 길어지면 알아서 줄인다 (14 → 11px)
   const subLine = (y, t) => T(MG+24, y, t,
     {s: Math.max(11, Math.min(14, Math.floor((CW-24) / Math.max(1, textW(t))))), c:META});
