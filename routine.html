@@ -333,7 +333,7 @@
       <input id="q" type="search" placeholder="제품명이나 브랜드 검색 (예: 아누아, 레티놀)" autocomplete="off">
       <div class="sresults" id="sr"></div>
     </div>
-    <div class="hint qhint">전성분 확보 4261개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
+    <div class="hint qhint">전성분 확보 4368개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
     <details style="margin-top:10px;">
       <summary style="font-size:13px; color:var(--series); cursor:pointer; font-weight:600;">직접 입력 (전성분 붙여넣기)</summary>
       <div style="margin-top:10px;">
@@ -383,7 +383,7 @@
     <div class="card" style="margin-top:0;">
       <h1>나에게 맞는 <span class="u">추천 루틴</span></h1>
       <p class="lead">해당하는 것을 골라주세요 — 축마다 하나씩, 최대 4개까지 조합됩니다 (예: 건성 × 여드름 × 봄 × 10대).</p>
-      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 4261개 상품에서 고릅니다.</div>
+      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 4368개 상품에서 고릅니다.</div>
     </div>
 
     <div class="card" id="rc-result" style="display:none">
@@ -573,8 +573,16 @@ function dupGroup(p){                          // 같은 슬롯 판정용 (대�
   if (c === '크림' || c === '올인원' || /로션|에멀전/.test(c)) return 'cream';
   return null;
 }
+// 기획 증정 구성이 제목에 섞이면 본품이 아닌 사은품으로 분류된다.
+// (예: '코스알엑스 어드밴스드 비타민C 세럼 20g 기획 (+선세럼 15ml)' → 선크림으로 오분류)
+// 괄호 구성·'+증정품'을 걷어낸 '본품 이름'으로만 판별한다 (2026-08-23).
+function rpCoreTitle(t){
+  return String(t||'').replace(/\([^)]*\)/g, ' ')
+                      .replace(/\[[^\]]*\]/g, ' ')
+                      .replace(/\+\s*[^\s]*/g, ' ');
+}
 function isSun(p){
-  return /선케어|선크림|선세럼|선에센스|선쿠션|선스틱|선팩트|자외선/.test((p.c||'')+(p.t||''))
+  return /선케어|선크림|선세럼|선에센스|선쿠션|선스틱|선팩트|자외선/.test((p.c||'')+rpCoreTitle(p.t))
     || (p.a && p.a.SUNO && p.a.SUNO <= 8);
 }
 function evalPair(p1, p2){
@@ -619,7 +627,7 @@ function slotOf(p){
   if (p.w) return ['both','세안 단계'];
   // 자차 판정: 카테고리/제품명이 선케어이거나, 유기 자차 필터가 상위 배치일 때만
   // (티타늄디옥사이드는 착색용으로도 흔해서 존재만으로는 자차로 보지 않음)
-  const sunish = /선케어|선크림|선세럼|선에센스|선쿠션|선스틱|선팩트|톤업|자외선/.test((p.c||'')+(p.t||''))
+  const sunish = /선케어|선크림|선세럼|선에센스|선쿠션|선스틱|선팩트|톤업|자외선/.test((p.c||'')+rpCoreTitle(p.t))
     || (p.a && p.a.SUNO && p.a.SUNO <= 8);
   if (sunish) return ['am','자외선 차단은 아침 필수'];
   if (has(p,'RET')) return ['pm','레티노이드는 빛에 약하고 광민감 우려 — 저녁 권장'];
@@ -1436,7 +1444,7 @@ function rpSlotKo(p){
   if (/로션|에멀전/.test(c)) return '로션';
   if (/패치/.test(c+t)) return '패치';
   // ② 제목 폴백 — 괄호(증정 구성) 제거 후 판별
-  const t2 = t.replace(/\([^)]*\)/g, '').replace(/\+[^\s]*/g, '');
+  const t2 = rpCoreTitle(t);
   if (/토너/.test(t2)) return '토너';
   if (/크림/.test(t2)) return '크림';
   if (/세럼|앰플|에센스/.test(t2)) return '세럼';
@@ -1543,7 +1551,9 @@ function rpSVG(d){
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif";
   const FS = "'Cormorant Garamond', Georgia, serif";
-  const BG='#F6F4F2', INK='#191919', SEC='#464646', SUB='#6E6E6D', LGRAY='#BEBDBA',
+  // 배경은 사이트(--page)와 같은 값이어야 한다. 예전 #F6F4F2 는 차가운 회백이라
+  // 저장본만 허옇게 떠 보였다 (2026-08-23).
+  const BG='#F5F1E8', INK='#191919', SEC='#464646', SUB='#6E6E6D', LGRAY='#BEBDBA',
         DIV='#E7E5E2', HAIR='#C8C5C0', OLIVE='#6A715E', RING='#9D9D99', META='#777572';
 
   const textW = t => [...String(t)].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.5 : 1), 0);
@@ -1617,15 +1627,11 @@ function rpSVG(d){
   let s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+
           '" class="rp-svg" role="img" aria-label="더마릭 루틴 리포트">';
   s += '<rect width="'+W+'" height="'+H+'" fill="'+BG+'"/>';
-  // 종이 질감 — 웹에는 body::after 로 그레인이 얹히는데 저장본(SVG만 래스터)에는 없어서
-  // 다운로드하면 배경이 밋밋해 보였다. 카드 안에 넣어 둘을 맞춘다 (2026-08-20).
-  // 글자 위가 아니라 배경 위에만 깔아서 텍스트는 또렷하게 남긴다.
-  s += '<filter id="rpGrain" x="0" y="0" width="100%" height="100%">'
-     + '<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/>'
-     + '<feColorMatrix type="saturate" values="0"/></filter>';
-  // fill 을 배경색으로 둔다 — 필터를 못 그리는 렌더러에서 rect 기본색(검정)이
-  // 회색 막처럼 덮이는 사고를 막는 안전장치다.
-  s += '<rect width="'+W+'" height="'+H+'" fill="'+BG+'" filter="url(#rpGrain)" opacity="0.14"/>';
+  // 종이 질감은 여기서 넣지 않는다 (2026-08-23).
+  //   화면: 페이지 전체에 깔린 body::after 그레인이 이 카드 위에도 얹힌다.
+  //   저장: rpSavePng 가 캔버스에서 같은 노이즈를 multiply 로 직접 합성한다.
+  // 예전엔 SVG 안에 feTurbulence 를 넣었는데, iOS 사파리는 <img> 로 읽어들인 SVG의
+  // 필터를 건너뛰는 바람에 모바일 저장본만 질감 없이 밋밋하게 나왔다.
 
   // ── 1. 브랜드 바 ───────────────────────────────────────
   s += T(MG, 78, 'THEMARIC', {serif:1, s:19, w:500, ls:5});
@@ -1979,6 +1985,31 @@ function rpWarmFonts(){
   try{ rpFontStyle(rpSVG(rpData())).catch(()=>{}); }catch(e){}
 }
 
+// 종이 질감을 캔버스에 직접 합성 — 사이트의 body::after 그레인과 같은 규격
+// (240px 타일 · 회색 노이즈 · multiply). SVG 필터에 맡기면 iOS 에서 통째로 사라진다.
+function rpPaintGrain(ctx, W, H){
+  try{
+    const T = 240;
+    const tile = document.createElement('canvas'); tile.width = T; tile.height = T;
+    const tc = tile.getContext('2d');
+    const id = tc.createImageData(T, T), d = id.data;
+    for (let i = 0; i < d.length; i += 4){
+      // fractalNoise + saturate(0) 근사 — 128 중심의 회색 얼룩
+      let v = 128 + (Math.random() + Math.random() + Math.random() - 1.5) * 72;
+      v = v < 0 ? 0 : v > 255 ? 255 : v;
+      d[i] = d[i+1] = d[i+2] = v;
+      d[i+3] = 54;                     // 0.42(타일) × 0.5(레이어) ≒ 0.21
+    }
+    tc.putImageData(id, 0, 0);
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    if (ctx.globalCompositeOperation !== 'multiply'){ ctx.restore(); return; }  // 미지원 → 생략
+    ctx.fillStyle = ctx.createPattern(tile, 'repeat');
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }catch(e){}                          // 질감은 있으면 좋은 것 — 실패해도 저장은 계속
+}
+
 async function rpSavePng(){
   const d = rpData();
   let svg = rpSVG(d);
@@ -1993,7 +2024,11 @@ async function rpSavePng(){
   const img = new Image();
   img.onload = ()=>{
     const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
-    cv.getContext('2d').drawImage(img, 0, 0, PW, PH);
+    const ctx = cv.getContext('2d');
+    // SVG가 통째로 비어 그려지는 렌더러가 있어 배경색을 먼저 깐다 (투명 PNG = 흰 배경으로 보임)
+    ctx.fillStyle = '#F5F1E8'; ctx.fillRect(0, 0, PW, PH);
+    ctx.drawImage(img, 0, 0, PW, PH);
+    rpPaintGrain(ctx, PW, PH);
     if (img._rpUrl) URL.revokeObjectURL(img._rpUrl);
     cv.toBlob(async b=>{
       const today = new Date();
@@ -2010,7 +2045,9 @@ async function rpSavePng(){
         try{
           const file = new File([b], fname, {type:'image/png'});
           if (navigator.canShare && navigator.canShare({files:[file]})){
-            await navigator.share({files:[file], title:'더마릭 루틴 리포트'});
+            // title/text 를 넣으면 카카오톡이 그 문자열을 '두 번째 메시지'로 따로 보낸다.
+            // 사진만 가게 files 만 넘긴다 (2026-08-23).
+            await navigator.share({files:[file]});
             rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
             return;
           }
