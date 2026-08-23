@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>더마릭 — 화장품 가격·성분 판정</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* 브랜드 팔레트 v2 (2026-08-15) — 아이보리 / 딥올리브 / 차콜 / 골드,
+     코랄은 '가격이 진짜 움직인 순간'에만. 이전 팔레트는 index.html.bak_redesign_* 참조. */
+  :root{
+    color-scheme: light;
+    --page:#F5F1E8; --surface:#FFFEFB;
+    --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+    --grid:rgba(32,34,30,0.10); --baseline:rgba(32,34,30,0.20);
+    --border:rgba(32,34,30,0.12);
+    --series:#596044; --series-wash:rgba(89,96,68,0.10);
+    --gold:#B49A62; --gold-wash:rgba(180,154,98,0.14);
+    /* good = 진짜 할인(올리브) · critical = 표시 할인 주의(코랄) · warn = 중립 경고(회색) */
+    /* deal = 딜 판정 전용 강조(HOT DEAL). good(올리브)은 성분·안전·대안 등 일반 '좋음'에만 쓴다.
+       2026-08-15: HOT/REAL 등급 통합 — 딜 칩은 코랄 채움 하나로 간다. */
+    --deal:#D95C4F; --deal-bg:rgba(217,92,79,0.10);
+    --good:#596044; --good-text:#4A5139;
+    --warn:#6B6D62; --serious:#B4653A; --critical:#D95C4F;
+    --good-bg:rgba(89,96,68,0.12); --warn-bg:rgba(32,34,30,0.05);
+    --serious-bg:rgba(180,101,58,0.12); --critical-bg:rgba(217,92,79,0.10);
+    --serif:"Cormorant Garamond","Noto Serif KR","Times New Roman",serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--page); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;  /* 한글 어절 단위 줄바꿈 */
+  ; overflow-x:hidden}
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  /* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:0;}
+    .nav-first{margin-left:0;}
+  }
+  .logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1;}
+  .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
+  .logo-sub{font-family:var(--serif); font-size:10.5px; letter-spacing:0.28em; color:var(--gold); margin-top:6px; text-transform:uppercase;}
+  
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:6px; padding:26px; margin-top:16px;
+  }
+
+  /* ---------- HOME ---------- */
+  .hero{text-align:center; padding:56px 26px 44px; border:none; background:transparent;}
+  .hero h1{font-size:38px; font-weight:800; letter-spacing:-0.04em; line-height:1.22;}
+  .hero h1 .u{box-shadow:none; color:var(--series);}
+  .hero p.lead{color:var(--ink-2); margin-top:16px; font-size:15px;}
+  .hero p.lead b{color:var(--ink); font-weight:700;}
+  .pillars{margin-top:18px; font-size:12.5px; color:var(--muted); letter-spacing:.02em;}
+  .kakao-band{display:flex; align-items:center; justify-content:center; gap:8px;
+    max-width:580px; margin:22px auto 0; padding:13px 18px; border-radius:4px;
+    border:1px solid var(--baseline); background:var(--surface); text-decoration:none;
+    font-size:13.5px; font-weight:700; color:var(--ink); transition:border-color .15s;}
+  .kakao-band:hover{border-color:var(--deal);}
+  .kakao-band .dot{width:8px; height:8px; border-radius:50%; background:var(--deal); flex:none;}
+  .kakao-band .go{color:var(--deal); margin-left:2px;}
+  .urlbar{display:flex; gap:8px; margin:30px auto 0; max-width:580px;}
+  .urlbar input{
+    flex:1; font:inherit; font-size:15px; padding:17px 18px;
+    border:1.5px solid var(--ink); border-radius:4px;
+    background:var(--surface); color:var(--ink); outline:none; min-width:0;
+  }
+  .urlbar input:focus{border-color:var(--series);}
+  .urlbar input.err{border-color:var(--critical); animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .btn{
+    font:inherit; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.03em;
+    padding:17px 30px; border-radius:4px; border:none;
+    background:var(--series); color:var(--page); white-space:nowrap;
+    transition:background .15s;
+  }
+  .btn:hover{background:var(--ink); opacity:1;}
+  .btn.ghost{
+    background:transparent; color:var(--ink-2);
+    border:1px solid var(--baseline); font-weight:600;
+    padding:12px 18px; font-size:13.5px;
+  }
+  .btn.ghost:hover{background:transparent; border-color:var(--ink); color:var(--ink);}
+  .hint{margin-top:12px; font-size:12px; color:var(--muted);}
+  #search-results{display:none; max-width:560px; margin:14px auto 0; text-align:left;}
+  #search-results.on{display:block;}
+  #search-results .sr-head{font-size:12.5px; color:var(--muted); margin:0 2px 8px;}
+  #search-results .sr-empty{font-size:13px; line-height:1.65; color:#FDFBF5; background:var(--ink-2); border-radius:12px; padding:14px 16px;}
+  #search-results .sr-img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;background:var(--series-wash);}
+  #search-results .sr-item{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--baseline); border-radius:11px; padding:9px 12px; margin-bottom:7px; font-size:13.5px; color:var(--ink); cursor:pointer; font-family:inherit;}
+  #search-results .sr-item:hover{border-color:var(--series); background:var(--series-wash);}
+  #search-results .sr-item b{font-weight:700; flex:none;}
+  #search-results .sr-cur{margin-left:auto; font-weight:700; color:var(--series); white-space:nowrap;}
+  .samples{margin-top:26px;}
+  .samples .s-label{font-size:12.5px; color:var(--muted); margin-bottom:10px;}
+  .chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .chip{
+    font:inherit; font-size:13px; cursor:pointer;
+    padding:8px 14px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .chip:hover{border-color:var(--series); color:var(--ink);}
+  .chip.real-chip{border-style:solid; border-color:var(--series); background:var(--series-wash);}
+  .chip .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px;}
+  /* ---------- 메인 티저 (오늘의 가격 데이터) ---------- */
+  .teaser{display:block; padding:22px 24px 20px; color:inherit; transition:border-color .15s;}
+  .teaser:hover{border-color:var(--series);}
+  .t-head{display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap;
+          text-decoration:none; color:inherit; cursor:pointer;}
+  .t-head:hover .t-title{color:var(--series);}
+  .t-head:hover .t-cta{text-decoration:underline; text-underline-offset:3px;}
+  .t-title{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:.16em; line-height:1.2;}
+  .t-kr{font-size:13.5px; font-weight:600; color:var(--ink-2); margin-top:5px; letter-spacing:-0.01em;}
+  .t-new{font-size:10px; font-weight:800; vertical-align:7px; color:var(--critical); margin-left:3px;}
+  .t-sub{font-size:12.5px; color:var(--muted); margin-top:4px;}
+  .t-sub b.bad{color:var(--critical);}
+  .t-cta{margin-left:auto; font-size:13px; font-weight:700; color:var(--series); white-space:nowrap; padding-top:3px;}
+  .t-stats{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; align-items:center;}
+  .t-stat{font-size:12px; font-weight:700; border-radius:999px; padding:4px 12px;
+          text-decoration:none; display:inline-block; border:1px solid transparent;
+          transition:filter .12s, border-color .12s;}
+  a.t-stat:hover{filter:brightness(0.94); border-color:currentColor;}
+  /* 딜 판정 = 알약형 코랄 채움 (사이트·카드·핫딜방 공통) */
+  .t-stat.s-good{background:var(--deal); color:#FFFEFB; border-color:var(--deal);}
+  /* 부풀림 신호 = 등급이 아니라 경고 플래그 → 사각형 · 회색 테두리 · 코랄 글씨.
+     채움/외곽선과 알약/사각형 두 축으로 갈려서 등급으로 오독되지 않는다. (2026-08-15) */
+  .t-stat.s-bad{background:transparent; color:var(--critical); border-color:var(--baseline); border-radius:2px;}
+  .t-stat.s-flat{background:transparent; color:var(--ink-2); border-color:var(--baseline);}
+  .t-stat.s-warn{background:transparent; color:var(--ink-2); border-color:var(--baseline); border-style:dashed;}
+  .t-stats-hint{font-size:11.5px; color:var(--muted);}
+  /* 표시가 플래그 — 등급 칩보다 한 계위 아래 (작게, 사각형) */
+  .t-flags{display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; align-items:center;
+           padding-top:9px; border-top:1px solid var(--grid);}
+  .t-flabel{font-size:11.5px; color:var(--muted);}
+  .t-fstat{font-size:11.5px; font-weight:700; color:var(--critical); text-decoration:none;
+           border:1px solid var(--baseline); border-radius:3px; padding:3px 9px;}
+  .t-fstat:hover{border-color:var(--critical);}
+  .t-minis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
+  @media (max-width:640px){.t-minis{grid-template-columns:1fr;}}
+  .t-mini{border:1px solid var(--border); border-radius:11px; padding:12px 13px 9px; background:var(--page);
+          text-decoration:none; color:inherit; display:block; transition:border-color .15s, background .15s;}
+  a.t-mini:hover{border-color:var(--series); background:var(--series-wash);}
+  a.t-mini:hover .m-name{color:var(--series);}
+  .t-mini .m-top{display:flex; align-items:center; gap:6px;}
+  .t-mini .m-flag{font-size:10px; font-weight:700; color:var(--critical); border:1px solid var(--baseline);
+                  border-radius:3px; padding:1px 6px; white-space:nowrap;}
+  .t-mini .m-rank{margin-left:auto; font-size:11px; color:var(--muted); font-weight:600;}
+  .t-mini .m-go{font-size:13px; font-weight:700; color:var(--series); margin-left:auto; flex:none;}
+  .t-mini .m-foot{display:flex; align-items:center; gap:8px; margin-top:10px;
+    padding-top:10px; border-top:1px solid var(--grid);}
+  .t-mini .m-thumb{width:28px; height:28px; border-radius:4px; flex:none; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--series-wash); border:1px solid var(--border);
+    font-size:12px; font-weight:800; color:var(--series);}
+  .t-mini .m-thumb img{width:100%; height:100%; object-fit:cover;}
+  .t-mini .m-name{font-size:11.5px; font-weight:600; line-height:1.35; color:var(--ink-2);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  /* 가격이 카드에서 가장 강한 요소 */
+  .t-mini .m-price{font-size:26px; font-weight:800; margin-top:10px; letter-spacing:-0.03em;
+    font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .t-mini .m-price .w{font-size:14px; font-weight:600; margin-left:-3px;}
+  .t-mini .m-real{font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:0;}
+  .t-mini .m-real.hot{color:var(--critical); font-weight:800;}
+  .t-mini .m-chip{font-size:10.5px; font-weight:700; border-radius:999px; padding:1px 8px; border:1px solid transparent;}
+  .t-mini .m-chip.v-good{background:var(--deal); color:#FFFEFB; border-color:var(--deal);}
+  .t-mini .m-chip.v-bad{background:transparent; color:var(--critical); border-color:var(--baseline); border-radius:2px;}
+  .t-mini .m-chip.v-warn{background:transparent; color:var(--ink-2); border:1px dashed var(--baseline);}
+  .t-mini .m-chip.v-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+  .t-mini svg{display:block; width:100%; height:auto; margin-top:5px;}
+  .t-foot{text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px;
+    border-top:1px solid var(--grid); padding-top:12px;}
+  .t-foot b{color:var(--ink-2);}
+  .trust{display:flex; justify-content:center; gap:64px; flex-wrap:wrap; margin-top:34px;}
+  .trust .t{text-align:center; padding:0;}
+  .trust .t b{display:block; font-family:var(--serif); font-size:32px; font-weight:600;
+              letter-spacing:0; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums;
+              white-space:nowrap;}
+  /* '+' 처럼 숫자 안에 든 span까지 블록이 되어 줄이 갈리던 문제 — 직계만 블록 (2026-08-15) */
+  .trust .t > span{display:block; font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5;}
+  .trust .t b span{display:inline; color:inherit; margin:0;}
+  .why-line{text-align:center; font-size:12px; color:var(--muted); margin-top:14px; line-height:1.7;}
+  .why-line b{color:var(--ink-2);}
+  .trust .t span b{display:inline; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink-2);}
+
+  /* ---------- LOADING ---------- */
+  .loading{padding:48px 26px; max-width:420px; margin:0 auto;}
+  .loading .step{display:flex; align-items:center; gap:11px; padding:8px 0; font-size:14.5px; color:var(--muted); transition:color .2s;}
+  .loading .step.on{color:var(--ink);}
+  .loading .step .ic{width:20px; height:20px; border-radius:50%; border:1.5px solid var(--baseline); flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--page); background:transparent;}
+  .loading .step.on .ic{background:var(--series); border-color:var(--series);}
+  .loading .step.now .ic{border-color:var(--series); border-top-color:transparent; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- REPORT ---------- */
+  .report-top{display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; flex-wrap:wrap;}
+  .rid{font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .rid b{color:var(--ink-2); font-weight:600;}
+  .back{font:inherit; font-size:13px; background:none; border:none; color:var(--ink-2); cursor:pointer; padding:4px 0;}
+  .back:hover{color:var(--ink);}
+
+  /* 추적 정지 — 21일 이상 미관측이라 가격 갱신이 멈춘 상품 (2026-08-12) */
+  .paused-bar{display:flex; gap:10px; align-items:flex-start; margin:0 0 16px;
+    padding:11px 13px; border-radius:10px; background:var(--warn-bg);
+    border:1px solid rgba(194,147,47,0.45);}
+  .paused-bar .pb-ico{font-size:15px; line-height:1.35; flex:none;}
+  .paused-bar .pb-t{font-size:13px; font-weight:800; color:var(--warn); letter-spacing:-0.01em;}
+  .paused-bar .pb-s{font-size:12.5px; color:var(--ink-2); margin-top:3px; line-height:1.55;}
+  .prod.is-paused .thumb, .prod.is-paused .price-row{opacity:0.6;}
+  .prod .stale-note{font-size:11.5px; color:var(--warn); font-weight:700; margin-top:4px;}
+
+  .prod{display:flex; gap:16px; align-items:flex-start;}
+  .thumb{width:72px; height:72px; border-radius:12px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:32px;
+    background:var(--series-wash); border:1px solid var(--border);}
+  .prod .brand{font-size:12.5px; color:var(--muted); font-weight:600;}
+  .prod .name{display:block; font-size:16.5px; font-weight:700; letter-spacing:-0.01em; line-height:1.4;
+              color:inherit; text-decoration:none;}
+  .prod a.name:hover{color:var(--series); text-decoration:underline; text-underline-offset:3px;}
+  .oy-cta{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; color:#fff;
+          background:var(--series); border-radius:999px; padding:8px 15px; text-decoration:none;}
+  .oy-cta:hover{filter:brightness(1.08);}
+  .oy-cta.hidden{display:none;}
+  .empty-sec{margin-top:12px; padding:15px 16px; border:1px dashed var(--baseline); border-radius:12px;
+             background:var(--surface);}
+  .empty-sec .es-t{font-size:14px; font-weight:700;}
+  .empty-sec .es-b{font-size:12.5px; color:var(--ink-2); line-height:1.75; margin-top:6px;}
+  .empty-sec a{color:var(--series); font-weight:700;}
+  .thumb a{display:block; width:100%; height:100%;}
+  .prod .opt{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  .prod .price-row{margin-top:8px; display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;}
+  .prod .cur{font-size:21px; font-weight:800;}
+  .prod .strike{font-size:13.5px; color:var(--muted); text-decoration:line-through;}
+  .prod .dc{font-size:13.5px; font-weight:700; color:var(--critical);}
+
+  /* 판정 패널 — 증서 느낌. 상단에 serif 커커, 좌측에 판정색 라인 (2026-08-15) */
+  .verdict{border-radius:4px; padding:18px 22px 20px; margin:0 0 20px;
+           background:var(--page); border:1px solid var(--border); border-left:3px solid var(--baseline);}
+  .prod{padding-top:20px; border-top:1px solid var(--grid);}
+  .verdict .v-kicker{font-family:var(--serif); font-size:11px; letter-spacing:.30em;
+                     text-transform:uppercase; color:var(--gold); margin-bottom:12px;}
+  .verdict .v-main{display:flex; gap:14px; align-items:flex-start;}
+  .verdict.v-good{background:var(--deal-bg); border-color:rgba(217,92,79,0.22); border-left-color:var(--deal);}
+  .verdict.v-bad{background:var(--critical-bg); border-color:rgba(217,92,79,0.28); border-left-color:var(--critical);}
+  .verdict.v-warn{background:var(--warn-bg); border-left-color:var(--baseline);}
+  .verdict .v-ic{font-size:22px; line-height:1.3;}
+  .verdict h2{font-size:18px; font-weight:800; letter-spacing:-0.02em;}
+  .verdict.v-good h2{color:var(--deal);}
+  .verdict.v-bad h2{color:var(--critical);}
+  .verdict.v-warn h2{color:var(--ink);}
+  .verdict p{font-size:14px; color:var(--ink-2); margin-top:5px;}
+
+  .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
+  .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
+  .sec-h .tag{font-size:11px; color:var(--muted); border:1px solid var(--baseline); border-radius:999px; padding:1px 8px;}
+  .sec-sub{font-size:13px; color:var(--muted); margin-bottom:14px;}
+
+  .tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px;}
+  @media (max-width:600px){.tiles{grid-template-columns:repeat(2,1fr);}}
+  .tile{border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
+  .tile .l{font-size:11.5px; color:var(--muted);}
+  .tile .v{font-size:16.5px; font-weight:700; margin-top:2px;}
+  .tile .v small{font-size:11.5px; font-weight:600; color:var(--muted);}
+  .tile .v.up-good{color:var(--good-text);}
+  .tile .v.up-bad{color:var(--critical);}
+
+  .chart-box{position:relative; margin-top:18px;}
+  .chart-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin-bottom:8px;}
+  .chart-legend .k{display:flex; align-items:center; gap:6px;}
+  .k .sw-line{width:16px; height:2px; background:var(--series); border-radius:2px;}
+  .k .sw-band{width:14px; height:10px; background:var(--series-wash); border-radius:3px;}
+  .k .sw-ref{width:16px; height:1.5px; background:var(--muted);}
+  svg{display:block; width:100%; height:auto;}
+  .tooltip{
+    position:absolute; pointer-events:none; display:none;
+    background:var(--ink); color:var(--page); font-size:12px;
+    padding:6px 10px; border-radius:8px; white-space:nowrap;
+    transform:translate(-50%,-115%); z-index:5;
+  }
+  .tooltip b{font-variant-numeric:tabular-nums;}
+  .findings{margin-top:18px; border-top:1px solid var(--grid); padding-top:6px;}
+  .finding{display:flex; gap:10px; padding:9px 0; font-size:13.5px; color:var(--ink-2); border-bottom:1px solid var(--grid);}
+  .finding:last-child{border-bottom:none;}
+  .finding .fi{flex:none; width:18px; text-align:center;}
+  .finding b{color:var(--ink); font-weight:700;}
+  /* 고시 기준 3층 문구 (2026-08-12) — 1층은 본문, 2·3층은 접어둔다 */
+  .legal{margin-top:18px; border-top:1px solid var(--grid); padding-top:14px;}
+  .legal .lh{font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .legal .lb{margin-top:6px; font-size:13.5px; line-height:1.7; color:var(--ink-2);}
+  .legal .lb b{color:var(--ink); font-weight:700;}
+  .legal .lshort{margin-top:6px; font-size:12.5px; color:var(--ink-3, var(--ink-2)); opacity:.85;}
+  .legal details{margin-top:12px;}
+  .legal summary{cursor:pointer; font-size:13px; color:var(--ink-2); list-style:none;}
+  .legal summary::-webkit-details-marker{display:none;}
+  .legal summary::before{content:'▸ '; }
+  .legal details[open] summary::before{content:'▾ '; }
+  .legal .ld{margin-top:8px; padding:12px 14px; background:var(--soft, rgba(127,127,127,.07));
+             border-radius:8px; font-size:13px; line-height:1.75; color:var(--ink-2);}
+  .legal .ld p{margin:0 0 9px;}
+  .legal .ld p:last-child{margin-bottom:0;}
+  .legal .len{font-size:12px; line-height:1.6; opacity:.8;}
+
+  .claim{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--grid); align-items:flex-start;}
+  .claim:last-child{border-bottom:none;}
+  .claim .c-body{flex:1;}
+  .claim .c-title{font-size:14px; font-weight:700;}
+  .ing-link{font-size:11px; font-weight:600; color:var(--series); text-decoration:none; background:var(--series-wash); border-radius:12px; padding:2px 7px; margin-left:6px; white-space:nowrap;}
+  .ing-link:hover{background:rgba(102,114,51,0.18);}
+  .claim .c-src{font-size:12px; color:var(--muted); margin-top:1px;}
+  .claim .c-note{font-size:13px; color:var(--ink-2); margin-top:5px;}
+  .safety-row{display:flex; gap:12px; align-items:flex-start; padding:13px 15px; border-radius:11px; margin-bottom:9px;}
+  .safety-row.warn{background:var(--warn-bg);}
+  .safety-row.ok{background:var(--good-bg);}
+  .safety-row .s-ic{font-size:20px; line-height:1.3; flex:none;}
+  .safety-row b{font-size:14.5px;}
+  .safety-row .s-list{font-size:13.5px; color:var(--ink); font-weight:600; margin-top:3px;}
+  .safety-row .s-note{font-size:12.5px; color:var(--ink-2); margin-top:4px; line-height:1.5;}
+  .badge{flex:none; font-size:12px; font-weight:700; border-radius:999px; padding:4px 11px; margin-top:1px; white-space:nowrap;}
+  .badge.b-good{background:var(--good-bg); color:var(--good-text);}
+  .badge.b-warn{background:var(--warn-bg); color:var(--ink);}
+  .badge.b-serious{background:var(--serious-bg); color:var(--ink);}
+  .badge.b-bad{background:var(--critical-bg); color:var(--critical);}
+  .badge.b-neutral{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+
+  .alts-banner{display:flex; gap:10px; align-items:flex-start; background:var(--good-bg);
+    border-radius:9px; padding:11px 14px; font-size:13px; color:var(--ink-2); margin-bottom:14px; line-height:1.6;}
+  .alts-banner .ab-ic{color:var(--good-text); font-weight:800;}
+  .alts-banner b{color:var(--good-text);}
+  .alts{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px;}
+  @media (max-width:640px){.alts{grid-template-columns:1fr;}}
+  .alt{border:1px solid var(--border); border-radius:12px; padding:15px 16px; display:flex; flex-direction:column; gap:2px;}
+  .alt .a-why{font-size:11px; font-weight:700; color:var(--series); letter-spacing:.01em;}
+  .alt .a-brand{font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .alt .a-name{font-size:13.5px; font-weight:700; line-height:1.4;}
+  .alt .a-price{margin-top:7px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;}
+  .alt .a-price b{font-size:16px; font-weight:800;}
+  .alt .a-price s{font-size:11.5px; color:var(--muted);}
+  .alt .a-verdict{margin-top:7px;}
+  .alt .a-verdict .badge{margin:0; font-size:11px; padding:3px 9px;}
+  .alt .a-basis{font-size:12px; color:var(--ink-2); margin-top:7px; line-height:1.55; flex:1;}
+  .alt .a-link{display:inline-block; margin-top:10px; font-size:12px; font-weight:600; color:var(--series); cursor:pointer; background:none; border:none; padding:0; text-align:left; font-family:inherit; text-decoration:none;}
+  .alt .a-link:hover{text-decoration:underline;}
+  .alts-note{
+    margin-top:14px; padding:11px 14px; border-radius:9px;
+    background:var(--page); font-size:12px; color:var(--muted); line-height:1.65;
+  }
+  /* 비화장품(디바이스) 고시 사양표 — 2026-07-30 */
+  .spec{margin-top:16px; border-top:1px solid var(--grid);}
+  .spec .row{display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--grid); font-size:13px; color:var(--ink-2);}
+  .spec .row:last-child{border-bottom:none;}
+  .spec .row .k2{flex:none; width:132px; color:var(--muted);}
+  .spec .row .v2{flex:1; color:var(--ink);}
+  @media (max-width:560px){.spec .row{flex-direction:column; gap:1px;} .spec .row .k2{width:auto;}}
+  .basis{font-size:13px; color:var(--ink-2);}
+  .basis .row{display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--grid);}
+  .basis .row:last-child{border-bottom:none;}
+  .basis .row .k2{flex:none; width:128px; color:var(--muted);}
+  .neutral{
+    margin-top:16px; padding:14px 16px; border-radius:10px;
+    border:1px dashed var(--baseline); font-size:12.5px; color:var(--muted); line-height:1.65;
+  }
+  /* 접힌 신뢰 고지 — 한 줄 요약, 펼치면 전문 (2026-08-16) */
+  .fine{margin-top:14px;}
+  .fine summary{cursor:pointer; list-style:none; font-size:12px; color:var(--muted); line-height:1.6;}
+  .fine summary::-webkit-details-marker{display:none;}
+  .fine summary::before{content:'▸ ';}
+  .fine[open] summary::before{content:'▾ ';}
+  .fine .fd{margin-top:8px; padding:11px 13px; border-radius:8px; border:1px dashed var(--baseline);
+    font-size:12px; color:var(--muted); line-height:1.65;}
+  .actions{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
+  .dev-teaser{
+    margin-top:28px; text-align:center; font-size:12.5px; color:var(--muted);
+  }
+  .dev-teaser a{color:var(--series); text-decoration:none; font-weight:600;}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--page); font-size:13.5px;
+    padding:11px 20px; border-radius:10px; opacity:0; transition:all .25s; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .hidden{display:none;}
+  footer.site{margin-top:56px; text-align:center; font-size:12px; color:var(--muted); line-height:1.8;}
+
+  /* ---------- 모바일 (≤640px) ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 14px 60px;}
+    .card{padding:20px 16px; border-radius:12px;}
+    .hero{padding:44px 4px 30px; text-align:left;}
+    .hero h1{font-size:32px; letter-spacing:-0.045em;}
+    .hero p.lead{font-size:14.5px;}
+    .hero p.lead br{display:none;}
+    .pillars{text-align:center;}
+    .urlbar{margin-top:24px; flex-direction:column; gap:9px;}
+    .urlbar input{padding:16px 15px; font-size:15px;}
+    .btn{padding:16px; font-size:15px; width:100%;}
+    .btn.ghost{padding:12px 16px; font-size:13.5px;}
+    .trust{gap:34px; margin-top:26px;}
+    .trust .t b{font-size:26px;}
+    .trust .t span{font-size:11px;}
+    .teaser{padding:18px 16px 16px;}
+    .t-title{font-size:15.5px;}
+    .t-cta{margin-left:0; width:100%; text-align:right; padding-top:6px;}
+    .tiles{grid-template-columns:repeat(2,1fr);}
+    .actions .btn{width:100%; text-align:center;}
+  }
+
+  /* 종이 질감 그레인 — 화면 전체에 얹는 고정 오버레이. 외부 이미지 없이 인라인 SVG 노이즈,
+     클릭 통과(pointer-events:none), 인쇄 시 제외. 지우려면 이 블록만 삭제. (2026-08-11) */
+  body::after{content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27240%27%20height%3D%27240%27%3E%3Cfilter%20id%3D%27g%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.9%27%20numOctaves%3D%274%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27240%27%20height%3D%27240%27%20filter%3D%27url%28%23g%29%27%20opacity%3D%270.42%27%2F%3E%3C%2Fsvg%3E");
+    background-size:240px 240px; opacity:0.5; mix-blend-mode:multiply;}
+  @media print{body::after{display:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="site-band"><header class="site">
+    <a href="./" style="text-decoration:none;color:inherit">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link nav-first" href="price.html">판정서</a>
+    <a class="nav-link" href="routine.html">루틴 가이드</a>
+    <a class="nav-link" href="glossary.html">성분 사전</a>
+  </header></div>
+
+  <!-- ================= HOME ================= -->
+  <section id="view-home">
+    <div class="hero">
+      <h1>광고 말고, <span class="u">데이터</span>로 사세요.</h1>
+      <p class="lead">올리브영 가격을 <b>하루 두 번</b> 관측해 판정합니다.</p>
+      <div class="urlbar">
+        <input id="url-input" type="text" placeholder="상품명 또는 올리브영 URL을 붙여보세요" spellcheck="false">
+        <button class="btn" id="go-btn">판정하기</button>
+      </div>
+      <div id="search-results"></div>
+      <p class="pillars">가격 이력 · 할인 진위 · 성분 검증</p>
+      <!-- 오픈채팅 URL은 아래 한 곳만 바꾸면 됨 (2026-08-18) -->
+      <a class="kakao-band" href="https://open.kakao.com/o/REPLACE_ME" target="_blank" rel="noopener">
+        <span class="dot"></span>진짜 할인만 골라 보내는 카톡 핫딜방<span class="go">입장 →</span>
+      </a>
+    </div>
+
+    <!-- 오늘의 가격 데이터 티저 (price_teaser.json — build_price_page.py 생성)
+         2026-08-10: 박스 전체를 한 링크로 묶지 않는다. 제목·CTA는 Top 30 목록,
+         판정 칩은 그 판정만 모아 보는 목록, 미니카드는 각 상품 판정서로 나뉜다. -->
+    <div class="card teaser hidden" id="teaser">
+      <a class="t-head" href="price.html">
+        <div>
+          <div class="t-title">TODAY'S OLIVE YOUNG</div>
+          <div class="t-sub" id="t-sub"></div>
+        </div>
+        <span class="t-cta">Top 30 전체 보기 →</span>
+      </a>
+      <div class="t-stats" id="t-stats"></div>
+      <div class="t-flags" id="t-flags"></div>
+      <div class="t-minis" id="t-minis"></div>
+      <div class="t-foot">매일 오전·저녁 갱신 — <b>내일은 판정도 달라집니다</b></div>
+    </div>
+
+    <!-- 숫자 앵커 — 설명 대신 숫자를 먼저 보여준다 (2026-08-15) -->
+    <div class="trust">
+      <div class="t"><b id="stat-n">—</b><span>추적 중인 상품<br><b>URL이 아니라 제품 단위로</b></span></div>
+      <div class="t"><b>3,300<span style="font-size:19px">+</span></b><span>화장품 성분 데이터<br><b>식약처 고시 전성분 기준</b></span></div>
+    </div>
+    <div class="why-line">기획세트가 새 URL로 다시 올라와도, 같은 제품이면 같은 가격 이력에 이어 붙입니다 — 더마릭이 URL이 아니라 <b>제품</b>을 추적하는 이유예요.</div>
+  </section>
+
+  <!-- ================= LOADING ================= -->
+  <section id="view-loading" class="hidden">
+    <div class="card loading">
+      <div class="step" data-i="0"><span class="ic">✓</span>URL 확인 및 상품 식별</div>
+      <div class="step" data-i="1"><span class="ic">✓</span>관측 가격 이력 조회</div>
+      <div class="step" data-i="2"><span class="ic">✓</span>정상가·할인율 진위 분석</div>
+      <div class="step" data-i="3"><span class="ic">✓</span>성분·효능 주장 추출 및 대조</div>
+      <div class="step" data-i="4"><span class="ic">✓</span>판정서 발급</div>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section id="view-report" class="hidden">
+    <div class="report-top">
+      <button class="back" id="back-btn">← 다른 상품 판정하기</button>
+      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">조기 신호</span><span title="발급 후 고정되는 판정 기록 번호입니다">판정서 <b id="r-id"></b></span> · <span id="r-time"></span></div>
+    </div>
+
+    <div class="card">
+      <div class="paused-bar hidden" id="r-paused">
+        <div class="pb-ico">⏸</div>
+        <div>
+          <div class="pb-t" id="r-paused-t">추적 정지</div>
+          <div class="pb-s" id="r-paused-s"></div>
+        </div>
+      </div>
+      <!-- 2026-08-15: 판정을 상품보다 먼저 놓는다. 쇼핑몰은 상품 → 가격이지만
+           판정서에서 가장 먼저 읽혀야 하는 건 판정이다. -->
+      <div class="verdict" id="r-verdict">
+        <div class="v-kicker">Price Verdict</div>
+        <div class="v-main">
+          <div class="v-ic" id="r-vic"></div>
+          <div>
+            <h2 id="r-vtitle"></h2>
+            <p id="r-vdesc"></p>
+          </div>
+        </div>
+      </div>
+      <div class="prod" id="r-prod">
+        <div class="thumb" id="r-thumb"></div>
+        <div>
+          <div class="brand" id="r-brand"></div>
+          <a class="name" id="r-name" target="_blank" rel="noopener sponsored"></a>
+          <div class="opt" id="r-opt"></div>
+          <div class="price-row">
+            <span class="cur" id="r-cur"></span>
+            <span class="strike" id="r-normal"></span>
+            <span class="dc" id="r-dc"></span>
+          </div>
+          <div class="stale-note hidden" id="r-stale-note"></div>
+          <a class="oy-cta" id="r-oy" target="_blank" rel="noopener sponsored">올리브영에서 상품 보기 →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3>① 가격 진실</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
+      <div class="sec-sub" id="r-chart-sub"></div>
+      <div class="sec-sub" style="margin-top:-8px">올리브영 공개가 기준 — 쿠폰·카드사 할인은 반영되지 않습니다</div>
+      <div class="chart-legend" id="r-legend">
+        <span class="k"><span class="sw-line"></span>실판매가</span>
+        <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
+        <span class="k"><span class="sw-ref"></span>표시정가</span>
+      </div>
+      <div class="chart-box">
+        <div id="chart"></div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div class="tiles" id="r-tiles"></div>
+      <!-- 문장형 요약(findings)은 위 타일·차트와 중복이라 비노출 — 2026-08-12
+      <div class="findings" id="r-findings"></div>
+      -->
+      <div class="legal hidden" id="r-legal"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="claims-title">② 성분·효능 주장 검증</h3><span class="tag" id="claims-tag">자동 분석</span></div>
+      <div class="sec-sub" id="claims-sub">마케팅 주장 vs 성분표·기능성 고시</div>
+      <div class="tiles hidden" id="notice-tiles"></div>
+      <div id="r-claims"></div>
+      <div class="spec hidden" id="notice-spec"></div>
+      <div class="neutral hidden" id="notice-note"></div>
+    </div>
+
+    <div class="card hidden" id="safety-card">
+      <div class="sec-h"><h3>안전 주의 (성분 기반)</h3><span class="tag">전성분 자동 스캔</span></div>
+      <div class="sec-sub">임신·수유 회피 권고 · 알레르기 유발 가능 성분</div>
+      <div id="r-safety"></div>
+      <details class="fine">
+        <summary>전성분표 기반 일반 정보 — 개인의 의학적 진단이 아닙니다</summary>
+        <div class="fd">특정 성분에 민감하거나 임신·수유 중이라면 성분표를 직접 확인하고 의사·약사 등 전문가와 상담하세요.</div>
+      </details>
+    </div>
+
+    <div class="card" id="alts-card">
+      <div class="sec-h"><h3 id="alts-title">③ 검증된 대안</h3><span class="tag" id="alts-tag">자동 분석</span></div>
+      <div class="sec-sub" id="alts-sub"></div>
+      <div class="alts-banner hidden" id="alts-banner"><span class="ab-ic">✓</span><span id="alts-banner-txt"></span></div>
+      <div class="alts" id="r-alts"></div>
+      <!-- 2026-08-16: 신뢰 고지는 한 줄 요약 + 접기. 전문이 항상 펼쳐져 있으면 아무도 안 읽고
+           판정서만 길어진다 — '있다는 사실'이 신뢰의 근거고, 전문은 찾는 사람에게만. -->
+      <details class="fine">
+        <summary>순위는 성분 유사도 × 가격 판정만으로 — 광고·제휴는 관여하지 않습니다</summary>
+        <div class="fd">비교·추천 순위는 <b>성분 유사도 × 자체 가격 판정</b>만으로 정해지며, 브랜드가 비용을 지불해 노출되거나 순위를 바꿀 수 없습니다. 상품 링크에 제휴 수수료가 붙는 경우에도 수수료율은 판정·순위에 어떤 영향도 주지 않습니다(분리 원칙). 각 상품의 판정 칩은 해당 상품의 최신 판정서에서 가져옵니다.</div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="sec-h"><h3 id="basis-title">④ 판정 근거</h3></div>
+      <div class="basis" id="r-basis"></div>
+      <details class="fine">
+        <summary>판정은 광고·제휴와 분리 · 발급 후 고정 · 누구나 이의제기 가능</summary>
+        <div class="fd"><b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.</div>
+        <div class="fd"><b>이의제기·정정 정책</b> — 본 판정은 공개 관측 데이터와 식약처 고시 전성분에 근거한 자동 분석 결과이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 근거와 함께 재검토하며, 오류가 확인되면 즉시 정정하고 판정서를 새 번호로 갱신합니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 일반 참고 정보로, 개별 제품의 효능·안전을 단정하지 않습니다.</div>
+      </details>
+      <div class="actions">
+        <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
+        <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
+        <button class="btn ghost" id="tg-btn">📮 텔레그램으로 주간 팩트체크 받기</button>
+      </div>
+    </div>
+
+    <!-- TODO(API/MCP 실제 제공 시 복원): 미구현 기능이라 노출 보류 — 2026-08-12
+    <div class="dev-teaser">
+      개발자이신가요? 이 판정을 <a href="#" id="api-link">API / MCP 도구</a>로 받아 에이전트에 연결할 수 있습니다 — <code>verify_price</code> · <code>check_claim</code>
+    </div>
+    -->
+  </section>
+
+  <footer class="site">
+    <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
+    올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다. — 수수료는 판정에 영향을 주지 않습니다.<br>
+    <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
+  </footer>
+</div>
+<!-- ================= 이의제기 모달 ================= -->
+<div id="dispute-modal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(42,39,32,.55); align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--surface); border-radius:16px; max-width:520px; width:100%; max-height:85vh; overflow:auto; padding:26px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25);">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <span style="font-size:20px;">✋</span>
+      <h2 style="font-size:18px; font-weight:800; margin:0;">판정에 이의제기</h2>
+      <button id="dispute-close" style="margin-left:auto; background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer; line-height:1;">×</button>
+    </div>
+    <p style="font-size:13.5px; color:var(--ink-2); line-height:1.6; margin:8px 0 14px;">
+      이 판정이 <b>사실과 다르거나 오류</b>가 있다고 보시면 알려주세요. 접수된 건은 근거와 함께 재검토하고,
+      오류가 확인되면 <b>즉시 정정 후 판정서를 새 번호로 갱신</b>합니다.
+    </p>
+    <div style="background:var(--page); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--ink-2); line-height:1.7; margin-bottom:14px;">
+      <b>재검토 대상 판정서</b><br>
+      <span id="dispute-ctx" style="color:var(--muted);">—</span>
+    </div>
+    <ol style="font-size:12.5px; color:var(--ink-2); line-height:1.7; margin:0 0 16px; padding-left:18px;">
+      <li>아래 버튼으로 이메일이 열립니다 (판정서 정보 자동 첨부).</li>
+      <li>어떤 부분이 사실과 다른지, 근거(가격 캡처·공식 자료 등)를 적어 보내주세요.</li>
+      <li>영업일 <b>7일 이내</b> 검토 결과를 회신드립니다.</li>
+    </ol>
+    <a id="dispute-mail" href="#" style="display:block; text-align:center; background:var(--series); color:#fff; font-weight:700; font-size:14.5px; text-decoration:none; border-radius:11px; padding:13px;">✉️ 이메일로 이의제기 보내기</a>
+    <p style="font-size:11px; color:var(--muted); text-align:center; margin-top:10px;">또는 <span id="dispute-addr" style="color:var(--ink-2);">dispute@themaric.kr</span> 로 직접 보내주셔도 됩니다.</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function quantile(arr,q){const s=[...arr].sort((a,b)=>a-b);const p=(s.length-1)*q;const lo=Math.floor(p),hi=Math.ceil(p);return s[lo]+(s[hi]-s[lo])*(p-lo);}
+
+/* ---------- 가격 이력 생성 (결정적) ---------- */
+function genSeries(seed, base, noise, promoDepth, promoEvery, last, startWeek=0){
+  const rnd = mulberry32(seed);
+  const pts = [];
+  for(let w=startWeek; w<52; w++){
+    let p = base + (rnd()-0.5)*2*noise;
+    const cycle = w % promoEvery;
+    if(cycle===0 || cycle===1) p = base - promoDepth - rnd()*noise; // 세일 주간
+    pts.push({w, price: Math.round(p/100)*100});
+  }
+  if(last!=null) pts[pts.length-1].price = last;
+  return pts;
+}
+
+/* 판정서 데이터는 verdicts/*.json 에서 fetch (임베디드 데이터 없음) */
+const CASES = {};
+
+/* ---------- 뷰 전환 ---------- */
+const views = ['home','loading','report'];
+function show(v){ views.forEach(x => $('#view-'+x).classList.toggle('hidden', x!==v)); window.scrollTo({top:0}); }
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- 로딩 연출 ---------- */
+function runLoading(caseKey){
+  show('loading');
+  const steps = document.querySelectorAll('#view-loading .step');
+  steps.forEach(s => s.classList.remove('on','now'));
+  let i = 0;
+  const tick = () => {
+    if(i>0) steps[i-1].classList.replace('now','on') || steps[i-1].classList.add('on');
+    if(i < steps.length){ steps[i].classList.add('now'); i++; setTimeout(tick, 340); }
+    else setTimeout(()=>renderReport(caseKey), 250);
+  };
+  tick();
+}
+
+/* ---------- 판정서 렌더 ---------- */
+let seq = 4217;
+function renderReport(key){
+  const c = CASES[key];
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  $('#r-id').textContent = c.vid ||
+    `KHUB-V-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${String(seq++).padStart(5,'0')}(미리보기)`;
+  const isPreview = c.vid && c.vid.includes('-P');
+  $('#r-time').textContent = !c.vid
+    ? `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} KST`
+    : isPreview
+      ? `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
+      : `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} 발급`;
+
+  if(c.img){ $('#r-thumb').innerHTML = `<img src="${c.img}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:11px;" onerror="this.remove()">`; }
+  else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }
+  $('#r-brand').textContent = c.brand;
+  $('#r-name').textContent = c.name;
+  /* 상품명·CTA·썸네일 → 올리브영(어필리에이트 링크가 있으면 그 링크). 판정과 수수료는 분리 원칙. */
+  const oyHref = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
+  const nameEl = $('#r-name'), ctaEl = $('#r-oy');
+  if(oyHref){
+    nameEl.href = oyHref; nameEl.removeAttribute('aria-disabled');
+    ctaEl.href = oyHref; ctaEl.classList.remove('hidden');
+    const th = $('#r-thumb');
+    th.style.cursor = 'pointer';
+    th.onclick = ()=> window.open(oyHref, '_blank', 'noopener');
+  } else {
+    nameEl.removeAttribute('href'); ctaEl.classList.add('hidden');
+  }
+  $('#r-opt').textContent = c.opt;
+  $('#r-cur').textContent = won(c.cur);
+  const hasDc = c.dcShown && c.normal !== c.cur;
+  $('#r-normal').textContent = hasDc ? won(c.normal) : '';
+  $('#r-dc').textContent = hasDc ? c.dcShown + ' 할인 표시' : '';
+  $('#r-dc').style.color = hasDc ? 'var(--critical)' : 'var(--muted)';
+  if(!hasDc) $('#r-dc').textContent = '표시정가 그대로 판매 중 (할인 표시 없음)';
+
+  /* 추적 정지 — 21일 이상 미관측. 가격이 '현재가'가 아님을 먼저 밝힌다. (2026-08-12)
+     단종 확인(discontinued_since)과 '그냥 안 보임'은 다른 사실이므로 문구를 나눈다. */
+  const pz = c.paused;
+  const pzBar = $('#r-paused'), pzNote = $('#r-stale-note'), prodEl = $('#r-prod');
+  if(pz){
+    const seen = (pz.lastSeen||'').replace(/-/g,'.');
+    $('#r-paused-t').textContent = pz.reason === 'discontinued'
+      ? '추적 정지 — 판매 종료 확인됨'
+      : `추적 정지 — ${pz.days}일째 미관측`;
+    $('#r-paused-s').textContent = pz.reason === 'discontinued'
+      ? `${(pz.discontinuedSince||'').replace(/-/g,'.')} 이후 올리브영에서 판매가 확인되지 않습니다. `
+        + `아래 가격은 마지막 관측일(${seen}) 기준이며 더 이상 갱신하지 않습니다. 판정 내용은 기록으로 보존합니다.`
+      : `${seen} 이후 이 상품이 수집 범위에서 관측되지 않아 가격 갱신을 멈췄습니다. `
+        + `품절·판매 종료일 수도, 단순히 수집 대상에서 빠진 것일 수도 있어 단정하지 않습니다. `
+        + `아래 가격은 마지막 관측일 기준입니다.`;
+    pzBar.classList.remove('hidden');
+    prodEl.classList.add('is-paused');
+    pzNote.textContent = `※ ${seen} 마지막 관측가 · 현재가 아님`;
+    pzNote.classList.remove('hidden');
+  } else {
+    pzBar.classList.add('hidden');
+    prodEl.classList.remove('is-paused');
+    pzNote.classList.add('hidden');
+  }
+
+  const v = $('#r-verdict');
+  v.className = 'verdict v-' + c.verdict;
+  $('#r-vic').textContent = c.vic;
+  $('#r-vtitle').textContent = c.vtitle;
+  $('#r-vdesc').textContent = c.vdesc;
+  $('#r-chart-sub').textContent = c.chartSub;
+
+  /* 실데이터/가상 분기 및 시계열 정규화 */
+  const isReal = !!c.real;
+  $('#real-badge').classList.toggle('hidden', !isReal);
+  $('#price-tag').textContent = '실측 데이터 · 일 2회 관측';
+  const weekLabelW = w => { const m = new Date(2025,7,4); m.setDate(m.getDate()+w*7);
+    return `${String(m.getFullYear()).slice(2)}.${m.getMonth()+1}.${m.getDate()}`; };
+  const pts = isReal
+    ? c.chart.series.map((p,i)=>({i, label:p.label, price:p.price}))
+    : c.series.map((p,i)=>({i, label:weekLabelW(p.w), price:p.price}));
+
+  /* 통계 */
+  const prices = pts.map(p=>p.price);
+  const med = Math.round(quantile(prices,.5)/100)*100;
+  const p10 = Math.round(quantile(prices,.1)/100)*100;
+  const p90 = Math.round(quantile(prices,.9)/100)*100;
+  const below = prices.filter(p=>p<=c.cur).length / prices.length;
+  const pct = Math.max(1, Math.round(below*100));
+  const realDc = Math.round((1 - c.cur/med)*100);
+  const hasBand = !isReal && pts.length >= 13;
+
+  /* 하드코딩 텍스트 ↔ 계산치 동기화 */
+  const fill = s => s.replaceAll('{med}', won(med)).replaceAll('{p10}', p10.toLocaleString('ko-KR'))
+    .replaceAll('{p90}', won(p90)).replaceAll('{pct}', pct).replaceAll('{realDc}', Math.max(0,realDc));
+  $('#r-vdesc').textContent = fill(c.vdesc);
+
+  const tiles = c.tiles || [
+    ['현재가', won(c.cur), ''],
+    [hasBand?'12개월 중앙값':'관측 중앙값', won(med), ''],
+    [hasBand?'12개월 최저 구간 (p10)':'관측 최저', won(hasBand?p10:Math.min(...prices)), ''],
+    ['실질 할인율', (realDc>=0?realDc:0) + '%',
+      c.verdict==='good' ? 'up-good' : (c.verdict==='bad' ? 'up-bad' : '')],
+  ];
+  $('#r-tiles').innerHTML = tiles.map(([l,val,cls]) =>
+    `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
+
+  // findings 비노출 중 — 요소가 없으면 건너뜀 (마크업 주석만 풀면 그대로 복원)
+  const fndEl = $('#r-findings');
+  if (fndEl) fndEl.innerHTML = c.findings.map(([ic,raw])=>{
+    const txt = fill(raw);
+    const col = ic==='✓' ? 'var(--good-text)' : ic==='✕' ? 'var(--critical)' : 'var(--ink)';
+    return `<div class="finding"><span class="fi" style="color:${col};font-weight:800">${ic}</span><span>${txt}</span></div>`;
+  }).join('');
+
+  // 고시 기준 3층 문구 — 1층만 펼쳐두고 2·3층은 details로 접는다 (2026-08-12)
+  const lg = c.legal, lgEl = $('#r-legal');
+  if (lg) {
+    lgEl.classList.remove('hidden');
+    lgEl.innerHTML =
+      `<div class="lh">${lg.head}</div>` +
+      `<div class="lb">${fill(lg.body)}</div>` +
+      (lg.short ? `<div class="lshort">※ 관측이 20일에 못 미쳐 확보된 기간만으로 계산했습니다. 관측이 쌓이면 자동 갱신됩니다.</div>` : '') +
+      `<details><summary>왜 20일인가요?</summary><div class="ld">` +
+        `<p>${lg.why}</p><p>${lg.limit}</p>` +
+        `<p class="len">${lg.en}</p>` +
+      `</div></details>`;
+  } else {
+    lgEl.classList.add('hidden');
+    lgEl.innerHTML = '';
+  }
+
+  $('#claims-title').textContent = c.claimsTitle || '② 성분·효능 주장 검증';
+  $('#claims-tag').textContent = c.claimsTag || '자동 분석';
+  $('#claims-sub').textContent = c.claimsSub || '마케팅 주장 vs 성분표·기능성 고시';
+  $('#r-claims').innerHTML = c.claims.map(cl=>`
+    <div class="claim">
+      <div class="c-body">
+        <div class="c-title">${cl.t}${cl.ing?` <a class="ing-link" href="glossary.html?q=${encodeURIComponent(cl.ing)}" target="_blank" rel="noopener" title="성분 사전에서 보기">🔎 사전</a>`:''}</div>
+        <div class="c-src">출처: ${cl.s}</div>
+        <div class="c-note">${cl.n}</div>
+      </div>
+      <span class="badge b-${cl.v}">${cl.b}</span>
+    </div>`).join('');
+
+  /* 비화장품(디바이스 등) 고시 블록 — 값이 있을 때만 표시 (화장품은 그대로) */
+  const nt = $('#notice-tiles'), nsp = $('#notice-spec'), nn = $('#notice-note');
+  if(c.noticeTiles && c.noticeTiles.length){
+    nt.classList.remove('hidden');
+    nt.innerHTML = c.noticeTiles.map(([l,val,cls]) =>
+      `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
+  } else nt.classList.add('hidden');
+  if(c.noticeSpec && c.noticeSpec.length){
+    nsp.classList.remove('hidden');
+    nsp.innerHTML = c.noticeSpec.map(([k,v]) =>
+      `<div class="row"><div class="k2">${k}</div><div class="v2">${v}</div></div>`).join('');
+  } else nsp.classList.add('hidden');
+  if(c.noticeNote){ nn.classList.remove('hidden'); nn.innerHTML = c.noticeNote; }
+  else nn.classList.add('hidden');
+
+  /* ② 섹션이 통째로 비는 경우 — 빈 화면 대신 '무엇이 아직 없는지'를 적는다 (2026-07-31).
+     기획세트·신규 등록 상품은 고시 수집이 다음 회차로 밀릴 수 있다. 정보가 없다는 뜻이 아니다. */
+  if(!(c.claims && c.claims.length) && !(c.noticeTiles && c.noticeTiles.length)
+     && !(c.noticeSpec && c.noticeSpec.length)){
+    const oy = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
+    $('#r-claims').innerHTML =
+      `<div class="empty-sec">
+         <div class="es-t">이 상품은 아직 고시 정보를 수집하지 못했습니다</div>
+         <div class="es-b">제조국·제조자·품질보증기준 같은 「상품정보 제공고시」 항목이 <b>아직 더마릭에 들어오지 않았습니다</b>.
+         판매자가 표기하지 않았다는 뜻이 아니라, 이 상품이 아직 수집 순번이 아니라는 뜻입니다 —
+         기획세트·신규 등록 상품에서 자주 생깁니다. 다음 수집 회차에 채워지면 판정서도 새 번호로 갱신됩니다.</div>
+         <div class="es-b" style="margin-top:8px">위 <b>① 가격 진실</b> 판정은 이 항목과 무관하게 매일 갱신되니 그대로 참고하셔도 됩니다.
+         고시 표기를 지금 바로 확인하려면 ${oy ? `<a href="${oy}" target="_blank" rel="noopener sponsored">올리브영 상품 페이지</a>` : '올리브영 상품 페이지'}의
+         「상품정보 제공고시」를 펼쳐 보세요.</div>
+       </div>`;
+  }
+
+  /* 안전 주의 (성분 기반) — 프로필 있는 실데이터에만 */
+  const safetyCard = $('#safety-card');
+  if(c.hasProfile){
+    safetyCard.classList.remove('hidden');
+    const s = c.safety || {};
+    const rows = [];
+    if(s.pregnancy && s.pregnancy.length){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">🤰</div><div><b>임산부·수유부 주의</b><div class="s-list">${s.pregnancy.join(', ')} 포함</div><div class="s-note">임신·수유 중이라면 사용 전 전문가 상담을 권장합니다.</div></div></div>`);
+    }
+    if(s.allergen && s.allergen.length){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">🌸</div><div><b>알레르기 유발 가능 성분</b><div class="s-list">${s.allergen.join(', ')}</div><div class="s-note">향료·특정 착향 성분에 민감하다면 성분표를 확인하고 사용하세요.</div></div></div>`);
+    }
+    if(!rows.length){
+      rows.push(`<div class="safety-row ok"><div class="s-ic">✓</div><div><b>특별히 주의할 성분은 검출되지 않았습니다</b><div class="s-note">임신 회피 권고·주요 착향 알레르겐 기준 스캔 결과입니다.</div></div></div>`);
+    }
+    if(s.official){
+      rows.push(`<div class="safety-row warn"><div class="s-ic">📋</div><div><b>제조사 공식 주의사항</b><div class="s-note">${s.official}</div></div></div>`);
+    }
+    $('#r-safety').innerHTML = rows.join('');
+  } else {
+    safetyCard.classList.add('hidden');
+  }
+
+  /* 대안 옵션 (bad/warn 판정에만) */
+  const altsCard = $('#alts-card');
+  if(c.alts && c.alts.length){
+    altsCard.classList.remove('hidden');
+    $('#alts-title').textContent = c.altsTitle || '③ 검증된 대안';
+    $('#alts-tag').textContent = c.altsTag || '자동 분석';
+    $('#alts-sub').textContent = c.altsSub;
+    const bn = $('#alts-banner');
+    bn.classList.toggle('hidden', !c.altsBanner);
+    if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
+    $('#r-alts').innerHTML = c.alts.map(a=>`
+      <div class="alt">
+        <div class="a-why">${a.why}</div>
+        <div class="a-brand">${a.brand}</div>
+        <div class="a-name">${a.name}</div>
+        <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
+        <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
+        <div class="a-basis">${a.basis}</div>
+        ${a.gno?`<a class="a-link" href="${a.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+a.gno}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
+      </div>`).join('');
+    $('#basis-title').textContent = '④ 판정 근거';
+  } else {
+    altsCard.classList.add('hidden');
+    $('#basis-title').textContent = '③ 판정 근거';
+  }
+
+  const obsDays = pts.length>=52 ? 365 : 41;
+  $('#r-basis').innerHTML = (c.basis || [
+    ['가격 관측', `일 2회 (오전·저녁) 자동 수집 · 최근 ${obsDays}일 / 약 ${obsDays*2}회 관측`],
+    ['판정 기준', hasBand ? '12개월 p10–p90 통상 구간 + 중앙값 대비 실질 할인율 (베이스라인 게이트 적용)' : '관측 90일 미만 시 표시정가 진위 판정 보류 (보수적 원칙)'],
+    ['주장 대조 출처', '식약처 기능성화장품 고시 · 전성분표(함량순 고시 기준)'],
+    ['판정서 고정', '발급 시점 데이터로 고정 · 재조회 시 새 번호로 신규 발급'],
+  ]).map(([k,val])=>`<div class="row"><span class="k2">${k}</span><span>${val}</span></div>`).join('');
+
+  $('#lg-band').style.display = hasBand ? '' : 'none';
+  const cfg = isReal
+    ? {pts, cur:c.cur, verdict:c.verdict, normal:c.chart.normal, normalNote:c.chart.normalNote,
+       band:null, median:null, note:null}
+    : {pts, cur:c.cur, verdict:c.verdict, normal:c.normal,
+       normalNote:`표시정가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
+       band: hasBand?{p10,p90}:null, median: hasBand?med:null,
+       note: hasBand?null:'관측 41일 — 통상 구간(밴드) 산출 기준(90일) 미달'};
+  drawChart(cfg);
+  show('report');
+}
+
+/* ---------- 차트 (SVG, 임의 시계열) ---------- */
+function drawChart(cfg){
+  const W=720, H=250, L=58, R=14, T=18, B=30;
+  const iw = W-L-R, ih = H-T-B;
+  const pts = cfg.pts, n = pts.length;
+  const allVals = pts.map(p=>p.price).concat([cfg.normal]);
+  let yMin = Math.min(...allVals), yMax = Math.max(...allVals);
+  const padY = Math.max((yMax-yMin)*0.12, yMax*0.03); yMin=Math.max(0,yMin-padY); yMax+=padY;
+  const x = i => n>1 ? L + (i/(n-1))*iw : L + iw/2;
+  const y = p => T + ih - ((p-yMin)/(yMax-yMin))*ih;
+
+  /* y 눈금: 깔끔한 단위 */
+  const span = yMax-yMin;
+  const step = span > 15000 ? 5000 : span > 6000 ? 2000 : 1000;
+  let ticks=[]; for(let t=Math.ceil(yMin/step)*step; t<=yMax; t+=step) ticks.push(t);
+
+  /* x 눈금: 최대 7개, 라벨 중복 제거 */
+  const nTicks = Math.min(7, n);
+  const idxs = [...new Set(Array.from({length:nTicks}, (_,k)=>Math.round(k*(n-1)/Math.max(1,nTicks-1))))];
+  let lastLab = null;
+  const xticks = idxs.map(i=>{
+    const lab = pts[i].label.split('·')[0];
+    if(lab===lastLab) return null; lastLab=lab; return [i,lab];
+  }).filter(Boolean);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="가격 이력 차트">`;
+  ticks.forEach(t=>{
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    s += `<text x="${L-8}" y="${y(t)+4}" text-anchor="end" font-size="10.5" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${t.toLocaleString('ko-KR')}</text>`;
+  });
+  xticks.forEach(([i,lab])=>{
+    s += `<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${lab}</text>`;
+  });
+  /* 통상 구간 밴드 / 미달 노트 */
+  if(cfg.band){
+    s += `<rect x="${L}" y="${y(cfg.band.p90)}" width="${iw}" height="${y(cfg.band.p10)-y(cfg.band.p90)}" rx="4" fill="var(--series-wash)"/>`;
+  }
+  if(cfg.median != null){
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.median)}" y2="${y(cfg.median)}" stroke="var(--baseline)" stroke-width="1"/>`;
+    s += `<text x="${L+4}" y="${y(cfg.median)-5}" font-size="10.5" fill="var(--muted)">중앙값 ${cfg.median.toLocaleString('ko-KR')}</text>`;
+  }
+  if(cfg.note){
+    s += `<text x="${L+iw*0.38}" y="${T+ih*0.45}" text-anchor="middle" font-size="12" fill="var(--muted)">${cfg.note}</text>`;
+  }
+  /* 표시정가 기준선 */
+  s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--muted)" stroke-width="1.5"/>`;
+  s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--ink-2)" font-weight="600">${cfg.normalNote}</text>`;
+  /* 가격 라인 */
+  const d = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p.price).toFixed(1)).join(' ');
+  s += `<path d="${d}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  /* 관측점 마커 (짧은 시계열일 때만) */
+  if(n <= 25){
+    pts.forEach((p,i)=>{
+      s += `<circle cx="${x(i)}" cy="${y(p.price)}" r="3.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+    });
+  }
+  /* 현재가 마커 (서피스 링) */
+  const lastP = pts[n-1];
+  s += `<circle cx="${x(n-1)}" cy="${y(lastP.price)}" r="5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${x(n-1)-12}" y="${y(lastP.price)+(cfg.verdict==='good'?20:-14)}" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--ink)">현재 ${lastP.price.toLocaleString('ko-KR')}원</text>`;
+  /* 호버 레이어 */
+  s += `<line id="xhair" x1="0" x2="0" y1="${T}" y2="${T+ih}" stroke="var(--baseline)" stroke-width="1" style="display:none"/>`;
+  s += `<circle id="hoverdot" r="4.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2" style="display:none"/>`;
+  s += `<rect x="${L}" y="${T}" width="${iw}" height="${ih}" fill="transparent" id="hover-rect"/>`;
+  s += `</svg>`;
+  $('#chart').innerHTML = s;
+
+  /* 크로스헤어 + 툴팁 */
+  const svg = $('#chart svg'), tt = $('#tooltip');
+  const hr = svg.querySelector('#hover-rect'), xh = svg.querySelector('#xhair'), hd = svg.querySelector('#hoverdot');
+  hr.addEventListener('mousemove', ev=>{
+    const box = svg.getBoundingClientRect();
+    const sx = (ev.clientX-box.left) * (W/box.width);
+    let bi=0, bd=1e9;
+    pts.forEach((p,i)=>{const dd=Math.abs(x(i)-sx); if(dd<bd){bd=dd;bi=i;}});
+    const px=x(bi), py=y(pts[bi].price);
+    xh.setAttribute('x1',px); xh.setAttribute('x2',px); xh.style.display='block';
+    hd.setAttribute('cx',px); hd.setAttribute('cy',py); hd.style.display='block';
+    tt.style.display='block';
+    tt.style.left=(px/W*100)+'%';
+    tt.style.top=(py/H*100)+'%';
+    tt.innerHTML = `${pts[bi].label} · <b>${won(pts[bi].price)}</b>`;
+  });
+  hr.addEventListener('mouseleave', ()=>{ tt.style.display='none'; xh.style.display='none'; hd.style.display='none'; });
+}
+
+/* ---------- 이벤트 ---------- */
+function caseFromUrl(u){
+  let h=0; for(const ch of u) h=(h*31+ch.charCodeAt(0))|0;
+  return ['a','b','c'][Math.abs(h)%3];
+}
+/* 파일을 직접 열었을 때(file://) fetch가 막히는 경우의 오프라인 샘플 폴백 */
+
+/* 로딩 애니메이션만 (renderReport는 외부에서 호출) */
+function runLoadingThen(cb){
+  show('loading');
+  const steps = document.querySelectorAll('#view-loading .step');
+  steps.forEach(s => s.classList.remove('on','now'));
+  let i = 0;
+  const tick = () => {
+    if(i>0){ steps[i-1].classList.add('on'); steps[i-1].classList.remove('now'); }
+    if(i < steps.length){ steps[i].classList.add('now'); i++; setTimeout(tick, 300); }
+    else setTimeout(cb, 250);
+  };
+  tick();
+}
+
+/* ---------- 상품명 검색 (URL 아닌 입력) ---------- */
+let SEARCH_INDEX = null;
+async function loadIndex(){
+  if(SEARCH_INDEX) return SEARCH_INDEX;
+  try{ const r = await fetch('verdicts/index.json', {cache:'no-store'});
+       if(r.ok){ SEARCH_INDEX = (await r.json()).items || {}; } }
+  catch(e){ SEARCH_INDEX = {}; }
+  return SEARCH_INDEX || {};
+}
+async function searchProducts(q){
+  q = (q||'').trim(); if(!q) return;
+  const box = $('#search-results');
+  const idx = await loadIndex();
+  if(!Object.keys(idx).length){ // file:// 등 index 로드 불가
+    box.innerHTML = `<div class="sr-empty">상품명 검색은 배포된 사이트에서 동작해요. 파일을 직접 열면 상품 URL로만 조회됩니다.</div>`;
+    box.classList.add('on'); return;
+  }
+  // 띄어쓴 단어는 각각 AND로 검색 (예: "아누아 세럼" → '아누아' AND '세럼' 둘 다 포함)
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = Object.entries(idx)
+    .filter(([g,it]) => { const hay=((it.name||'')+' '+(it.brand||'')).toLowerCase(); return terms.every(t=>hay.includes(t)); })
+    .sort((a,b)=>(a[1].name||'').length-(b[1].name||'').length)   // 짧은(대표) 상품명 우선
+    .slice(0, 40);
+  if(!hits.length){
+    box.innerHTML = `<div class="sr-empty">‘${q}’에 해당하는 추적 상품이 없어요. 아직 추적 목록에 없거나(수집 대기), 상품 URL로 조회해보세요.</div>`;
+    box.classList.add('on'); return;
+  }
+  if(hits.length === 1){ box.classList.remove('on'); box.innerHTML=''; loadGoods(hits[0][0]); return; }
+  box.innerHTML = `<div class="sr-head">‘${q}’ 검색 결과 ${hits.length}개 — 판정서를 볼 상품을 선택하세요</div>` +
+    hits.map(([g,it]) => {
+      const nm=(it.name||''), br=(it.brand||'');
+      const disp = (br && !nm.includes(br)) ? `<b>${br}</b> ${nm}` : nm;
+      const im = it.img ? `<img class="sr-img" src="${it.img}" alt="" loading="lazy" onerror="this.remove()">` : '';
+      return `<button class="sr-item" data-g="${g}">${im}<span>${disp}</span><span class="sr-cur">${(it.cur||0).toLocaleString('ko-KR')}원</span></button>`;
+    }).join('');
+  box.classList.add('on');
+}
+function loadGoods(gno){
+  $('#search-results').classList.remove('on');
+  judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + gno);
+}
+
+async function judgeUrl(u){
+  /* 상품번호는 A(화장품)·B(비화장품·디바이스 등) 두 접두사가 모두 쓰인다.
+     A만 받으면 B상품 판정서 512건이 통째로 열리지 않는다 — 티저·가격표·검색 전부
+     ?g=B... 로 들어오는데 여기서 걸러져 '추적 목록에 없는 상품'으로 오인됐다. (2026-08-11) */
+  const m = u.match(/[AB]\d{12}/);
+  if(!m){ searchProducts(u); return; }   // URL이 아니면 상품명 검색으로
+  const gno = m[0];
+  runLoadingThen(async ()=>{
+    try{
+      const res = await fetch('verdicts/' + gno + '.json', {cache:'no-store'});
+      if(res.ok){
+        const j = await res.json();
+        if(!j.gno) j.gno = gno;   // 구버전 판정서 JSON 호환 — 상품 링크가 끊기지 않게
+        CASES['_fetched'] = j; renderReport('_fetched'); return;
+      }
+      // 200이 아니면(404 등) 추적 목록에 없는 상품
+      show('home');
+      toast(`${gno} — 아직 추적 목록에 없는 상품이에요. 추적 목록은 매일 넓어집니다.`);
+      return;
+    }catch(e){ /* file:// 로 직접 열어 fetch 자체가 막힌 경우 */ }
+    show('home');
+    toast('파일을 직접 열면 조회가 제한돼요 — 배포된 사이트(http)에서 상품 URL을 넣어보세요.');
+  });
+}
+
+$('#go-btn').addEventListener('click', ()=>{
+  const inp = $('#url-input'), u = inp.value.trim();
+  if(!u){ inp.classList.add('err'); setTimeout(()=>inp.classList.remove('err'),400); inp.focus(); return; }
+  judgeUrl(u);
+});
+$('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
+$('#search-results').addEventListener('click', e=>{ const b=e.target.closest('.sr-item'); if(b) loadGoods(b.dataset.g); });
+/* ?g=goodsNo 파라미터로 판정서 바로 열기 (가격 데이터 페이지 카드 → 판정서 동선) */
+/* from=device|price → '다른 상품 판정하기'를 눌렀을 때 왔던 목록으로 돌려보낸다 (2026-07-31) */
+const ORIGIN_PAGES = {device:'device.html', price:'price.html', routine:'routine.html'};
+let backTo = null;
+{
+  const q = new URLSearchParams(location.search);
+  const qg = q.get('g');
+  backTo = ORIGIN_PAGES[q.get('from')] || null;
+  if(backTo){
+    const lbl = {'device.html':'← 디바이스 목록으로', 'price.html':'← 가격 데이터로',
+                 'routine.html':'← 루틴 가이드로'}[backTo];
+    if(lbl) $('#back-btn').textContent = lbl;
+    /* 가격 데이터에서 판정·카테고리 필터를 켠 채로 들어왔으면 그 화면 그대로 돌려보낸다 */
+    if(backTo === 'price.html'){
+      const p = new URLSearchParams();
+      if(q.get('fcat')) p.set('cat', q.get('fcat'));
+      if(q.get('fv'))   p.set('v',   q.get('fv'));
+      if([...p].length) backTo += '?' + p.toString();
+    }
+  }
+  if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
+}
+loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').textContent=n.toLocaleString('ko-KR'); });
+
+/* ---------- 오늘의 가격 데이터 티저 (price_teaser.json — 없으면 티저 숨김 유지) ---------- */
+(async ()=>{
+  let d = null;
+  try{ const r = await fetch('price_teaser.json', {cache:'no-store'}); if(r.ok) d = await r.json(); }
+  catch(e){ /* file:// 등 — 티저 생략 */ }
+  if(!d || !d.minis || !d.minis.length) return;
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  /* 2026-08-15: 등급(합쳐서 Top 30)과 플래그(표시가 주의)를 두 계위로 나눴다.
+     '정직한 가격'은 부풀림이 아니면 전부 해당돼 정보가 없어 없앴다. */
+  const VC = {genuine:['v-good','✓ 진짜 할인'], watch:['v-flat','통상 가격'], hold:['v-warn','! 판정 보류']};
+  const VEN = {genuine:'HOT DEAL', watch:'NO DEAL', hold:'NO VERDICT'};
+  const FC = {inflated:'✕ 부풀림 신호', raised:'↑ 표시정가 인상', sale_end:'↑ 할인 종료'};
+  const gradeOf = it => it.grade || (VC[it.vtype] ? it.vtype : 'watch');
+  const c = d.counts || {}, fc = d.fcounts || {};
+  const badN = fc.inflated||0;
+  /* 2026-08-17: 관측 날짜는 뺀다 — 오늘 데이터인 게 기본값이고, 모바일에서 두 줄을 먹는다 */
+  $('#t-sub').innerHTML = badN
+    ? `Top 30 중 <b class="bad">${badN}개는 부풀려진 할인</b>`
+    : `Top 30의 실제 가격 흐름`;
+  /* 판정 칩 → 그 판정만 모아 보는 목록 (price.html?v=…) */
+  const stat = (cls,label,n,v)=> n
+    ? `<a class="t-stat ${cls}" href="price.html?v=${v}" title="${esc(label)} (${VEN[v]||''}) ${n}개만 모아 보기">${label} ${n}</a>` : '';
+  const fstat = (label,n,f)=> n
+    ? `<a class="t-fstat" href="price.html?f=${f}" title="${esc(label)} ${n}개만 모아 보기">${label} ${n}</a>` : '';
+  $('#t-stats').innerHTML =
+    stat('s-good','✓ 진짜 할인',c.genuine,'genuine') +
+    stat('s-flat','통상 가격',c.watch,'watch') +
+    stat('s-warn','! 판정 보류',c.hold,'hold');
+  /* 플래그는 등급과 다른 축 — 한 계위 아래로 내린다 */
+  const frow = fstat('✕ 부풀림 신호',fc.inflated,'inflated')
+             + fstat('↑ 표시정가 인상',fc.raised,'raised') + fstat('↑ 할인 종료',fc.sale_end,'sale_end');
+  $('#t-flags').innerHTML = frow ? `<span class="t-flabel">표시가 주의</span>${frow}` : '';
+  const CW=260, CH=46, L=6, R=6, T=8, B=5;
+  const mspark = it=>{
+    const pts = it.series||[]; const n = pts.length; if(!n) return '';
+    const vals = pts.map(p=>p[1]);
+    let yMin = Math.min(...vals, it.org||Infinity), yMax = Math.max(...vals, it.org||0);
+    const pad = Math.max((yMax-yMin)*0.14, yMax*0.02); yMin-=pad; yMax+=pad;
+    const x = i => n>1 ? L + (i/(n-1))*(CW-L-R) : CW/2;
+    const y = v => T + (CH-T-B) - ((v-yMin)/(yMax-yMin))*(CH-T-B);
+    let s = `<svg viewBox="0 0 ${CW} ${CH}" aria-hidden="true">`;
+    if(it.org) s += `<line x1="${L}" x2="${CW-R}" y1="${y(it.org)}" y2="${y(it.org)}" stroke="var(--muted)" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.75"/>`;
+    const path = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[1]).toFixed(1)).join('');
+    s += `<path d="${path}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3.4" fill="var(--deal)" stroke="var(--surface)" stroke-width="2"/>`;
+    return s + `</svg>`;
+  };
+  /* 미니카드 → 해당 상품의 판정서 (박스 전체가 Top 30으로 가던 동선을 분리) */
+  $('#t-minis').innerHTML = d.minis.slice(0,3).map(it=>{
+    const [cls,label] = VC[gradeOf(it)] || VC.watch;
+    const ftags = (it.flags||[]).map(fl=>`<span class="m-flag">${FC[fl]||fl}</span>`).join('');
+    const th = it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
+                      : esc((it.brand||'·').slice(0,1));
+    /* 2026-08-15: 판정 → 가격 → 이력 → 상품 순서로 뒤집었다. 일반 쇼핑몰은 상품 사진이
+       먼저지만, 더마릭 카드에서 가장 먼저 읽혀야 하는 건 판정이다. 썸네일은 하단으로. */
+    /* B안과 같은 문법 — 표시가 대신 평소가 대비 (2026-08-17) */
+    let real = '';
+    if (it.med){
+      const r = Math.round((1 - it.cur/it.med)*100);
+      real = r >= 3 ? `<span class="m-real hot">평소보다 −${r}%</span>`
+           : r <= -3 ? `<span class="m-real">평소보다 +${-r}%</span>`
+           : `<span class="m-real">평소가 그대로</span>`;
+    }
+    return `<a class="t-mini" href="./?g=${esc(it.gno)}&from=home" title="${esc(it.brand)} ${esc(it.name)} 판정서 보기">
+      <div class="m-top"><span class="m-chip ${cls}">${label}</span>${ftags}<span class="m-rank">${it.rank}위</span></div>
+      <div class="m-price">${(it.cur||0).toLocaleString('ko-KR')}<span class="w">원</span>${real}</div>
+      ${mspark(it)}
+      <div class="m-foot"><div class="m-thumb">${th}</div>
+        <div class="m-name">${esc(it.brand)} ${esc(it.name)}</div>
+        <span class="m-go">→</span></div>
+    </a>`;
+  }).join('');
+  $('#teaser').classList.remove('hidden');
+})();
+$('#back-btn').addEventListener('click', ()=>{
+  if(backTo){ location.href = backTo; return; }   // 디바이스·가격 목록에서 들어왔으면 그 목록으로
+  $('#url-input').value=''; show('home');
+  if(location.search) history.replaceState(null, '', location.pathname);
+});
+$('#copy-btn').addEventListener('click', ()=>{
+  const url = location.href;
+  (navigator.clipboard?.writeText(url) || Promise.reject())
+    .then(()=>toast('판정서 링크가 복사되었습니다'))
+    .catch(()=>toast(url));
+});
+/* ---------- 이의제기 (실제 접수: mailto) ---------- */
+const DISPUTE_EMAIL = 'themaric.official@gmail.com';   // 이의제기 접수 이메일
+$('#dispute-addr').textContent = DISPUTE_EMAIL;
+function openDispute(){
+  const id = ($('#r-id')?.textContent || '').trim() || '(번호 없음)';
+  const brand = ($('#r-brand')?.textContent || '').trim();
+  const name = ($('#r-name')?.textContent || '').trim();
+  const vtitle = ($('#r-vtitle')?.textContent || '').trim();
+  const ctx = `${brand} ${name}\n판정서 ${id} · ${vtitle}\n${location.href}`;
+  $('#dispute-ctx').textContent = ctx;
+  const subject = `[더마릭 이의제기] ${id} ${brand} ${name}`.slice(0,120);
+  const body =
+`■ 재검토 대상\n${ctx}\n\n■ 어떤 점이 사실과 다른가요?\n(여기에 작성)\n\n■ 근거 (가격 캡처, 공식 자료 링크 등)\n(여기에 첨부/링크)\n\n■ 회신받을 연락처\n(이메일 또는 담당자)\n`;
+  $('#dispute-mail').href = `mailto:${DISPUTE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  $('#dispute-modal').style.display = 'flex';
+}
+$('#object-btn').addEventListener('click', openDispute);
+$('#foot-dispute')?.addEventListener('click', e=>{ e.preventDefault(); openDispute(); });
+$('#dispute-close').addEventListener('click', ()=>{ $('#dispute-modal').style.display='none'; });
+$('#dispute-modal').addEventListener('click', e=>{ if(e.target.id==='dispute-modal') $('#dispute-modal').style.display='none'; });
+$('#tg-btn').addEventListener('click', ()=>toast('텔레그램 채널은 준비 중이에요 — 오픈 소식은 이 페이지에서 알려드릴게요'));
+// dev-teaser 비노출 중 — 요소가 없을 수 있어 옵셔널 처리 (복원 시 그대로 동작)
+$('#api-link')?.addEventListener('click', e=>{ e.preventDefault(); toast('개발자용 API는 준비 중이에요'); });
+</script>
+</body>
+</html>
