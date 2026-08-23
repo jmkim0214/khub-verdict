@@ -221,6 +221,18 @@
     background:var(--ink); color:var(--page); font-size:13.5px; padding:11px 20px; border-radius:10px;
     opacity:0; transition:all .25s; z-index:60; max-width:90vw; text-align:center; pointer-events:none;}
   .rc-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  /* 저장/공유 선택 시트 — 안드로이드용. iOS 는 OS 공유 시트가 둘 다 갖고 있어 띄우지 않는다. */
+  .rp-sheet{position:fixed; inset:0; z-index:70; display:none;}
+  .rp-sheet.show{display:block;}
+  .rp-sheet .bd{position:absolute; inset:0; background:rgba(32,34,30,.42);}
+  .rp-sheet .pn{position:absolute; left:0; right:0; bottom:0; background:var(--surface);
+    border-radius:16px 16px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,.16);
+    padding:0 0 env(safe-area-inset-bottom);}
+  .rp-sheet .hd{text-align:center; font-size:12.5px; color:var(--muted); padding:15px 0 11px;}
+  .rp-sheet button{display:block; width:100%; font:inherit; font-size:15.5px; font-weight:700;
+    padding:16px; border:0; border-top:1px solid var(--line); background:none;
+    color:var(--ink); cursor:pointer; text-align:center;}
+  .rp-sheet button.cancel{color:var(--muted); font-weight:600;}
   .rc-day{font-size:16.5px; font-weight:800; margin-top:26px; padding-bottom:6px; border-bottom:2px solid var(--series-wash);}
   .rc-day:first-child{margin-top:18px;}
   .c-acts button.added{background:var(--series); color:#fff; border-color:var(--series);}
@@ -422,13 +434,22 @@
       </div>
       <div class="actions" style="justify-content:center; margin-top:14px;">
         <button class="btn" onclick="rpShare()">🔗 루틴 공유</button>
-        <button class="btn" onclick="rpSavePng()">🖼️ 이미지로 저장</button>
+        <button class="btn" onclick="rpImageAction()">🖼️ 이미지로 저장</button>
         <button class="btn" onclick="showTab('check')">✏️ 제품 조정</button>
       </div>
 
     </div>
   </div><!-- /view-result -->
   <div class="rc-toast" id="rc-toast"></div>
+  <div class="rp-sheet" id="rp-sheet">
+    <div class="bd" onclick="rpSheet(false)"></div>
+    <div class="pn">
+      <div class="hd">루틴 리포트 카드</div>
+      <button onclick="rpSheet(false); rpSavePng()">🖼️ 사진첩에 저장</button>
+      <button onclick="rpSheet(false); rpSharePng()">📤 공유하기</button>
+      <button class="cancel" onclick="rpSheet(false)">닫기</button>
+    </div>
+  </div>
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
@@ -1982,6 +2003,7 @@ async function rpFontStyle(svg){
 // 카드가 그려질 때 미리 받아둔다 — 저장 버튼을 눌렀을 때 await가 길어지면
 // iOS에서 공유 시트(navigator.share)의 사용자 제스처 창을 놓칠 수 있다.
 function rpWarmFonts(){
+  _rpPng = null;   // 카드가 새로 그려졌으니 굽어둔 이미지는 버린다
   try{ rpFontStyle(rpSVG(rpData())).catch(()=>{}); }catch(e){}
 }
 
@@ -2010,75 +2032,121 @@ function rpPaintGrain(ctx, W, H){
   }catch(e){}                          // 질감은 있으면 좋은 것 — 실패해도 저장은 계속
 }
 
-async function rpSavePng(){
-  const d = rpData();
-  let svg = rpSVG(d);
-  const vb = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
-  const PW = +vb[1], PH = +vb[2];
-  svg = svg.replace('class="rp-svg"', `width="${PW}" height="${PH}"`);
-  // 폰트 임베드 (실패해도 저장은 계속 — 예전처럼 기본 폰트로 나간다)
-  try{
-    const style = await rpFontStyle(svg);
-    if (style) svg = svg.replace(/>/, m => m + style);   // 함수 치환 — base64에 $ 패턴이 먹히지 않게
-  }catch(e){}
-  const img = new Image();
-  img.onload = ()=>{
-    const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
-    const ctx = cv.getContext('2d');
-    // SVG가 통째로 비어 그려지는 렌더러가 있어 배경색을 먼저 깐다 (투명 PNG = 흰 배경으로 보임)
-    ctx.fillStyle = '#F5F1E8'; ctx.fillRect(0, 0, PW, PH);
-    ctx.drawImage(img, 0, 0, PW, PH);
-    rpPaintGrain(ctx, PW, PH);
-    if (img._rpUrl) URL.revokeObjectURL(img._rpUrl);
-    cv.toBlob(async b=>{
-      const today = new Date();
-      const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-      const fname = `themaric_routine_${ymd}.png`;
-      // 모바일(iOS 등): 공유 시트 → '이미지 저장'으로 사진 앱에 바로 저장
-      // 공유 시트는 iOS 에서만 쓴다 (2026-08-20).
-      // 데스크톱·안드로이드 크롬도 canShare 를 true 로 돌려주는 바람에
-      // '저장'을 눌렀는데 앱 목록만 뜨고 파일이 안 받아지는 일이 있었다.
-      // iOS 는 blob 다운로드가 사진 앱으로 안 들어가서 공유 시트가 사실상 유일한 경로다.
-      const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent)
-                 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      if (isIOS){
-        try{
-          const file = new File([b], fname, {type:'image/png'});
-          if (navigator.canShare && navigator.canShare({files:[file]})){
-            // title/text 를 넣으면 카카오톡이 그 문자열을 '두 번째 메시지'로 따로 보낸다.
-            // 사진만 가게 files 만 넘긴다 (2026-08-23).
-            await navigator.share({files:[file]});
-            rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
-            return;
-          }
-        }catch(e){ if (e && e.name === 'AbortError') return; /* 취소 — 조용히 종료 */ }
+// ── 카드 PNG 만들기 (저장·공유 공용) ────────────────────────────────
+// 카드 한 장 굽는 데 폰트 서브셋을 받아야 해서 수백 ms가 걸린다. 그동안 사용자
+// 제스처가 만료되면 navigator.share 가 통째로 거부되므로, 결과 blob 을 캐시해 두고
+// 카드가 다시 그려질 때만 버린다(rpWarmFonts).
+// var 로 둔다 — rpWarmFonts 가 이 줄보다 위에 정의돼 있어 let 이면 TDZ 에 걸릴 수 있다.
+var _rpPng = null;      // {blob, fname} — 현재 카드의 굽힌 결과
+var _rpPngJob = null;   // 진행 중인 굽기 (중복 실행 방지)
+
+function rpMakePng(){
+  if (_rpPng) return Promise.resolve(_rpPng);
+  if (_rpPngJob) return _rpPngJob;
+  _rpPngJob = (async ()=>{
+    const d = rpData();
+    let svg = rpSVG(d);
+    const vb = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
+    const PW = +vb[1], PH = +vb[2];
+    svg = svg.replace('class="rp-svg"', `width="${PW}" height="${PH}"`);
+    // 폰트 임베드 (실패해도 저장은 계속 — 예전처럼 기본 폰트로 나간다)
+    try{
+      const style = await rpFontStyle(svg);
+      if (style) svg = svg.replace(/>/, m => m + style);   // 함수 치환 — base64에 $ 패턴이 먹히지 않게
+    }catch(e){}
+    const blob = await new Promise((resolve, reject)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
+        const ctx = cv.getContext('2d');
+        // SVG가 통째로 비어 그려지는 렌더러가 있어 배경색을 먼저 깐다 (투명 PNG = 흰 배경으로 보임)
+        ctx.fillStyle = '#F5F1E8'; ctx.fillRect(0, 0, PW, PH);
+        ctx.drawImage(img, 0, 0, PW, PH);
+        rpPaintGrain(ctx, PW, PH);
+        if (img._rpUrl) URL.revokeObjectURL(img._rpUrl);
+        cv.toBlob(b => b ? resolve(b) : reject(new Error('toBlob 실패')));
+      };
+      // 폰트를 심으면 SVG가 커진다(≈1MB) → data URL 대신 blob URL.
+      // blob은 같은 출처라 canvas가 오염되지 않는다. 실패하면 예전 data URL로 되돌린다.
+      let triedFallback = false;
+      img.onerror = ()=>{
+        if (!triedFallback){
+          triedFallback = true;
+          if (img._rpUrl){ URL.revokeObjectURL(img._rpUrl); img._rpUrl = null; }
+          img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+          return;
+        }
+        reject(new Error('SVG 렌더 실패'));
+      };
+      try{
+        img._rpUrl = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
+        img.src = img._rpUrl;
+      }catch(e){
+        triedFallback = true;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       }
-      // 데스크톱/미지원 브라우저: 파일 다운로드
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(b);
-      a.download = fname;
-      a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
-      rcToast('리포트 이미지를 저장했어요');
     });
-  };
-  // 폰트를 심으면 SVG가 커진다(≈1MB) → data URL 대신 blob URL.
-  // blob은 같은 출처라 canvas가 오염되지 않는다. 실패하면 예전 data URL로 되돌린다.
-  let triedFallback = false;
-  img.onerror = ()=>{
-    if (!triedFallback){
-      triedFallback = true;
-      if (img._rpUrl){ URL.revokeObjectURL(img._rpUrl); img._rpUrl = null; }
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-      return;
-    }
-    rcToast('이미지 생성에 실패했어요 — 스크린샷으로 저장해 주세요');
-  };
+    const t = new Date();
+    const ymd = `${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}`;
+    _rpPng = {blob, fname:`themaric_routine_${ymd}.png`};
+    return _rpPng;
+  })().finally(()=>{ _rpPngJob = null; });
+  return _rpPngJob;
+}
+
+const rpIsIOS = ()=> /iP(hone|ad|od)/.test(navigator.userAgent)
+                  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function rpCanShareFiles(){
   try{
-    img._rpUrl = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
-    img.src = img._rpUrl;
+    const f = new File([new Uint8Array(1)], 'a.png', {type:'image/png'});
+    return !!(navigator.share && navigator.canShare && navigator.canShare({files:[f]}));
+  }catch(e){ return false; }
+}
+
+// 버튼 진입점 — 안드로이드에서는 저장/공유를 우리가 직접 물어본다.
+// iOS 는 OS 공유 시트 자체에 '이미지 저장'과 앱 공유가 같이 들어 있어 그대로 넘긴다.
+// (예전엔 안드로이드를 무조건 다운로드로 보내서, 아이폰과 달리 공유가 아예 없었다 — 2026-08-23)
+function rpImageAction(){
+  rpMakePng().catch(()=>{});          // 시트를 고르는 동안 미리 구워둔다
+  if (!rpIsIOS() && rpCanShareFiles()){ rpSheet(true); return; }
+  rpSavePng();
+}
+function rpSheet(on){
+  const el = document.getElementById('rp-sheet');
+  if (el) el.classList.toggle('show', !!on);
+}
+
+async function rpSavePng(){
+  let png;
+  try{ png = await rpMakePng(); }
+  catch(e){ rcToast('이미지 생성에 실패했어요 — 스크린샷으로 저장해 주세요'); return; }
+  // iOS 는 blob 다운로드가 사진 앱으로 들어가지 않는다 — 공유 시트가 사실상 유일한 경로.
+  if (rpIsIOS() && rpCanShareFiles()){
+    try{
+      await navigator.share({files:[new File([png.blob], png.fname, {type:'image/png'})]});
+      rcToast("공유 시트에서 '이미지 저장'을 누르면 사진 앱에 저장돼요");
+      return;
+    }catch(e){ if (e && e.name === 'AbortError') return; /* 취소 — 조용히 종료 */ }
+  }
+  // 데스크톱·안드로이드: 파일 다운로드 (안드로이드는 갤러리가 다운로드 폴더를 함께 훑는다)
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(png.blob);
+  a.download = png.fname;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+  rcToast('리포트 이미지를 저장했어요');
+}
+
+async function rpSharePng(){
+  let png;
+  try{ png = await rpMakePng(); }
+  catch(e){ rcToast('이미지 생성에 실패했어요 — 스크린샷으로 저장해 주세요'); return; }
+  try{
+    // title/text 를 넣으면 카카오톡이 그 문자열을 '두 번째 메시지'로 따로 보낸다.
+    // 사진만 가게 files 만 넘긴다 (2026-08-23).
+    await navigator.share({files:[new File([png.blob], png.fname, {type:'image/png'})]});
   }catch(e){
-    triedFallback = true;
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    if (e && e.name === 'AbortError') return;
+    rcToast('공유를 열지 못했어요 — 저장 후 앱에서 보내주세요');
   }
 }
 
