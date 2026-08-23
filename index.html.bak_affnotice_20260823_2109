@@ -441,7 +441,6 @@
     <a class="nav-link" href="routine.html">루틴 가이드</a>
     <a class="nav-link" href="glossary.html">성분 사전</a>
   </header></div>
-<div class="aff-notice" role="note" style="max-width:780px;margin:12px auto 0;padding:9px 14px;border:1px solid var(--grid,#e6e1d8);border-radius:10px;background:rgba(0,0,0,.035);font-size:12px;line-height:1.6;color:var(--muted,#6b665e);text-align:center">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</div>
 
   <!-- ================= HOME ================= -->
   <section id="view-home">
@@ -616,7 +615,7 @@
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
-    올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다. — 수수료는 판정에 영향을 주지 않습니다.<br>
+    올리브영 상품 링크에는 제휴 코드가 포함되며 더마릭이 수수료를 받을 수 있습니다 — 수수료는 판정에 영향을 주지 않습니다.<br>
     <a href="#" id="foot-dispute" style="color:var(--muted); text-decoration:none;">이의제기·정정 정책</a>
   </footer>
 </div>

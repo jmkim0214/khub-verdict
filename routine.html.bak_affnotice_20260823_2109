@@ -327,7 +327,6 @@
     <a class="nav-link here" href="routine.html">루틴 가이드</a>
     <a class="nav-link" href="glossary.html">성분 사전</a>
   </header></div>
-<div class="aff-notice" role="note" style="max-width:780px;margin:12px auto 0;padding:9px 14px;border:1px solid var(--grid,#e6e1d8);border-radius:10px;background:rgba(0,0,0,.035);font-size:12px;line-height:1.6;color:var(--muted,#6b665e);text-align:center">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</div>
 
   <div class="tabs">
     <button class="tab on" id="tab-check" onclick="showTab('check')">내 화장대 검사</button>
@@ -409,7 +408,7 @@
       <div class="rc-excl" id="rc-excl"></div>
       <div class="disclaimer">
         후보는 <b>전성분 함량 순위 + 실측 가격 판정</b>만으로 계산되며, 브랜드가 비용을 내고 순위에 들어올 수 없어요.
-        올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다. 수수료는 선정에 영향을 주지 않습니다(부풀림 신호 상품은 오히려 제외됩니다).
+        상품명 링크에 제휴 코드가 붙지만 수수료는 선정에 영향을 주지 않습니다(부풀림 신호 상품은 오히려 제외됩니다).
         "○○ 케어에 쓰는 성분을 상위 함량으로 담았다"는 의미이지 효능·치료를 보증하지 않아요.
         개인차가 크고, 임신·수유·피부질환 관련은 전문가와 상담하세요.
       </div>
@@ -454,7 +453,7 @@
 
   <footer class="site">
     <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
-    참고 정보 · 개인차 있음 · 올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다. — 수수료는 판정에 영향을 주지 않습니다.
+    참고 정보 · 개인차 있음 · 올리브영 상품 링크에는 제휴 코드가 포함되며 더마릭이 수수료를 받을 수 있습니다 — 수수료는 판정에 영향을 주지 않습니다.
   </footer>
 </div>
 

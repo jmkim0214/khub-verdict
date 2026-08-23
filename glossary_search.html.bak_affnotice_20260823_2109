@@ -72,7 +72,6 @@
     <a class="nav-link" href="routine.html">루틴 가이드</a>
     <a class="nav-link here" href="glossary.html">성분 사전</a>
   </header></div></div>
-<div class="aff-notice" role="note" style="max-width:780px;margin:12px auto 0;padding:9px 14px;border:1px solid var(--grid,#e6e1d8);border-radius:10px;background:rgba(0,0,0,.035);font-size:12px;line-height:1.6;color:var(--muted,#6b665e);text-align:center">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</div>
 <div class=top><div class="wrap" style="padding:0">
  <p class=sub>낯선 성분을 쉬운 말로 · 식약처 고시 기준</p>
  <input id=q placeholder="성분명 검색 (예: 레티놀, 소듐디엔에이)" autocomplete=off>
@@ -139,6 +138,6 @@ apply();
 </script>
 <footer class="site" style="max-width:780px;margin:48px auto 60px;padding:0 34px;text-align:center;font-size:12px;line-height:1.8;color:var(--muted)">
  <b style="color:var(--series)">더마릭</b> THEMARIC · themaric.kr<br>
- 올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다. — 수수료는 판정에 영향을 주지 않습니다.
+ 올리브영 상품 링크에는 제휴 코드가 포함되며 더마릭이 수수료를 받을 수 있습니다 — 수수료는 판정에 영향을 주지 않습니다.
 </footer>
 </html>
