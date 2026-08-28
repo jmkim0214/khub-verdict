@@ -482,7 +482,7 @@
     <!-- 숫자 앵커 — 설명 대신 숫자를 먼저 보여준다 (2026-08-15) -->
     <div class="trust">
       <div class="t"><b id="stat-n">—</b><span>추적 중인 상품<br><b>URL이 아니라 제품 단위로</b></span></div>
-      <div class="t"><b>3,300<span style="font-size:19px">+</span></b><span>화장품 성분 데이터<br><b>식약처 고시 전성분 기준</b></span></div>
+      <div class="t"><b id="stat-p">—</b><span>화장품 성분 데이터<br><b>식약처 고시 전성분 기준</b></span></div>
     </div>
     <div class="why-line">기획세트가 새 URL로 다시 올라와도, 같은 제품이면 같은 가격 이력에 이어 붙입니다 — 더마릭이 URL이 아니라 <b>제품</b>을 추적하는 이유예요.</div>
   </section>
@@ -1146,6 +1146,12 @@ let backTo = null;
   if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
 }
 loadIndex().then(idx=>{ const n=Object.keys(idx||{}).length; if(n) $('#stat-n').textContent=n.toLocaleString('ko-KR'); });
+
+/* 성분 데이터 건수 — build_static.py 가 매 배포마다 stats.json 에 새로 쓴다.
+   예전엔 '3,300+' 로 박혀 있었고, 실제가 6,500을 넘긴 뒤에도 그대로였다. */
+fetch('stats.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(s=>{
+  if(s && s.profiles) $('#stat-p').textContent = s.profiles.toLocaleString('ko-KR');
+}).catch(()=>{});
 
 /* ---------- 오늘의 가격 데이터 티저 (price_teaser.json — 없으면 티저 숨김 유지) ---------- */
 (async ()=>{
