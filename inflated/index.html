@@ -5,25 +5,59 @@
 <title>표시 정상가에 한 번도 팔린 적 없는 상품 — 더마릭</title>
 <meta name="description" content="올리브영 상품 가격을 2026-07-06부터 매일 기록해, 표시된 정상가에 실제로 판매된 적이 없는 상품 836종을 정리했습니다. 표시가 기준·쿠폰 미반영.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;
- --page:#F5F1E8;--surface:#FFFEFB;--ink:#20221E;--ink-2:#5B5D55;--muted:#8F9184;
- --border:rgba(32,34,30,0.12);--series:#596044;--deal:#C4644F;--deal-bg:rgba(196,100,79,0.10);
- --serif:"Cormorant Garamond","Times New Roman",serif;}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif;
- background:var(--page);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
- word-break:keep-all;overflow-wrap:break-word;padding-bottom:70px}
+/* 팔레트·헤더·본문 폭은 build_price_page.py 와 동일하게 맞춘다 (탭 간 통일감).
+   바꿀 일이 생기면 양쪽을 같이 고칠 것. */
+:root{
+  color-scheme: light;
+  --page:#F5F1E8; --surface:#FFFEFB;
+  --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+  --grid:rgba(32,34,30,0.10); --baseline:rgba(32,34,30,0.20);
+  --border:rgba(32,34,30,0.12);
+  --series:#596044; --series-wash:rgba(89,96,68,0.10); --gold:#B49A62;
+  --deal:#C4644F; --deal-bg:rgba(196,100,79,0.10);
+  --serif:'Cormorant Garamond','Noto Serif KR',Georgia,serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  background:var(--page); color:var(--ink);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+  word-break:keep-all; overflow-wrap:break-word; overflow-x:hidden;
+}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:720px;margin:0 auto;padding:0 18px}
-header.site{max-width:720px;margin:0 auto;padding:18px 18px 14px;display:flex;
- align-items:baseline;gap:12px;flex-wrap:wrap}
-.logo{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.20em}
-.logo-sub{font-size:11px;color:var(--muted)}
-.nav{margin-left:auto;display:flex;gap:14px;font-size:13px;color:var(--ink-2)}
-.nav a:hover{color:var(--series)} .nav .here{color:var(--series);font-weight:800}
-.hero{background:var(--series);color:#fff;padding:28px 0 26px;margin-bottom:22px}
+.wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+/* 상단 밴드 — 본문 폭이 페이지마다 달라도 헤더는 항상 같은 자리·같은 폭 */
+.site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+  max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+.nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+  text-decoration:none; padding:6px 2px; white-space:nowrap;}
+.nav-link + .nav-link{margin-left:20px;}
+.nav-first{margin-left:auto;}
+.nav-link:hover{color:var(--series);}
+.nav-link.here{color:var(--series); font-weight:800;}
+.logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em;
+  color:var(--ink); line-height:1.1; text-decoration:none;}
+.logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted);
+  margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
+.logo-sub{font-family:var(--serif); font-size:10.5px; letter-spacing:0.28em; color:var(--gold);
+  margin-top:6px; text-transform:uppercase;}
+@media (max-width:640px){
+  header.site{padding:18px 16px 12px; column-gap:18px;}
+  header.site > a:first-child{width:100%;}
+  .nav-link{font-size:12.5px; padding:5px 0;}
+  .nav-link + .nav-link{margin-left:0;}
+  .nav-first{margin-left:0;}
+  .wrap{padding:0 14px 60px;}
+}
+/* 히어로도 밴드와 같은 방식으로 전폭, 안쪽 폭은 본문과 동일 */
+.hero{width:100vw; margin-left:calc(50% - 50vw);
+ background:var(--series);color:#fff;padding:28px 0 26px;margin-bottom:22px}
+.hero-in{max-width:780px;margin:0 auto;padding:0 20px}
+@media (max-width:640px){.hero-in{padding:0 16px}}
 .hero .tag{display:inline-block;font-size:12px;font-weight:700;background:rgba(255,255,255,.16);
  padding:5px 11px;border-radius:20px}
 .hero h1{font-size:29px;font-weight:800;letter-spacing:-.035em;line-height:1.28;margin-top:12px}
@@ -70,12 +104,19 @@ footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--border);
 @media(max-width:520px){.hero h1{font-size:24px}.rk{display:none}}
 </style></head>
 <body>
-<header class="site">
-  <a href="../"><div class="logo">더마릭</div><div class="logo-sub">화장품 가격·성분 검증</div></a>
-  <nav class="nav"><a href="../price.html">판정서</a><a href="../routine.html">루틴 가이드</a><a class="here" href="./">부풀림 기록</a><a href="../glossary.html">성분 사전</a></nav>
-</header>
+<div class="wrap">
+  <div class="site-band"><header class="site">
+    <a href="../" style="text-decoration:none;color:inherit">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link nav-first" href="../price.html">판정서</a>
+    <a class="nav-link" href="../routine.html">루틴 가이드</a>
+    <a class="nav-link here" href="./">부풀림 기록</a>
+    <a class="nav-link" href="../glossary.html">성분 사전</a>
+  </header></div>
 
-<section class="hero"><div class="wrap">
+<section class="hero"><div class="hero-in">
   <span class="tag">2026-07-06 ~ 2026-08-29 · 매일 관측</span>
   <h1>표시 정상가에<br>한 번도 팔린 적 없는 상품</h1>
   <p>12,449종을 추적해, 표시된 정상가가 실제 판매가였던 적이 <b>단 하루도 없는</b> 상품을 골랐습니다.</p>
@@ -86,7 +127,6 @@ footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--border);
   </div>
 </div></section>
 
-<div class="wrap">
   <div class="lead">
     “50% 할인”이라는 표시는 두 가지 중 하나입니다. 원래 그 가격에 팔던 걸 절반으로 내렸거나,
     <b>애초에 그 가격에 판 적이 없거나.</b> 화면에서는 똑같이 보입니다.
