@@ -346,9 +346,9 @@
       <input id="q" type="search" placeholder="제품명이나 브랜드 검색 (예: 아누아, 레티놀)" autocomplete="off">
       <div class="sresults" id="sr"></div>
     </div>
-    <div class="hint qhint">전성분 확보 4741개 상품에서 검색 · 목록에 없으면 아래 ‘직접 입력’으로 전성분 붙여넣기 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요 (OCR 확보 후 반영 예정)</div>
+    <div class="hint qhint">전성분 확보 4832개 상품에서 검색 · 찾는 제품이 없으면 아직 수집 전일 수 있어요 — 매일 채우는 중이니 며칠 뒤 다시 확인해 주세요 · 뷰티 기기는 전성분이 없어 아직 검사 대상이 아니에요</div>
     <details style="margin-top:10px;">
-      <summary style="font-size:13px; color:var(--series); cursor:pointer; font-weight:600;">직접 입력 (전성분 붙여넣기)</summary>
+      <summary style="font-size:13px; color:var(--series); cursor:pointer; font-weight:600;">전성분을 직접 붙여넣기 (올영 미취급 제품용)</summary>
       <div style="margin-top:10px;">
         <input id="mn" type="text" placeholder="제품 이름 (예: ○○ 토너)" style="width:100%; font:inherit; font-size:13.5px; padding:10px 14px; border:1.5px solid var(--baseline); border-radius:10px; background:var(--surface); color:var(--ink); outline:none;">
         <textarea id="mi" rows="3" placeholder="전성분을 그대로 붙여넣으세요 (정제수, 글리세린, …)" style="width:100%; margin-top:8px; font:inherit; font-size:13px; padding:10px 14px; border:1.5px solid var(--baseline); border-radius:10px; background:var(--surface); color:var(--ink); outline:none; resize:vertical;"></textarea>
@@ -396,7 +396,7 @@
     <div class="card" style="margin-top:0;">
       <h1>나에게 맞는 <span class="u">추천 루틴</span></h1>
       <p class="lead">해당하는 것을 골라주세요 — 축마다 하나씩, 최대 4개까지 조합됩니다 (예: 건성 × 여드름 × 봄 × 10대).</p>
-      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 4741개 상품에서 고릅니다.</div>
+      <div class="rc-note">같은 축을 다시 누르면 해제돼요. 하나만 골라도 동작합니다. 후보는 전성분이 확보된 4832개 상품에서 고릅니다.</div>
     </div>
 
     <div class="card" id="rc-result" style="display:none">
@@ -697,7 +697,7 @@ q.addEventListener('input', ()=>{
       (p.i?`<img loading="lazy" src="${IMG+p.i}" alt="">`:'<img alt="">')+
       `<div><div>${esc(p.t)}</div><div class="sb">${esc(p.b)} · ${esc(p.c)}</div></div>`+
       (tag?`<span class="badge sb">${tag}</span>`:'')+`</div>`;
-  }).join('') : '<div class="sitem" style="cursor:default;">검색 결과가 없어요 — ‘직접 입력’으로 추가해 보세요.</div>';
+  }).join('') : '<div class="sitem" style="cursor:default;">찾는 제품이 없네요. 아직 수집 전일 수 있어요 — 매일 채우는 중이라 며칠 뒤엔 나올 거예요.</div>';
   sr.classList.add('open');
 });
 document.addEventListener('click', e=>{ if(!e.target.closest('.searchbar')) sr.classList.remove('open'); });
