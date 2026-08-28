@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>올영세일 찐특가 모음 — 더마릭</title>
+<meta name="description" content="올리브영 세일 8.30 – 9.5. 정가 대비 할인율이 아니라 일주일 전 실제 판매가와 비교해 진짜 인하만 골랐습니다. 매일 갱신.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --page:#F5F1E8; --surface:#FFFEFB; --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+  --border:rgba(32,34,30,0.12); --grid:rgba(32,34,30,0.10);
+  --series:#596044; --deal:#C4644F; --deal-bg:rgba(196,100,79,0.10);
+  --band:#4E5440; --serif:"Cormorant Garamond","Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif;
+  background:var(--page);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:break-word;padding-bottom:104px}
+img{max-width:100%;display:block} a{color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+
+header.site{max-width:640px;margin:0 auto;padding:18px 18px 14px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.logo{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.20em}
+.logo-sub{font-size:11px;color:var(--muted)}
+.fresh{margin-left:auto;font-size:11px;font-weight:700;color:var(--series);
+  background:rgba(89,96,68,.11);padding:3px 9px;border-radius:20px}
+
+.hero{background:var(--band);color:#fff;padding:26px 0 24px;margin-bottom:20px}
+.hero .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;
+  background:rgba(255,255,255,.16);padding:5px 11px;border-radius:20px}
+.hero h1{font-size:31px;font-weight:800;letter-spacing:-.035em;line-height:1.24;margin-top:12px}
+.hero p{font-size:14.5px;margin-top:11px;color:rgba(255,255,255,.85)}
+.hero .meta{margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.70);
+  border-top:1px solid rgba(255,255,255,.22);padding-top:11px}
+
+h2.sec{font-size:20px;font-weight:800;letter-spacing:-.025em;margin:28px 0 4px}
+p.seclead{font-size:13.5px;color:var(--ink-2);margin-bottom:10px}
+p.seclead b{color:var(--ink)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-top:12px}
+.hcard{display:flex;overflow:hidden}
+.hcard .thumb{flex:none;width:126px;background:#fff}
+.hcard .thumb img{width:126px;height:100%;object-fit:cover}
+.hcard .body{padding:14px 15px 15px;flex:1;min-width:0}
+.brand{font-size:11.5px;color:var(--muted)}
+.pname{font-size:15px;font-weight:700;line-height:1.35;margin-top:2px}
+.pricerow{display:flex;align-items:baseline;gap:8px;margin-top:9px;flex-wrap:wrap}
+.was{font-size:13px;color:var(--muted);text-decoration:line-through}
+.now{font-size:23px;font-weight:800;letter-spacing:-.03em} .now.dim{color:var(--ink-2)}
+.off{font-size:12.5px;font-weight:800;color:var(--deal);background:var(--deal-bg);padding:2px 7px;border-radius:3px}
+.offnote{font-size:12px;color:var(--muted)}
+.graph{margin-top:10px} .spk{width:100%;height:46px;display:block}
+.gmeta{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:3px}
+.verdict{margin-top:10px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.chip{font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:3px;white-space:nowrap}
+.chip-low{background:var(--deal);color:#fff}
+.chip-mid{background:rgba(89,96,68,.13);color:var(--series)}
+.chip-off{background:rgba(32,34,30,.06);color:var(--muted);border:1px solid var(--border)}
+.note{font-size:11.5px;color:var(--ink-2)}
+.btn{display:block;text-align:center;margin-top:12px;padding:11px;border-radius:4px;
+  background:var(--ink);color:#fff;font-size:13.5px;font-weight:700;text-decoration:none}
+
+.row{display:flex;gap:11px;align-items:center;padding:12px;background:var(--surface);
+  border:1px solid var(--border);border-radius:6px;margin-top:9px;text-decoration:none}
+.rank{flex:none;width:20px;font-family:var(--serif);font-size:20px;font-weight:600;
+  color:var(--muted);text-align:center}
+.row img{width:58px;height:58px;object-fit:cover;border-radius:4px;flex:none}
+.rbody{flex:1;min-width:0}
+.rname{font-size:13.5px;font-weight:700;line-height:1.35;margin-top:1px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rprice{margin-top:4px;font-size:12.5px;color:var(--muted)}
+.rprice b{font-size:15px;color:var(--ink);margin-left:6px}
+.radd{margin-top:2px;font-size:12px;font-weight:800;color:var(--deal)}
+.radd em{font-style:normal;font-weight:600;color:var(--ink-2)}
+.rspark{width:54px;flex:none;opacity:.85} .rspark .spk{height:38px}
+
+.ctabox{margin-top:26px;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:22px 20px;text-align:center}
+.ctabox h3{font-size:19px;font-weight:800;letter-spacing:-.025em}
+.ctabox p{font-size:13.5px;color:var(--ink-2);margin-top:8px}
+.kbtn{display:block;margin-top:15px;padding:14px;border-radius:5px;background:#FEE500;
+  color:#191600;font-weight:800;font-size:15px;text-decoration:none}
+.sbtn{display:block;margin-top:9px;padding:13px;border-radius:5px;background:transparent;
+  border:1px solid var(--ink);color:var(--ink);font-weight:700;font-size:14px;text-decoration:none}
+.ctabox .sub{font-size:11.5px;color:var(--muted);margin-top:10px}
+
+.sticky{position:fixed;left:0;right:0;bottom:0;background:var(--surface);
+  border-top:1px solid var(--border);padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+  transform:translateY(120%);transition:transform .22s ease;z-index:50;
+  box-shadow:0 -6px 24px rgba(32,34,30,.10)}
+.sticky.on{transform:translateY(0)}
+.sticky .inner{max-width:640px;margin:0 auto;display:flex;gap:8px}
+.sticky a{display:block;text-align:center;padding:13px 6px;border-radius:5px;
+  font-weight:800;font-size:14px;text-decoration:none;white-space:nowrap}
+.s-kakao{flex:1.45;background:#FEE500;color:#191600}
+.s-site{flex:1;background:transparent;border:1px solid var(--ink);color:var(--ink);font-weight:700}
+@media (max-width:340px){ .sticky a{font-size:13px;padding:12px 4px} }
+
+footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--grid);
+  font-size:11.5px;color:var(--muted);line-height:1.7}
+footer b{color:var(--ink-2)}
+</style></head><body>
+
+<header class="site"><span class="logo">더마릭</span>
+  <span class="logo-sub">올리브영 가격 관측</span>
+  <span class="fresh">8월 28일 갱신</span></header>
+
+<section class="hero"><div class="wrap">
+  <span class="tag">올리브영 세일 8.30 – 9.5</span>
+  <h1>올영세일<br>찐특가 모음</h1>
+  <p>정가 대비 할인율 말고, <b>일주일 전 실제 판매가</b>와 비교했습니다.</p>
+  <div class="meta">매일 오전·오후 2회 관측 · 목록은 매일 갱신 · 브랜드가 돈을 내고 순위를 바꿀 수 없습니다</div>
+</div></section>
+
+<main class="wrap">
+  <h2 class="sec">광고에서 본 3개</h2>
+  <p class="seclead">클릭하신 그 제품들입니다. 가격 이력 그대로 붙였습니다.</p>
+  
+    <article class="card hcard">
+      <a class="thumb" href="https://oy.run/Qt0d6CcHU6WTJy" target="_blank" rel="nofollow sponsored noopener">
+        <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0021/A00000021428220ko.jpg" alt="키스미 아이 블러 이펙트 틴트 3.5g 7종" loading="lazy"></a>
+      <div class="body">
+        <div class="brand">키스미</div>
+        <h3 class="pname">키스미 아이 블러 이펙트 틴트 3.5g 7종</h3>
+        <div class="pricerow"><span class="now dim">15,200원</span><span class="offnote">최근 최저 9,600원</span></div>
+        <div class="graph"><svg class="spk" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,6.00 3.57,6.00 7.14,6.00 10.71,6.00 14.29,6.00 17.86,6.00 21.43,6.00 25.00,6.00 28.57,6.00 32.14,6.00 35.71,6.00 39.29,6.00 42.86,6.00 46.43,6.00 50.00,6.00 53.57,6.00 57.14,6.00 60.71,6.00 64.29,6.00 67.86,6.00 71.43,6.00 75.00,6.00 78.57,6.00 82.14,6.00 85.71,6.00 89.29,6.00 92.86,40.00 96.43,40.00 100.00,6.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="6.00" r="3.4" fill="#C4644F"/></svg>
+          <div class="gmeta"><span>7.30</span><span>29일 관측</span><span>오늘</span></div></div>
+        <div class="verdict"><span class="chip chip-off">지금은 평소가</span><span class="note">8월 26일~8월 27일 2일간 9,600원이었고, 지금은 되돌아왔습니다</span></div>
+        <a class="btn" href="https://oy.run/Qt0d6CcHU6WTJy" target="_blank" rel="nofollow sponsored noopener">올리브영에서 보기 →</a>
+      </div></article>
+    <article class="card hcard">
+      <a class="thumb" href="https://oy.run/Vs43NJaJRpEhwI" target="_blank" rel="nofollow sponsored noopener">
+        <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024546702ko.jpg" alt="바이오더마 아토덤 립스틱 4g 더블 기획" loading="lazy"></a>
+      <div class="body">
+        <div class="brand">바이오더마</div>
+        <h3 class="pname">바이오더마 아토덤 립스틱 4g 더블 기획</h3>
+        <div class="pricerow"><span class="was">20,000원</span><span class="now">12,000원</span><span class="off">−40%</span></div>
+        <div class="graph"><svg class="spk" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,34.48 3.57,34.48 7.14,6.00 10.71,6.00 14.29,6.00 17.86,6.00 21.43,6.00 25.00,6.00 28.57,6.00 32.14,6.00 35.71,6.00 39.29,6.00 42.86,6.00 46.43,6.00 50.00,6.00 53.57,6.00 57.14,6.00 60.71,6.00 64.29,6.00 67.86,6.00 71.43,6.00 75.00,6.00 78.57,6.00 82.14,6.00 85.71,6.00 89.29,6.00 92.86,40.00 96.43,40.00 100.00,40.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="40.00" r="3.4" fill="#C4644F"/></svg>
+          <div class="gmeta"><span>7.30</span><span>29일 관측</span><span>오늘</span></div></div>
+        <div class="verdict"><span class="chip chip-low">관측 최저가</span><span class="note">29일 관측 중 가장 싼 가격</span></div>
+        <a class="btn" href="https://oy.run/Vs43NJaJRpEhwI" target="_blank" rel="nofollow sponsored noopener">올리브영에서 보기 →</a>
+      </div></article>
+    <article class="card hcard">
+      <a class="thumb" href="https://oy.run/Fazg3tDxIio02Y" target="_blank" rel="nofollow sponsored noopener">
+        <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0019/A00000019974113ko.jpg" alt="루나 블러 커버 쿠션 12g (단품)" loading="lazy"></a>
+      <div class="body">
+        <div class="brand">루나</div>
+        <h3 class="pname">루나 블러 커버 쿠션 12g (단품)</h3>
+        <div class="pricerow"><span class="was">27,200원</span><span class="now">23,120원</span><span class="off">−15%</span></div>
+        <div class="graph"><svg class="spk" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,6.00 3.85,6.00 7.69,6.00 11.54,6.00 15.38,6.00 19.23,6.00 23.08,6.00 26.92,6.00 30.77,6.00 34.62,6.00 38.46,6.00 42.31,6.00 46.15,6.00 50.00,6.00 53.85,6.00 57.69,6.00 61.54,6.00 65.38,40.00 69.23,40.00 73.08,40.00 76.92,40.00 80.77,40.00 84.62,40.00 88.46,40.00 92.31,40.00 96.15,40.00 100.00,40.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="40.00" r="3.4" fill="#C4644F"/></svg>
+          <div class="gmeta"><span>7.30</span><span>27일 관측</span><span>오늘</span></div></div>
+        <div class="verdict"><span class="chip chip-low">관측 최저가</span><span class="note">27일 관측 중 가장 싼 가격</span></div>
+        <a class="btn" href="https://oy.run/Fazg3tDxIio02Y" target="_blank" rel="nofollow sponsored noopener">올리브영에서 보기 →</a>
+      </div></article>
+
+  <h2 class="sec">일주일 전보다 더 내려간 것들 TOP 5</h2>
+  <p class="seclead"><b>8월 21일 가격</b>과 <b>오늘(8월 28일) 가격</b>을 직접 비교해 인하폭이 큰 순입니다.
+     표시 할인율이 −60%여도 일주일째 같은 가격인 제품은 여기 들어오지 않습니다.</p>
+  
+    <a class="row" href="https://oy.run/HWZybLyU2qQd7w" target="_blank" rel="nofollow sponsored noopener">
+      <span class="rank">1</span>
+      <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/A00000020669832ko.jpg" alt="" loading="lazy">
+      <div class="rbody">
+        <div class="brand">빌리프</div>
+        <div class="rname">[대용량] 빌리프X바나나킥 비타C토닝 세럼 50ml 기획 (+비타팩 25ml, 스트레스볼)</div>
+        <div class="rprice"><s>35,200원</s><b>19,700원</b></div>
+        <div class="radd">일주일 새 −44% <em>(15,500원 더 내려감)</em></div>
+      </div>
+      <div class="rspark"><svg class="spk" viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,8.35 3.57,8.35 7.14,8.21 10.71,8.21 14.29,8.21 17.86,8.21 21.43,8.21 25.00,8.21 28.57,8.21 32.14,8.21 35.71,8.21 39.29,8.21 42.86,8.21 46.43,8.21 50.00,8.21 53.57,8.21 57.14,8.21 60.71,8.21 64.29,6.00 67.86,6.00 71.43,6.00 75.00,6.00 78.57,6.00 82.14,6.00 85.71,6.00 89.29,6.00 92.86,6.00 96.43,6.00 100.00,32.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="32.00" r="3.4" fill="#C4644F"/></svg></div></a>
+    <a class="row" href="https://oy.run/3q4ZeKZy4qJX0v" target="_blank" rel="nofollow sponsored noopener">
+      <span class="rank">2</span>
+      <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022167043ko.jpg" alt="" loading="lazy">
+      <div class="rbody">
+        <div class="brand">컬러그램</div>
+        <div class="rname">컬러그램 탕후루 탱글 틴트 라인 (탱글/밀크)</div>
+        <div class="rprice"><s>8,800원</s><b>4,930원</b></div>
+        <div class="radd">일주일 새 −44% <em>(3,870원 더 내려감)</em></div>
+      </div>
+      <div class="rspark"><svg class="spk" viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,32.00 3.57,32.00 7.14,6.00 10.71,6.00 14.29,6.00 17.86,10.70 21.43,6.00 25.00,6.00 28.57,6.00 32.14,6.00 35.71,6.00 39.29,6.00 42.86,8.02 46.43,8.02 50.00,8.02 53.57,6.00 57.14,6.00 60.71,6.00 64.29,6.00 67.86,6.00 71.43,6.00 75.00,6.00 78.57,6.00 82.14,6.00 85.71,6.00 89.29,6.00 92.86,6.00 96.43,6.00 100.00,32.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="32.00" r="3.4" fill="#C4644F"/></svg></div></a>
+    <a class="row" href="https://oy.run/L8Txazi7F0Qufm" target="_blank" rel="nofollow sponsored noopener">
+      <span class="rank">3</span>
+      <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025191508ko.jpg" alt="" loading="lazy">
+      <div class="rbody">
+        <div class="brand">브링그린</div>
+        <div class="rname">브링그린 징크테카 약산성 클렌징 젤 200mL</div>
+        <div class="rprice"><s>12,500원</s><b>7,390원</b></div>
+        <div class="radd">일주일 새 −41% <em>(5,110원 더 내려감)</em></div>
+      </div>
+      <div class="rspark"><svg class="spk" viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,6.00 3.57,6.00 7.14,6.00 10.71,6.00 14.29,6.00 17.86,6.00 21.43,6.00 25.00,6.00 28.57,6.00 32.14,6.00 35.71,6.00 39.29,6.00 42.86,6.00 46.43,6.00 50.00,6.00 53.57,6.00 57.14,6.00 60.71,6.00 64.29,6.00 67.86,6.00 71.43,6.00 75.00,6.00 78.57,32.00 82.14,32.00 85.71,32.00 89.29,32.00 92.86,32.00 96.43,32.00 100.00,32.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="32.00" r="3.4" fill="#C4644F"/></svg></div></a>
+    <a class="row" href="https://oy.run/qCC5rfeOOeK9Mf" target="_blank" rel="nofollow sponsored noopener">
+      <span class="rank">4</span>
+      <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023882414ko.jpg" alt="" loading="lazy">
+      <div class="rbody">
+        <div class="brand">수아도르</div>
+        <div class="rname">수아도르 노글루 클린컷 앳지래쉬 9종 택1(오브제+트위저/단일)</div>
+        <div class="rprice"><s>9,590원</s><b>6,180원</b></div>
+        <div class="radd">일주일 새 −36% <em>(3,410원 더 내려감)</em></div>
+      </div>
+      <div class="rspark"><svg class="spk" viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,23.05 3.57,23.05 7.14,12.91 10.71,12.91 14.29,12.91 17.86,12.91 21.43,12.91 25.00,12.91 28.57,12.91 32.14,12.91 35.71,12.91 39.29,6.00 42.86,20.21 46.43,20.21 50.00,20.21 53.57,20.21 57.14,20.21 60.71,20.21 64.29,20.21 67.86,20.21 71.43,20.21 75.00,20.21 78.57,20.21 82.14,20.21 85.71,20.21 89.29,20.21 92.86,20.21 96.43,27.09 100.00,32.00" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="32.00" r="3.4" fill="#C4644F"/></svg></div></a>
+    <a class="row" href="https://oy.run/4hUuupST8SkmCJ" target="_blank" rel="nofollow sponsored noopener">
+      <span class="rank">5</span>
+      <img src="https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022785801ko.jpg" alt="" loading="lazy">
+      <div class="rbody">
+        <div class="brand">테일러센츠</div>
+        <div class="rname">테일러센츠 오브제 퍼퓸 EDT 30ml 16종 택 1 (단품/기획)</div>
+        <div class="rprice"><s>45,000원</s><b>29,250원</b></div>
+        <div class="radd">일주일 새 −35% <em>(15,750원 더 내려감)</em></div>
+      </div>
+      <div class="rspark"><svg class="spk" viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.00,24.96 3.57,24.96 7.14,32.00 10.71,32.00 14.29,32.00 17.86,32.00 21.43,32.00 25.00,32.00 28.57,32.00 32.14,32.00 35.71,32.00 39.29,24.96 42.86,32.00 46.43,24.96 50.00,24.96 53.57,24.96 57.14,32.00 60.71,24.96 64.29,24.96 67.86,24.96 71.43,6.00 75.00,6.00 78.57,6.00 82.14,24.96 85.71,24.96 89.29,24.96 92.86,24.96 96.43,24.96 100.00,24.96" fill="none" stroke="#C4644F" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="100.00" cy="24.96" r="3.4" fill="#C4644F"/></svg></div></a>
+
+  <div class="ctabox">
+    <h3>이런 거 매일 골라서 보내드려요</h3>
+    <p>가격이 진짜 움직인 날에만 알림이 갑니다.<br>안 움직이면 아무 말도 안 합니다.</p>
+    <a class="kbtn" href="https://open.kakao.com/o/gFGEOZIi" target="_blank" rel="noopener">카톡방에서 매일 받기 (무료)</a>
+    <a class="sbtn" href="https://themaric.kr/">올리브영 제품 가격 히스토리 검색하기 (무료)</a>
+    <div class="sub">카톡방은 오픈채팅 · 익명 입장 · 광고성 잡담 없음</div>
+  </div>
+
+  <footer>
+    <b>판정 방법</b> — 올리브영 상품 페이지를 매일 2회(오전·오후) 관측해 판매가를 기록합니다.
+    사이트에 표시되는 할인율은 정가 기준이라 실제 인하와 무관할 수 있어,
+    더마릭은 <b>7일 전(8월 21일) 실제 판매가</b>와 오늘 가격을 직접 비교합니다.
+    비교 창은 매일 하루씩 밀려, 이 목록도 매일 바뀝니다.<br><br>
+    <b>제휴 고지</b> — 올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.
+    수수료는 판정·순위에 영향을 주지 않습니다(분리 원칙).<br><br>
+    가격은 2026-08-28 관측 기준이며 변동될 수 있습니다. 최종 가격은 올리브영에서 확인하세요.<br>
+    © 더마릭 THEMARIC · themaric.kr
+  </footer>
+</main>
+
+<div class="sticky" id="sticky"><div class="inner">
+  <a class="s-kakao" href="https://open.kakao.com/o/gFGEOZIi" target="_blank" rel="noopener">카톡방 입장 (무료)</a>
+  <a class="s-site" href="https://themaric.kr/">가격 검색</a>
+</div></div>
+
+<script>
+(function(){
+  var s=document.getElementById('sticky'), box=document.querySelector('.ctabox');
+  function upd(){
+    var r=box.getBoundingClientRect();
+    s.classList.toggle('on', window.scrollY>420 && !(r.top<window.innerHeight && r.bottom>0));
+  }
+  window.addEventListener('scroll',upd,{passive:true}); upd();
+})();
+</script></body></html>
