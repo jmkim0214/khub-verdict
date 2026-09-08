@@ -96,9 +96,9 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 .pcard .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .pcard .bn{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em}
 .pcard .on{font-size:14.5px;line-height:1.35}
-.pcard .pr{font-size:15px;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pcard .pr{font-size:17px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:1px}
 .why{background:none;border:none;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;align-self:flex-start}
-.usual{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+.usual{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em;margin-top:2px}
 .cav{margin-top:7px;padding:8px 10px;background:var(--hold-bg);border-radius:8px;color:var(--hold);font-size:12px;line-height:1.6}
 .whybox{font-size:12.5px;color:var(--ink-2);line-height:1.65;border-top:1px solid var(--line);padding-top:9px}
 .oy{font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
@@ -307,25 +307,25 @@ function resetAccent(){
 const app=()=>document.getElementById("app");
 function show(h){app().innerHTML=h;window.scrollTo(0,0)}
 
-const TONE={ok:"b-ok",bad:"b-bad",hold:"b-hold"};
 function prodHTML(slug){
   const rows=(typeof PROD!=="undefined"&&PROD[slug])||[];
   if(!rows.length)return'<p class="note">이 색의 제품은 준비 중이에요.</p>';
   return'<div class="plist">'+rows.map(function(r,i){
-    const cls=TONE[r.tone]||"b-hold";
     const p=r.c?Number(r.c).toLocaleString("ko-KR")+"원":"가격 확인";
-    const line=[r.u2?"평소 "+esc(r.u2):"",r.lo?"최저 "+esc(r.lo):""].filter(Boolean).join(" · ");
+    const line=[r.u2?"평소 "+esc(r.u2):"",r.lo?"최저 "+esc(r.lo):""].filter(Boolean).join("  ·  ");
     const warn=r.w?'<div class="cav">최근 그래프의 움직임은 <b>대표 옵션이 바뀐 표기 변경</b>일 수 있어요. '+
-      '옵션별 가격 관측이 '+r.ld+'일뿐이라 실제 인상·인하로 확정하지 않았습니다.</div>':"";
+      (r.ld<6?'옵션별 가격 관측이 '+r.ld+'일뿐이라 실제 인상·인하인지 확정하지 않았습니다.'
+             :'옵션별 가격은 '+r.ld+'일 관측했어요. 전체 이력에서 사다리가 실제로 움직였는지 확인할 수 있습니다.')+
+      '</div>':"";
     return'<div class="pcard"><div class="prow">'+
       (r.i?'<img class="th" src="'+esc(r.i)+'" alt="" loading="lazy" style="background:'+esc(r.h)+'" onerror="this.removeAttribute(\'src\')">'
           :'<span class="th" style="background:'+esc(r.h)+'"></span>')+
       '<span class="bd"><span class="bn">'+esc(r.b)+'</span>'+
       '<span class="on">'+esc(r.o)+'</span>'+
-      '<span class="pr">'+p+' <span class="badge '+cls+'">'+esc(r.tag)+'</span></span>'+
+      '<span class="pr">'+p+'</span>'+
       (line?'<span class="usual">'+line+'</span>':"")+'</span>'+
       sparkHTML(r.s)+'</div>'+
-      '<button class="why" data-w="'+i+'">왜? →</button>'+
+      '<button class="why" data-w="'+i+'">가격 자세히 →</button>'+
       '<div class="whybox hide" id="wb'+i+'"><b>'+esc(r.t||"")+'</b>'+
       (r.d?'<br>'+esc(r.d):"")+warn+
       '<br><a class="oy" href="'+esc(r.u)+'" target="_blank" rel="noopener">가격 이력 전체 보기 →</a></div></div>';
@@ -343,7 +343,7 @@ function wireWhy(){
   app().querySelectorAll(".why").forEach(b=>b.onclick=()=>{
     const x=document.getElementById("wb"+b.dataset.w);
     const open=!x.classList.contains("hide");
-    x.classList.toggle("hide");b.textContent=open?"왜? →":"접기";
+    x.classList.toggle("hide");b.textContent=open?"가격 자세히 →":"접기";
   });
 }
 function gridHTML(){
@@ -432,7 +432,7 @@ function viewResult(a,ans){
   '<p class="eyebrow">그런데 잠깐</p>'+
   '<h2 style="font-size:21px">이 색, 진짜로 찾아봤어요</h2>'+
   prodHTML(a.s)+
-  '<p class="note">배지는 <b>평소 판매가와 비교한 지금 가격</b>이에요. 더마릭이 매일 관측한 올리브영 가격 기준이고, 표시 할인율은 쓰지 않았습니다. 근거는 왜? 를 눌러 보세요.</p>'+
+  '<p class="note">더마릭이 매일 관측한 올리브영 가격이에요. 표시 할인율 대신 <b>평소 판매가·최저가·가격 흐름</b>을 그대로 보여드려요.</p>'+
   '<button class="link" id="redo">다시 하기</button>');
   wireWhy();
   document.getElementById("send").onclick=()=>viewPick({
