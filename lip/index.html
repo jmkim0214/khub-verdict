@@ -379,7 +379,7 @@ function viewAskLink(){
   '<h2>친구들은 나를<br>무슨 색으로 볼까?</h2>'+
   '<p class="lede">내 이름을 넣으면 친구에게 보낼 링크가 만들어져요. 친구가 색을 고르면 회신 링크가 나오고, 그걸 나한테 보내주면 내 팔레트에 쌓여요.</p>'+
   '<div class="stack"><label class="eyebrow" for="mn">내 이름 (최대 8자)</label>'+
-  '<input type="text" id="mn" maxlength="8" placeholder="지민" value="'+esc(saved)+'">'+
+  '<input type="text" id="mn" maxlength="8" placeholder="예) 더마릭" value="'+esc(saved)+'">'+
   '<p class="err hide" id="e0">이름을 입력해 주세요</p>'+
   '<button class="cta" id="mk">링크 만들기</button></div>'+
   '<div id="out"></div>'+
@@ -415,7 +415,7 @@ function viewAsk(who){
     const idx=ARCH.indexOf(pick);
     document.getElementById("conf").innerHTML='<div class="stack">'+
       '<label class="eyebrow" for="nick">내 이름 (최대 8자)</label>'+
-      '<input type="text" id="nick" maxlength="8" placeholder="수진">'+
+      '<input type="text" id="nick" maxlength="8" placeholder="예) 더마릭">'+
       '<p class="err hide" id="e1">이름을 입력해 주세요</p>'+
       '<button class="cta" id="send">'+esc(pick.n)+'(으)로 보내기</button></div>';
     document.getElementById("nick").oninput=()=>document.getElementById("e1").classList.add("hide");
