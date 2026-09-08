@@ -114,7 +114,6 @@ footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--border);
     <a class="nav-link" href="../routine.html">루틴 가이드</a>
     <a class="nav-link here" href="./">부풀림 기록</a>
     <a class="nav-link" href="../glossary.html">성분 사전</a>
-    <a class="nav-link" href="../lab/">LAB</a>
   </header></div>
 
 <section class="hero"><div class="hero-in">

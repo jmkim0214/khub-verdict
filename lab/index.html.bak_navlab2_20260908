@@ -36,7 +36,8 @@
   .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
   .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
   header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
-    max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+    max-width:780px; margin:0 auto; padding:24px 20px 14px;}
+  header.site > a:first-child{width:100%;}
   .logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1;}
   .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px;
     font-family:'Pretendard Variable',Pretendard,sans-serif;}
@@ -78,11 +79,10 @@
 
   .foot{margin-top:34px; font-size:12.5px; color:var(--muted); line-height:1.7;}
   .foot a{color:var(--ink-2);}
-  @media (max-width:640px){
-    header.site{padding:18px 16px 12px; column-gap:18px;}
+  @media (max-width:520px){
     header.site > a:first-child{width:100%;}
     .nav-link{font-size:12.5px; padding:5px 0;}
-    .nav-link + .nav-link{margin-left:0;}
+    .nav-link + .nav-link{margin-left:14px;}
     .nav-first{margin-left:0;}
     h1{font-size:23px;}
     .lab{padding:14px 15px; gap:13px;}
