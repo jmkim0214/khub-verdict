@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>더마릭 LAB — 색으로 하는 작은 실험들</title>
+<meta name="description" content="더마릭이 가격·성분 데이터로 만드는 작은 실험들. 취향을 색으로 바꾸고, 친구와 주고받습니다.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="더마릭 THEMARIC">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://themaric.kr/lab/">
+<meta property="og:title" content="더마릭 LAB">
+<meta property="og:description" content="더마릭이 가격·성분 데이터로 만드는 작은 실험들.">
+<meta property="og:image" content="https://themaric.kr/lab/lip/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#F5F1E8; --surface:#FFFEFB;
+    --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+    --grid:rgba(32,34,30,0.10); --border:rgba(32,34,30,0.12);
+    --series:#596044; --series-wash:rgba(89,96,68,0.10);
+    --gold:#B49A62; --gold-wash:rgba(180,154,98,0.14);
+    --serif:"Cormorant Garamond","Noto Serif KR","Times New Roman",serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--page); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word; overflow-x:hidden;}
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:780px; margin:0 auto; padding:24px 20px 14px;}
+  header.site > a:first-child{width:100%;}
+  .logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1;}
+  .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px;
+    font-family:'Pretendard Variable',Pretendard,sans-serif;}
+  .logo-sub{font-family:var(--serif); font-size:10.5px; letter-spacing:0.28em; color:var(--gold); margin-top:6px; text-transform:uppercase;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none;
+    padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+
+  .eyebrow{font-family:var(--serif); font-size:11px; letter-spacing:0.28em; color:var(--gold); text-transform:uppercase;}
+  h1{font-size:34px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:10px 0 12px;}
+  .lead{font-size:15.5px; color:var(--ink-2); max-width:34em;}
+  .rule{height:1px; background:var(--grid); margin:26px 0 22px;}
+
+  .labs{display:flex; flex-direction:column; gap:14px;}
+  .lab{display:flex; gap:16px; align-items:stretch; background:var(--surface); border:1px solid var(--border);
+    border-radius:4px; padding:16px 18px; text-decoration:none; color:inherit; transition:border-color .15s, transform .15s;}
+  a.lab:hover{border-color:var(--series); transform:translateY(-1px);}
+  .lab .thumb{width:74px; flex:none; border-radius:3px; overflow:hidden; display:grid;
+    grid-template-columns:repeat(3,1fr); grid-auto-rows:1fr; min-height:74px;}
+  .lab .thumb span{display:block;}
+  .lab .thumb.soon{background:var(--series-wash); display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-size:22px; color:var(--muted);}
+  .lab .body{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; justify-content:center;}
+  .lab .kicker{font-size:11px; letter-spacing:0.16em; color:var(--muted); text-transform:uppercase; font-weight:600;}
+  .lab h2{font-size:19px; font-weight:800; letter-spacing:-0.02em; line-height:1.3;}
+  .lab p{font-size:13.5px; color:var(--ink-2); line-height:1.6;}
+  .chip{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:0.02em;}
+  .chip.live{background:var(--series-wash); color:var(--series);}
+  .chip.soon{background:var(--gold-wash); color:#8A7440;}
+  .meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:2px;}
+  .go{align-self:center; font-size:18px; color:var(--muted); flex:none;}
+  a.lab:hover .go{color:var(--series);}
+  .lab.disabled{opacity:.72;}
+
+  .foot{margin-top:34px; font-size:12.5px; color:var(--muted); line-height:1.7;}
+  .foot a{color:var(--ink-2);}
+  @media (max-width:520px){
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:14px;}
+    .nav-first{margin-left:0;}
+    h1{font-size:28px;}
+    .lab{padding:14px 15px; gap:13px;}
+    .lab .thumb{width:62px; min-height:62px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="site-band"><header class="site">
+    <a href="../" style="text-decoration:none;color:inherit">
+      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
+      <div class="logo-sub">화장품 가격·성분 검증</div>
+    </a>
+    <a class="nav-link nav-first" href="../price.html">판정서</a>
+    <a class="nav-link" href="../routine.html">루틴 가이드</a>
+    <a class="nav-link" href="../inflated/">부풀림 기록</a>
+    <a class="nav-link" href="../glossary.html">성분 사전</a>
+    <a class="nav-link here" href="./">LAB</a>
+  </header></div>
+
+  <p class="eyebrow">Themaric Lab</p>
+  <h1>데이터로 하는<br>작은 실험들</h1>
+  <p class="lead">평소엔 가격과 성분을 판정하지만, 여기서는 조금 다르게 놀아봅니다.
+    취향을 색으로 바꾸고, 친구와 주고받고, 그 끝에 실제로 살 만한 제품이 있는지까지 확인해요.</p>
+
+  <div class="rule"></div>
+
+  <div class="labs">
+
+    <!-- ── 실험 추가는 이 블록을 복사해서 쓰세요 ────────────────────────
+         · 공개:   <a class="lab" href="경로/">  + <span class="chip live">공개 중</span>
+         · 준비 중: <div class="lab disabled">   + <span class="chip soon">준비 중</span>
+                    (thumb 은 <div class="thumb soon">기호</div> 로)
+    ──────────────────────────────────────────────────────────── -->
+
+    <a class="lab" href="lip/">
+      <span class="thumb">
+        <span style="background:#E698AA"></span><span style="background:#D1B8B9"></span><span style="background:#E99F81"></span>
+        <span style="background:#E35C9C"></span><span style="background:#E25947"></span><span style="background:#B67175"></span>
+        <span style="background:#B0744F"></span><span style="background:#AE476E"></span><span style="background:#805F64"></span>
+        <span style="background:#A22029"></span><span style="background:#742B49"></span><span style="background:#6A3E32"></span>
+      </span>
+      <span class="body">
+        <span class="kicker">Lab 01 · Color</span>
+        <h2>내가 하나의 색이라면</h2>
+        <p>여덟 번의 선택으로 열두 개의 색 중 하나가 이름을 갖고 돌아와요.
+          친구에게 보내면 둘만의 색이 만들어집니다.</p>
+        <span class="meta"><span class="chip live">공개 중</span>
+          <span class="kicker" style="letter-spacing:.04em;text-transform:none">30초 · 회원가입 없음</span></span>
+      </span>
+      <span class="go">→</span>
+    </a>
+
+    <div class="lab disabled">
+      <div class="thumb soon">◍</div>
+      <div class="body">
+        <div class="kicker">Lab 02 · Scent</div>
+        <h2>내 향기의 이름은</h2>
+        <p>장면 몇 개를 고르면 어울리는 향의 결을 찾아드려요. 노트 데이터를 모으는 중입니다.</p>
+        <div class="meta"><span class="chip soon">준비 중</span></div>
+      </div>
+      <div class="go">·</div>
+    </div>
+
+  </div>
+
+  <p class="foot">
+    LAB의 결과에 붙는 가격은 모두 <a href="../price.html">더마릭 판정서</a>와 같은 관측 데이터를 씁니다.
+    표시 할인율이 아니라 실제 판매 이력으로 판정해요.
+  </p>
+</div>
+</body>
+</html>
