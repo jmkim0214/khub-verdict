@@ -25,7 +25,7 @@
     --grid:rgba(32,34,30,0.10); --border:rgba(32,34,30,0.12);
     --series:#596044; --series-wash:rgba(89,96,68,0.10);
     --gold:#B49A62; --gold-wash:rgba(180,154,98,0.14);
-    --deal:#D95C4F; --deal-bg:rgba(217,92,79,0.10);
+    --deal:#D95C4F;
     --serif:"Cormorant Garamond","Noto Serif KR","Times New Roman",serif;
     --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   }
@@ -47,42 +47,51 @@
   .nav-link:hover{color:var(--series);} .nav-link.here{color:var(--series); font-weight:800;}
 
   .eyebrow{font-family:var(--serif); font-size:11px; letter-spacing:0.28em; color:var(--gold); text-transform:uppercase;}
-  h1{font-size:29px; font-weight:800; letter-spacing:-0.035em; line-height:1.28; margin:10px 0 10px;}
+  .lbl{font-size:11.5px; font-weight:700; letter-spacing:0.06em; color:var(--muted); display:block; margin-bottom:6px;}
+  h1{font-size:30px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:10px 0 10px;}
   h2{font-size:20px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
   .lead{font-size:15px; color:var(--ink-2);}
   .rule{height:1px; background:var(--grid); margin:22px 0;}
   .note{font-size:12.5px; color:var(--muted); line-height:1.7;}
 
-  input[type=text],input[type=tel]{width:100%; font-family:inherit; font-size:16px; padding:13px 14px;
+  input{width:100%; font-family:inherit; font-size:16px; padding:13px 14px;
     border:1px solid var(--border); border-radius:4px; background:var(--surface); color:var(--ink);}
   input:focus{outline:2px solid var(--series); outline-offset:-1px; border-color:transparent;}
   button{font-family:inherit; cursor:pointer; border-radius:4px; font-size:15px;}
   .btn{background:var(--series); color:#fff; border:none; padding:14px 18px; width:100%; font-weight:600;}
   .btn:hover{filter:brightness(1.08);}
-  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--border);}
+  .btn:disabled{opacity:.45; cursor:default; filter:none;}
+  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--border); font-weight:500;}
   .btn.ghost:hover{border-color:var(--series);}
   .linkbtn{background:none; border:none; color:var(--muted); font-size:13px; text-decoration:underline;
-    text-underline-offset:3px; padding:6px 0; width:auto;}
-  .stack{display:flex; flex-direction:column; gap:10px;}
-  .err{color:var(--deal); font-size:13px;}
+    text-underline-offset:3px; padding:4px 0; width:auto;}
+  .form{display:flex; flex-direction:column; gap:16px;}
+  .err{color:var(--deal); font-size:13px; margin-top:6px;}
 
-  .hits{display:flex; flex-direction:column; gap:0; margin-top:10px; border:1px solid var(--border);
-    border-radius:4px; background:var(--surface); overflow:hidden; max-height:340px; overflow-y:auto;}
-  .hit{display:flex; gap:11px; align-items:center; padding:11px 13px; text-align:left; background:none;
-    border:none; border-bottom:1px solid var(--grid); width:100%;}
-  .hit:last-child{border-bottom:none;}
-  .hit:hover{background:var(--series-wash);}
-  .hit img{width:38px; height:38px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
-  .hit .t{flex:1; min-width:0;}
-  .hit .b{font-size:11.5px; color:var(--muted);}
-  .hit .n{font-size:13.5px; line-height:1.4;}
+  /* 자동완성 */
+  .field{position:relative;}
+  .ac{position:absolute; left:0; right:0; top:calc(100% + 5px); z-index:30; background:var(--surface);
+    border:1px solid var(--border); border-radius:4px; box-shadow:0 6px 20px rgba(32,34,30,.10);
+    max-height:322px; overflow-y:auto;}
+  .ac .row{display:flex; gap:10px; align-items:center; padding:10px 12px; width:100%; text-align:left;
+    background:none; border:none; border-bottom:1px solid var(--grid);}
+  .ac .row:last-child{border-bottom:none;}
+  .ac .row:hover,.ac .row.on{background:var(--series-wash);}
+  .ac img{width:34px; height:34px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
+  .ac .t{flex:1; min-width:0;}
+  .ac .b{font-size:11px; color:var(--muted);}
+  .ac .n{font-size:13.5px; line-height:1.4;}
+  .ac .msg{padding:12px 13px; font-size:13px; color:var(--muted);}
+  .ac mark{background:var(--gold-wash); color:inherit; padding:0 1px; border-radius:2px;}
 
-  .prod{display:flex; gap:13px; align-items:center; background:var(--surface); border:1px solid var(--border);
-    border-radius:4px; padding:13px 14px;}
-  .prod img{width:52px; height:52px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
+  .prod{display:flex; gap:12px; align-items:center; background:var(--surface); border:1px solid var(--border);
+    border-radius:4px; padding:11px 12px;}
+  .prod img{width:46px; height:46px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
+  .prod .t{flex:1; min-width:0;}
+  .prod .b{font-size:11.5px; color:var(--muted);}
+  .prod .n{font-size:14px; line-height:1.4;}
 
   .verdict{font-family:var(--serif); font-size:30px; font-weight:700; letter-spacing:-0.02em; line-height:1.3; margin:2px 0 8px;}
-  .big{font-family:var(--mono); font-size:15px; font-variant-numeric:tabular-nums;}
   .levels{display:flex; flex-direction:column; gap:9px; margin-top:6px;}
   .lv{display:grid; grid-template-columns:92px 1fr auto; align-items:center; gap:11px; font-size:13px;}
   .lv .p{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; letter-spacing:-0.02em;}
@@ -90,15 +99,14 @@
   .lv .track i{display:block; height:100%; background:var(--series); opacity:.30;}
   .lv .d{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;}
   .lv.me .track i{opacity:1; background:var(--gold);}
-  .lv.me .p{font-weight:700;}
-  .lv.me .d{color:var(--ink); font-weight:600;}
-  .lv.cheap .track i{background:var(--series); opacity:.55;}
+  .lv.me .p{font-weight:700;} .lv.me .d{color:var(--ink); font-weight:600;}
+  .lv.cheap .track i{opacity:.55;}
   .youtag{display:inline-block; background:var(--gold-wash); color:#8A7440; font-size:10.5px; font-weight:700;
     padding:1px 6px; border-radius:999px; margin-left:6px; vertical-align:1px;}
   .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--grid);
     border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-top:4px;}
   .stat{background:var(--surface); padding:11px 12px;}
-  .stat .k{font-size:11px; color:var(--muted); letter-spacing:0.02em;}
+  .stat .k{font-size:11px; color:var(--muted);}
   .stat .v{font-family:var(--mono); font-size:15px; font-variant-numeric:tabular-nums; margin-top:2px;}
   .cav{background:var(--gold-wash); border-radius:4px; padding:11px 13px; font-size:12.5px; color:#7A6738; line-height:1.65;}
   .foot{margin-top:30px; font-size:12.5px; color:var(--muted); line-height:1.7;}
@@ -108,7 +116,7 @@
     header.site{padding:18px 16px 12px; column-gap:18px;}
     header.site > a:first-child{width:100%;}
     .nav-link{font-size:12.5px; padding:5px 0;} .nav-link + .nav-link{margin-left:0;} .nav-first{margin-left:0;}
-    h1{font-size:24px;} .verdict{font-size:25px;}
+    h1{font-size:22px;} .verdict{font-size:25px;}
     .lv{grid-template-columns:80px 1fr auto; gap:8px; font-size:12.5px;}
     .stats{grid-template-columns:1fr 1fr;}
   }
@@ -127,127 +135,175 @@
     <a class="nav-link" href="../../glossary.html">성분 사전</a>
     <a class="nav-link here" href="../">LAB</a>
   </header></div>
-  <div id="app"></div>
+
+  <p class="eyebrow">Lab 02 · Price</p>
+  <h1>그때 그 가격, 잘 샀을까?</h1>
+  <p class="lead">샀던 화장품과 기억나는 가격을 넣어보세요. 더마릭이 하루 두 번 관측한 가격대 중
+    어디였는지, 며칠짜리 가격이었는지 알려드려요.</p>
+
+  <div class="rule"></div>
+
+  <div class="form">
+    <div id="pslot">
+      <label class="lbl" for="q">상품</label>
+      <div class="field">
+        <input type="text" id="q" placeholder="예) 아누아 어성초 토너" autocomplete="off"
+               role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="ac">
+        <div class="ac hide" id="ac" role="listbox"></div>
+      </div>
+      <p class="note" style="margin-top:6px">브랜드명을 같이 넣으면 더 잘 찾아요.</p>
+    </div>
+
+    <div>
+      <label class="lbl" for="p">내가 산 가격</label>
+      <input type="tel" id="p" inputmode="numeric" placeholder="예) 19800">
+      <p class="err hide" id="pe">숫자로 가격을 입력해 주세요.</p>
+      <p class="note" style="margin-top:6px">할인·쿠폰을 적용해 실제로 결제한 금액을 넣어주세요.</p>
+    </div>
+
+    <button class="btn" id="ok" disabled>결과 보기</button>
+  </div>
+
+  <div id="out"></div>
 </div>
 
 <script>
 const $=s=>document.querySelector(s);
-const app=()=>$("#app");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const won=n=>Number(n).toLocaleString("ko-KR")+"원";
 const VD="../../verdicts/";
-let INDEX=null, PICK=null;
+let INDEX=null, LOADING=false, PICK=null, ACROWS=[], ACI=-1, TIMER=null;
 
-function show(h){app().innerHTML=h; window.scrollTo(0,0);}
-
-/* ───────── 1. 검색 ───────── */
-function viewHome(msg){
-  show('<p class="eyebrow">Lab 02 · Price</p>'+
-  '<h1>그때 그 가격,<br>잘 샀을까?</h1>'+
-  '<p class="lead">샀던 화장품과 기억나는 가격을 넣어보세요. 더마릭이 하루 두 번 관측한 가격대 중 '+
-  '어디였는지, 며칠짜리 가격이었는지 알려드려요.</p>'+
-  '<div class="rule"></div>'+
-  '<div class="stack">'+
-  '<label class="eyebrow" for="q">상품 이름</label>'+
-  '<input type="text" id="q" placeholder="예) 아누아 어성초 토너" autocomplete="off">'+
-  '<button class="btn" id="go">찾기</button>'+
-  (msg?'<p class="err">'+esc(msg)+'</p>':"")+
-  '</div><div id="hits"></div>'+
-  '<p class="note" style="margin-top:22px">브랜드명을 같이 넣으면 더 잘 찾아요. 올리브영에서 판매하는 상품만 조회됩니다.</p>');
-  $("#go").onclick=doSearch;
-  $("#q").onkeydown=e=>{if(e.key==="Enter")doSearch();};
-  $("#q").focus();
-}
-
+/* ───────── 검색 인덱스 ───────── */
 async function loadIndex(){
   if(INDEX) return INDEX;
+  if(LOADING) return null;
+  LOADING=true;
   try{
     const r=await fetch(VD+"index.json",{cache:"force-cache"});
     INDEX=r.ok?((await r.json()).items||{}):{};
   }catch(e){ INDEX={}; }
+  LOADING=false;
   return INDEX;
 }
+function hi(text,terms){
+  let out=esc(text);
+  terms.forEach(t=>{
+    if(!t) return;
+    const re=new RegExp("("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");
+    out=out.replace(re,"<mark>$1</mark>");
+  });
+  return out;
+}
 
-async function doSearch(){
+/* ───────── 자동완성 ───────── */
+function closeAC(){ $("#ac").classList.add("hide"); $("#q").setAttribute("aria-expanded","false"); ACI=-1; }
+function openAC(html){ const a=$("#ac"); a.innerHTML=html; a.classList.remove("hide"); $("#q").setAttribute("aria-expanded","true"); }
+
+async function suggest(){
   const q=($("#q").value||"").trim();
-  const box=$("#hits");
-  if(q.length<2){ box.innerHTML='<p class="err" style="margin-top:10px">두 글자 이상 입력해 주세요.</p>'; return; }
-  box.innerHTML='<p class="note" style="margin-top:12px">상품 목록을 불러오는 중이에요…</p>';
-  const idx=await loadIndex();
-  if(!Object.keys(idx).length){
-    box.innerHTML='<p class="err" style="margin-top:10px">상품 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</p>'; return;
+  if(q.length<2){ closeAC(); return; }
+  if(!INDEX){
+    openAC('<div class="msg">상품 목록을 불러오는 중이에요…</div>');
+    await loadIndex();
+    if(($("#q").value||"").trim()!==q) return;
+  }
+  if(!INDEX || !Object.keys(INDEX).length){
+    openAC('<div class="msg">상품 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>'); return;
   }
   const terms=q.toLowerCase().split(/\s+/).filter(Boolean);
-  const hits=Object.entries(idx)
-    .filter(([g,it])=>{const hay=((it.name||"")+" "+(it.brand||"")).toLowerCase(); return terms.every(t=>hay.includes(t));})
-    .sort((a,b)=>(a[1].name||"").length-(b[1].name||"").length)
-    .slice(0,30);
-  if(!hits.length){
-    box.innerHTML='<p class="note" style="margin-top:12px">찾는 상품이 없어요. 브랜드명만으로도 검색해 보세요.</p>'; return;
+  const hits=[];
+  for(const g in INDEX){
+    const it=INDEX[g];
+    const hay=((it.name||"")+" "+(it.brand||"")).toLowerCase();
+    if(terms.every(t=>hay.includes(t))) hits.push([g,it]);
   }
-  box.innerHTML='<div class="hits">'+hits.map(([g,it])=>
-    '<button class="hit" data-g="'+g+'">'+
+  if(!hits.length){ openAC('<div class="msg">찾는 상품이 없어요. 브랜드명만으로도 검색해 보세요.</div>'); return; }
+  hits.sort((a,b)=>(a[1].name||"").length-(b[1].name||"").length);
+  ACROWS=hits.slice(0,8);
+  openAC(ACROWS.map(([g,it],i)=>
+    '<button type="button" class="row" role="option" data-i="'+i+'">'+
     (it.img?'<img src="'+esc(it.img)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<img alt="">')+
-    '<span class="t"><span class="b">'+esc(it.brand||"")+'</span>'+
-    '<span class="n">'+esc(it.name||"")+'</span></span></button>').join("")+'</div>';
-  box.querySelectorAll(".hit").forEach(b=>b.onclick=()=>viewPrice(b.dataset.g));
+    '<span class="t"><span class="b">'+hi(it.brand||"",terms)+'</span>'+
+    '<span class="n">'+hi(it.name||"",terms)+'</span></span></button>').join(""));
+  $("#ac").querySelectorAll(".row").forEach(b=>b.onmousedown=e=>{e.preventDefault(); choose(+b.dataset.i);});
+  ACI=-1;
+}
+function moveAC(d){
+  const rows=$("#ac").querySelectorAll(".row");
+  if(!rows.length) return;
+  ACI=(ACI+d+rows.length)%rows.length;
+  rows.forEach((r,i)=>r.classList.toggle("on",i===ACI));
+  rows[ACI].scrollIntoView({block:"nearest"});
+}
+async function choose(i){
+  const ent=ACROWS[i]; if(!ent) return;
+  closeAC();
+  await setProduct(ent[0]);
 }
 
-/* ───────── 2. 가격 입력 ───────── */
-async function viewPrice(gno, preset){
-  show('<p class="note">불러오는 중…</p>');
+/* ───────── 상품 선택 ───────── */
+async function setProduct(gno){
+  const slot=$("#pslot");
+  slot.innerHTML='<label class="lbl">상품</label><p class="note">불러오는 중…</p>';
   let j=null;
   try{ const r=await fetch(VD+gno+".json",{cache:"force-cache"}); if(r.ok) j=await r.json(); }catch(e){}
-  if(!j){ viewHome("그 상품의 가격 기록을 찾지 못했어요."); return; }
+  if(!j){ PICK=null; resetProduct("그 상품의 가격 기록을 찾지 못했어요."); return; }
   PICK={gno:gno,j:j};
-  show(prodCard(j)+
-  '<div class="rule"></div>'+
-  '<div class="stack">'+
-  '<label class="eyebrow" for="p">내가 산 가격</label>'+
-  '<input type="tel" id="p" inputmode="numeric" placeholder="예) 19800" value="'+(preset||"")+'">'+
-  '<p class="err hide" id="pe">숫자로 가격을 입력해 주세요.</p>'+
-  '<button class="btn" id="ok">결과 보기</button>'+
-  '<button class="linkbtn" id="back">다른 상품 찾기</button>'+
-  '</div>'+
-  '<p class="note" style="margin-top:18px">할인·쿠폰을 적용해 <b>실제로 결제한 금액</b>을 넣어주세요. 기억이 흐릿하면 대략도 괜찮아요.</p>');
-  $("#p").oninput=()=>$("#pe").classList.add("hide");
-  $("#p").onkeydown=e=>{if(e.key==="Enter")submit();};
-  $("#ok").onclick=submit;
-  $("#back").onclick=()=>{location.hash="";viewHome();};
-  $("#p").focus();
-  function submit(){
-    const v=parseInt(($("#p").value||"").replace(/[^0-9]/g,""),10);
-    if(!v||v<100||v>3000000){ $("#pe").classList.remove("hide"); return; }
-    location.hash="#g="+gno+"&p="+v;
-  }
-}
-
-function prodCard(j){
-  return'<div class="prod">'+
+  slot.innerHTML='<label class="lbl">상품</label>'+
+    '<div class="prod">'+
     (j.img?'<img src="'+esc(j.img)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<img alt="">')+
-    '<div><div class="hit-b" style="font-size:11.5px;color:var(--muted)">'+esc(j.brand||"")+'</div>'+
-    '<div style="font-size:14.5px;line-height:1.4">'+esc(j.name||"")+'</div></div></div>';
+    '<span class="t"><span class="b">'+esc(j.brand||"")+'</span>'+
+    '<span class="n">'+esc(j.name||"")+'</span></span></div>'+
+    '<button class="linkbtn" id="chg">다른 상품 고르기</button>';
+  $("#chg").onclick=()=>resetProduct();
+  sync();
+  if(!$("#p").value) $("#p").focus();
 }
+function resetProduct(msg){
+  PICK=null;
+  $("#pslot").innerHTML='<label class="lbl" for="q">상품</label>'+
+    '<div class="field"><input type="text" id="q" placeholder="예) 아누아 어성초 토너" autocomplete="off" '+
+    'role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="ac">'+
+    '<div class="ac hide" id="ac" role="listbox"></div></div>'+
+    (msg?'<p class="err">'+esc(msg)+'</p>':'<p class="note" style="margin-top:6px">브랜드명을 같이 넣으면 더 잘 찾아요.</p>');
+  wireSearch();
+  $("#out").innerHTML="";
+  history.replaceState(null,"",location.pathname);
+  sync();
+  $("#q").focus();
+}
+function wireSearch(){
+  const q=$("#q");
+  q.oninput=()=>{ clearTimeout(TIMER); TIMER=setTimeout(suggest,130); };
+  q.onfocus=()=>{ loadIndex(); if((q.value||"").trim().length>=2) suggest(); };
+  q.onblur=()=>setTimeout(closeAC,120);
+  q.onkeydown=e=>{
+    if(e.key==="ArrowDown"){ e.preventDefault(); moveAC(1); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); moveAC(-1); }
+    else if(e.key==="Enter"){ e.preventDefault(); if(ACI>=0) choose(ACI); else if(ACROWS.length) choose(0); }
+    else if(e.key==="Escape"){ closeAC(); }
+  };
+}
+function priceVal(){ return parseInt(($("#p").value||"").replace(/[^0-9]/g,""),10); }
+function sync(){ $("#ok").disabled = !(PICK && priceVal()>0); }
 
-/* ───────── 3. 결과 ───────── */
+/* ───────── 분석 ───────── */
 function analyze(series, mine){
   const prices=series.map(p=>p.price).filter(p=>p);
-  const n=prices.length;
-  const cnt={};
+  const n=prices.length, cnt={};
   prices.forEach(p=>cnt[p]=(cnt[p]||0)+1);
   const levels=Object.keys(cnt).map(Number).sort((a,b)=>a-b).map(p=>({p:p,c:cnt[p]}));
   const cheaper=prices.filter(p=>p<mine).length;
   const same=cnt[mine]||0;
-  const pricier=n-cheaper-same;
-  const mid=(cheaper+same/2)/n;
-  const min=levels[0].p, max=levels[levels.length-1].p;
-  const mode=levels.slice().sort((a,b)=>b.c-a.c)[0].p;
-  return{n:n,levels:levels,cheaper:cheaper,same:same,pricier:pricier,mid:mid,min:min,max:max,mode:mode};
+  return{n:n, levels:levels, cheaper:cheaper, same:same, pricier:n-cheaper-same,
+    mid:(cheaper+same/2)/n, min:levels[0].p, max:levels[levels.length-1].p,
+    mode:levels.slice().sort((a,b)=>b.c-a.c)[0].p};
 }
 function headline(a,mine){
-  if(mine< a.min) return["관측된 어떤 날보다 쌌어요","이 기간엔 이만큼 싼 값이 나온 적이 없어요."];
+  if(mine< a.min)  return["관측된 어떤 날보다 쌌어요","이 기간엔 이만큼 싼 값이 나온 적이 없어요."];
   if(mine===a.min) return["관측 최저가예요","이보다 싼 날은 없었어요."];
-  if(mine> a.max) return["관측된 어떤 날보다 비쌌어요","이 기간엔 이보다 싼 값만 나왔어요."];
+  if(mine> a.max)  return["관측된 어떤 날보다 비쌌어요","이 기간엔 이보다 싼 값만 나왔어요."];
   if(mine===a.max) return["가장 비쌌던 가격이에요","관측된 날 대부분이 이보다 쌌어요."];
   const r=a.mid;
   if(r<=0.15) return["싸게 산 편이에요","이보다 싼 날이 드물었어요."];
@@ -256,43 +312,41 @@ function headline(a,mine){
   if(r<=0.85) return["비싼 편이었어요","더 싼 날이 꽤 있었어요."];
   return["거의 가장 비쌌어요","대부분의 날이 이보다 쌌어요."];
 }
-function viewResult(gno, mine){
-  const j=PICK && PICK.gno===gno ? PICK.j : null;
-  if(!j){ viewPrice(gno, mine); return; }
+
+/* ───────── 결과 ───────── */
+function render(){
+  if(!PICK) return;
+  const mine=priceVal();
+  if(!mine || mine<100 || mine>3000000){ $("#pe").classList.remove("hide"); return; }
+  $("#pe").classList.add("hide");
+  const j=PICK.j, out=$("#out");
   const series=((j.chart||{}).series||[]).filter(p=>p.price);
+  history.replaceState(null,"","#g="+PICK.gno+"&p="+mine);
+
   if(series.length<8){
-    show(prodCard(j)+'<div class="rule"></div><h2>아직 비교할 만큼 쌓이지 않았어요</h2>'+
-      '<p class="lead" style="margin-top:8px">이 상품은 관측 기록이 '+series.length+'회뿐이라 가격대를 말하기 어려워요. '+
-      '관측은 매일 이어지고 있어요.</p><div class="stack" style="margin-top:16px">'+
-      '<button class="btn ghost" id="back">다른 상품 찾기</button></div>');
-    $("#back").onclick=()=>{location.hash="";viewHome();};
-    return;
+    out.innerHTML='<div class="rule"></div><h2>아직 비교할 만큼 쌓이지 않았어요</h2>'+
+      '<p class="lead" style="margin-top:8px">이 상품은 관측 기록이 '+series.length+'회뿐이라 가격대를 말하기 어려워요. 관측은 매일 이어지고 있어요.</p>';
+    out.scrollIntoView({behavior:"smooth",block:"start"}); return;
   }
-  const a=analyze(series,mine);
-  const h=headline(a,mine);
+  const a=analyze(series,mine), h=headline(a,mine);
   const first=(series[0].label||"").split("·")[0], last=(series[series.length-1].label||"").split("·")[0];
   const maxc=Math.max.apply(null,a.levels.map(l=>l.c));
   const inLv=a.levels.some(l=>l.p===mine);
-
-  // 가격대 막대 (내 가격이 관측에 없으면 그 자리에 끼워 표시)
   let rows=a.levels.map(l=>({p:l.p,c:l.c,me:l.p===mine}));
   if(!inLv) rows.push({p:mine,c:0,me:true});
   rows.sort((x,y)=>x.p-y.p);
 
-  show(prodCard(j)+
-  '<div class="rule"></div>'+
+  out.innerHTML='<div class="rule"></div>'+
   '<p class="eyebrow">'+esc(won(mine))+'에 샀다면</p>'+
   '<p class="verdict">'+esc(h[0])+'</p>'+
   '<p class="lead">'+esc(h[1])+' 관측 '+a.n+'회 중 — 더 싼 값 <b>'+a.cheaper+'회</b>'+
     (a.same?' · 같은 값 <b>'+a.same+'회</b>':"")+
     (a.pricier?' · 더 비싼 값 <b>'+a.pricier+'회</b>':"")+'.</p>'+
-
   '<div class="stats">'+
     '<div class="stat"><div class="k">관측 최저</div><div class="v">'+won(a.min)+'</div></div>'+
     '<div class="stat"><div class="k">가장 흔한 값</div><div class="v">'+won(a.mode)+'</div></div>'+
     '<div class="stat"><div class="k">관측 최고</div><div class="v">'+won(a.max)+'</div></div>'+
   '</div>'+
-
   '<div class="rule"></div>'+
   '<p class="eyebrow">가격대별 관측 횟수</p>'+
   '<div class="levels">'+rows.map(function(l){
@@ -304,40 +358,38 @@ function viewResult(gno, mine){
   }).join("")+'</div>'+
   '<p class="note" style="margin-top:10px">'+esc(first)+' ~ '+esc(last)+
     (j.chartSub?' · '+esc(j.chartSub):"")+' · 기록 '+a.n+'회</p>'+
-
-  (!inLv?'<div class="cav" style="margin-top:14px">이 가격은 관측 기록에 없어요. 쿠폰·카드 할인이나 '+
-    '옵션(용량·구성)이 달랐을 수 있어요.</div>':"")+
-  '<div class="cav" style="margin-top:10px">올리브영 목록에 <b>대표로 표시된 가격</b> 기준이에요. '+
-    '옵션이 여러 개인 상품은 고른 옵션에 따라 실제 가격이 달랐을 수 있습니다.</div>'+
-
+  (!inLv?'<div class="cav" style="margin-top:14px">이 가격은 관측 기록에 없어요. 쿠폰·카드 할인이나 옵션(용량·구성)이 달랐을 수 있어요.</div>':"")+
+  '<div class="cav" style="margin-top:10px">올리브영 목록에 <b>대표로 표시된 가격</b> 기준이에요. 옵션이 여러 개인 상품은 고른 옵션에 따라 실제 가격이 달랐을 수 있습니다.</div>'+
   '<div class="rule"></div>'+
-  '<div class="stack">'+
-    '<button class="btn" id="share">결과 링크 복사하기</button>'+
+  '<div class="form">'+
+    '<button class="btn ghost" id="share">결과 링크 복사하기</button>'+
     '<a class="btn ghost" style="display:block;text-align:center;text-decoration:none;line-height:1.4" '+
-      'href="../../?g='+esc(gno)+'&from=lab-price">이 상품 판정서 보기 →</a>'+
-    '<button class="linkbtn" id="again">다른 상품도 확인하기</button>'+
+      'href="../../?g='+esc(PICK.gno)+'&from=lab-price">이 상품 판정서 보기 →</a>'+
   '</div>'+
-  '<p class="foot">더마릭은 올리브영 가격을 하루 두 번 관측해 기록합니다. '+
-    '표시 할인율이 아니라 실제로 관측된 가격만 씁니다. <a href="../">LAB의 다른 실험 보기</a></p>');
+  '<p class="foot">더마릭은 올리브영 가격을 하루 두 번 관측해 기록합니다. 표시 할인율이 아니라 실제로 관측된 가격만 씁니다. '+
+    '<a href="../">LAB의 다른 실험 보기</a></p>';
 
-  $("#again").onclick=()=>{location.hash="";viewHome();};
   $("#share").onclick=async function(){
-    const url=location.origin+location.pathname+"#g="+gno+"&p="+mine;
+    const url=location.origin+location.pathname+"#g="+PICK.gno+"&p="+mine;
     const msg=(j.name||"")+" "+won(mine)+" — "+h[0]+"\n"+url;
     try{ await navigator.clipboard.writeText(msg); this.textContent="복사됐어요"; }
     catch(e){ this.textContent="주소창의 링크를 복사해 주세요"; }
   };
+  out.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-/* ───────── 라우팅 ───────── */
-function route(){
+/* ───────── 초기화 ───────── */
+wireSearch();
+$("#p").oninput=()=>{ $("#pe").classList.add("hide"); sync(); };
+$("#p").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); if(!$("#ok").disabled) render(); } };
+$("#ok").onclick=render;
+
+(async function(){
   const m=/^#g=([A-Z0-9]+)(?:&p=(\d+))?/.exec(location.hash||"");
-  if(m && m[2]) return viewResult(m[1], parseInt(m[2],10));
-  if(m)         return viewPrice(m[1]);
-  viewHome();
-}
-window.addEventListener("hashchange",route);
-route();
+  if(!m) return;
+  await setProduct(m[1]);
+  if(m[2] && PICK){ $("#p").value=m[2]; sync(); render(); }
+})();
 </script>
 </body>
 </html>
