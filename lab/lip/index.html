@@ -365,6 +365,71 @@ function heroHTML(a,ans){
     '<div class="bs">'+a.tone+'</div></div></div>';
 }
 
+
+/* ───────── API (Cloudflare Worker) ───────── */
+const API="https://api.themaric.kr";   /* workers.dev 로 배포했다면 그 주소로 바꾼다 */
+async function apiPost(path,body){
+  const r=await fetch(API+path,{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify(body)});
+  if(!r.ok) throw new Error("api "+r.status);
+  return r.json();
+}
+async function apiGet(path){
+  const r=await fetch(API+path,{cache:"no-store"});
+  if(!r.ok) throw new Error("api "+r.status);
+  return r.json();
+}
+const myRid=()=>LS.get("rid"), myTok=()=>LS.get("tok");
+
+/* ───────── 커플템 ───────── */
+let POOL=null;
+async function pool(){
+  if(POOL) return POOL;
+  try{ const r=await fetch("palette_products.json",{cache:"force-cache"}); POOL=r.ok?await r.json():{}; }
+  catch(e){ POOL={}; }
+  return POOL;
+}
+const CATNAME={lip:"립",nail:"네일",cheek:"블러셔"};
+function nearestIn(list,ax){
+  let best=null,bv=Infinity;
+  (list||[]).forEach(r=>{
+    const d=1.0*Math.pow(r.W-ax.W,2)+1.2*Math.pow(r.D-ax.D,2)+1.0*Math.pow(r.S-ax.S,2)+0.5*Math.pow(r.T-ax.T,2);
+    if(d<bv){bv=d;best=r}
+  });
+  return best;
+}
+function hexAxes(h,t){
+  const[r,g,b]=rgb(h).map(v=>v/255);
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;
+  let hd=0,sa=0;
+  if(mx!==mn){const d=mx-mn; sa=l>.5?d/(2-mx-mn):d/(mx+mn);
+    hd=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4); hd*=60;}
+  const hu=hd>180?hd-360:hd;
+  return{W:Math.max(-1,Math.min(1,(hu+3)/22)),D:Math.max(0,Math.min(1,(0.72-l)/0.44)),
+         S:Math.max(0,Math.min(1,(sa-0.20)/0.55)),T:t};
+}
+async function coupleHTML(hex,t){
+  const P=await pool();
+  const ax=hexAxes(hex,t);
+  const picks=["lip","cheek","nail"].map(c=>[c,nearestIn(P[c],ax)]).filter(x=>x[1]);
+  if(!picks.length) return "";
+  return'<p class="eyebrow" style="margin-top:4px">둘이 같이 쓰기 좋은 것</p>'+
+  '<div class="plist">'+picks.map(function(x){
+    const c=x[0],r=x[1];
+    return'<a class="pcard" href="https://themaric.kr/?g='+esc(r.g)+'&from=lab-couple" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">'+
+      '<div class="prow">'+
+      (r.i?'<img class="th" src="'+esc(r.i)+'" alt="" loading="lazy" style="background:'+esc(r.h)+'" onerror="this.removeAttribute(\'src\')">'
+          :'<span class="th" style="background:'+esc(r.h)+'"></span>')+
+      '<span class="bd"><span class="bn">'+CATNAME[c]+' · '+esc(r.b)+'</span>'+
+      '<span class="on">'+esc(r.o)+'</span>'+
+      '<span class="pr">'+Number(r.c).toLocaleString("ko-KR")+'원</span></span>'+
+      '<span class="spk"><span class="mini" style="background:'+esc(r.h)+';width:26px;height:26px;border-radius:6px;display:block"></span></span>'+
+      '</div></a>';
+  }).join("")+'</div>'+
+  '<p class="note">우리의 색과 가장 가까운 호수예요. 가격은 더마릭이 매일 관측한 값이고, 카드를 누르면 가격 이력을 볼 수 있어요.</p>';
+}
+
+/* ───────── 화면 ───────── */
 function viewIntro(){
   resetAccent();
   show('<h1>내가 하나의 색이라면<br>어떤 이름일까?</h1>'+
@@ -386,7 +451,6 @@ function viewQ(i,ans){
     let inner;
     if(q.k==="swatch") inner='<span class="swm" style="background:'+o[1]+'"></span><span class="lb">'+esc(o[0])+'</span>';
     else if(q.k==="word") inner='<span class="word">'+esc(o[0])+'</span>';
-    else if(q.k==="row") inner='<span class="em">'+o[1]+'</span><span class="lb">'+esc(o[0])+'</span>';
     else inner='<span class="em">'+o[1]+'</span><span class="lb">'+esc(o[0])+'</span>';
     return'<button class="qc'+(q.k==="row"?" row":"")+'" data-k="'+k+'">'+inner+'</button>';
   }).join("");
@@ -402,12 +466,16 @@ function viewQ(i,ans){
   const bk=document.getElementById("back");if(bk)bk.onclick=()=>viewQ(i-1,ans);
 }
 
-function finish(ans){
+async function finish(ans){
   const a=nearest(scoreOf(ans),true);
-  LS.set("slug",a.s);LS.set("ans",JSON.stringify(ans));
-  const p=LS.get("pending");
-  if(p){LS.set("pending","");location.hash="#s="+p;return}
-  viewResult(a,ans);
+  LS.set("slug",a.s); LS.set("ans",JSON.stringify(ans));
+  const pend=LS.get("pendAsk");
+  if(pend){ LS.set("pendAsk",""); location.hash="#a="+pend; }
+  else viewResult(a,ans);
+  if(!myRid()){
+    try{ const r=await apiPost("/r",{slug:a.s}); LS.set("rid",r.rid); LS.set("tok",r.tok); refreshAsk(); }
+    catch(e){}
+  }
 }
 
 function viewResult(a,ans){
@@ -422,12 +490,11 @@ function viewResult(a,ans){
       Math.round(v*100)+'%"></i></span><span class="val">'+Math.round(v*100)+'</span></div>';
   }).join("")+'</div>'+
   '<hr class="sep">'+
-  '<div class="card"><h2 style="font-size:20px">이 색이 떠오르는 사람이 있어요?</h2>'+
-  '<p class="note" style="margin:0">친구를 떠올리며 색을 하나 골라 보내주세요.</p>'+
-  '<button class="cta" id="send">생각나는 친구 색깔 보내주기</button></div>'+
-  '<div class="card"><h2 style="font-size:20px">남들이 보는 나의 색은?</h2>'+
-  '<p class="note" style="margin:0">친구가 고른 색이 나에게 돌아와요. 둘 다 주고받으면 우리 둘만의 색이 만들어져요.</p>'+
+  '<div class="card"><h2 style="font-size:20px">친구랑 같이 하면<br>둘만의 색이 나와요</h2>'+
+  '<p class="note" style="margin:0" id="asknote">친구가 나를 무슨 색으로 보는지 알려주고, 친구 색까지 오면 '+
+  '두 색을 섞어 우리 둘만의 색과 같이 쓸 립·블러셔·네일을 찾아드려요.</p>'+
   '<button class="cta" id="ask">친구에게 링크 보내기</button></div>'+
+  '<div id="mine"></div>'+
   '<hr class="sep">'+
   '<p class="eyebrow">그런데 잠깐</p>'+
   '<h2 style="font-size:21px">이 색, 진짜로 찾아봤어요</h2>'+
@@ -435,162 +502,175 @@ function viewResult(a,ans){
   '<p class="note">더마릭이 매일 관측한 올리브영 가격이에요. 표시 할인율 대신 <b>평소 판매가·최저가·가격 흐름</b>을 그대로 보여드려요.</p>'+
   '<button class="link" id="redo">다시 하기</button>');
   wireWhy();
-  document.getElementById("send").onclick=()=>viewPick({
-    eyebrow:"친구에게 보내기", title:"이 사람 하면<br>떠오르는 색은?",
-    sub:"친구를 떠올리며 색 하나를 골라주세요.", back:()=>viewResult(a,ans)});
-  document.getElementById("ask").onclick=async function(){
-    const nm=LS.get("myname")||"";
-    const url=baseUrl()+"#a="+(nm?enc(nm):"");
-    const msg=(nm||"나")+" 하면 떠오르는 색 하나만 골라줘\n"+url;
-    const b=this;
-    try{await navigator.clipboard.writeText(msg);b.textContent="복사됐어요 · 친구에게 붙여넣기"}
-    catch(e){b.textContent="복사 실패 — 주소창 링크를 보내주세요"}};
+  document.getElementById("ask").onclick=copyAsk;
   document.getElementById("redo").onclick=()=>{LS.set("slug","");viewQ(0,[])};
+  refreshAsk();
+  loadMine();
 }
 
-function viewPick(o){
-  resetAccent();
-  const saved=LS.get("myname")||"";
-  show('<p class="eyebrow">'+o.eyebrow+'</p>'+
-  '<h2>'+o.title+'</h2>'+
-  '<p class="lede">'+esc(o.sub)+'</p>'+
-  gridHTML()+'<div id="pk"></div>'+
-  (o.back?'<button class="link" id="back">돌아가기</button>':""));
-  pickWire(p=>{
-    setAccent(p.h);
-    document.getElementById("pk").innerHTML=
-      '<div class="stack" style="margin-top:6px">'+
-      '<label class="eyebrow" for="mn">내 이름 (최대 8자)</label>'+
-      '<input type="text" id="mn" maxlength="8" placeholder="예) 더마릭" value="'+esc(saved)+'">'+
-      '<p class="err hide" id="e0">이름을 입력해 주세요</p>'+
-      '<button class="cta" id="mk">'+esc(p.n)+' 보내기</button></div>';
-    const inp=document.getElementById("mn");
-    inp.oninput=()=>document.getElementById("e0").classList.add("hide");
-    document.getElementById("mk").onclick=async()=>{
-      const nm=clean(inp.value);
-      if(!nm){document.getElementById("e0").classList.remove("hide");return}
-      LS.set("myname",nm);
-      const url=baseUrl()+"#s="+IDXC[ARCH.indexOf(p)]+enc(nm);
-      const msg=nm+"이(가) 너한테 색 하나를 보냈어\n"+url;
-      let ok=true;
-      try{await navigator.clipboard.writeText(msg)}catch(e){ok=false}
-      setAccent(p.h);
-      show('<p class="eyebrow">'+(ok?"링크가 복사됐어요":"아래 링크를 복사해 주세요")+'</p>'+
-      heroHTML(p,[ARCH.indexOf(p)])+
-      '<p class="copy">'+esc(p.c)+'</p>'+
-      '<p class="lede">친구가 이 카드를 그대로 받아요.</p>'+
-      '<div class="share">'+esc(msg)+'</div>'+
-      '<div class="stack"><button class="cta" id="cp">다시 복사하기</button>'+
-      '<button class="ghost" id="hm">내 결과로</button></div>');
-      document.getElementById("cp").onclick=async function(){
-        const b=this;
-        try{await navigator.clipboard.writeText(msg);b.textContent="복사됐어요"}
-        catch(e){b.textContent="위 내용을 길게 눌러 복사해 주세요"}};
-      document.getElementById("hm").onclick=()=>{clearHash();
-        const sl=LS.get("slug");sl&&bySlug(sl)?viewResult(bySlug(sl),JSON.parse(LS.get("ans")||"[]")):viewIntro()};
-    };
+function refreshAsk(){
+  const n=document.getElementById("asknote");
+  if(n&&!myTok()) n.textContent="연결이 준비되는 중이에요. 잠시 후 다시 눌러주세요.";
+}
+async function copyAsk(){
+  let tok=myTok();
+  if(!tok){
+    try{ const r=await apiPost("/r",{slug:LS.get("slug")}); LS.set("rid",r.rid); LS.set("tok",r.tok); tok=r.tok; }
+    catch(e){ this.textContent="지금은 연결이 안 돼요. 잠시 후 다시"; return; }
+  }
+  const url=baseUrl()+"#a="+tok;
+  const msg="나 이거 해봤는데 내 색 나왔어. 너도 하면 우리 둘만의 색이 나온대\n"+url;
+  try{ await navigator.clipboard.writeText(msg); this.textContent="복사됐어요 · 친구에게 붙여넣기"; }
+  catch(e){ this.textContent="복사 실패 — 주소창 링크를 보내주세요"; }
+}
+
+/* ───────── 받은 색 ───────── */
+async function loadMine(){
+  const box=document.getElementById("mine");
+  const rid=myRid();
+  if(!box||!rid) return;
+  let d=null;
+  try{ d=await apiGet("/me/"+rid); }catch(e){ return; }
+  if(!d||!d.answers||!d.answers.length) return;
+  const mine=bySlug(LS.get("slug"));
+  const rows=d.answers.map(x=>({a:bySlug(x.s),own:x.o?bySlug(x.o):null,n:x.n})).filter(x=>x.a);
+  if(!rows.length) return;
+
+  let html='<hr class="sep"><p class="eyebrow">친구들이 보는 나</p>'+
+    '<div class="miniwrap">'+rows.map(r=>'<span class="mini" style="background:'+r.a.h+'" title="'+esc(r.a.n)+'"></span>').join("")+'</div>';
+
+  rows.forEach(r=>{
+    html+='<div class="card"><div class="rowline"><span class="dot" style="background:'+r.a.h+'"></span>'+
+      '<span><span class="note" style="display:block">'+esc(r.n)+'님이 생각하는 나의 이미지</span>'+
+      '<span class="name-s">'+esc(r.a.n)+'</span></span></div>'+
+      '<p style="margin:0;font-size:14.5px;color:var(--ink-2)">'+esc(r.a.c)+'</p>'+
+      '<p style="margin:0;font-size:14px">'+esc(judge(mine,r.a))+'</p>'+
+      (r.own?'<button class="link" data-pair="'+r.own.s+'|'+esc(r.n)+'">'+esc(r.n)+'님과 우리의 색 보기 →</button>':
+             '<p class="note" style="margin:0">'+esc(r.n)+'님은 아직 자기 색을 알려주지 않았어요.</p>')+
+      '</div>';
   });
-  if(o.back)document.getElementById("back").onclick=o.back;
-}
 
-/* 친구가 보낸 립을 받는 화면 */
-function viewGot(idx,rawNick){
-  const from=clean(rawNick||"")||"친구";
-  const t=ARCH[idx];
-  if(!t){show('<h2>링크를 읽을 수 없어요</h2><p class="lede">주소가 잘린 것 같아요. 친구에게 다시 받아 주세요.</p>');return}
-  setAccent(t.h);
-  const ms=LS.get("slug"),mine=ms?bySlug(ms):null;
-  show('<p class="eyebrow">'+esc(from)+'이(가) 보냈어요</p>'+
-  heroHTML(t,[idx])+
-  '<p class="copy">'+esc(t.c)+'</p>'+
-  '<p class="lede">'+esc(from)+'은(는) 이 색을 보면서 당신이 생각났대요.</p>'+
-  (mine?'<div class="card"><p class="note" style="margin:0">내 결과는 '+esc(mine.n)+'</p>'+
-       '<p style="margin:0;font-size:15px">'+esc(judge(mine,t))+'</p></div>':"")+
-  '<hr class="sep">'+
-  '<div class="stack"><button class="cta" id="back2">'+esc(from)+'에게도 색 보내기 →</button>'+
-  (mine?'':'<button class="ghost" id="own">내 색 만들어보기</button>')+
-  (mine?'<button class="ghost" id="own">내 결과 보기</button>':"")+'</div>');
-  document.getElementById("back2").onclick=()=>viewReply(idx,from);
-  const o=document.getElementById("own");
-  if(o)o.onclick=()=>{clearHash();mine?viewResult(mine,JSON.parse(LS.get("ans")||"[]")):viewQ(0,[])};
-}
-
-/* 받은 사람이 되보내며 '우리의 색'을 만든다 */
-function viewReply(theirIdx,fromName){
-  resetAccent();
-  const saved=LS.get("myname")||"";
-  show('<p class="eyebrow">'+esc(fromName)+'에게 보내기</p>'+
-  '<h2>'+esc(fromName)+' 하면<br>떠오르는 색은?</h2>'+
-  '<p class="lede">고르면 둘의 색이 섞여서 우리 둘만의 색이 만들어져요.</p>'+
-  gridHTML()+'<div id="pk"></div>');
-  pickWire(p=>{
-    setAccent(p.h);
-    document.getElementById("pk").innerHTML=
-      '<div class="stack" style="margin-top:6px">'+
-      '<label class="eyebrow" for="mn">내 이름 (최대 8자)</label>'+
-      '<input type="text" id="mn" maxlength="8" placeholder="예) 더마릭" value="'+esc(saved)+'">'+
-      '<p class="err hide" id="e0">이름을 입력해 주세요</p>'+
-      '<button class="cta" id="mk">우리의 색 만들기 →</button></div>';
-    const inp=document.getElementById("mn");
-    inp.oninput=()=>document.getElementById("e0").classList.add("hide");
-    document.getElementById("mk").onclick=()=>{
-      const nm=clean(inp.value);
-      if(!nm){document.getElementById("e0").classList.remove("hide");return}
-      LS.set("myname",nm);
-      location.hash="#p="+IDXC[theirIdx]+enc(fromName)+"~"+IDXC[ARCH.indexOf(p)]+enc(nm);
-    };
+  if(rows.length>=3){
+    const p={W:0,D:0,S:0,T:0};
+    rows.forEach(r=>AX.forEach(x=>p[x]+=r.a[x]));
+    AX.forEach(x=>p[x]/=rows.length);
+    const seen=nearest(p,false), same=seen.s===mine.s;
+    let tail="";
+    if(!same){let ax="W",mx=0;AX.forEach(x=>{const dd=seen[x]-mine[x];if(Math.abs(dd)>Math.abs(mx)){mx=dd;ax=x}});
+      tail="사람들은 나를 더 "+PHRASE[ax][mx>0?0:1]+" 봐요.";}
+    html+='<hr class="sep"><p class="eyebrow">평균을 내면</p>'+
+      '<div class="pair"><div class="col"><span class="pill">내가 아는 나</span>'+
+      '<span class="blk" style="background:'+mine.h+'"></span><span class="name-s">'+esc(mine.n)+'</span></div>'+
+      '<div class="col"><span class="pill">남들이 보는 나</span>'+
+      '<span class="blk" style="background:'+seen.h+'"></span><span class="name-s">'+esc(seen.n)+'</span></div></div>'+
+      '<p class="copy" style="font-size:17px">'+(same?"보이는 나와 아는 나가 같은 사람이에요.":esc(tail))+'</p>';
+  }
+  box.innerHTML=html;
+  box.querySelectorAll("[data-pair]").forEach(b=>b.onclick=()=>{
+    const[slug,nick]=b.dataset.pair.split("|");
+    viewPair(mine,bySlug(slug),nick);
   });
 }
 
-/* 우리의 색 */
-function viewPair(payload){
-  const half=payload.split("~");
-  if(half.length<2){show('<h2>링크를 읽을 수 없어요</h2>');return}
-  const aI=IDXC.indexOf(half[0].charAt(0)),aN=clean(dec(half[0].slice(1)))||"친구";
-  const bI=IDXC.indexOf(half[1].charAt(0)),bN=clean(dec(half[1].slice(1)))||"나";
-  const A=ARCH[aI],B=ARCH[bI];
-  if(!A||!B){show('<h2>링크를 읽을 수 없어요</h2>');return}
-  const our=ourColor(A,B);
+/* ───────── 우리의 색 ───────── */
+async function viewPair(mine,friend,nick){
+  const our=ourColor(mine,friend);
   setAccent(our.hex);
-  const url=baseUrl()+"#p="+payload;
-  const msg=aN+"랑 "+bN+"의 색은 "+our.name+"\n"+url;
+  const dif=[];
+  AX.forEach(x=>{const d=friend[x]-mine[x]; if(Math.abs(d)>0.25)
+    dif.push(esc(nick)+"님이 더 "+PHRASE[x][d>0?0:1].replace("보는","")); });
   show('<p class="eyebrow">You Two</p>'+
-  '<div class="pair"><div class="col"><span class="pill">'+esc(bN)+'이 보는 '+esc(aN)+'</span>'+
-  '<span class="blk" style="background:'+B.h+'"></span><span class="name-s">'+esc(B.n)+'</span></div>'+
-  '<div class="col"><span class="pill">'+esc(aN)+'이 보는 '+esc(bN)+'</span>'+
-  '<span class="blk" style="background:'+A.h+'"></span><span class="name-s">'+esc(A.n)+'</span></div></div>'+
+  '<div class="pair"><div class="col"><span class="pill">나</span>'+
+  '<span class="blk" style="background:'+mine.h+'"></span><span class="name-s">'+esc(mine.n)+'</span></div>'+
+  '<div class="col"><span class="pill">'+esc(nick)+'</span>'+
+  '<span class="blk" style="background:'+friend.h+'"></span><span class="name-s">'+esc(friend.n)+'</span></div></div>'+
   '<hr class="sep">'+
   '<p class="eyebrow">우리의 색</p>'+
   '<div class="ourfield'+(isLight(our.hex)?" dk":"")+'" style="background:'+our.hex+'">'+
   '<span style="font-family:var(--mono);font-size:11px;letter-spacing:.14em">'+our.hex+'</span></div>'+
   '<h2>'+esc(our.name)+'</h2>'+
   '<p class="copy">'+esc(our.rel)+'</p>'+
-  '<hr class="sep">'+
-  '<div class="stack"><button class="cta" id="cp">우리 카드 링크 복사하기</button>'+
-  '<button class="ghost" id="own">'+(LS.get("slug")?"내 결과 보기":"내 색 만들어보기")+'</button></div>');
-  document.getElementById("cp").onclick=async function(){
-    const b=this;
-    try{await navigator.clipboard.writeText(msg);b.textContent="복사됐어요"}
-    catch(e){b.textContent="주소창의 링크를 복사해 주세요"}};
-  document.getElementById("own").onclick=()=>{clearHash();
-    const s=LS.get("slug");s&&bySlug(s)?viewResult(bySlug(s),JSON.parse(LS.get("ans")||"[]")):viewQ(0,[])};
+  (dif.length?'<p class="note">두 색을 나란히 보면 '+dif.join(", ")+'.</p>':"")+
+  '<hr class="sep"><div id="cp"><p class="note">같이 쓸 만한 걸 찾는 중…</p></div>'+
+  '<div class="stack"><button class="ghost" id="back">내 결과로</button></div>');
+  document.getElementById("back").onclick=()=>{clearHash();
+    viewResult(bySlug(LS.get("slug")),JSON.parse(LS.get("ans")||"[]"))};
+  const t=(mine.T+friend.T)/2;
+  document.getElementById("cp").innerHTML=await coupleHTML(our.hex,t);
 }
 
+/* ───────── 친구가 색을 고르는 화면 ───────── */
+function viewAsk(tok){
+  resetAccent();
+  if(!LS.get("slug")){
+    show('<p class="eyebrow">친구가 보냈어요</p>'+
+    '<h1>같이 하면<br>둘만의 색이 나와요</h1>'+
+    '<p class="lede">먼저 내 색을 찾고 오면, 친구를 무슨 색으로 보는지 고르는 화면으로 이어져요. '+
+    '두 색이 모이면 우리 둘만의 색이 만들어져요.</p>'+
+    '<div class="strip">'+ARCH.map(a=>'<span style="background:'+a.h+'"></span>').join("")+'</div>'+
+    '<div class="stack"><button class="cta" id="go">내 색 먼저 찾기 →</button>'+
+    '<button class="ghost" id="skip">색만 골라주기</button></div>'+
+    '<p class="note">30초 · 회원가입 없음</p>');
+    document.getElementById("go").onclick=()=>{LS.set("pendAsk",tok);clearHash();viewQ(0,[])};
+    document.getElementById("skip").onclick=()=>askPick(tok);
+    return;
+  }
+  askPick(tok);
+}
+function askPick(tok){
+  resetAccent();
+  show('<p class="eyebrow">친구가 물어봤어요</p>'+
+  '<h2>이 사람 하면<br>떠오르는 색은?</h2>'+
+  '<p class="lede">가장 먼저 눈이 가는 색 하나를 골라주세요.</p>'+
+  gridHTML()+'<div id="pk"></div>');
+  let pick=null, own=null;
+  pickWire(p=>{
+    pick=p; setAccent(p.h);
+    document.getElementById("pk").innerHTML=
+      '<div class="stack" style="margin-top:6px">'+
+      '<label class="eyebrow" for="mn">내 이름 (최대 8자)</label>'+
+      '<input type="text" id="mn" maxlength="8" placeholder="예) 더마릭" value="'+esc(LS.get("myname")||"")+'">'+
+      '<p class="err hide" id="e0">이름을 입력해 주세요</p>'+
+      '<div class="card"><p class="note" style="margin:0">내 색도 같이 알려주면, 둘만의 색이 만들어져요.</p>'+
+      '<div id="ownbox">'+(LS.get("slug")?
+        '<div class="rowline"><span class="dot" style="background:'+bySlug(LS.get("slug")).h+'"></span>'+
+        '<span class="name-s">'+esc(bySlug(LS.get("slug")).n)+'</span></div>'+
+        '<p class="note" style="margin:4px 0 0">내 결과를 같이 보낼게요.</p>':
+        '<p class="note" style="margin:0">아직 내 색이 없어요. 보낸 뒤에 찾아볼 수 있어요.</p>')+'</div></div>'+
+      '<button class="cta" id="send">'+esc(p.n)+' 보내기</button></div>';
+    document.getElementById("mn").oninput=()=>document.getElementById("e0").classList.add("hide");
+    document.getElementById("send").onclick=async function(){
+      const nm=clean(document.getElementById("mn").value);
+      if(!nm){document.getElementById("e0").classList.remove("hide");return}
+      LS.set("myname",nm);
+      own=LS.get("slug")||null;
+      const b=this; b.disabled=true; b.textContent="보내는 중…";
+      try{ await apiPost("/a",{tok:tok,slug:pick.s,nick:nm,own:own}); }
+      catch(e){ b.disabled=false; b.textContent="다시 시도하기"; return; }
+      setAccent(pick.h);
+      show('<p class="eyebrow">전달됐어요</p>'+
+      heroHTML(pick,[ARCH.indexOf(pick)])+
+      '<p class="copy">'+esc(pick.c)+'</p>'+
+      '<p class="lede">친구의 팔레트에 이 색이 바로 쌓였어요.</p>'+
+      '<div class="stack"><button class="cta" id="own">'+(LS.get("slug")?"내 결과 보기":"나도 내 색 찾아보기")+'</button></div>');
+      document.getElementById("own").onclick=()=>{clearHash();
+        const sl=LS.get("slug");
+        sl&&bySlug(sl)?viewResult(bySlug(sl),JSON.parse(LS.get("ans")||"[]")):viewQ(0,[])};
+    };
+  });
+}
+
+/* ───────── 라우팅 ───────── */
 function route(){
   const h=location.hash;
-  if(h.indexOf("#a=")===0){
-    const who=clean(dec(h.slice(3)))||"친구";
-    return viewPick({eyebrow:who+"이(가) 물어봤어요", title:esc(who)+' 하면<br>떠오르는 색은?',
-      sub:"가장 먼저 눈이 가는 색 하나를 골라주세요.", back:null});
-  }
-  if(h.indexOf("#p=")===0)return viewPair(h.slice(3));
-  if(h.indexOf("#s=")===0){const p=h.slice(3);return viewGot(IDXC.indexOf(p.charAt(0)),dec(p.slice(1)))}
+  if(h.indexOf("#a=")===0) return viewAsk(h.slice(3));
   const s=LS.get("slug");
-  if(s&&bySlug(s))return viewResult(bySlug(s),JSON.parse(LS.get("ans")||"[]"));
+  if(s&&bySlug(s)) return viewResult(bySlug(s),JSON.parse(LS.get("ans")||"[]"));
   viewIntro();
 }
 window.addEventListener("hashchange",route);
 route();
+
 </script>
 </body>
 </html>
