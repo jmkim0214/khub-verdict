@@ -373,6 +373,22 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 }
 @media(max-width:359px){.pcard .product-image{height:220px}.card-body{padding:18px}.card-body a.name{min-height:42px}.card-body .price{flex-direction:row;align-items:baseline;min-height:32px}.card-body .card-flags{min-height:24px}}
 
+
+/* Mobile: a single complete product per row. */
+@media(max-width:640px){
+ .grid{grid-template-columns:minmax(0,1fr);gap:20px}
+ .pcard .product-image{height:220px}.pcard .product-image img{width:78%;height:78%}
+ .card-body{padding:18px 18px 12px}.card-body .brand{font-size:12px}
+ .card-body a.name{font-size:16px;min-height:0;line-height:1.5}
+ .card-body .price{flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:9px;min-height:0;margin-top:14px}
+ .card-body .cur{font-size:27px}.card-body .real{font-size:12px}
+ .card-body .card-flags{min-height:0;margin-top:10px}.card-body .card-flags:empty{margin-top:0}
+ .card-body .card-flags .fchip{font-size:12px}
+ .card-body .card-history{margin-top:16px;padding-top:13px}.card-body .card-history .days{font-size:12px}
+ .card-body .spark svg{height:48px}.card-body .xlab{font-size:11px}
+ .card-body .card-evidence summary{font-size:12px}.card-body .card-links .purchase{font-size:12px}
+}
+
 </style>
 </head>
 <body>
