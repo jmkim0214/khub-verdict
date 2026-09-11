@@ -338,6 +338,41 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 @media print{body::before{display:none}.site-menu,.primary-nav,.quick-nav{display:none}}
 
+/* One product, one surface: image and details share the same outer boundary. */
+.grid{gap:24px;align-items:stretch}
+.grid .pcard{display:flex;flex-direction:column;padding:0;background:#fffaf4;border:1px solid #cdbda6;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px #38271906}
+.grid .pcard:hover{border-color:#aa9374;box-shadow:0 5px 16px #3827190c;transform:none}
+.pcard .product-image{height:210px;flex-shrink:0;border:0;border-bottom:1px solid #e5d9c9;border-radius:0;background:#f3ecdf}
+.pcard .product-image img{width:76%;height:76%}
+.card-body{display:flex;flex-direction:column;flex:1;min-width:0;padding:20px}
+.card-body .pmeta{padding:0}
+.card-body .brand{font-size:12px;font-weight:500;color:#74634e;margin-bottom:5px}
+.card-body a.name{font-weight:600;line-height:1.5;text-decoration:none;min-height:48px}
+.card-body a.name:hover{text-decoration:underline;text-underline-offset:3px}
+.card-body .price{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-top:16px;min-height:32px}
+.card-body .cur{font-size:28px;letter-spacing:-.04em;font-weight:750;color:#382719}
+.card-body .real{font-size:12px}
+.card-body .card-flags{min-height:27px;margin-top:10px}
+.card-body .card-history{margin-top:12px;padding:14px 0 0;border:0;border-top:1px solid #e5d9c9;background:none}
+.card-body .card-history .days{font-size:12px;font-weight:500;color:#74634e}
+.card-body .spark svg{height:48px}
+.card-body .card-evidence{margin-top:12px;padding-top:0;border:0}
+.card-body .card-evidence summary{font-size:12px;padding:10px 0;color:#74634e}
+.card-body .card-links{display:flex;flex-direction:column;gap:4px;margin-top:auto;padding-top:4px}
+
+
+.card-body .card-links .purchase{display:block;min-height:36px;padding:9px 8px;text-align:center;font-size:12px;font-weight:400;color:#74634e}
+@media(max-width:800px){.grid{gap:18px}.pcard .product-image{height:180px}.card-body{padding:16px}}
+@media(max-width:640px){
+ .grid{gap:16px 12px}.grid .pcard{border-radius:8px}.pcard .product-image{height:150px}.pcard .product-image img{width:84%;height:72%}
+ .card-body{padding:13px 12px 9px}.card-body .brand{font-size:11px;margin-bottom:5px}.card-body a.name{font-size:14px;min-height:63px;font-weight:600}
+ .card-body .price{margin-top:13px;min-height:48px;display:flex;flex-direction:column;align-items:flex-start;gap:5px}.card-body .cur{font-size:23px;line-height:1.2}.card-body .real{font-size:11px;line-height:1.5}
+ .card-body .card-flags{min-height:46px;gap:4px;margin-top:10px}.card-body .card-flags .fchip{font-size:10.5px;padding:3px 5px}
+ .card-body .card-history{margin-top:10px;padding-top:11px}.card-body .card-history .days{font-size:11px}.card-body .spark svg{height:42px}.card-body .xlab{font-size:10px}
+ .card-body .card-evidence{margin-top:10px}.card-body .card-evidence summary{font-size:11px;line-height:1.6;padding:6px 0}.card-body .card-links{padding-top:2px;gap:4px}.card-body .card-links .purchase{font-size:11px;min-height:36px;padding:9px 0}
+}
+@media(max-width:359px){.pcard .product-image{height:220px}.card-body{padding:18px}.card-body a.name{min-height:42px}.card-body .price{flex-direction:row;align-items:baseline;min-height:32px}.card-body .card-flags{min-height:24px}}
+
 </style>
 </head>
 <body>
@@ -502,12 +537,14 @@ function render(){
       <a class="product-image" href="${esc(reportUrl)}" aria-label="${esc(it.name)} 판정서 보기">
         <span class="rank ${it.rank<=3?'top':''}">${it.rank}위</span><span class="vchip ${cls}">${label}</span>${media}
       </a>
+      <div class="card-body">
       <div class="pmeta"><div class="brand">${esc(it.brand)}</div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
       <div class="price"><span class="cur">${won(it.cur)}</span>${realTag(it)}</div>
       <div class="card-flags">${ftags}</div>
       <div class="card-history"><span class="days">관측 ${it.days}일</span><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span>${last}</span></div></div>
       <details class="card-evidence"><summary>가격 근거 · 상품 전체 이름</summary>${shownLine(it)}<div class="original-name">${esc(it.name)}</div></details>
-      <div class="card-links"><a href="${esc(reportUrl)}">판정서 보기 ↗</a><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div>
+      <div class="card-links"><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div>
+      </div>
     </article>`;
   }).join('');
   bind(view);
