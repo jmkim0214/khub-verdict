@@ -413,6 +413,38 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 .card-body .price-context .real{white-space:nowrap}
 .card-body .price-context .fchip{font-size:11px;line-height:1.5;padding:2px 5px;white-space:nowrap}
 
+
+/* Compact price header, filters and brand purchase link. */
+.page-head{margin:16px 0 14px;padding:0}
+.page-head .sub{margin:0}
+.toolbar{display:none}
+.vfilter{padding:12px 0 16px}
+#v-chips{flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none}
+#v-chips::-webkit-scrollbar{display:none}
+#v-chips button{flex-shrink:0;white-space:nowrap}
+#v-chips .filter-short{display:none}
+.brand-row{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:5px}
+.card-body .brand-row .brand{margin:0;min-width:0;overflow-wrap:anywhere}
+.brand-row .purchase{font-size:10px;white-space:nowrap;flex-shrink:0;color:#74634e;text-decoration:none;padding:3px 0}
+.brand-row .purchase:hover{text-decoration:underline}
+@media(max-width:640px){
+ #v-chips{gap:3px}
+ #v-chips button{font-size:11px;padding:8px 6px;line-height:1.3;border-radius:4px;min-width:0}
+ #v-chips .filter-full,#v-chips .n{display:none}
+ #v-chips .filter-short{display:inline}
+}
+
+
+/* Compact inline mobile price and short flag label. */
+@media(max-width:640px){
+ #v-chips button{font-size:10px;padding:8px 5px}
+ .card-body .price{flex-direction:row;align-items:center;flex-wrap:nowrap;gap:7px}
+ .card-body .cur{font-size:24px;white-space:nowrap;flex-shrink:0}
+ .card-body .price-context{min-width:0;gap:3px 4px}
+ .card-body .price-context .real{font-size:10px;margin-left:0;line-height:1.4}
+ .card-body .price-context .fchip{font-size:10px;padding:1px 3px;line-height:1.4}
+}
+
 </style>
 </head>
 <body>
@@ -431,8 +463,6 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
     <a class="stab" href="device.html">디바이스</a>
   </div>
   <div class="page-head">
-    <h1>인기 상품 <span class="u">가격 확인</span>
-      <sup class="obs-sup"><span class="live"></span><span id="obs-label"></span></sup></h1>
     <div class="sub">올리브영 Top 30, 평소 가격과 비교해요.</div>
   </div>
 
@@ -507,15 +537,6 @@ function shownLine(it){
   return `<div class="shown-sub">올영이 표시한 정가는 ${won(it.org)}이지만 관측 가격은 ${won(it.med||it.cur)} — 실질 할인 ${r}%</div>`;
 }
 const flagsOf = it => it.flags || [];
-/* 오늘 관측이면 날짜 생략 — 어제 이전 데이터일 때만 날짜를 보여 정직하게 (2026-08-17) */
-{
-  const today = new Date();
-  const ymd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  $('#obs-label').textContent = META.obs_date === ymd
-    ? META.obs_label.replace(META.obs_date, '오늘').trim()
-    : META.obs_label;
-}
-
 /* ---------- 스파크 차트 ---------- */
 const CW=260, CH=84, L=6, R=6, T=12, B=6;
 function spark(it){
@@ -560,7 +581,7 @@ function render(){
   } else eg.classList.add('hidden');
   $('#grid').innerHTML = items.map(it=>{
     const [cls,label] = VCHIP[gradeOf(it)] || VCHIP.watch;
-    const ftags = flagsOf(it).map(fl=>`<span class="fchip">${FCHIP[fl]||fl}</span>`).join('');
+    const ftags = flagsOf(it).map(fl=>`<span class="fchip" title="${esc(FCHIP[fl]||fl)}">${fl==='inflated'?'부풀림':FCHIP[fl]||fl}</span>`).join('');
     const dc = (it.org && it.org > it.cur) ? Math.round((1-it.cur/it.org)*100) : 0;
     const thumb = it.img
       ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
@@ -578,11 +599,10 @@ function render(){
         <span class="rank ${it.rank<=3?'top':''}">${it.rank}위</span><span class="vchip ${cls}">${label}</span>${media}
       </a>
       <div class="card-body">
-      <div class="pmeta"><div class="brand">${esc(it.brand)}</div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
+      <div class="pmeta"><div class="brand-row"><div class="brand">${esc(it.brand)}</div><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
       <div class="price"><span class="cur">${won(it.cur)}</span><span class="price-context">${realTag(it)}<span class="card-flags">${ftags}</span></span></div>
       <div class="card-history"><span class="days">관측 ${it.days}일</span><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span>${last}</span></div></div>
       <details class="card-evidence"><summary>가격 근거 · 상품 전체 이름</summary>${shownLine(it)}<div class="original-name">${esc(it.name)}</div></details>
-      <div class="card-links"><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div>
       </div>
     </article>`;
   }).join('');
@@ -628,6 +648,7 @@ document.querySelectorAll('#cat-chips .chip').forEach(ch=>{
 /* 칩은 현재 카테고리 탭의 실제 집계로 매번 다시 그린다 — 0건 판정을 눌러
    빈 화면을 보게 되는 일이 없도록. 단, 지금 선택된 판정은 0건이어도 남겨둔다
    (딥링크로 들어왔는데 칩이 사라져 되돌아갈 곳이 없어지면 안 되므로). */
+const SHORT_FILTER = {genuine:'진짜할인',watch:'통상가',hold:'보류',inflated:'부풀림',raised:'정가↑',sale_end:'할인 종료'};
 function syncChips(){
   document.querySelectorAll('#cat-chips .chip').forEach(c=>
     c.classList.toggle('on', c.dataset.key===state.cat));
@@ -638,14 +659,14 @@ function syncChips(){
     flagsOf(it).forEach(fl=>{ fcnt[fl] = (fcnt[fl]||0) + 1; });
   });
   $('#v-chips').innerHTML =
-    `<button class="vchip-btn ${state.v?'':'on'}" data-v="">전체<span class="n">${tab.items.length}</span></button>` +
+    `<button class="vchip-btn ${state.v?'':'on'}" data-v="" aria-label="전체 ${tab.items.length}개">전체<span class="n">${tab.items.length}</span></button>` +
     VORDER.filter(v=>cnt[v] || v===state.v).map(v=>{
       const [cls,label] = VCHIP[v];
-      return `<button class="vchip-btn ${cls} ${v===state.v?'on':''}" data-v="${v}" title="${VEN[v]||''}">${label}<span class="n">${cnt[v]||0}</span></button>`;
+      return `<button class="vchip-btn ${cls} ${v===state.v?'on':''}" data-v="${v}" title="${label} ${cnt[v]||0}개" aria-label="${label} ${cnt[v]||0}개"><span class="filter-full">${label}</span><span class="filter-short">${SHORT_FILTER[v]}</span><span class="n">${cnt[v]||0}</span></button>`;
     }).join('')
     + (FORDER.some(fl=>fcnt[fl] || fl===state.f)
-        ? `<span class="fsep">표시가 주의</span>` + FORDER.filter(fl=>fcnt[fl] || fl===state.f).map(fl=>
-            `<button class="fchip-btn ${fl===state.f?'on':''}" data-f="${fl}">${FCHIP[fl]}<span class="n">${fcnt[fl]||0}</span></button>`).join('')
+        ? FORDER.filter(fl=>fcnt[fl] || fl===state.f).map(fl=>
+            `<button class="fchip-btn ${fl===state.f?'on':''}" data-f="${fl}" title="${FCHIP[fl]} ${fcnt[fl]||0}개" aria-label="${FCHIP[fl]} ${fcnt[fl]||0}개"><span class="filter-full">${FCHIP[fl]}</span><span class="filter-short">${SHORT_FILTER[fl]}</span><span class="n">${fcnt[fl]||0}</span></button>`).join('')
         : '');
   document.querySelectorAll('#v-chips .vchip-btn').forEach(ch=>{
     ch.addEventListener('click', ()=>{ state.v = ch.dataset.v; render(); });
