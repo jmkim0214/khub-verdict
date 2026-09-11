@@ -406,6 +406,13 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 }
 @media(max-width:359px){.grid .pcard{grid-template-columns:84px minmax(0,1fr);gap:0 12px;padding:14px}.pcard .product-image{width:84px;height:100px}.card-body a.name{font-size:14px}}
 
+/* Keep comparison text and warning flags together beside the price. */
+.card-body .price{align-items:center}
+.card-body .price-context{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px 6px;max-width:100%;line-height:1.5}
+.card-body .price-context .card-flags{display:contents;min-height:0;margin:0;padding:0}
+.card-body .price-context .real{white-space:nowrap}
+.card-body .price-context .fchip{font-size:11px;line-height:1.5;padding:2px 5px;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -572,8 +579,7 @@ function render(){
       </a>
       <div class="card-body">
       <div class="pmeta"><div class="brand">${esc(it.brand)}</div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
-      <div class="price"><span class="cur">${won(it.cur)}</span>${realTag(it)}</div>
-      <div class="card-flags">${ftags}</div>
+      <div class="price"><span class="cur">${won(it.cur)}</span><span class="price-context">${realTag(it)}<span class="card-flags">${ftags}</span></span></div>
       <div class="card-history"><span class="days">관측 ${it.days}일</span><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span>${last}</span></div></div>
       <details class="card-evidence"><summary>가격 근거 · 상품 전체 이름</summary>${shownLine(it)}<div class="original-name">${esc(it.name)}</div></details>
       <div class="card-links"><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div>
