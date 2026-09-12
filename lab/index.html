@@ -88,26 +88,74 @@
     .lab{padding:14px 15px; gap:13px;}
     .lab .thumb{width:62px; min-height:62px;}
   }
+
+.labs .lab{flex-wrap:nowrap}.labs .lab .body{flex:1;min-width:0}.labs .lab .go{align-self:center}
 </style>
+<style id="related-beige">:root{--beige-wall:url("/assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+
+*{box-sizing:border-box}
+.wrap{margin:0 auto;max-width:1120px}
+h1,.page-head h1{font-size:30px;font-weight:550;letter-spacing:-.04em;line-height:1.4}
+h1 .u{box-shadow:none!important}
+h2{font-size:18px;font-weight:650}
+.page-head{margin:24px 0 20px}.page-head .sub,.lead{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.aff-notice{border-radius:0!important;background:#fffaf1aa!important;border-color:var(--border)!important;text-align:left!important;max-width:none!important;font-size:11px!important;margin:6px 0 24px!important}
+.card,.item,.lab{background:#fffaf3eF;border:1px solid var(--border);border-radius:8px;box-shadow:none}
+input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid var(--baseline);border-radius:0;font-size:16px;padding:15px;min-width:0}
+.tabs,.subtabs{border-bottom:1px solid var(--border);gap:24px;margin:20px 0;display:flex}
+.tab,.stab{background:none;border:0;border-radius:0;padding:12px 0;font-size:13px;color:var(--ink-2);text-decoration:none}
+.tab.on,.stab.on{background:none;color:var(--ink);border-bottom:1px solid var(--ink)}
+.btn,.more-btn{border-radius:4px}
+@media(max-width:800px){.wrap{padding:0 28px 40px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}}
+@media(max-width:640px){
+ .wrap{padding:0 20px 40px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}
+ h1,.page-head h1{font-size:24px}.page-head{margin:20px 0 16px}.page-head .sub,.lead{font-size:13px}
+ .card{padding:16px}.tabs,.subtabs{gap:22px}.tab,.stab{font-size:12px}.aff-notice{line-height:1.7!important}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
+@media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
+.wrap{max-width:1040px}.labs{display:grid;grid-template-columns:1fr 1fr;gap:20px}.lab{padding:24px;flex-wrap:wrap}.lab .thumb{width:72px;height:84px}.lab .body{flex-basis:calc(100% - 110px)}.lab p{font-size:13px;line-height:1.8}.lab h2{font-size:20px;font-weight:600}.lab.disabled{grid-column:1/-1;padding:16px 24px}.lab.disabled .thumb{height:48px;min-height:48px}.eyebrow{letter-spacing:.12em}.rule{margin:24px 0}.chip{border-radius:4px}@media(max-width:640px){.labs{grid-template-columns:1fr;gap:14px}.lab{padding:18px;gap:14px}.lab .thumb{width:60px;height:74px}.lab h2{font-size:18px}.lab .body{flex-basis:calc(100% - 95px)}.lab p{font-size:12px}.lab.disabled{padding:16px}}</style>
 </head>
 <body>
 <div class="wrap">
   <div class="site-band"><header class="site">
-    <a href="../" style="text-decoration:none;color:inherit">
-      <div class="logo">더마릭<span class="logo-eng">THEMARIC</span></div>
-      <div class="logo-sub">화장품 가격·성분 검증</div>
-    </a>
-    <a class="nav-link nav-first" href="../price.html">판정서</a>
-    <a class="nav-link" href="../routine.html">루틴 가이드</a>
-    <a class="nav-link" href="../inflated/">부풀림 기록</a>
-    <a class="nav-link" href="../glossary.html">성분 사전</a>
-    <a class="nav-link here" href="./">LAB</a>
+    <a href="../" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/" aria-current="page">뷰티 LAB</a></nav>
+    <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/" aria-current="page">뷰티 LAB</a><a href="../inflated/" class="secondary-start">부풀린 정가 기록</a><a href="../device.html">뷰티 기기 가격</a><a href="../sale/">세일 기록</a></nav>
+    </details>
   </header></div>
 
   <p class="eyebrow">Themaric Lab</p>
   <h1>데이터로 하는 작은 실험들</h1>
-  <p class="lead">평소엔 가격과 성분을 판정하지만, 여기서는 조금 다르게 놀아봅니다.
-    취향을 색으로 바꾸고, 친구와 주고받고, 그 끝에 실제로 살 만한 제품이 있는지까지 확인해요.</p>
+  <p class="lead">나를 닮은 색부터 그때 산 가격까지.
+    뷰티 데이터를 가볍게 즐겨보세요.</p>
 
   <div class="rule"></div>
 
@@ -129,8 +177,7 @@
       <span class="body">
         <span class="kicker">Lab 01 · Color</span>
         <h2>내가 하나의 색이라면</h2>
-        <p>여덟 번의 선택으로 열두 개의 색 중 하나가 이름을 갖고 돌아와요.
-          친구가 고른 색이 내 팔레트에 쌓이고, 서로 주고받으면 둘만의 색과 커플템까지 나와요.</p>
+        <p>여덟 번의 선택으로 찾는 나의 색. 친구와 팔레트도 나눠보세요.</p>
         <span class="meta"><span class="chip live">공개 중</span>
           <span class="kicker" style="letter-spacing:.04em;text-transform:none">30초 · 회원가입 없음</span></span>
       </span>
