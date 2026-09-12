@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>뷰티 노트 — 더마릭</title><meta name="description" content="브랜드의 특징을 담은 카드뉴스와 세일 기간의 관측 리포트를 준비하고 있습니다."><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap"><style>body{margin:0;font-family:'Pretendard Variable',Pretendard,sans-serif;line-height:1.6;word-break:keep-all}:root{--beige-wall:url("/assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+
+*{box-sizing:border-box}
+.wrap{margin:0 auto;max-width:1120px}
+h1,.page-head h1{font-size:30px;font-weight:550;letter-spacing:-.04em;line-height:1.4}
+h1 .u{box-shadow:none!important}
+h2{font-size:18px;font-weight:650}
+.page-head{margin:24px 0 20px}.page-head .sub,.lead{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.aff-notice{border-radius:0!important;background:#fffaf1aa!important;border-color:var(--border)!important;text-align:left!important;max-width:none!important;font-size:11px!important;margin:6px 0 24px!important}
+.card,.item,.lab{background:#fffaf3eF;border:1px solid var(--border);border-radius:8px;box-shadow:none}
+input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid var(--baseline);border-radius:0;font-size:16px;padding:15px;min-width:0}
+.tabs,.subtabs{border-bottom:1px solid var(--border);gap:24px;margin:20px 0;display:flex}
+.tab,.stab{background:none;border:0;border-radius:0;padding:12px 0;font-size:13px;color:var(--ink-2);text-decoration:none}
+.tab.on,.stab.on{background:none;color:var(--ink);border-bottom:1px solid var(--ink)}
+.btn,.more-btn{border-radius:4px}
+@media(max-width:800px){.wrap{padding:0 28px 40px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}}
+@media(max-width:640px){
+ .wrap{padding:0 20px 40px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}
+ h1,.page-head h1{font-size:24px}.page-head{margin:20px 0 16px}.page-head .sub,.lead{font-size:13px}
+ .card{padding:16px}.tabs,.subtabs{gap:22px}.tab,.stab{font-size:12px}.aff-notice{line-height:1.7!important}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
+@media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
+
+/* Align detail pages to the approved price-page canvas. */
+html{overflow-y:scroll}
+:root{--detail-gutter:48px}
+body{background:#f2e9d9;color:#382719}
+body::after{display:none}
+body::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall);background-position:center;background-size:cover}
+body>.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 var(--detail-gutter) 32px}
+.site-band{margin:0 0 24px;width:100%;border:0}
+header.site{padding:28px 0;max-width:none;margin:0}
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;max-width:none!important}
+@media(max-width:800px){:root{--detail-gutter:28px}body>.wrap{padding-bottom:28px}}
+@media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
+@media(max-width:359px){:root{--detail-gutter:18px}}
+
+.notes-head{margin:32px 0 24px}.notes-head h1{font-size:30px;font-weight:550;margin:0 0 10px}.notes-head p{font-size:14px;color:var(--ink-2);margin:0}.notes-empty{border:1px solid var(--border);background:#fffaf3;border-radius:6px;padding:48px 24px;text-align:center;margin:24px 0 48px}.notes-empty strong{font-size:18px;font-weight:550}.notes-empty p{font-size:13px;color:var(--muted);margin:10px 0 0}@media(max-width:640px){.notes-head{margin:20px 0}.notes-head h1{font-size:22px}.notes-head p{font-size:13px}.notes-empty{padding:36px 20px}}
+</style></head><body><div class="wrap"><div class="site-band"><header class="site">
+    <a href="../" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/">뷰티 LAB</a></nav>
+    <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/">뷰티 LAB</a><a href="../inflated/" class="secondary-start">부풀린 정가 기록</a><a href="../notes/" aria-current="page">뷰티 노트</a></nav>
+    </details>
+  </header></div><main><div class="notes-head"><h1>뷰티 노트</h1><p>브랜드를 읽는 카드뉴스, 세일을 돌아보는 리포트.</p></div><section class="notes-empty" aria-label="콘텐츠 준비 중"><strong>첫 번째 노트를 준비하고 있어요.</strong><p>콘텐츠가 준비되면 이곳에 차곡차곡 담겠습니다.</p></section></main></div></body></html>

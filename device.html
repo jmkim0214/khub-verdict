@@ -152,12 +152,46 @@ input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid va
 }
 @media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
 @media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
-.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.card{padding:16px;gap:12px}.th{width:68px;height:80px;border-radius:4px;object-fit:contain}.obs-note{border:0;border-radius:0;padding:0;font-size:11px}.method{border-radius:4px;background:#fffaf1a8}.dsearch{margin:20px 0}.page-head h1{font-size:26px}@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.grid{grid-template-columns:minmax(0,1fr);gap:14px}.page-head h1{font-size:22px}}</style></head><body><div class="wrap">
+.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.card{padding:16px;gap:12px}.th{width:68px;height:80px;border-radius:4px;object-fit:contain}.obs-note{border:0;border-radius:0;padding:0;font-size:11px}.method{border-radius:4px;background:#fffaf1a8}.dsearch{margin:20px 0}.page-head h1{font-size:26px}@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.grid{grid-template-columns:minmax(0,1fr);gap:14px}.page-head h1{font-size:22px}}</style>
+<style id="detail-alignment">
+/* Align detail pages to the approved price-page canvas. */
+html{overflow-y:scroll}
+:root{--detail-gutter:48px}
+body{background:#f2e9d9;color:#382719}
+body::after{display:none}
+body::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall);background-position:center;background-size:cover}
+body>.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 var(--detail-gutter) 32px}
+.site-band{margin:0 0 24px;width:100%;border:0}
+header.site{padding:28px 0;max-width:none;margin:0}
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;max-width:none!important}
+@media(max-width:800px){:root{--detail-gutter:28px}body>.wrap{padding-bottom:28px}}
+@media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
+@media(max-width:359px){:root{--detail-gutter:18px}}
+</style>
+<style id="device-observation">
+.device-heading{display:flex;align-items:baseline;gap:10px;position:relative}
+.device-heading h1{flex:1;min-width:0;margin:0}
+.observation-info{flex:none}
+.observation-info summary{list-style:none;font-size:11px;line-height:1.5;color:var(--ink-2);padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);cursor:pointer;white-space:nowrap}
+.observation-info summary::-webkit-details-marker{display:none}
+.observation-info summary::after{content:' +'}
+.observation-info[open] summary::after{content:' −'}
+.observation-info .obs-note{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:10;margin:0;padding:12px 14px;border:1px solid var(--border);background:#fffaf3;border-radius:4px;font-size:12px;line-height:1.8;box-shadow:0 8px 20px #38271912}
+@media(max-width:640px){.device-heading{gap:8px}.observation-info summary{font-size:10px;padding:4px 6px}}
+</style>
+<style id="fixed-price-device-tabs">
+.subtabs{display:flex;align-items:stretch;gap:24px;margin:20px 0;border:0;border-bottom:1px solid var(--border);padding:0;height:45px;box-sizing:border-box}
+.subtabs .stab,.subtabs .stab.on{display:flex;align-items:center;justify-content:flex-start;flex:none;box-sizing:border-box;margin:0;padding:10px 0;border:0;border-bottom:1px solid transparent;border-radius:0;background:none;font-family:inherit;font-size:13px;font-weight:700;line-height:24px;letter-spacing:normal;text-decoration:none;white-space:nowrap;color:var(--ink-2)}
+.subtabs .stab:first-child{width:104px}.subtabs .stab:nth-child(2){width:56px}
+.subtabs .stab.on{color:var(--ink);border-bottom-color:var(--ink)}
+@media(max-width:640px){.subtabs{gap:24px;margin:20px 0}}
+</style>
+</head><body><div class="wrap">
 <div class="site-band"><header class="site">
     <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
     <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a></nav>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
-      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="device.html">뷰티 기기 가격</a><a href="sale/">세일 기록</a></nav>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">뷰티 노트</a></nav>
     </details>
   </header></div>
 <div class="aff-notice" role="note" style="max-width:780px;margin:12px auto 0;padding:9px 14px;border:1px solid var(--grid,#e6e1d8);border-radius:10px;background:rgba(0,0,0,.035);font-size:12px;line-height:1.6;color:var(--muted,#6b665e);text-align:center">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</div>
@@ -166,9 +200,11 @@ input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid va
   <a class="stab on" href="device.html">디바이스</a>
 </div>
 <div class="page-head">
-  <h1>뷰티 기기, 구매 전 확인해요</h1>
+  <div class="device-heading">
+    <h1>뷰티 기기, 구매 전 확인해요</h1>
+    <details class="observation-info"><summary>관측 정보</summary><div class="obs-note">83종 관측 · 보증 <b>미표기 55종</b> · 중국 <b>40종</b> · 대한민국 <b>39종</b> · 미국 <b>1종</b></div></details>
+  </div>
   <div class="sub">제조국과 무상보증 — 판매자 고시 표기 그대로.</div>
-  <div class="obs-note">83종 관측 · 보증 <b>미표기 55종</b> · 중국 <b>40종</b> · 대한민국 <b>39종</b> · 미국 <b>1종</b></div>
 </div>
 <details class="method">
   <summary>왜 제조국과 보증기간인가</summary>
