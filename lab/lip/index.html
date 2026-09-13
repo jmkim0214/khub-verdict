@@ -624,6 +624,91 @@ function route(){
  const a=bySlug(LS.get('slug'));if(a)return viewResult(a,readJSON('ans',[]));viewIntro();
 }
 function invalidLink(legacy=false){show('<h1>'+(legacy?'이전 방식의 초대 링크예요.':'링크를 확인해 주세요.')+'</h1><p class="lede">'+(legacy?'친구에게 새 화면에서 초대 링크를 다시 만들어 달라고 해주세요.':'링크가 끝까지 복사되지 않았을 수 있어요. 친구에게 다시 받아보세요.')+'</p><button class="ghost" id="restart">내 색 찾기</button>');document.getElementById('restart').onclick=()=>{clearHash();viewIntro();};}
+/* Server mode keeps existing v2 reply links readable. */
+const SERVER_API=['localhost','127.0.0.1'].includes(location.hostname)?'http://127.0.0.1:8787':'https://themaric-lab.themaric.workers.dev';
+const serverKeyOK=k=>typeof k==='string'&&/^[a-f0-9]{64}$/.test(k);
+const serverKey=()=>Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+async function serverCall(path,body,secret,method){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{const r=await fetch(SERVER_API+path,{method:method||(body?'POST':'GET'),headers:{...(body?{'Content-Type':'application/json'}:{}),...(secret?{Authorization:'Bearer '+secret}:{})},body:body?JSON.stringify(body):undefined,signal:controller.signal});const data=await r.json();if(!r.ok){const e=new Error(data.error||'server');e.status=r.status;throw e;}return data;}finally{clearTimeout(timer)}
+}
+function serverRecord(a){const p=readJSON('color-server-v3',null);return p&&p.slug===a.s&&serverKeyOK(p.secret)&&serverKeyOK(p.token)?p:null;}
+function storeServer(p){LS.set('color-server-v3',JSON.stringify(p));}
+let serverCreating=null,screenVersion=0;
+async function ensureServer(a,name){
+ const old=serverRecord(a);if(old)return old;
+ if(serverCreating)return serverCreating;
+ serverCreating=serverCall('/v3/palettes',{slug:a.s,name}).then(p=>{storeServer(p);return p}).finally(()=>serverCreating=null);return serverCreating;
+}
+const baseResult=viewResult,basePick=pickFriend,baseFriendResult=viewFriendResult,baseRoute=route;
+viewResult=function(a,ans){
+ baseResult(a,ans);if(!a)return;const version=++screenVersion;
+ const actions=document.querySelector('.invite-actions');
+ actions.insertAdjacentHTML('beforeend','<p class="note">친구가 제출하면 이 팔레트에 모여요. 서버에는 이름과 선택한 색만 최대 180일 동안 보관해요.</p><button class="ghost" id="refresh-colors">친구 응답 새로고침</button><button class="link" id="private-palette">내 결과 링크 보관하기</button><p class="note" id="server-status" role="status"></p><details><summary class="note">저장 관리</summary><button class="link" id="delete-palette">서버의 내 팔레트 삭제</button><p class="note">삭제하면 기존 초대 링크도 사용할 수 없어요.</p></details>');
+ document.querySelectorAll('.empty-color span').forEach(e=>e.textContent='친구가 제출한 색을 새로고침하면 볼 수 있어요.');
+ const status=document.getElementById('server-status');
+ ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=async()=>{
+  const button=document.getElementById('invite-'+mode);button.disabled=true;status.textContent='초대 링크를 준비하고 있어요.';
+  try{const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);const p=await ensureServer(a,name);if(version!==screenVersion)return;
+   showLink('share-box',COLOR_HOME+'#join='+p.token+'&mode='+mode,mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');
+   document.getElementById('copy-status').textContent='친구가 선택하고 제출하면 내 팔레트에 모여요.';status.textContent='초대 링크를 만들었어요.';
+  }catch(e){if(version!==screenVersion)return;const fallback={v:2,mode,owner:ownerId(),mine:a.s,name:clean(document.getElementById('owner-name').value)};showLink('share-box',linkFor('invite',fallback),'내 색 팔레트에 초대할게.');status.textContent='서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.';}finally{button.disabled=false;}
+ });
+ document.getElementById('refresh-colors').onclick=()=>refreshServer(a,version);
+ document.getElementById('private-palette').onclick=async()=>{
+  try{const p=await ensureServer(a,clean(document.getElementById('owner-name').value));if(version!==screenVersion)return;
+   showLink('share-box',COLOR_HOME+'#palette='+p.secret,'내 색 팔레트');
+   document.querySelector('label[for="copy-link"]').textContent='나만 보관하는 개인 결과 링크';document.getElementById('copy-status').textContent='이 링크로 결과 조회와 삭제가 가능해요. 친구에게 보내지 말고 나만 보관해 주세요.';
+   document.getElementById('copy-button').onclick=async()=>{try{await navigator.clipboard.writeText(COLOR_HOME+'#palette='+p.secret);document.getElementById('copy-status').textContent='개인 결과 링크를 복사했어요. 나만 볼 수 있는 곳에 보관해 주세요.';}catch{document.getElementById('copy-link').select();document.getElementById('copy-status').textContent='위 개인 링크를 길게 눌러 복사해 주세요.';}};
+  }catch{status.textContent='결과 링크를 준비하지 못했어요. 다시 시도해 주세요.';}
+ };
+ document.getElementById('delete-palette').onclick=async()=>{
+  const p=serverRecord(a);if(!p){status.textContent='연결된 서버 팔레트가 없어요.';return;}
+  if(!confirm('서버의 내 팔레트와 받은 응답을 삭제할까요? 기존 초대 링크도 사용할 수 없게 됩니다.'))return;
+  try{await serverCall('/v3/me',null,p.secret,'DELETE');LS.set('color-server-v3','null');LS.set('color-replies-v2',JSON.stringify(readJSON('color-replies-v2',[]).filter(r=>r.serverToken!==p.token)));viewResult(a,ans);document.getElementById('server-status').textContent='서버 팔레트를 삭제했어요.';}catch{status.textContent='삭제하지 못했어요. 다시 시도해 주세요.';}
+ };
+ if(serverRecord(a))refreshServer(a,version);
+};
+async function refreshServer(a,version){
+ const status=document.getElementById('server-status'),p=serverRecord(a);if(!p){status.textContent='초대 링크를 만들면 친구의 응답을 받을 수 있어요.';return;}
+ status.textContent='친구의 색을 확인하고 있어요.';
+ try{const remote=await serverCall('/v3/me',null,p.secret);if(version!==screenVersion||!document.getElementById('server-status'))return;
+  const rows=remote.answers.filter(r=>serverKeyOK(r.id)&&['seen','pair'].includes(r.mode)&&bySlug(r.pick)).map(r=>({v:2,owner:ownerId(),mine:a.s,name:remote.name,mode:r.mode,pick:r.pick,nick:clean(r.nick),id:r.id,serverToken:p.token}));
+  // Merge new answers with cached ones: KV reads can briefly lag behind writes.
+  rows.forEach(saveReply);const all=savedRows(a);document.querySelectorAll('.received-section').forEach((el,i)=>{const mode=i?'pair':'seen';el.innerHTML='<h2>'+(i?'친구와 만든 우리 색':'친구가 보는 내 색')+' <small>'+all.filter(r=>r.mode===mode).length+'</small></h2>'+sectionRows(all,mode);});
+  status.textContent='확인했어요. 방금 보낸 응답은 반영까지 잠시 걸릴 수 있어요.';
+ }catch(e){if(version!==screenVersion)return;status.textContent=e.status===404?'팔레트가 만료되었거나 삭제됐어요. 잠시 후에도 같으면 새 초대 링크를 만들어 주세요.':'응답을 불러오지 못했어요. 저장해 둔 결과는 그대로예요.';if(e.status===404){status.insertAdjacentHTML('beforeend',' <button class=link id=new-server-palette>새 팔레트 시작</button>');document.getElementById('new-server-palette').onclick=()=>{LS.set('color-server-v3','null');viewResult(a,readJSON('ans',[]));};}}
+}
+pickFriend=function(p,a){
+ basePick(p,a);if(!p.serverToken)return;
+ const button=document.getElementById('see-relation'),original=button.onclick,id=serverKey();
+ document.getElementById('name-error').textContent='제출하면 이름과 선택한 색이 친구에게 전달돼요. 서버 보관 기간은 팔레트를 만든 날부터 최대 180일이에요.';
+ button.onclick=async()=>{
+  const nick=clean(document.getElementById('friend-name').value);if(!nick){document.getElementById('name-error').textContent='이름이나 별명을 입력해 주세요.';return;}
+  button.disabled=true;document.getElementById('name-error').textContent='친구에게 보내고 있어요.';
+  try{await serverCall('/v3/answers',{token:p.serverToken,mode:p.mode,pick:a.s,nick,id});original();}
+  catch(e){document.getElementById('name-error').textContent=e.status===404?'초대 정보를 찾지 못했어요. 새 링크라면 잠시 후 다시 눌러주세요.':e.status===429?'잠시 쉬었다 다시 보내주세요. 응답이 가득 찼을 수도 있어요.':'아직 전달을 확인하지 못했어요. 다시 눌러도 중복 저장되지 않아요.';button.disabled=false;}
+ };
+};
+viewFriendResult=function(p){
+ baseFriendResult(p);if(!p.serverToken)return;
+ document.querySelector('.result-send').innerHTML='<h2>친구에게 보냈어요</h2><p class="note">친구가 자신의 팔레트를 열면 이 결과를 볼 수 있어요. 반영까지 잠시 걸릴 수 있어요.</p>';
+};
+route=function(){
+ const hash=location.hash;
+ if(hash.startsWith('#join=')){
+  ++screenVersion;const params=new URLSearchParams(hash.slice(1)),token=params.get('join'),mode=params.get('mode');if(!serverKeyOK(token)||!['seen','pair'].includes(mode))return invalidLink();
+  show('<h1>친구의 초대를<br>열고 있어요.</h1>');
+  serverCall('/v3/invites/'+token).then(p=>{if(location.hash!==hash)return;viewInvite({v:2,owner:token,mine:p.slug,name:p.name,mode,serverToken:token});}).catch(()=>{if(location.hash!==hash)return;show('<h1>초대를 열지 못했어요.</h1><p class="note">새 링크는 반영까지 잠시 걸릴 수 있어요. 계속 열리지 않으면 친구에게 새 초대를 받아주세요.</p><button class="ghost" id="retry-invite">다시 열기</button>');document.getElementById('retry-invite').onclick=route;});return;
+ }
+ if(hash.startsWith('#palette=')){
+  ++screenVersion;const secret=hash.slice(9);if(!serverKeyOK(secret))return invalidLink();
+  show('<h1>내 팔레트를<br>불러오고 있어요.</h1>');
+  serverCall('/v3/me',null,secret).then(p=>{if(location.hash!==hash)return;storeServer({...p,secret});LS.set('slug',p.slug);LS.set('myname',p.name);clearHash();viewResult(bySlug(p.slug),[]);}).catch(()=>{show('<h1>팔레트를 불러오지 못했어요.</h1><p class="note">연결 상태와 개인 결과 링크를 확인해 주세요.</p><button class="ghost" id="retry-palette">다시 열기</button>');document.getElementById('retry-palette').onclick=route;});return;
+ }
+ ++screenVersion;return baseRoute();
+};
+
 window.addEventListener('hashchange',route);
 route();
 
