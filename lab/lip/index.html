@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="여덟 번의 선택으로 열두 개의 색 중 하나가 이름을 갖고 돌아와요. 친구에게 보내면 둘만의 색이 만들어져요.">
+<meta name="description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
 <link rel="canonical" href="https://themaric.kr/lab/lip/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23AE476E'/%3E%3C/svg%3E">
 <meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 LAB">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:title" content="내가 하나의 색이라면, 어떤 이름일까?">
-<meta property="og:description" content="여덟 번의 선택으로 열두 개의 색 중 하나가 이름을 갖고 돌아와요. 친구에게 보내면 둘만의 색이 만들어져요.">
+<meta property="og:title" content="내 취향은 어떤 색일까?">
+<meta property="og:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
 <meta property="og:url" content="https://themaric.kr/lab/lip/">
 <meta property="og:image" content="https://themaric.kr/lab/lip/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="내가 하나의 색이라면, 어떤 이름일까?">
-<meta name="twitter:description" content="여덟 번의 선택으로 열두 개의 색 중 하나가 이름을 갖고 돌아와요. 친구에게 보내면 둘만의 색이 만들어져요.">
+<meta name="twitter:title" content="내 취향은 어떤 색일까?">
+<meta name="twitter:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
 <meta name="twitter:image" content="https://themaric.kr/lab/lip/og.png">
-<title>내가 하나의 색이라면</title>
+<title>내 취향은 어떤 색일까? — 더마릭 LAB</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -188,6 +188,20 @@ header.site{padding:28px 0;max-width:none;margin:0}
 @media(max-width:359px){:root{--detail-gutter:18px}}
 #app{width:100%;max-width:520px;margin:0 auto}</style>
 <style>html{-webkit-text-size-adjust:100%}[hidden]{display:none!important}</style>
+<style id="color-friends-v2">/* Color play: one palette, three clearly separated kinds of results. */
+body>.wrap{max-width:1200px;padding-top:24px;padding-bottom:40px}#app{max-width:620px;margin:0 auto;width:100%;gap:24px}
+#app h1,#app h2{font-family:'Pretendard Variable',Pretendard,var(--sans);font-weight:550;letter-spacing:-.04em}
+#app h1{font-size:32px;line-height:1.4}#app h2{font-size:19px;line-height:1.5;margin:0 0 15px}
+#app p{overflow-wrap:anywhere}#app .lede{font-size:15px;line-height:1.8}#app input{width:100%;min-width:0;font:inherit;font-size:16px;border:1px solid var(--border);border-radius:4px;background:#fffaf3;padding:12px;color:var(--ink)}
+.result-heading .note{margin:8px 0 0}.my-color,.invite-actions,.friend-result,.pick-confirm,.result-send{padding:24px;background:#fffaf3;border:1px solid var(--border);border-radius:8px}
+.my-color>p{font-size:14px;line-height:1.85;color:var(--ink-2);margin:20px 0 0}.color-tile{display:flex;gap:16px;align-items:center;min-width:0}.color-tile>div{min-width:0;display:flex;flex-direction:column;gap:5px}.color-sample{display:block;width:96px;height:112px;border-radius:5px;flex-shrink:0}.color-tile strong{font-size:20px;font-weight:550;line-height:1.45}.small-label{font-size:11px;color:var(--muted);display:block;line-height:1.6}.hex-label{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.invite-actions{display:flex;flex-direction:column;gap:12px}.invite-actions h2{margin-bottom:2px!important}.invite-button{text-align:left;padding:16px;border:1px solid var(--border);border-radius:5px;background:#f5eee2;color:var(--ink);display:flex;flex-direction:column;gap:6px;width:100%}.invite-button strong{font-size:14px;font-weight:600}.invite-button span{font-size:12px;color:var(--muted);line-height:1.6}.invite-button:hover{border-color:var(--series)}
+.received-section h2 small{font-size:12px;font-weight:400;color:var(--muted);margin-left:6px}.empty-color{padding:22px 18px;border:1px dashed var(--border);border-radius:6px;font-size:13px;line-height:1.8;background:#fffaf17d}.empty-color span{font-size:12px;color:var(--muted)}
+.friend-result{margin-top:12px}.friend-result-head{margin-bottom:18px;font-size:13px}.compare-colors{display:grid;grid-template-columns:1fr 1fr;gap:16px}.compare-colors .color-tile{display:block}.compare-colors .color-sample{width:100%;height:90px;margin-bottom:10px}.compare-colors .color-tile strong{font-size:15px}.relationship-copy{font-size:14px;line-height:1.85;color:var(--ink-2);margin-top:18px}.relationship-copy p{margin:0 0 10px}.relationship-copy p:last-child{margin-bottom:0}
+.our-swatch{margin-top:22px;border-radius:6px;padding:24px 20px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:8px}.our-swatch>span,.our-swatch small{font-size:11px}.our-swatch strong{font-family:var(--serif);font-size:24px;line-height:1.4;font-weight:500}
+.share-link{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:15px}.share-link input{font-size:12px!important}.share-link .note{margin:0}.color-products{border-top:1px solid var(--border);padding-top:18px}.color-products>summary{font-size:13px;padding:8px 0;cursor:pointer}.color-products .plist{margin-top:15px}.play-note{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.pick-confirm{display:flex;flex-direction:column;gap:16px}.result-send .note{margin:0 0 16px}.grid .sw .nm{font-size:11px}.cta{background:var(--series);color:#fff;border-radius:4px}.cta:hover{filter:brightness(.95)}
+@media(max-width:640px){#app h1{font-size:26px}#app{gap:20px}.my-color,.invite-actions,.friend-result,.pick-confirm,.result-send{padding:18px}.color-sample{width:76px;height:92px}.color-tile{gap:13px}.color-tile strong{font-size:18px}.my-color>p{font-size:13px}.invite-button{padding:13px}.invite-button strong{font-size:13px}.invite-button span{font-size:11px}.compare-colors{gap:12px}.relationship-copy{font-size:13px}.our-swatch strong{font-size:21px}.our-swatch{padding:20px 16px}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid .sw{min-width:0;padding:5px}.grid .sw .nm{font-size:10px}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -495,17 +509,50 @@ async function coupleHTML(hex,t){
 }
 
 /* ───────── 화면 ───────── */
+/* Shareable color stories: every invitation and reply works without a server. */
+const COLOR_HOME='https://themaric.kr/lab/lip/';
+let activeInvite=null;
+const readJSON=(key,fallback)=>{try{return JSON.parse(LS.get(key)||'null')||fallback}catch(e){return fallback}};
+const uid=()=>crypto.randomUUID();
+function ownerId(){let id=LS.get('color-owner-v2');if(!id){id=uid();LS.set('color-owner-v2',id)}return id;}
+function validInvite(p){return p&&p.v===2&&['seen','pair'].includes(p.mode)&&typeof p.owner==='string'&&/^[a-zA-Z0-9-]{8,64}$/.test(p.owner)&&!!bySlug(p.mine)&&typeof p.name==='string'&&p.name.length<=8;}
+function decodeLink(raw){if(raw.length>1800)return null;try{return JSON.parse(dec(raw))}catch(e){return null}}
+function validReply(p){return validInvite(p)&&!!bySlug(p.pick)&&typeof p.nick==='string'&&p.nick.length<=8&&typeof p.id==='string'&&/^[a-zA-Z0-9-]{8,64}$/.test(p.id);}
+function linkFor(kind,p){return COLOR_HOME+'#'+kind+'='+enc(JSON.stringify(p));}
+function linesHTML(lines){return lines.map(x=>'<p>'+esc(x)+'</p>').join('');}
+const SIDES={
+ 'first-love':'조심스럽게 마음을 내어주는 다정한 면', 'first-snow':'차분하게 곁을 지켜주는 면',
+ 'sunday-peach':'주변을 편안하게 만드는 따뜻한 면','loud-pink':'좋아하는 것을 솔직하게 표현하는 면',
+ 'monday-coral':'먼저 움직이며 분위기를 밝히는 면','after-work':'말없이도 마음을 알아주는 섬세한 면',
+ 'cold-icetea':'자기만의 기준이 또렷한 면','dawn-rose':'작은 순간을 오래 기억하는 면',
+ 'left-on-mauve':'조용해 보여도 취향이 분명한 면','drunk-cherry':'마음이 가는 일에 깊이 몰입하는 면',
+ 'plum-night':'쉽게 다 보여주지 않는 깊은 면','midnight-choco':'믿고 기댈 수 있는 단단한 면'
+};
+function seenStory(mine,pick){
+ if(mine.s===pick.s)return ['내가 보는 나와 친구가 보는 내가 같은 색이에요.','말로 다 설명하지 않아도, 서로의 결을 잘 알아보는 사이인가 봐요.','서로를 잘 아는 친구에게 이 결과를 보여주세요.'];
+ return ['친구에게는 '+SIDES[pick.s]+'이 더 잘 보이나 봐요.','내가 익숙하게 보던 모습 옆에, 친구에게만 더 잘 보이는 모습도 있나 봐요.','다른 색을 골랐다고 멀리 보는 건 아니에요. 나를 보는 시선이 하나 더 생긴 거죠.'];
+}
+function pairStory(a,b){
+ const d=deltaE(a.h,b.h);
+ if(a.s===b.s)return [a.n+' × '+b.n+'. 같은 색에 마음이 가는 두 사람이에요.','좋아하는 것을 길게 설명하지 않아도 금방 고개를 끄덕일 것 같은 사이.','익숙한 편안함이 두 사람의 색에 그대로 남았어요.'];
+ if(d<18)return [a.n+' × '+b.n+'. 닮은 분위기 속에 작은 차이가 있는 조합이에요.','같은 장면에서 웃다가도, 서로가 놓친 디테일을 하나씩 건네주는 사이.','두 색을 섞으니 편안함에 새로운 결이 조금 더해졌어요.'];
+ if(d<32)return [a.n+' × '+b.n+'. 서로의 취향을 넓혀주는 조합이에요.','혼자라면 지나쳤을 것을 함께라서 한 번 더 보게 되는 사이.','다름이 자연스럽게 섞인 이 색을, 두 사람의 색으로 남겨보세요.'];
+ return [a.n+' × '+b.n+'. 나란히 놓였을 때 차이가 더 매력적인 조합이에요.','한쪽이 익숙한 길을 고르면, 다른 쪽은 새로운 풍경을 알려주는 사이.','서로를 닮게 바꾸기보다, 함께 있을 때 생기는 새로운 색이 있어요.'];
+}
+function colorTile(a,label){return '<div class="color-tile"><span class="color-sample" style="background:'+a.h+'"></span><div><span class="small-label">'+esc(label)+'</span><strong>'+esc(a.n)+'</strong><span class="hex-label">'+a.h+'</span></div></div>';}
+function relationshipHTML(p){
+ const mine=bySlug(p.mine),pick=bySlug(p.pick);
+ if(p.mode==='seen')return '<div class="compare-colors">'+colorTile(mine,p.name?p.name+'님의 선택':'스스로 고른 색')+colorTile(pick,p.nick+'님의 시선')+'</div><div class="relationship-copy">'+linesHTML(seenStory(mine,pick))+'</div>';
+ const mix=ourColor(mine,pick);
+ return '<div class="compare-colors">'+colorTile(mine,p.name||'링크를 보낸 친구')+colorTile(pick,p.nick||'친구')+'</div><div class="our-swatch" style="background:'+mix.hex+';color:'+(isLight(mix.hex)?'#382719':'#fff')+'"><span>두 색을 섞은 우리의 색</span><strong>'+esc(mix.name)+'</strong><small>'+mix.hex+'</small></div><div class="relationship-copy">'+linesHTML(pairStory(mine,pick))+'</div>';
+}
+function savedRows(a){return readJSON('color-replies-v2',[]).filter(r=>validReply(r)&&r.owner===ownerId()&&r.mine===a.s);}
+function saveReply(p){const rows=readJSON('color-replies-v2',[]).filter(validReply);if(!rows.some(r=>r.id===p.id)){rows.push(p);LS.set('color-replies-v2',JSON.stringify(rows.slice(-100)));}}
+function sectionRows(rows,mode){const selected=rows.filter(r=>r.mode===mode);return selected.length?selected.map(r=>'<article class="friend-result"><div class="friend-result-head"><strong>'+esc(r.nick)+'님'+(mode==='pair'?'과 만든 색':'이 보는 나')+'</strong></div>'+relationshipHTML(r)+'</article>').join(''):'<div class="empty-color">'+(mode==='seen'?'친구가 골라준 내 색이 이곳에 모여요.':'친구와 만든 우리 색이 이곳에 모여요.')+'<br><span>친구가 보내준 결과 링크를 열면 여기에 저장돼요.</span></div>';}
 function viewIntro(){
-  resetAccent();
-  show('<h1>내가 하나의 색이라면<br>어떤 이름일까?</h1>'+
-  '<p class="lede">여덟 번의 선택으로, 열두 개의 색 중 하나가 이름을 갖고 돌아와요.</p>'+
-  '<div class="strip">'+ARCH.map(a=>'<span style="background:'+a.h+'"></span>').join("")+'</div>'+
-  '<div class="stack"><button class="cta" id="go">내 컬러 만들기 →</button>'+
-  (LS.get("slug")?'<button class="ghost" id="mine">내 결과 다시 보기</button>':"")+'</div>'+
-  '<p class="note">30초 · 회원가입 없음</p>');
-  document.getElementById("go").onclick=()=>viewQ(0,[]);
-  const m=document.getElementById("mine");
-  if(m)m.onclick=()=>viewResult(bySlug(LS.get("slug")),JSON.parse(LS.get("ans")||"[]"));
+ activeInvite=null;resetAccent();
+ show('<p class="eyebrow">COLOR PLAY</p><h1>내 취향은<br>어떤 색일까?</h1><p class="lede">여덟 가지 질문으로 내 색을 찾고,<br>친구의 시선도 더해보세요.</p><div class="strip">'+ARCH.map(a=>'<span style="background:'+a.h+'"></span>').join('')+'</div><button class="cta" id="go">내 색 찾기</button>'+(bySlug(LS.get('slug'))?'<button class="ghost" id="mine">내 팔레트 보기</button>':'')+'<p class="note">약 30초 · 회원가입 없음</p>');
+ document.getElementById('go').onclick=()=>viewQ(0,[]);const b=document.getElementById('mine');if(b)b.onclick=()=>viewResult(bySlug(LS.get('slug')),readJSON('ans',[]));
 }
 
 function viewQ(i,ans){
@@ -531,209 +578,53 @@ function viewQ(i,ans){
   const bk=document.getElementById("back");if(bk)bk.onclick=()=>viewQ(i-1,ans);
 }
 
-async function finish(ans){
-  const a=nearest(scoreOf(ans),true);
-  LS.set("slug",a.s); LS.set("ans",JSON.stringify(ans));
-  const pend=LS.get("pendAsk");
-  if(pend){ LS.set("pendAsk",""); location.hash="#a="+pend; }
-  else viewResult(a,ans);
-  if(!myRid()){
-    try{ const r=await apiPost("/r",{slug:a.s}); LS.set("rid",r.rid); LS.set("tok",r.tok); refreshAsk(); }
-    catch(e){}
-  }
+function finish(ans){
+ const a=nearest(scoreOf(ans),true);
+ if(activeInvite){return pickFriend(activeInvite,a);}
+ LS.set('slug',a.s);LS.set('ans',JSON.stringify(ans));ownerId();clearHash();viewResult(a,ans);
 }
-
 function viewResult(a,ans){
-  setAccent(a.h);
-  show(heroHTML(a,ans)+
-  '<p class="copy">'+esc(a.c)+'</p>'+
-  '<hr class="sep">'+
-  '<p class="eyebrow">이 색을 조금 더 들여다보면</p>'+
-  '<div class="axes">'+TRAIT.map(t=>{
-    const v=t[1]==="W"?(a[t[1]]+1)/2:a[t[1]];
-    return'<div class="ax"><span>'+t[0]+'</span><span class="track"><i style="width:'+
-      Math.round(v*100)+'%"></i></span><span class="val">'+Math.round(v*100)+'</span></div>';
-  }).join("")+'</div>'+
-  '<hr class="sep">'+
-  '<div class="card"><h2 style="font-size:20px">친구랑 같이 하면<br>둘만의 색이 나와요</h2>'+
-  '<p class="note" style="margin:0" id="asknote">친구가 나를 무슨 색으로 보는지 알려주고, 친구 색까지 오면 '+
-  '두 색을 섞어 우리 둘만의 색과 같이 쓸 립·블러셔·네일을 찾아드려요.</p>'+
-  '<button class="cta" id="ask">친구에게 링크 보내기</button></div>'+
-  '<div id="mine"></div>'+
-  '<hr class="sep">'+
-  '<p class="eyebrow">그런데 잠깐</p>'+
-  '<h2 style="font-size:21px">이 색, 진짜로 찾아봤어요</h2>'+
-  prodHTML(a.s)+
-  '<p class="note">더마릭이 매일 관측한 올리브영 가격이에요. 표시 할인율 대신 <b>평소 판매가·최저가·가격 흐름</b>을 그대로 보여드려요.</p>'+
-  '<button class="link" id="redo">다시 하기</button>');
-  wireWhy();
-  document.getElementById("ask").onclick=copyAsk;
-  document.getElementById("redo").onclick=()=>{LS.set("slug","");viewQ(0,[])};
-  refreshAsk();
-  loadMine();
+ if(!a)return viewIntro();activeInvite=null;resetAccent();const rows=savedRows(a);
+ show('<div class="result-heading"><p class="eyebrow">MY PALETTE</p><h1>나와 친구들의 색</h1><p class="note">나를 보는 여러 시선을 한곳에 모았어요.</p></div><section class="my-color"><h2>내가 고른 내 색</h2>'+colorTile(a,'MY COLOR')+'<p>'+esc(a.c)+'</p></section><section class="invite-actions"><h2>친구의 색도 더해볼까요?</h2><label class="small-label" for="owner-name">친구에게 보여줄 내 이름 · 선택</label><input id="owner-name" maxlength="8" placeholder="이름 또는 별명" value="'+esc(LS.get('myname')||'')+'"><button class="invite-button" id="invite-seen"><strong>내 친구가 보는 나는 무슨 색일까?</strong><span>친구에게 나를 닮은 색 골라달라고 하기 ↗</span></button><button class="invite-button" id="invite-pair"><strong>친구에게 색 골라보라고 하기</strong><span>친구의 색과 내 색으로 우리 색 만들기 ↗</span></button><div id="share-box" aria-live="polite"></div></section><section class="received-section"><h2>친구가 보는 내 색 <small>'+rows.filter(r=>r.mode==='seen').length+'</small></h2>'+sectionRows(rows,'seen')+'</section><section class="received-section"><h2>친구와 만든 우리 색 <small>'+rows.filter(r=>r.mode==='pair').length+'</small></h2>'+sectionRows(rows,'pair')+'</section><details class="color-products"><summary>이 색을 담은 뷰티 제품 보기</summary>'+prodHTML(a.s)+'<p class="note">더마릭이 관측한 가격 기록이에요. 제품별 관측 일수와 주의사항을 함께 확인해 주세요.</p></details><p class="play-note">색과 취향을 바탕으로 만든 가벼운 이야기예요. 성격이나 관계를 판단하는 검사는 아니에요.</p><button class="link" id="redo">내 색 다시 찾기</button>');
+ ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=()=>{
+ const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);
+ const p={v:2,mode,owner:ownerId(),mine:a.s,name};showLink('share-box',linkFor('invite',p),mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');});
+ document.getElementById('redo').onclick=()=>viewQ(0,[]);wireWhy();
 }
-
-function refreshAsk(){
-  const n=document.getElementById("asknote");
-  if(n&&!myTok()) n.textContent="연결이 준비되는 중이에요. 잠시 후 다시 눌러주세요.";
+function showLink(target,url,message){
+ const box=document.getElementById(target);box.innerHTML='<div class="share-link"><label class="small-label" for="copy-link">이 링크를 친구에게 보내주세요</label><input id="copy-link" readonly value="'+esc(url)+'"><button class="ghost" id="copy-button">링크 복사</button><p class="note" id="copy-status" role="status">'+(location.hostname==='localhost'||location.hostname==='127.0.0.1'?'미리보기예요. 사이트에 반영한 뒤 친구에게 보내주세요.':'친구가 보내준 결과 링크를 처음 내 색을 만든 브라우저에서 열면 저장돼요.')+'</p></div>';
+ document.getElementById('copy-link').onclick=e=>e.target.select();
+ document.getElementById('copy-button').onclick=async()=>{const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(message+'\n'+url);status.textContent='복사했어요. 친구와의 대화창에 붙여넣어 주세요.';}catch(e){document.getElementById('copy-link').select();status.textContent='위 링크를 길게 눌러 복사해 주세요.';}};
 }
-async function copyAsk(){
-  let tok=myTok();
-  if(!tok){
-    try{ const r=await apiPost("/r",{slug:LS.get("slug")}); LS.set("rid",r.rid); LS.set("tok",r.tok); tok=r.tok; }
-    catch(e){ this.textContent="지금은 연결이 안 돼요. 잠시 후 다시"; return; }
-  }
-  const url=baseUrl()+"#a="+tok;
-  const msg="나 이거 해봤는데 내 색 나왔어. 너도 하면 우리 둘만의 색이 나온대\n"+url;
-  try{ await navigator.clipboard.writeText(msg); this.textContent="복사됐어요 · 친구에게 붙여넣기"; }
-  catch(e){ this.textContent="복사 실패 — 주소창 링크를 보내주세요"; }
+function viewInvite(p){
+ activeInvite=p;resetAccent();const who=p.name?p.name+'님':'이 친구';
+ show('<p class="eyebrow">친구에게서 온 색 초대</p><h1>'+(p.mode==='seen'?esc(who)+' 하면<br>어떤 색이 떠오르나요?':'내 색을 골라<br>우리 색을 만들어봐요.')+'</h1><p class="lede">'+(p.mode==='seen'?'떠오르는 색 하나를 골라주세요. 친구가 고른 색은 선택한 뒤 보여드릴게요.':'나를 닮은 색을 하나 골라주세요. 친구의 색과 섞으면 어떤 색이 나올까요?')+'</p>'+gridHTML()+'<div id="friend-pick"></div>'+(p.mode==='pair'?'<button class="ghost" id="friend-quiz">질문으로 내 색 찾기</button>':'')+'<div id="friend-history"></div>');
+ pickWire(a=>pickFriend(p,a));const q=document.getElementById('friend-quiz');if(q)q.onclick=()=>viewQ(0,[]);
 }
-
-/* ───────── 받은 색 ───────── */
-async function loadMine(){
-  const box=document.getElementById("mine");
-  const rid=myRid();
-  if(!box||!rid) return;
-  let d=null;
-  try{ d=await apiGet("/me/"+rid); }catch(e){ return; }
-  if(!d||!d.answers||!d.answers.length) return;
-  const mine=bySlug(LS.get("slug"));
-  const rows=d.answers.map(x=>({a:bySlug(x.s),own:x.o?bySlug(x.o):null,n:x.n})).filter(x=>x.a);
-  if(!rows.length) return;
-
-  let html='<hr class="sep"><p class="eyebrow">친구들이 보는 나</p>'+
-    '<div class="miniwrap">'+rows.map(r=>'<span class="mini" style="background:'+r.a.h+'" title="'+esc(r.a.n)+'"></span>').join("")+'</div>';
-
-  rows.forEach(r=>{
-    html+='<div class="card"><div class="rowline"><span class="dot" style="background:'+r.a.h+'"></span>'+
-      '<span><span class="note" style="display:block">'+esc(r.n)+'님이 생각하는 나의 이미지</span>'+
-      '<span class="name-s">'+esc(r.a.n)+'</span></span></div>'+
-      '<p style="margin:0;font-size:14.5px;color:var(--ink-2)">'+esc(r.a.c)+'</p>'+
-      '<p style="margin:0;font-size:14px">'+esc(judge(mine,r.a))+'</p>'+
-      (r.own?'<button class="link" data-pair="'+r.own.s+'|'+esc(r.n)+'">'+esc(r.n)+'님과 우리의 색 보기 →</button>':
-             '<p class="note" style="margin:0">'+esc(r.n)+'님은 아직 자기 색을 알려주지 않았어요.</p>')+
-      '</div>';
-  });
-
-  if(rows.length>=3){
-    const p={W:0,D:0,S:0,T:0};
-    rows.forEach(r=>AX.forEach(x=>p[x]+=r.a[x]));
-    AX.forEach(x=>p[x]/=rows.length);
-    const seen=nearest(p,false), same=seen.s===mine.s;
-    let tail="";
-    if(!same){let ax="W",mx=0;AX.forEach(x=>{const dd=seen[x]-mine[x];if(Math.abs(dd)>Math.abs(mx)){mx=dd;ax=x}});
-      tail="사람들은 나를 더 "+PHRASE[ax][mx>0?0:1]+" 봐요.";}
-    html+='<hr class="sep"><p class="eyebrow">평균을 내면</p>'+
-      '<div class="pair"><div class="col"><span class="pill">내가 아는 나</span>'+
-      '<span class="blk" style="background:'+mine.h+'"></span><span class="name-s">'+esc(mine.n)+'</span></div>'+
-      '<div class="col"><span class="pill">남들이 보는 나</span>'+
-      '<span class="blk" style="background:'+seen.h+'"></span><span class="name-s">'+esc(seen.n)+'</span></div></div>'+
-      '<p class="copy" style="font-size:17px">'+(same?"보이는 나와 아는 나가 같은 사람이에요.":esc(tail))+'</p>';
-  }
-  box.innerHTML=html;
-  box.querySelectorAll("[data-pair]").forEach(b=>b.onclick=()=>{
-    const[slug,nick]=b.dataset.pair.split("|");
-    viewPair(mine,bySlug(slug),nick);
-  });
+function pickFriend(p,a){
+ if(!document.getElementById('friend-pick')){show('<h1>내 색을 찾았어요</h1>'+colorTile(a,'선택한 색')+'<div id="friend-pick"></div>');}
+ const box=document.getElementById('friend-pick');box.innerHTML='<section class="pick-confirm">'+colorTile(a,p.mode==='seen'?'친구를 닮은 색':'나를 닮은 색')+'<label for="friend-name" class="small-label">친구에게 보여줄 이름</label><input id="friend-name" maxlength="8" placeholder="이름 또는 별명"><button class="cta" id="see-relation">'+(p.mode==='seen'?'친구가 고른 색과 비교하기':'우리의 색 보기')+'</button><p id="name-error" class="note" role="alert"></p></section>';
+ document.getElementById('see-relation').onclick=()=>{const nick=clean(document.getElementById('friend-name').value);if(!nick){document.getElementById('name-error').textContent='이름이나 별명을 입력해 주세요.';return;}const result={...p,pick:a.s,nick,id:uid()};LS.set('color-last-reply-v2',JSON.stringify(result));if(p.mode==='pair'&&ownerId()!==p.owner){LS.set('slug',a.s);LS.set('ans','[]');LS.set('myname',nick);saveReply({...result,owner:ownerId(),mine:a.s,pick:p.mine,name:nick,nick:p.name||'친구'});}viewFriendResult(result);};
 }
-
-/* ───────── 우리의 색 ───────── */
-async function viewPair(mine,friend,nick){
-  const our=ourColor(mine,friend);
-  setAccent(our.hex);
-  const dif=[];
-  AX.forEach(x=>{const d=friend[x]-mine[x]; if(Math.abs(d)>0.25)
-    dif.push(esc(nick)+"님이 더 "+PHRASE[x][d>0?0:1].replace("보는","")); });
-  show('<p class="eyebrow">You Two</p>'+
-  '<div class="pair"><div class="col"><span class="pill">나</span>'+
-  '<span class="blk" style="background:'+mine.h+'"></span><span class="name-s">'+esc(mine.n)+'</span></div>'+
-  '<div class="col"><span class="pill">'+esc(nick)+'</span>'+
-  '<span class="blk" style="background:'+friend.h+'"></span><span class="name-s">'+esc(friend.n)+'</span></div></div>'+
-  '<hr class="sep">'+
-  '<p class="eyebrow">우리의 색</p>'+
-  '<div class="ourfield'+(isLight(our.hex)?" dk":"")+'" style="background:'+our.hex+'">'+
-  '<span style="font-family:var(--mono);font-size:11px;letter-spacing:.14em">'+our.hex+'</span></div>'+
-  '<h2>'+esc(our.name)+'</h2>'+
-  '<p class="copy">'+esc(our.rel)+'</p>'+
-  (dif.length?'<p class="note">두 색을 나란히 보면 '+dif.join(", ")+'.</p>':"")+
-  '<hr class="sep"><div id="cp"><p class="note">같이 쓸 만한 걸 찾는 중…</p></div>'+
-  '<div class="stack"><button class="ghost" id="back">내 결과로</button></div>');
-  document.getElementById("back").onclick=()=>{clearHash();
-    viewResult(bySlug(LS.get("slug")),JSON.parse(LS.get("ans")||"[]"))};
-  const t=(mine.T+friend.T)/2;
-  document.getElementById("cp").innerHTML=await coupleHTML(our.hex,t);
+function viewFriendResult(p){
+ resetAccent();show('<p class="eyebrow">'+(p.mode==='seen'?'친구의 시선':'둘이 만든 색')+'</p><h1>'+(p.mode==='seen'?'우리는 서로를<br>이렇게 보고 있어요.':'두 사람의 색이<br>하나 더 생겼어요.')+'</h1>'+relationshipHTML(p)+'<section class="result-send"><h2>친구에게도 보여주세요</h2><p class="note">결과 링크를 보내면 친구도 같은 이야기를 보고, 자신의 팔레트에 담을 수 있어요.</p><div id="reply-link"></div></section><p class="play-note">색과 취향으로 즐기는 이야기예요. 관계를 판단하는 검사는 아니에요.</p><button class="ghost" id="to-mine">내 팔레트 보기</button>');
+ showLink('reply-link',linkFor('reply',p),'우리 색 결과가 나왔어. 어떤 것 같아?');document.getElementById('to-mine').onclick=()=>{clearHash();route();};
 }
-
-/* ───────── 친구가 색을 고르는 화면 ───────── */
-function viewAsk(tok){
-  resetAccent();
-  if(!LS.get("slug")){
-    show('<p class="eyebrow">친구가 보냈어요</p>'+
-    '<h1>같이 하면<br>둘만의 색이 나와요</h1>'+
-    '<p class="lede">먼저 내 색을 찾고 오면, 친구를 무슨 색으로 보는지 고르는 화면으로 이어져요. '+
-    '두 색이 모이면 우리 둘만의 색이 만들어져요.</p>'+
-    '<div class="strip">'+ARCH.map(a=>'<span style="background:'+a.h+'"></span>').join("")+'</div>'+
-    '<div class="stack"><button class="cta" id="go">내 색 먼저 찾기 →</button>'+
-    '<button class="ghost" id="skip">색만 골라주기</button></div>'+
-    '<p class="note">30초 · 회원가입 없음</p>');
-    document.getElementById("go").onclick=()=>{LS.set("pendAsk",tok);clearHash();viewQ(0,[])};
-    document.getElementById("skip").onclick=()=>askPick(tok);
-    return;
-  }
-  askPick(tok);
+function viewReply(p){
+ resetAccent();const mine=bySlug(LS.get('slug'));
+ const isOwner=LS.get('color-owner-v2')===p.owner&&mine&&mine.s===p.mine;
+ if(isOwner){saveReply(p);clearHash();viewResult(mine,readJSON('ans',[]));return;}
+ show('<p class="eyebrow">친구가 보낸 결과</p><h1>'+esc(p.nick)+'님과의 색 이야기</h1>'+relationshipHTML(p)+'<p class="note">이 브라우저에는 초대한 사람의 팔레트가 없어요. 결과는 여기서 그대로 볼 수 있어요.</p><button class="ghost" id="reply-home">내 색 찾으러 가기</button>');document.getElementById('reply-home').onclick=()=>{clearHash();viewIntro();};
 }
-function askPick(tok){
-  resetAccent();
-  show('<p class="eyebrow">친구가 물어봤어요</p>'+
-  '<h2>이 사람 하면<br>떠오르는 색은?</h2>'+
-  '<p class="lede">가장 먼저 눈이 가는 색 하나를 골라주세요.</p>'+
-  gridHTML()+'<div id="pk"></div>');
-  let pick=null, own=null;
-  pickWire(p=>{
-    pick=p; setAccent(p.h);
-    document.getElementById("pk").innerHTML=
-      '<div class="stack" style="margin-top:6px">'+
-      '<label class="eyebrow" for="mn">내 이름 (최대 8자)</label>'+
-      '<input type="text" id="mn" maxlength="8" placeholder="예) 더마릭" value="'+esc(LS.get("myname")||"")+'">'+
-      '<p class="err hide" id="e0">이름을 입력해 주세요</p>'+
-      '<div class="card"><p class="note" style="margin:0">내 색도 같이 알려주면, 둘만의 색이 만들어져요.</p>'+
-      '<div id="ownbox">'+(LS.get("slug")?
-        '<div class="rowline"><span class="dot" style="background:'+bySlug(LS.get("slug")).h+'"></span>'+
-        '<span class="name-s">'+esc(bySlug(LS.get("slug")).n)+'</span></div>'+
-        '<p class="note" style="margin:4px 0 0">내 결과를 같이 보낼게요.</p>':
-        '<p class="note" style="margin:0">아직 내 색이 없어요. 보낸 뒤에 찾아볼 수 있어요.</p>')+'</div></div>'+
-      '<button class="cta" id="send">'+esc(p.n)+' 보내기</button></div>';
-    document.getElementById("mn").oninput=()=>document.getElementById("e0").classList.add("hide");
-    document.getElementById("send").onclick=async function(){
-      const nm=clean(document.getElementById("mn").value);
-      if(!nm){document.getElementById("e0").classList.remove("hide");return}
-      LS.set("myname",nm);
-      own=LS.get("slug")||null;
-      const b=this; b.disabled=true; b.textContent="보내는 중…";
-      try{ await apiPost("/a",{tok:tok,slug:pick.s,nick:nm,own:own}); }
-      catch(e){ b.disabled=false; b.textContent="다시 시도하기"; return; }
-      setAccent(pick.h);
-      show('<p class="eyebrow">전달됐어요</p>'+
-      heroHTML(pick,[ARCH.indexOf(pick)])+
-      '<p class="copy">'+esc(pick.c)+'</p>'+
-      '<p class="lede">친구의 팔레트에 이 색이 바로 쌓였어요.</p>'+
-      '<div class="stack"><button class="cta" id="own">'+(LS.get("slug")?"내 결과 보기":"나도 내 색 찾아보기")+'</button></div>');
-      document.getElementById("own").onclick=()=>{clearHash();
-        const sl=LS.get("slug");
-        sl&&bySlug(sl)?viewResult(bySlug(sl),JSON.parse(LS.get("ans")||"[]")):viewQ(0,[])};
-    };
-  });
-}
-
-/* ───────── 라우팅 ───────── */
 function route(){
-  const h=location.hash;
-  if(h.indexOf("#a=")===0) return viewAsk(h.slice(3));
-  const s=LS.get("slug");
-  if(s&&bySlug(s)) return viewResult(bySlug(s),JSON.parse(LS.get("ans")||"[]"));
-  viewIntro();
+ const h=location.hash;
+ if(h.startsWith('#invite=')){const p=decodeLink(h.slice(8));if(validInvite(p))return viewInvite(p);return invalidLink();}
+ if(h.startsWith('#reply=')){const p=decodeLink(h.slice(7));if(validReply(p))return viewReply(p);return invalidLink();}
+ if(h.startsWith('#a='))return invalidLink(true);
+ const a=bySlug(LS.get('slug'));if(a)return viewResult(a,readJSON('ans',[]));viewIntro();
 }
-window.addEventListener("hashchange",route);
+function invalidLink(legacy=false){show('<h1>'+(legacy?'이전 방식의 초대 링크예요.':'링크를 확인해 주세요.')+'</h1><p class="lede">'+(legacy?'친구에게 새 화면에서 초대 링크를 다시 만들어 달라고 해주세요.':'링크가 끝까지 복사되지 않았을 수 있어요. 친구에게 다시 받아보세요.')+'</p><button class="ghost" id="restart">내 색 찾기</button>');document.getElementById('restart').onclick=()=>{clearHash();viewIntro();};}
+window.addEventListener('hashchange',route);
 route();
 
 </script>
