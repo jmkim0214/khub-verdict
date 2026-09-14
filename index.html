@@ -679,7 +679,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
       <div class="actions">
         <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
         <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
-        <button class="btn ghost" id="tg-btn">📮 텔레그램으로 주간 팩트체크 받기</button>
+        <button class="btn ghost" id="kakao-btn">💬 카카오톡으로 일간 팩트체크 받기</button>
       </div>
     </div>
 
@@ -1252,7 +1252,7 @@ $('#object-btn').addEventListener('click', openDispute);
 $('#foot-dispute')?.addEventListener('click', e=>{ e.preventDefault(); openDispute(); });
 $('#dispute-close').addEventListener('click', ()=>{ $('#dispute-modal').style.display='none'; });
 $('#dispute-modal').addEventListener('click', e=>{ if(e.target.id==='dispute-modal') $('#dispute-modal').style.display='none'; });
-$('#tg-btn').addEventListener('click', ()=>toast('텔레그램 채널은 준비 중이에요 — 오픈 소식은 이 페이지에서 알려드릴게요'));
+$('#kakao-btn').addEventListener('click', ()=>{ window.open('https://open.kakao.com/o/gFGEOZIi', '_blank', 'noopener,noreferrer'); });
 // dev-teaser 비노출 중 — 요소가 없을 수 있어 옵셔널 처리 (복원 시 그대로 동작)
 $('#api-link')?.addEventListener('click', e=>{ e.preventDefault(); toast('개발자용 API는 준비 중이에요'); });
 </script>
