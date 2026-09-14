@@ -385,7 +385,10 @@ header.site{padding:28px 0;max-width:none;margin:0}
 <div class="wrap">
   <div class="site-band"><header class="site">
     <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
-    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html" aria-current="page">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a></nav>
+    <style>/* Five detail navigation links */
+@media(min-width:641px) and (max-width:1000px){.primary-nav{gap:16px}.primary-nav a{font-size:13px}}
+@media(max-width:640px){header.site{flex-wrap:wrap!important;row-gap:12px!important}header.site .brand-link{order:1}header.site .site-menu{order:2;margin-left:auto}header.site .primary-nav{order:3;display:flex!important;flex:0 0 100%;width:100%;margin:0;justify-content:space-between;gap:6px;flex-wrap:nowrap}header.site .primary-nav a{font-size:12px;white-space:nowrap;padding:10px 0;flex-shrink:0}}
+</style><nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html" aria-current="page">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
       <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html" aria-current="page">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
     </details>
