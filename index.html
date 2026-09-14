@@ -346,6 +346,18 @@
     border-radius:9px; padding:11px 14px; font-size:13px; color:var(--ink-2); margin-bottom:14px; line-height:1.6;}
   .alts-banner .ab-ic{color:var(--good-text); font-weight:800;}
   .alts-banner b{color:var(--good-text);}
+  .cheaper{border:1px solid var(--good-text); background:var(--good-bg); border-radius:12px;
+    padding:13px 16px; margin-bottom:14px;}
+  .cheaper .cc-h{font-size:13px; font-weight:800; color:var(--good-text); margin-bottom:6px;}
+  .cheaper .cc-type{font-size:11px; font-weight:700; color:var(--muted); margin-right:6px;}
+  .cheaper .cc-name{font-size:13.5px; font-weight:700; line-height:1.4;}
+  .cheaper .cc-price{margin-top:7px; font-size:13px; color:var(--ink-2); line-height:1.6;}
+  .cheaper .cc-price b{font-size:16px; font-weight:800; color:var(--ink);}
+  .cheaper .cc-unit{font-size:12px; color:var(--muted);}
+  .cheaper .cc-save{font-weight:800; color:var(--good-text);}
+  .cheaper .a-link{display:inline-block; margin-top:9px; font-size:12px; font-weight:600;
+    color:var(--series); text-decoration:none;}
+  .cheaper .a-link:hover{text-decoration:underline;}
   .alts{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px;}
   @media (max-width:640px){.alts{grid-template-columns:1fr;}}
   .alt{border:1px solid var(--border); border-radius:12px; padding:15px 16px; display:flex; flex-direction:column; gap:2px;}
@@ -659,6 +671,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
       <div class="sec-h"><h3 id="alts-title">③ 검증된 대안</h3><span class="tag" id="alts-tag">자동 분석</span></div>
       <div class="sec-sub" id="alts-sub"></div>
       <div class="alts-banner hidden" id="alts-banner"><span class="ab-ic">✓</span><span id="alts-banner-txt"></span></div>
+      <div class="cheaper hidden" id="cheaper-config"></div>
       <div class="alts" id="r-alts"></div>
       <!-- 2026-08-16: 신뢰 고지는 한 줄 요약 + 접기. 전문이 항상 펼쳐져 있으면 아무도 안 읽고
            판정서만 길어진다 — '있다는 사실'이 신뢰의 근거고, 전문은 찾는 사람에게만. -->
@@ -970,26 +983,53 @@ function renderReport(key){
     safetyCard.classList.add('hidden');
   }
 
-  /* 대안 옵션 (bad/warn 판정에만) */
+  /* 대안 옵션 (bad/warn 판정에만) + 같은 제품 더 싼 구성 */
   const altsCard = $('#alts-card');
-  if(c.alts && c.alts.length){
+  const hasAlts = c.alts && c.alts.length;
+  const cc = c.cheaperConfig;
+  /* 같은 제품 더 싼 구성 블록 (product_rollup vol_trust 검증, 대안 유무와 무관하게 노출) */
+  const ccEl = $('#cheaper-config');
+  if(cc){
+    const upTxt = cc.unit!=null ? ` <span class="cc-unit">${won(cc.unit)}/${cc.unitType||''}</span>` : '';
+    const moreTxt = cc.more>0 ? ` 외 ${cc.more}개 구성` : '';
+    ccEl.classList.remove('hidden');
+    ccEl.innerHTML = `
+      <div class="cc-h">💡 같은 제품, 더 싼 구성이 있어요</div>
+      <div class="cc-body">
+        <span class="cc-type">${cc.offerType||''}</span>
+        <span class="cc-name">${cc.title||''}</span>
+        <div class="cc-price"><b>${won(cc.cur)}</b>${upTxt} · <span class="cc-save">이 구성보다 ${cc.savePct}% 저렴</span>${moreTxt}</div>
+        ${cc.goodsNo?`<a class="a-link" href="${cc.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+cc.goodsNo}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
+      </div>`;
+  } else {
+    ccEl.classList.add('hidden');
+  }
+  if(hasAlts || cc){
     altsCard.classList.remove('hidden');
-    $('#alts-title').textContent = c.altsTitle || '③ 검증된 대안';
-    $('#alts-tag').textContent = c.altsTag || '자동 분석';
-    $('#alts-sub').textContent = c.altsSub;
-    const bn = $('#alts-banner');
-    bn.classList.toggle('hidden', !c.altsBanner);
-    if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
-    $('#r-alts').innerHTML = c.alts.map(a=>`
-      <div class="alt">
-        <div class="a-why">${a.why}</div>
-        <div class="a-brand">${a.brand}</div>
-        <div class="a-name">${a.name}</div>
-        <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
-        <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
-        <div class="a-basis">${a.basis}</div>
-        ${a.gno?`<a class="a-link" href="${a.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+a.gno}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
-      </div>`).join('');
+    if(hasAlts){
+      $('#alts-title').textContent = c.altsTitle || '③ 검증된 대안';
+      $('#alts-tag').textContent = c.altsTag || '자동 분석';
+      $('#alts-sub').textContent = c.altsSub;
+      const bn = $('#alts-banner');
+      bn.classList.toggle('hidden', !c.altsBanner);
+      if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
+      $('#r-alts').innerHTML = c.alts.map(a=>`
+        <div class="alt">
+          <div class="a-why">${a.why}</div>
+          <div class="a-brand">${a.brand}</div>
+          <div class="a-name">${a.name}</div>
+          <div class="a-price"><b>${won(a.price)}</b>${a.was?`<s>${won(a.was)}</s>`:''}</div>
+          <div class="a-verdict"><span class="badge b-${a.v}">${a.v==='good'?'✓ ':''}${a.chip}</span></div>
+          <div class="a-basis">${a.basis}</div>
+          ${a.gno?`<a class="a-link" href="${a.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+a.gno}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
+        </div>`).join('');
+    } else {
+      $('#alts-title').textContent = '③ 같은 제품 더 싼 구성';
+      $('#alts-tag').textContent = '실측 데이터 자동 산출';
+      $('#alts-sub').textContent = '';
+      $('#alts-banner').classList.add('hidden');
+      $('#r-alts').innerHTML = '';
+    }
     $('#basis-title').textContent = '④ 판정 근거';
   } else {
     altsCard.classList.add('hidden');
