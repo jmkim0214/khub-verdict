@@ -546,7 +546,9 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 <style id="hero-serif">#view-home .hero h1{font-family:"Noto Serif KR",serif;font-weight:600;letter-spacing:-.045em}</style>
 <style id="stable-page-width">html{overflow-y:scroll}</style>
 <style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:6px;flex-wrap:nowrap}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:16px}}</style>
-</head>
+<style id="compact-report-proposal">
+#view-report{max-width:760px;margin:0 auto}.preview-label{text-align:center;font-size:11px;color:#8d7057;border-bottom:1px solid #d6c4ad;padding:10px}.report-top{gap:12px}.rid{font-size:10px}#view-report .card{border-radius:12px;padding:24px;margin-bottom:16px;background:#fffaf3;border-color:#d7c3aa}#view-report .verdict{padding:0 0 20px;background:transparent;border:0}#r-vtitle{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:500;line-height:1.5}#r-vdesc{font-size:13px;line-height:1.8}.v-kicker{font-size:10px;letter-spacing:.12em}.v-ic{display:none}#view-report .prod{border-top:1px solid #e1d1bf;padding-top:20px;margin-top:0}#r-name{font-size:16px;line-height:1.6}#view-report .sec-h h3{font-size:18px}#view-report .sec-sub{font-size:12px}.claim-fold{padding:15px 0;border-top:1px solid #e5d6c5}.claim-fold summary{cursor:pointer;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:13px;list-style:none}.claim-fold summary:after{content:'+';color:#947b61}.claim-fold[open] summary:after{content:'−'}.claim-fold .c-title{font-size:13px;font-weight:500}.claim-fold .c-note{font-size:12px;line-height:1.8;margin-top:12px}.claim-fold .c-src{font-size:10px}.compact-note{font-size:11px;color:#8a735d;line-height:1.8;margin:10px 0 16px}.basis-fold summary{font-size:13px;padding:14px 0;cursor:pointer}.basis-fold .basis{margin:10px 0}.basis-observed{font-size:12px;color:#816b54}.actions{gap:8px}.actions button{font-size:11px}#view-report .fine summary{font-size:11px;line-height:1.8}@media(max-width:640px){#view-report .card{padding:18px 14px}.report-top{display:block}#r-vtitle{font-size:24px}.report-top .rid{margin:12px 0}#view-report .prod .thumb{width:66px;height:80px}#view-report .sec-h{flex-wrap:wrap;gap:6px}#view-report .tiles{gap:8px}.claim-fold summary{gap:7px}.claim-fold .badge{font-size:10px;white-space:nowrap}}
+</style></head>
 <body>
 <div class="wrap">
   <div class="site-band"><header class="site">
@@ -629,7 +631,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
     </div>
 
     <div class="card">
-      <div class="sec-h"><h3>① 가격 진실</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
+      <div class="sec-h"><h3>가격 기록</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
       <div class="sec-sub" id="r-chart-sub"></div>
       <div class="sec-sub" style="margin-top:-8px">올리브영 공개가 기준 — 쿠폰·카드사 할인은 반영되지 않습니다</div>
       <div class="chart-legend" id="r-legend">
@@ -1237,6 +1239,26 @@ $('#go-btn').addEventListener('click', ()=>{
 });
 $('#url-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#go-btn').click(); });
 $('#search-results').addEventListener('click', e=>{ const b=e.target.closest('.sr-item'); if(b) loadGoods(b.dataset.g); });
+
+const fullReportRenderer=renderReport;
+renderReport=function(key){
+ const oldBasis=document.getElementById('r-basis');const oldFold=oldBasis?.closest('.basis-fold');if(oldFold){oldFold.before(oldBasis);oldFold.remove();}
+ document.querySelectorAll('.basis-observed,#r-verdict .compact-note').forEach(el=>el.remove());
+ fullReportRenderer(key);
+ document.querySelectorAll('#r-safety .safety-row').forEach(row=>{const title=row.querySelector('b');if(title?.textContent!=='제조사 공식 주의사항')return;const detail=document.createElement('details');detail.className='fine official-caution';const summary=document.createElement('summary');summary.textContent='제조사 공식 주의사항';const body=row.querySelector('.s-note');detail.append(summary,body);row.replaceWith(detail);});
+
+ document.querySelector('.v-kicker').textContent='가격 한눈에';
+ const title=document.getElementById('r-vtitle');if(title.textContent.includes(' — ')){const parts=title.textContent.split(' — ');title.textContent=parts[0];const sub=document.createElement('p');sub.className='compact-note';sub.textContent=parts.slice(1).join(' — ');title.after(sub);}
+ const claims=document.getElementById('r-claims');
+ if(claims.querySelector('.claim')){
+ document.getElementById('claims-title').textContent='성분으로 보는 특징';
+ document.getElementById('claims-sub').textContent='함량순 성분표를 참고한 설명이에요. 실제 함량과 제품의 효능·안전을 단정하지 않아요.';
+ claims.querySelectorAll('.claim').forEach(row=>{if(!row.querySelector('.b-good'))return;const d=document.createElement('details');d.className='claim-fold';const summary=document.createElement('summary');const link=row.querySelector('.ing-link');if(link)link.remove();summary.append(row.querySelector('.c-title'),row.querySelector('.badge'));d.append(summary,row.querySelector('.c-note'),row.querySelector('.c-src'));if(link)d.append(link);row.replaceWith(d);});
+ }
+ const basis=document.getElementById('r-basis');const fold=document.createElement('details');fold.className='basis-fold';const summary=document.createElement('summary');summary.textContent='판정 기준과 출처 자세히 보기';basis.before(fold);fold.append(summary,basis);const observation=basis.querySelector('.row');if(observation){const line=document.createElement('p');line.className='basis-observed';line.textContent=Array.from(observation.children).map(x=>x.textContent).join(' · ');fold.before(line);}
+ document.getElementById('basis-title').textContent='이 판정의 근거';
+};
+
 /* ?g=goodsNo 파라미터로 판정서 바로 열기 (가격 데이터 페이지 카드 → 판정서 동선) */
 /* from=device|price → '다른 상품 판정하기'를 눌렀을 때 왔던 목록으로 돌려보낸다 (2026-07-31) */
 const ORIGIN_PAGES = {device:'device.html', price:'price.html', routine:'routine.html'};
