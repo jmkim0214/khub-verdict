@@ -156,7 +156,9 @@ header.site{padding:28px 0;max-width:none;margin:0}
 @media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
 @media(max-width:359px){:root{--detail-gutter:18px}}
 </style>
-</head>
+<style id="lab-entry-art">
+.lab .thumb.color-bloom,.lab .thumb.price-note{position:relative;display:block;overflow:visible;background:transparent;border:0;box-shadow:none;height:72px;width:72px;min-height:0}.color-bloom i,.price-wash{position:absolute;display:block;width:66%;height:66%;mask:url('lip/watercolor-paper-v1.png') center/100% 100% no-repeat;mask-mode:luminance}.color-bloom i:nth-child(1){background:#e8a5b5;left:1%;top:0;transform:rotate(-15deg)}.color-bloom i:nth-child(2){background:#c7b4b2;right:-2%;top:6%;transform:rotate(22deg)}.color-bloom i:nth-child(3){background:#b96b84;left:1%;bottom:-2%;transform:rotate(35deg)}.color-bloom i:nth-child(4){background:#deb191;right:0;bottom:0;transform:rotate(-24deg)}.color-bloom i:nth-child(5){background:#efa88d;width:60%;height:60%;left:20%;top:20%;transform:rotate(-8deg)}.price-note .price-wash{width:100%;height:100%;inset:0;background:#d0cfad;transform:rotate(-18deg)}.price-note svg{position:absolute;width:85%;height:100%;left:8%;top:0;transform:rotate(9deg)}
+</style></head>
 <body>
 <div class="wrap">
   <div class="site-band"><header class="site">
@@ -183,12 +185,7 @@ header.site{padding:28px 0;max-width:none;margin:0}
     ──────────────────────────────────────────────────────────── -->
 
     <a class="lab" href="lip/">
-      <span class="thumb">
-        <span style="background:#E698AA"></span><span style="background:#D1B8B9"></span><span style="background:#E99F81"></span>
-        <span style="background:#E35C9C"></span><span style="background:#E25947"></span><span style="background:#B67175"></span>
-        <span style="background:#B0744F"></span><span style="background:#AE476E"></span><span style="background:#805F64"></span>
-        <span style="background:#A22029"></span><span style="background:#742B49"></span><span style="background:#6A3E32"></span>
-      </span>
+      <span class="thumb color-bloom" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       <span class="body">
         <span class="kicker">Lab 01 · Color</span>
         <h2>내 취향은 어떤 색일까?</h2>
@@ -200,10 +197,7 @@ header.site{padding:28px 0;max-width:none;margin:0}
     </a>
 
     <a class="lab" href="price/">
-      <span class="thumb bars">
-        <i style="height:32%"></i><i style="height:58%"></i><i style="height:41%"></i>
-        <i style="height:88%"></i><i style="height:24%"></i>
-      </span>
+      <span class="thumb price-note" aria-hidden="true"><i class="price-wash"></i><svg viewBox="0 0 100 110" fill="none"><path d="M25 13L31 17L37 13L43 17L49 13L55 17L61 13L67 17L73 13V91L67 87L61 91L55 87L49 91L43 87L37 91L31 87L25 91Z" fill="#fff9ed" stroke="#af9071" stroke-width="1.2"/><path d="M37 31H61M37 43H61M37 51H53" stroke="#bda287" stroke-width="2" stroke-linecap="round"/><circle cx="66" cy="74" r="16" fill="#eac3ad"/><path d="M59 74L64 79L73 68" stroke="#80694d" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       <span class="body">
         <span class="kicker">Lab 02 · Price</span>
         <h2>그때 그 가격, 잘 샀을까</h2>

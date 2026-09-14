@@ -533,12 +533,13 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 </style>
 <style id="hero-serif">#view-home .hero h1{font-family:"Noto Serif KR",serif;font-weight:600;letter-spacing:-.045em}</style>
 <style id="stable-page-width">html{overflow-y:scroll}</style>
+<style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:6px;flex-wrap:nowrap}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:16px}}</style>
 </head>
 <body>
 <div class="wrap">
   <div class="site-band"><header class="site">
     <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
-    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a></nav>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
       <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
     </details>
@@ -555,7 +556,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <input id="url-input" type="search" placeholder="상품명 또는 올리브영 URL" aria-describedby="search-description" spellcheck="false" autocomplete="off" enterkeyhint="search">
         <button class="btn" id="go-btn" aria-label="가격 기록 확인"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 14h19m-7-7 7 7-7 7"/></svg></button>
       </div>
-      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a></nav>
+      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
       <div id="search-results" aria-live="polite" aria-label="상품 검색 결과"></div>
     </div>
   </section>
