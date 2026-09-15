@@ -297,22 +297,22 @@
   .vb-z.z2{background:rgba(32,34,30,0.07); color:var(--muted);}
   .vb-z.z3{background:rgba(217,92,79,0.18); color:var(--critical);}
   .vb-pin{position:absolute; top:-3px; bottom:-3px; width:2px; margin-left:-1px;
-           background:var(--ink); border-radius:1px;}
+           background:var(--ink); border-radius:1px;
+           box-shadow:0 0 0 1.5px var(--page);}
   .vb-pin.off:after{content:''; position:absolute; top:50%; margin-top:-4px;
                     border-top:4px solid transparent; border-bottom:4px solid transparent;}
   .vb-pin.off.hi:after{left:4px; border-left:5px solid var(--ink);}
   .vb-pin.off.lo:after{right:4px; border-right:5px solid var(--ink);}
-  .vb-gap{position:relative; height:21px;}
-  .vb-gap i{position:absolute; top:10px; height:1px; background:var(--muted); opacity:.55; display:block;}
-  .vb-gap i:before,.vb-gap i:after{content:''; position:absolute; top:-3px; width:1px; height:7px;
-                                   background:var(--muted); opacity:.9;}
-  .vb-gap i:before{left:0;} .vb-gap i:after{right:0;}
-  .vb-gap b{position:absolute; top:1px; transform:translateX(-50%); background:var(--page);
-            padding:0 7px; font-size:11.5px; font-weight:700; color:var(--ink-2);
-            font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .vb-ticks{position:relative; height:6px;}
+  .vb-ticks i{position:absolute; top:0; width:1px; height:5px; margin-left:-0.5px;
+              background:var(--muted); opacity:.75; display:block;}
   .vb-foot{position:relative; height:19px;}
-  .vb-med{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+  .vb-foot.stack{height:38px;}
+  .vb-lab{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
           font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .vb-lab.at-start{transform:none;}
+  .vb-lab.at-end{transform:translateX(-100%);}
+  .vb-lab.row2{top:19px;}
   .rid-foot{margin:2px 0 14px; padding-top:14px; border-top:1px solid var(--grid);}
   .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
   .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
@@ -605,9 +605,9 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 <div class="wrap">
   <div class="site-band"><header class="site">
     <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
-    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a><a href="sale/report/">세일 리포트</a></nav>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
-      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a><a href="sale/report/">세일 리포트</a></nav>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
     </details>
   </header></div>
 
@@ -622,7 +622,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <input id="url-input" type="search" placeholder="상품명 또는 올리브영 URL" aria-describedby="search-description" spellcheck="false" autocomplete="off" enterkeyhint="search">
         <button class="btn" id="go-btn" aria-label="가격 기록 확인"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 14h19m-7-7 7 7-7 7"/></svg></button>
       </div>
-      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a><a href="sale/report/">세일 리포트</a></nav>
+      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
       <div id="search-results" aria-live="polite" aria-label="상품 검색 결과"></div>
     </div>
   </section>
@@ -663,16 +663,16 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
             <p id="r-vdesc"></p>
           </div>
         </div>
+        <div class="v-axes hidden" id="r-axes"></div>
         <div class="v-band hidden" id="r-band">
           <div class="vb-pill-row"><span class="vb-pill" id="vb-pill"></span></div>
           <div class="vb-track" id="vb-track">
             <div class="vb-z z1"></div><div class="vb-z z2"></div><div class="vb-z z3"></div>
             <div class="vb-pin" id="vb-pin"></div>
           </div>
-          <div class="vb-gap" id="vb-gap"></div>
-          <div class="vb-foot"><span class="vb-med" id="vb-med"></span></div>
+          <div class="vb-ticks" id="vb-ticks"></div>
+          <div class="vb-foot" id="vb-foot"></div>
         </div>
-        <div class="v-axes hidden" id="r-axes"></div>
       </div>
       <div class="prod" id="r-prod">
         <div class="thumb" id="r-thumb"></div>
@@ -934,7 +934,7 @@ function renderReport(key){
     axEl.append(el);
   });
 
-  /* 구간 띠 — 평소 판매가를 한가운데 두고 현재가가 어느 쪽에 있는지 */
+  /* 구간 띠 — 평소 판매가를 한가운데 두고 현재가·표시정가의 위치 */
   const bd = c.band;
   $('#r-band').classList.toggle('hidden', !bd);
   if (bd) {
@@ -942,34 +942,39 @@ function renderReport(key){
     const ws = [bd.z1, Math.max(0, bd.z2 - bd.z1), Math.max(0, 100 - bd.z2)];
     const nms = ['싼 편', '보통', '비싼 편'];
     zs.forEach((z, i) => { z.style.width = ws[i] + '%'; z.textContent = ws[i] >= 14 ? nms[i] : ''; });
+
     const pin = $('#vb-pin');
     pin.style.left = Math.min(98.5, Math.max(1.5, bd.curAt)) + '%';
     pin.className = 'vb-pin' + (bd.off ? (bd.pct > 0 ? ' off hi' : ' off lo') : '');
+
     const pill = $('#vb-pill');
     pill.textContent = '현재 ' + won(bd.cur);
     pill.style.left = bd.curAt + '%';
     pill.className = 'vb-pill t-' + bd.zone
       + (bd.curAt < 16 ? ' at-start' : bd.curAt > 84 ? ' at-end' : '');
-    const med = $('#vb-med');
-    med.textContent = '평소 판매가 ' + won(bd.med);
-    med.style.left = bd.medAt + '%';
-    const gap = $('#vb-gap');
-    gap.textContent = '';
-    const diff = Math.abs(bd.pct);
-    if (diff >= 0.1) {
-      const a = Math.min(bd.medAt, bd.curAt), b = Math.max(bd.medAt, bd.curAt);
-      const bar = document.createElement('i');
-      bar.style.left = a + '%'; bar.style.width = (b - a) + '%';
-      const lab = document.createElement('b');
-      lab.style.left = ((a + b) / 2) + '%';
-      lab.textContent = (bd.pct > 0 ? '+' : '−') + diff.toFixed(diff < 10 ? 1 : 0) + '%';
-      gap.append(bar, lab);
-    } else {
-      const lab = document.createElement('b');
-      lab.style.left = bd.medAt + '%';
-      lab.textContent = '평소와 같음';
-      gap.append(lab);
-    }
+
+    /* 눈금 — 평소 판매가(축 한가운데)와 표시정가 */
+    const hasOrg = bd.orgAt != null;
+    const ticks = $('#vb-ticks');
+    ticks.textContent = '';
+    [bd.medAt].concat(hasOrg ? [Math.min(99.5, bd.orgAt)] : []).forEach(x => {
+      const t = document.createElement('i'); t.style.left = x + '%'; ticks.append(t);
+    });
+
+    /* 라벨 — 가까우면 두 줄로 내린다 (모바일에서 겹침) */
+    const foot = $('#vb-foot');
+    foot.textContent = '';
+    const mk = (txt, x, row) => {
+      const el = document.createElement('span');
+      el.textContent = txt;
+      el.style.left = x + '%';
+      el.className = 'vb-lab' + (x < 16 ? ' at-start' : x > 84 ? ' at-end' : '') + (row ? ' row2' : '');
+      foot.append(el);
+    };
+    const near = hasOrg && Math.abs(bd.orgAt - bd.medAt) < (window.innerWidth < 560 ? 40 : 24);
+    foot.className = 'vb-foot' + (near ? ' stack' : '');
+    mk('평소 판매가 ' + won(bd.med), bd.medAt, false);
+    if (hasOrg) mk('정가 ' + won(bd.org) + (bd.orgOff ? ' ›' : ''), Math.min(99.5, bd.orgAt), near);
   }
   $('#r-chart-sub').textContent = c.chartSub;
 
