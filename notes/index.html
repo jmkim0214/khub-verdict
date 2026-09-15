@@ -81,9 +81,10 @@ header.site{padding:28px 0;max-width:none;margin:0}
 .sale-reader h2{font-size:28px;font-weight:600;line-height:1.45;margin:18px 0 12px;letter-spacing:-.03em}
 .sale-reader-lead{font-size:15px;line-height:1.8;color:var(--ink-2);margin:0 0 16px}
 .sale-reader-hint{font-size:12px;color:var(--muted);margin:0 0 28px}
-.sale-pages{display:grid;gap:32px}.sale-page{margin:0}.sale-page img{display:block;width:100%;height:auto}
+.sale-pages{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:12px}.sale-page{margin:0;flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}.sale-page img{display:block;width:100%;height:auto}
 .sale-page figcaption{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding-top:10px}
 .sale-page figcaption a{color:inherit;text-underline-offset:4px}
+.sale-pager{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 16px}.sale-pager button{font:inherit;font-size:14px;color:var(--ink);background:transparent;border:1px solid var(--border);padding:10px 16px;min-height:44px;cursor:pointer}.sale-pager button:disabled{opacity:.35;cursor:default}.sale-pager span{font-size:13px;color:var(--ink-2)}
 .sale-method{margin:36px 0 20px;border-top:1px solid var(--border);padding-top:20px;font-size:14px;line-height:1.9}
 .sale-method summary{cursor:pointer;font-weight:600}.sale-method p{margin-bottom:0}
 @media(max-width:800px){.sale-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 18px}}
@@ -100,7 +101,7 @@ header.site{padding:28px 0;max-width:none;margin:0}
 <button id="tab-sale" role="tab" aria-selected="false" aria-controls="panel-sale" tabindex="-1">세일 분석</button></div>
 <section id="panel-brand" class="notes-empty" role="tabpanel" aria-labelledby="tab-brand" tabindex="0"><strong>첫 번째 브랜드 이야기를 준비하고 있어요.</strong><p>브랜드마다 눈여겨볼 특징을 카드뉴스로 전해드릴게요.</p></section>
 <section id="panel-sale" role="tabpanel" aria-labelledby="tab-sale" tabindex="0" hidden><div id="sale-gallery"><p class="sale-intro">2026년 9월 올영세일 · 9월 14일 관측 기준<br>읽고 싶은 리포트를 골라보세요.</p><div class="sale-grid"><a class="sale-tile" id="sale-tile-post" href="#sale/post"><img class="sale-cover" src="/assets/sale-report/post-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 7장</small><strong>세일 끝, 가격은 돌아왔을까</strong></a><a class="sale-tile" id="sale-tile-audit" href="#sale/audit"><img class="sale-cover" src="/assets/sale-report/audit-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 8장</small><strong>표시 할인 27%, 실제 할인 10%</strong></a><a class="sale-tile" id="sale-tile-coupon" href="#sale/coupon"><img class="sale-cover" src="/assets/sale-report/coupon-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 6장</small><strong>세일이 아니라 쿠폰이다</strong></a><a class="sale-tile" id="sale-tile-timeline" href="#sale/timeline"><img class="sale-cover" src="/assets/sale-report/timeline-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 6장</small><strong>세일은 자정에 켜지고 자정에 꺼졌다</strong></a><a class="sale-tile" id="sale-tile-cats" href="#sale/cats"><img class="sale-cover" src="/assets/sale-report/cats-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 7장</small><strong>카테고리별 올영세일 성적표</strong></a><a class="sale-tile" id="sale-tile-soldout" href="#sale/soldout"><img class="sale-cover" src="/assets/sale-report/soldout-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 6장</small><strong>세일 마지막 날, 4개 중 1개가 품절</strong></a><a class="sale-tile" id="sale-tile-newsku" href="#sale/newsku"><img class="sale-cover" src="/assets/sale-report/newsku-01.png" width="2448" height="2928" alt="" loading="lazy"><small>2026.09 · 6장</small><strong>세일 랭킹 진입 46종 중 43종은 이력이 없다</strong></a></div></div>
-<article id="sale-reader" class="sale-reader" aria-labelledby="sale-reader-title" hidden><a class="sale-back" href="#sale">← 세일 분석 목록</a><h2 id="sale-reader-title" tabindex="-1"></h2><p id="sale-reader-lead" class="sale-reader-lead"></p><p class="sale-reader-hint">아래로 내려 읽어보세요. 작은 글씨는 카드 아래 ‘원본 크게 보기’로 확대할 수 있어요.</p><div id="sale-pages" class="sale-pages"></div><details id="sale-method" class="sale-method"><summary>방법과 근거</summary><p id="sale-method-text"></p></details><a class="sale-back" href="#sale">← 세일 분석 목록</a></article><p class="sale-disclosure">더마릭은 올리브영 쇼핑 큐레이터 파트너입니다. 일부 상품 링크로 구매 시 수수료를 받을 수 있으며, 수수료는 판정·순위·본 리포트의 수치에 영향을 주지 않습니다. 모든 가격은 관측 시점의 올리브영 온라인몰 표시 기준이며 회원 등급별 쿠폰은 반영되지 않습니다.</p></section></main></div><script>
+<article id="sale-reader" class="sale-reader" aria-labelledby="sale-reader-title" hidden><a class="sale-back" href="#sale">← 세일 분석 목록</a><h2 id="sale-reader-title" tabindex="-1"></h2><p id="sale-reader-lead" class="sale-reader-lead"></p><p class="sale-reader-hint">옆으로 넘겨 읽어보세요. 작은 글씨는 카드 아래 ‘원본 크게 보기’로 확대할 수 있어요.</p><div class="sale-pager" aria-label="카드 이동"><button id="sale-prev" type="button" aria-controls="sale-pages">← 이전</button><span id="sale-position" aria-live="polite" aria-atomic="true"></span><button id="sale-next" type="button" aria-controls="sale-pages">다음 →</button></div><div id="sale-pages" class="sale-pages" tabindex="0" role="region" aria-label="옆으로 넘기는 리포트 카드"></div><details id="sale-method" class="sale-method"><summary>방법과 근거</summary><p id="sale-method-text"></p></details><a class="sale-back" href="#sale">← 세일 분석 목록</a></article><p class="sale-disclosure">더마릭은 올리브영 쇼핑 큐레이터 파트너입니다. 일부 상품 링크로 구매 시 수수료를 받을 수 있으며, 수수료는 판정·순위·본 리포트의 수치에 영향을 주지 않습니다. 모든 가격은 관측 시점의 올리브영 온라인몰 표시 기준이며 회원 등급별 쿠폰은 반영되지 않습니다.</p></section></main></div><script>
 const reportTabs=[...document.querySelectorAll('.report-tabs [role="tab"]')];
 function selectReport(tab){reportTabs.forEach(t=>{const selected=t===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!selected;});}
 reportTabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectReport(tab));tab.addEventListener('keydown',e=>{let index;if(e.key==='ArrowRight')index=(i+1)%reportTabs.length;else if(e.key==='ArrowLeft')index=(i+reportTabs.length-1)%reportTabs.length;else if(e.key==='Home')index=0;else if(e.key==='End')index=reportTabs.length-1;else return;e.preventDefault();selectReport(reportTabs[index]);reportTabs[index].focus();});});
@@ -109,6 +110,24 @@ const saleReports=JSON.parse(document.getElementById('sale-data').textContent);
 const gallery=document.getElementById('sale-gallery');
 const reader=document.getElementById('sale-reader');
 let lastReport=null;
+const salePages=document.getElementById('sale-pages');
+const salePrev=document.getElementById('sale-prev');
+const saleNext=document.getElementById('sale-next');
+let saleIndex=0;
+function cardStride(){return salePages.clientWidth+parseFloat(getComputedStyle(salePages).columnGap||0);}
+function updateSalePager(){
+ saleIndex=Math.max(0,Math.min(salePages.children.length-1,Math.round(salePages.scrollLeft/cardStride())));
+ document.getElementById('sale-position').textContent=(saleIndex+1)+' / '+salePages.children.length;
+ salePrev.disabled=saleIndex===0;saleNext.disabled=saleIndex===salePages.children.length-1;
+}
+function moveSaleCard(delta){
+ const index=Math.max(0,Math.min(salePages.children.length-1,saleIndex+delta));
+ salePages.scrollTo({left:index*cardStride(),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+salePages.addEventListener('scroll',updateSalePager,{passive:true});
+salePrev.addEventListener('click',()=>moveSaleCard(-1));saleNext.addEventListener('click',()=>moveSaleCard(1));
+reader.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();moveSaleCard(e.key==='ArrowRight'?1:-1);}});
+new ResizeObserver(()=>{if(!reader.hidden){salePages.scrollTo({left:saleIndex*cardStride(),behavior:'instant'});updateSalePager();}}).observe(salePages);
 function saleRoute(){
  const key=location.hash.startsWith('#sale/')?location.hash.slice(6):null;
  const report=saleReports.find(r=>r.key===key);
@@ -129,6 +148,7 @@ function saleRoute(){
    const link=document.createElement('a');link.href=image.src;link.target='_blank';link.rel='noopener';link.textContent='원본 크게 보기';link.setAttribute('aria-label',(i+1)+'번째 카드 원본 크게 보기 (새 탭)');
    caption.append(count,link);figure.append(img,caption);pages.append(figure);
   });
+  saleIndex=0;pages.scrollTo({left:0,behavior:'instant'});updateSalePager();
   reader.scrollIntoView({block:'start'});document.getElementById('sale-reader-title').focus({preventScroll:true});
  }else if(lastReport&&location.hash==='#sale'){
   const tile=document.getElementById('sale-tile-'+lastReport);tile?.focus({preventScroll:true});tile?.scrollIntoView({block:'center'});

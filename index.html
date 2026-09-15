@@ -283,14 +283,23 @@
   /* 관측 줄(#r-chart-sub)이 보일 때만 바짝 붙인다 — 감춰지면 제목과 간격이 필요 (2026-09-15) */
   #r-chart-fine{margin-top:9px;}
   #r-chart-sub:not(.hidden) + #r-chart-fine{margin-top:-8px;}
+  #view-report .tile{text-align:center;}
   .v-band{margin-top:20px;}
-  .vb-pill-row{position:relative; height:27px;}
+  .vb-pill-row{position:relative; height:31px;}
   .vb-pill{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
-           font-size:12.5px; font-weight:700; border:1px solid currentColor; border-radius:999px;
-           padding:2px 11px; background:var(--page); font-variant-numeric:tabular-nums;}
-  .vb-pill.t-mid{color:var(--ink-2);}
-  .vb-pill.t-low{color:var(--good-text);}
-  .vb-pill.t-high{color:var(--critical);}
+           display:inline-flex; align-items:baseline; gap:5px;
+           border:1px solid; border-radius:999px; padding:3px 12px;
+           font-variant-numeric:tabular-nums; box-shadow:0 1px 2px rgba(32,34,30,0.05);}
+  .vb-pill i{font-style:normal; font-size:10.5px; font-weight:600; opacity:.7; letter-spacing:.02em;}
+  .vb-pill b{font-size:14px; font-weight:800; letter-spacing:-0.01em;}
+  .vb-caret{position:absolute; bottom:0; margin-left:-4px; display:block;
+            border:4px solid transparent; border-top-width:5px; opacity:.55;}
+  .vb-caret.t-mid{border-top-color:var(--baseline);}
+  .vb-caret.t-low{border-top-color:var(--good-text);}
+  .vb-caret.t-high{border-top-color:var(--critical);}
+  .vb-pill.t-mid{color:var(--ink); border-color:var(--baseline); background:var(--page);}
+  .vb-pill.t-low{color:var(--good-text); border-color:rgba(89,96,68,0.35); background:var(--good-bg);}
+  .vb-pill.t-high{color:var(--critical); border-color:rgba(217,92,79,0.35); background:var(--critical-bg);}
   .vb-pill.at-start{transform:none;}
   .vb-pill.at-end{transform:translateX(-100%);}
   .vb-track{position:relative; height:22px; border-radius:5px; overflow:hidden; display:flex;}
@@ -668,7 +677,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         </div>
         <div class="v-axes hidden" id="r-axes"></div>
         <div class="v-band hidden" id="r-band">
-          <div class="vb-pill-row"><span class="vb-pill" id="vb-pill"></span></div>
+          <div class="vb-pill-row"><span class="vb-pill" id="vb-pill"></span><i class="vb-caret" id="vb-caret"></i></div>
           <div class="vb-track" id="vb-track">
             <div class="vb-z z1"></div><div class="vb-z z2"></div><div class="vb-z z3"></div>
             <div class="vb-pin" id="vb-pin"></div>
@@ -948,11 +957,18 @@ function renderReport(key){
     zs.forEach((z, i) => { z.style.width = ws[i] + '%'; z.textContent = ws[i] >= 14 ? nms[i] : ''; });
 
     const pin = $('#vb-pin');
-    pin.style.left = Math.min(98.5, Math.max(1.5, bd.curAt)) + '%';
+    const pinAt = Math.min(98.5, Math.max(1.5, bd.curAt));
+    pin.style.left = pinAt + '%';
+    const caret = $('#vb-caret');
+    caret.style.left = pinAt + '%';
+    caret.className = 'vb-caret t-' + bd.zone;
     pin.className = 'vb-pin' + (bd.off ? (bd.pct > 0 ? ' off hi' : ' off lo') : '');
 
     const pill = $('#vb-pill');
-    pill.textContent = '현재 ' + won(bd.cur);
+    pill.textContent = '';
+    const pk = document.createElement('i'); pk.textContent = '현재';
+    const pv = document.createElement('b'); pv.textContent = won(bd.cur);
+    pill.append(pk, pv);
     pill.style.left = bd.curAt + '%';
     pill.className = 'vb-pill t-' + bd.zone
       + (bd.curAt < 16 ? ' at-start' : bd.curAt > 84 ? ' at-end' : '');
