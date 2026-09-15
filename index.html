@@ -270,6 +270,20 @@
   .verdict.v-warn h2{color:var(--ink);}
   .verdict p{font-size:14px; color:var(--ink-2); margin-top:5px;}
 
+  /* 2축 판정 칩 (2026-09-15) — 축마다 자기 관측창을 이름에 달고 다닌다 */
+  .v-axes{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;
+          padding-top:14px; border-top:1px solid var(--grid);}
+  .v-axis{display:flex; align-items:center; gap:7px; border:1px solid var(--border);
+          border-radius:999px; padding:5px 13px 5px 11px; background:var(--page);}
+  .v-axis .k{font-size:10.5px; letter-spacing:.06em; color:var(--muted);}
+  .v-axis .mk{font-size:12.5px; font-weight:800; line-height:1;}
+  .v-axis .v{font-size:13px; font-weight:700; color:var(--ink);}
+  .v-axis.t-good .mk{color:var(--good-text);}
+  .v-axis.t-bad .mk{color:var(--critical);}
+  .v-axis.t-warn .mk{color:var(--serious);}
+  .v-axes-win{width:100%; font-size:11.5px; color:var(--muted); line-height:1.7;}
+  @media (max-width:600px){.v-axis{padding:5px 11px 5px 10px;}}
+
   .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
   .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
   .sec-h .tag{font-size:11px; color:var(--muted); border:1px solid var(--baseline); border-radius:999px; padding:1px 8px;}
@@ -620,6 +634,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
             <p id="r-vdesc"></p>
           </div>
         </div>
+        <div class="v-axes hidden" id="r-axes"></div>
       </div>
       <div class="prod" id="r-prod">
         <div class="thumb" id="r-thumb"></div>
@@ -864,6 +879,27 @@ function renderReport(key){
   $('#r-vic').textContent = c.vic;
   $('#r-vtitle').textContent = c.vtitle;
   $('#r-vdesc').textContent = c.vdesc;
+
+  /* 2축 판정 칩 — 정가 진위(전체 관측) · 구매 타이밍(고시 20일) */
+  const axEl = $('#r-axes');
+  axEl.textContent = '';
+  const axes = Array.isArray(c.axes) ? c.axes : [];
+  axEl.classList.toggle('hidden', axes.length === 0);
+  axes.forEach(ax => {
+    const el = document.createElement('div');
+    el.className = 'v-axis t-' + (ax.tone || 'warn');
+    const k = document.createElement('span'); k.className = 'k'; k.textContent = ax.k;
+    const m = document.createElement('span'); m.className = 'mk'; m.textContent = ax.mk;
+    const v = document.createElement('span'); v.className = 'v'; v.textContent = ax.v;
+    el.append(k, m, v);
+    axEl.append(el);
+  });
+  if (axes.length) {
+    const w = document.createElement('div');
+    w.className = 'v-axes-win';
+    w.textContent = axes.map(a => `${a.k} — ${a.win}`).join(' · ');
+    axEl.append(w);
+  }
   $('#r-chart-sub').textContent = c.chartSub;
 
   /* 실데이터/가상 분기 및 시계열 정규화 */
