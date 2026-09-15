@@ -298,13 +298,17 @@
   #view-report #r-prod{border-top:0; padding-top:0; margin-bottom:0;}
   #view-report #r-verdict{padding:20px 0 0; margin:20px 0 0; border-top:1px solid var(--grid);}
   .v-band{margin-top:20px;}
-  .vb-pill-row{position:relative; height:31px;}
+  .vb-pill-row{position:relative; height:28px;}
   .vb-pill{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
            display:inline-flex; align-items:baseline; gap:5px;
-           border:1px solid; border-radius:999px; padding:3px 12px;
-           font-variant-numeric:tabular-nums; box-shadow:0 1px 2px rgba(32,34,30,0.05);}
+           font-variant-numeric:tabular-nums;}
   .vb-pill i{font-style:normal; font-size:10.5px; font-weight:600; opacity:.7; letter-spacing:.02em;}
   .vb-pill b{font-size:14px; font-weight:800; letter-spacing:-0.01em;}
+  .vb-pill.t-mid{color:var(--ink);}
+  .vb-pill.t-low{color:var(--good-text);}
+  .vb-pill.t-high{color:var(--critical);}
+  .vb-pill.at-start{transform:none;}
+  .vb-pill.at-end{transform:translateX(-100%);}
   .vb-caret{position:absolute; bottom:0; margin-left:-4px; display:block;
             border:4px solid transparent; border-top-width:5px; opacity:.55;}
   .vb-caret.t-mid{border-top-color:var(--baseline);}
@@ -623,7 +627,6 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 .k .sw-usual{width:16px;height:0;border-top:2px dotted var(--usual-price)}
 #view-report #r-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #r-tiles .tile{min-width:0;padding:14px 8px}#r-tiles .l{font-size:11px}#r-tiles .v{font-size:23px;white-space:nowrap}
-.discount-formula{font-size:10px;color:var(--ink-2);text-align:right;margin-top:10px}
 @media(max-width:640px){#r-tiles .v{font-size:clamp(15px,4.5vw,21px)}#r-tiles .l{font-size:10px}#r-tiles .tile{padding:12px 4px}.chart-legend{gap:10px}}
 </style></head>
 <body>
@@ -731,7 +734,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <div id="chart"></div>
         <div class="tooltip" id="tooltip"></div>
       </div>
-      <div class="tiles" id="r-tiles"></div><div class="discount-formula">실질 할인율 = (1 − 현재가 ÷ 평소 판매가) × 100</div>
+      <div class="tiles" id="r-tiles"></div>
       <!-- 문장형 요약(findings)은 위 타일·차트와 중복이라 비노출 — 2026-08-12
       <div class="findings" id="r-findings"></div>
       -->
