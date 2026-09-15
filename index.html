@@ -270,20 +270,35 @@
   .verdict.v-warn h2{color:var(--ink);}
   .verdict p{font-size:14px; color:var(--ink-2); margin-top:5px;}
 
-  /* 2축 판정 칩 (2026-09-15) — 축마다 자기 관측창을 이름에 달고 다닌다 */
-  .v-axes{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;
-          padding-top:14px; border-top:1px solid var(--grid);}
-  .v-axis{display:flex; align-items:center; gap:7px; border:1px solid var(--border);
-          border-radius:999px; padding:5px 13px 5px 11px; background:var(--page);}
-  .v-axis .k{font-size:10.5px; letter-spacing:.06em; color:var(--muted);}
-  .v-axis .mk{font-size:12.5px; font-weight:800; line-height:1;}
-  .v-axis .v{font-size:13px; font-weight:700; color:var(--ink);}
-  .v-axis.t-good .mk{color:var(--good-text);}
-  .v-axis.t-bad .mk{color:var(--critical);}
-  .v-axis.t-warn .mk{color:var(--serious);}
-  .v-axes-win{width:100%; font-size:11.5px; color:var(--muted); line-height:1.7;}
-  @media (max-width:600px){.v-axis{padding:5px 11px 5px 10px;}}
+  /* 2축 판정 칩 + 구간 띠 (2026-09-15) */
+  .v-axes{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;}
+  .v-axis{display:flex; align-items:center; gap:8px; border:1px solid var(--border);
+          border-radius:999px; padding:6px 15px 6px 12px; background:var(--page);}
+  .v-axis .k{font-size:11px; letter-spacing:.04em; color:var(--muted);}
+  .v-axis .mk{font-size:13px; line-height:1;}
+  .v-axis .v{font-size:13.5px; font-weight:700; color:var(--ink);}
+  .v-axis.t-good .v{color:var(--good-text);}
+  .v-axis.t-bad .v{color:var(--critical);}
 
+  .v-band{margin-top:20px;}
+  .vb-head{position:relative; height:22px;}
+  .vb-cur{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+          font-size:12.5px; font-weight:700; color:var(--ink);
+          font-variant-numeric:tabular-nums;}
+  .vb-cur.at-start{transform:none; left:0 !important;}
+  .vb-cur.at-end{transform:translateX(-100%);}
+  .vb-track{position:relative; height:18px; border-radius:5px; overflow:hidden; display:flex;}
+  .vb-z{height:100%;}
+  .vb-z.z1{background:rgba(89,96,68,0.20);}
+  .vb-z.z2{background:rgba(32,34,30,0.07);}
+  .vb-z.z3{background:rgba(217,92,79,0.20);}
+  .vb-pin{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink);
+          border-radius:1px;}
+  .vb-foot{display:flex; justify-content:space-between; gap:12px; margin-top:7px;
+           font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .vb-foot span:last-child{text-align:right;}
+
+  .rid-foot{margin:2px 0 14px; padding-top:14px; border-top:1px solid var(--grid);}
   .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
   .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
   .sec-h .tag{font-size:11px; color:var(--muted); border:1px solid var(--baseline); border-radius:999px; padding:1px 8px;}
@@ -561,7 +576,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 <style id="stable-page-width">html{overflow-y:scroll}</style>
 <style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:6px;flex-wrap:nowrap}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:16px}}</style>
 <style id="compact-report-proposal">
-#view-report{max-width:760px;margin:0 auto}.preview-label{text-align:center;font-size:11px;color:#8d7057;border-bottom:1px solid #d6c4ad;padding:10px}.report-top{gap:12px}.rid{font-size:10px}#view-report .card{border-radius:12px;padding:24px;margin-bottom:16px;background:#fffaf3;border-color:#d7c3aa}#view-report .verdict{padding:0 0 20px;background:transparent;border:0}#r-vtitle{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:500;line-height:1.5}#r-vdesc{font-size:13px;line-height:1.8}.v-kicker{font-size:10px;letter-spacing:.12em}.v-ic{display:none}#view-report .prod{border-top:1px solid #e1d1bf;padding-top:20px;margin-top:0}#r-name{font-size:16px;line-height:1.6}#view-report .sec-h h3{font-size:18px}#view-report .sec-sub{font-size:12px}.claim-fold{padding:15px 0;border-top:1px solid #e5d6c5}.claim-fold summary{cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 42px 12px;gap:12px;align-items:center;font-size:13px;list-style:none}.claim-fold summary:after{content:'+';color:#947b61}.claim-fold summary>.badge{justify-self:end;text-align:center;white-space:nowrap}.claim-fold summary:after{justify-self:end}.claim-fold[open] summary:after{content:'−'}.claim-fold .c-title{font-size:13px;font-weight:500}.claim-fold .c-note{font-size:12px;line-height:1.8;margin-top:12px}.claim-fold .c-src{font-size:10px}.compact-note{font-size:11px;color:#8a735d;line-height:1.8;margin:10px 0 16px}.basis-fold summary{font-size:13px;padding:14px 0;cursor:pointer}.basis-fold .basis{margin:10px 0}.basis-observed{font-size:12px;color:#816b54}.actions{gap:8px}.actions button{font-size:11px}#view-report .fine summary{font-size:11px;line-height:1.8}@media(max-width:640px){#view-report .card{padding:18px 14px}.report-top{display:block}#r-vtitle{font-size:24px}.report-top .rid{margin:12px 0}#view-report .prod .thumb{width:66px;height:80px}#view-report .sec-h{flex-wrap:wrap;gap:6px}#view-report .tiles{gap:8px}.claim-fold summary{gap:7px}.claim-fold .badge{font-size:10px;white-space:nowrap}}
+#view-report{max-width:760px;margin:0 auto}.preview-label{text-align:center;font-size:11px;color:#8d7057;border-bottom:1px solid #d6c4ad;padding:10px}.report-top{gap:12px}.rid{font-size:10px}#view-report .card{border-radius:12px;padding:24px;margin-bottom:16px;background:#fffaf3;border-color:#d7c3aa}#view-report .verdict{padding:0 0 20px;background:transparent;border:0}#r-vtitle{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:500;line-height:1.5}#r-vdesc{display:none}.v-kicker{font-size:10px;letter-spacing:.12em}.v-ic{display:none}#view-report .prod{border-top:1px solid #e1d1bf;padding-top:20px;margin-top:0}#r-name{font-size:16px;line-height:1.6}#view-report .sec-h h3{font-size:18px}#view-report .sec-sub{font-size:12px}.claim-fold{padding:15px 0;border-top:1px solid #e5d6c5}.claim-fold summary{cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 42px 12px;gap:12px;align-items:center;font-size:13px;list-style:none}.claim-fold summary:after{content:'+';color:#947b61}.claim-fold summary>.badge{justify-self:end;text-align:center;white-space:nowrap}.claim-fold summary:after{justify-self:end}.claim-fold[open] summary:after{content:'−'}.claim-fold .c-title{font-size:13px;font-weight:500}.claim-fold .c-note{font-size:12px;line-height:1.8;margin-top:12px}.claim-fold .c-src{font-size:10px}.compact-note{font-size:11px;color:#8a735d;line-height:1.8;margin:10px 0 16px}.basis-fold summary{font-size:13px;padding:14px 0;cursor:pointer}.basis-fold .basis{margin:10px 0}.basis-observed{font-size:12px;color:#816b54}.actions{gap:8px}.actions button{font-size:11px}#view-report .fine summary{font-size:11px;line-height:1.8}@media(max-width:640px){#view-report .card{padding:18px 14px}.report-top{display:block}#r-vtitle{font-size:24px}.report-top .rid{margin:12px 0}#view-report .prod .thumb{width:66px;height:80px}#view-report .sec-h{flex-wrap:wrap;gap:6px}#view-report .tiles{gap:8px}.claim-fold summary{gap:7px}.claim-fold .badge{font-size:10px;white-space:nowrap}}
 </style><style id="price-chart-clear">
 :root{--list-price:#b87860;--usual-price:#628899}
 .k .sw-ref{height:0;background:none;border-top:2px dashed var(--list-price)}
@@ -612,7 +627,6 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
   <section id="view-report" class="hidden">
     <div class="report-top">
       <button class="back" id="back-btn">← 다른 상품 판정하기</button>
-      <div class="rid"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">조기 신호</span><span title="발급 후 고정되는 판정 기록 번호입니다">판정서 <b id="r-id"></b></span> · <span id="r-time"></span></div>
     </div>
 
     <div class="card">
@@ -633,6 +647,14 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
             <h2 id="r-vtitle"></h2>
             <p id="r-vdesc"></p>
           </div>
+        </div>
+        <div class="v-band hidden" id="r-band">
+          <div class="vb-head"><span class="vb-cur" id="vb-cur"></span></div>
+          <div class="vb-track" id="vb-track">
+            <div class="vb-z z1"></div><div class="vb-z z2"></div><div class="vb-z z3"></div>
+            <div class="vb-pin" id="vb-pin"></div>
+          </div>
+          <div class="vb-foot"><span id="vb-min"></span><span id="vb-org"></span></div>
         </div>
         <div class="v-axes hidden" id="r-axes"></div>
       </div>
@@ -715,6 +737,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <div class="fd"><b>중립성 원칙</b> — 판정 엔진은 광고·제휴 수익과 구조적으로 분리되어 있습니다. 어떤 브랜드도 비용을 지불하고 판정을 바꿀 수 없으며, 판정 결과는 구매 유도 대가와 연동되지 않습니다. 본 판정서는 발급 시점의 데이터로 고정되며 사후 수정되지 않습니다.</div>
         <div class="fd"><b>이의제기·정정 정책</b> — 본 판정은 공개 관측 데이터와 식약처 고시 전성분에 근거한 자동 분석 결과이며, 사실과 다르거나 오류가 있다고 판단되면 브랜드·판매자·이용자 누구나 이의를 제기할 수 있습니다. 접수된 건은 근거와 함께 재검토하며, 오류가 확인되면 즉시 정정하고 판정서를 새 번호로 갱신합니다. ‘성분으로 보는 기대 효과’는 함량 순위 기반의 일반 참고 정보로, 개별 제품의 효능·안전을 단정하지 않습니다.</div>
       </details>
+      <div class="rid rid-foot"><span id="real-badge" class="tag hidden" style="color:var(--series); border-color:var(--series); margin-right:6px">조기 신호</span><span title="발급 후 고정되는 판정 기록 번호입니다">판정서 <b id="r-id"></b></span> · <span id="r-time"></span></div>
       <div class="actions">
         <button class="btn ghost" id="copy-btn">🔗 판정서 링크 복사</button>
         <button class="btn ghost" id="object-btn">✋ 판정에 이의제기</button>
@@ -894,11 +917,22 @@ function renderReport(key){
     el.append(k, m, v);
     axEl.append(el);
   });
-  if (axes.length) {
-    const w = document.createElement('div');
-    w.className = 'v-axes-win';
-    w.textContent = axes.map(a => `${a.k} — ${a.win}`).join(' · ');
-    axEl.append(w);
+
+  /* 구간 띠 — 20일 최저 ~ 표시정가 사이에서 현재가의 위치 */
+  const bd = c.band;
+  $('#r-band').classList.toggle('hidden', !bd);
+  if (bd) {
+    const zs = $('#vb-track').querySelectorAll('.vb-z');
+    zs[0].style.width = bd.z1 + '%';
+    zs[1].style.width = Math.max(0, bd.z2 - bd.z1) + '%';
+    zs[2].style.width = Math.max(0, 100 - bd.z2) + '%';
+    $('#vb-pin').style.left = bd.curAt + '%';
+    const cu = $('#vb-cur');
+    cu.textContent = won(bd.cur);
+    cu.style.left = bd.curAt + '%';
+    cu.className = 'vb-cur' + (bd.curAt < 18 ? ' at-start' : bd.curAt > 82 ? ' at-end' : '');
+    $('#vb-min').textContent = `최근 ${bd.win}일 최저 ${won(bd.min)}`;
+    $('#vb-org').textContent = `정가 ${won(bd.org)}`;
   }
   $('#r-chart-sub').textContent = c.chartSub;
 
@@ -1297,7 +1331,7 @@ renderReport=function(key){
  document.querySelectorAll('#r-safety .safety-row').forEach(row=>{const title=row.querySelector('b');if(title?.textContent!=='제조사 공식 주의사항')return;const detail=document.createElement('details');detail.className='fine official-caution';const summary=document.createElement('summary');summary.textContent='제조사 공식 주의사항';const body=row.querySelector('.s-note');detail.append(summary,body);row.replaceWith(detail);});
 
  document.querySelector('.v-kicker').textContent='가격 한눈에';
- const title=document.getElementById('r-vtitle');if(title.textContent.includes(' — ')){const parts=title.textContent.split(' — ');title.textContent=parts[0];const sub=document.createElement('p');sub.className='compact-note';sub.textContent=parts.slice(1).join(' — ');title.after(sub);}
+ const title=document.getElementById('r-vtitle');if(title.textContent.includes(' — ')){title.textContent=title.textContent.split(' — ')[0];}
  const claims=document.getElementById('r-claims');
  if(claims.querySelector('.claim')){
  document.getElementById('claims-title').textContent='성분으로 보는 특징';
