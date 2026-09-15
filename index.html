@@ -284,6 +284,16 @@
   #r-chart-fine{margin-top:9px;}
   #r-chart-sub:not(.hidden) + #r-chart-fine{margin-top:-8px;}
   #view-report .tile{text-align:center;}
+  /* 썸네일을 상품 블록 전체 높이로 (2026-09-15)
+     기존 규칙(#view-report .prod .thumb)이 뒤쪽 미니파이 블록에 있어 순서로는 못 이긴다.
+     id 를 두 번 써 특이도로 덮는다. */
+  #view-report #r-prod{align-items:stretch;}
+  #view-report #r-prod .thumb{width:88px; height:auto; align-self:stretch;
+                              position:relative; overflow:hidden;}
+  #view-report #r-prod .thumb img{position:absolute; inset:0; border-radius:0 !important;}
+  @media (max-width:640px){
+    #view-report #r-prod .thumb{width:76px; height:auto;}
+  }
   /* 상품 → 판정 순서 (2026-09-15) — 구분선은 이제 판정 블록 위에 */
   #view-report #r-prod{border-top:0; padding-top:0; margin-bottom:0;}
   #view-report #r-verdict{padding:20px 0 0; margin:20px 0 0; border-top:1px solid var(--grid);}
