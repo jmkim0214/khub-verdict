@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<link rel="canonical" href="https://themaric.kr/lab/lip/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23AE476E'/%3E%3C/svg%3E">
+<meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 LAB">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="내 취향은 어떤 색일까?">
+<meta property="og:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<meta property="og:url" content="https://themaric.kr/lab/lip/">
+<meta property="og:image" content="https://themaric.kr/lab/lip/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="내 취향은 어떤 색일까?">
+<meta name="twitter:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<meta name="twitter:image" content="https://themaric.kr/lab/lip/og.png">
+<title>내 취향은 어떤 색일까? — 더마릭 LAB</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F7F4F1; --panel:#FFFEFD; --ink:#1B1614; --ink-2:#544A45;
+  --muted:#8C817B; --line:#E5DDD6; --line-2:#D3C8C0;
+  --accent:#8C3A50; --accent-ink:#FFFFFF;
+  --ok:#2F6B4F; --ok-bg:#E8F0EB; --bad:#A6392C; --bad-bg:#F9E9E6;
+  --hold:#7A7370; --hold-bg:#EFEBE7;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --serif:"Gowun Batang",Georgia,"Apple SD Gothic Neo",serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.7;margin:0;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+.wrap{max-width:440px;margin:0 auto;padding:22px 20px 72px;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+#app{display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--serif);font-weight:700;font-size:33px;line-height:1.34;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-family:var(--serif);font-weight:700;font-size:26px;line-height:1.38;margin:0;text-wrap:balance}
+.lede{font-size:15px;color:var(--ink-2);margin:0}
+.eyebrow{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0}
+button{font-family:inherit;font-size:15px;font-weight:400;cursor:pointer;border-radius:11px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.cta{background:var(--accent);color:var(--accent-ink);border:none;padding:16px 20px;width:100%;font-size:15.5px;font-weight:400}
+.cta:hover{filter:brightness(.92)}
+.cta[disabled]{opacity:.55;cursor:default}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line-2);padding:15px 20px;width:100%}
+.ghost:hover{background:var(--panel);border-color:var(--muted)}
+.link{background:none;border:none;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:6px 0;cursor:pointer;width:auto;align-self:flex-start}
+.stack{display:flex;flex-direction:column;gap:10px}
+.strip{display:grid;grid-template-columns:repeat(12,1fr);height:56px;border-radius:9px;overflow:hidden}
+.bar{height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .35s}
+
+.qgrid{display:grid;gap:11px}
+.q2{grid-template-columns:1fr 1fr}
+.q3{grid-template-columns:1fr}
+.q4{grid-template-columns:1fr 1fr}
+.qc{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:20px 16px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:9px;color:var(--ink);min-height:118px;justify-content:center}
+.qc:hover{border-color:var(--accent);background:#fff}
+.qc .em{font-size:30px;line-height:1}
+.qc .lb{font-size:14.5px;line-height:1.4}
+.qc.row{flex-direction:row;justify-content:flex-start;text-align:left;min-height:0;padding:15px 17px;gap:13px}
+.qc.row .em{font-size:22px}
+.qc .word{font-family:var(--mono);font-weight:500;font-size:19px;letter-spacing:.16em}
+.qc .swm{width:100%;height:46px;border-radius:8px}
+
+.pant{border:1px solid var(--line);border-radius:3px;overflow:hidden;background:#fff}
+.pant .fill{height:252px}
+.pant .band{background:#fff;color:#1B1614;padding:15px 17px 17px}
+.pant .bt{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-weight:500;
+  font-size:9.5px;letter-spacing:.2em;color:#8C817B;text-transform:uppercase}
+.pant .bn{font-family:var(--serif);font-weight:700;font-size:27px;line-height:1.26;margin:10px 0 7px;text-wrap:balance}
+.pant .bh{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:.12em}
+.pant .bs{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:#8C817B;margin-top:4px}
+.spk{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px;color:var(--accent)}
+.spk svg{width:76px;height:22px;display:block;overflow:visible}
+.spkl{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.copy{font-family:var(--serif);font-size:19px;line-height:1.9;margin:0}
+.axes{display:flex;flex-direction:column;gap:11px}
+.ax{display:grid;grid-template-columns:56px 1fr 30px;align-items:center;gap:12px;font-size:12.5px;color:var(--ink-2)}
+.ax .track{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.ax .track i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.ax .val{text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 17px;display:flex;flex-direction:column;gap:9px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0}
+.sep{height:1px;background:var(--line);border:none;margin:2px 0}
+.badge{display:inline-block;font-size:11.5px;padding:3px 9px;border-radius:999px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-bad{background:var(--bad-bg);color:var(--bad)}.b-hold{background:var(--hold-bg);color:var(--hold)}
+.plist{display:flex;flex-direction:column;gap:9px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:9px}
+.prow{display:flex;gap:12px;align-items:flex-start}
+.pcard .th{width:50px;height:50px;border-radius:9px;flex:none;object-fit:cover;border:1px solid rgba(0,0,0,.06)}
+.pcard .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pcard .bn{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em}
+.pcard .on{font-size:14.5px;line-height:1.35}
+.pcard .pr{font-size:17px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:1px}
+.why{background:none;border:none;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;align-self:flex-start}
+.usual{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em;margin-top:2px}
+.cav{margin-top:7px;padding:8px 10px;background:var(--hold-bg);border-radius:8px;color:var(--hold);font-size:12px;line-height:1.6}
+.whybox{font-size:12.5px;color:var(--ink-2);line-height:1.65;border-top:1px solid var(--line);padding-top:9px}
+.oy{font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+
+input[type=text]{font-family:inherit;font-size:15px;padding:14px 15px;border:1px solid var(--line-2);border-radius:11px;background:var(--panel);color:var(--ink);width:100%}
+input[type=text]:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.err{color:var(--bad);font-size:13px;margin:0}
+.share{font-family:var(--mono);font-size:11.5px;word-break:break-all;background:var(--panel);border:1px dashed var(--line-2);border-radius:10px;padding:12px 13px;color:var(--ink-2);line-height:1.65}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.sw{border:none;background:none;padding:0;cursor:pointer;text-align:left;border-radius:10px}
+.sw .chip{display:block;height:72px;border-radius:10px;border:1px solid rgba(0,0,0,.07)}
+.sw .nm{display:block;font-size:12px;margin-top:7px;line-height:1.35}
+.sw[aria-pressed="true"] .chip{outline:2.5px solid var(--ink);outline-offset:2.5px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pair .col{display:flex;flex-direction:column;gap:7px}
+.pair .blk{height:96px;border-radius:11px;border:1px solid rgba(0,0,0,.07)}
+.pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.name-s{font-family:var(--serif);font-size:15.5px;font-weight:700;line-height:1.35}
+.ourfield{height:150px;border-radius:14px;display:flex;align-items:flex-end;padding:16px;color:#fff}
+.ourfield.dk{color:#1B1614}
+.hide{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style id="related-beige">:root{--beige-wall:url("/assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+
+*{box-sizing:border-box}
+.wrap{margin:0 auto;max-width:1120px}
+h1,.page-head h1{font-size:30px;font-weight:550;letter-spacing:-.04em;line-height:1.4}
+h1 .u{box-shadow:none!important}
+h2{font-size:18px;font-weight:650}
+.page-head{margin:24px 0 20px}.page-head .sub,.lead{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.aff-notice{border-radius:0!important;background:#fffaf1aa!important;border-color:var(--border)!important;text-align:left!important;max-width:none!important;font-size:11px!important;margin:6px 0 24px!important}
+.card,.item,.lab{background:#fffaf3eF;border:1px solid var(--border);border-radius:8px;box-shadow:none}
+input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid var(--baseline);border-radius:0;font-size:16px;padding:15px;min-width:0}
+.tabs,.subtabs{border-bottom:1px solid var(--border);gap:24px;margin:20px 0;display:flex}
+.tab,.stab{background:none;border:0;border-radius:0;padding:12px 0;font-size:13px;color:var(--ink-2);text-decoration:none}
+.tab.on,.stab.on{background:none;color:var(--ink);border-bottom:1px solid var(--ink)}
+.btn,.more-btn{border-radius:4px}
+@media(max-width:800px){.wrap{padding:0 28px 40px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}}
+@media(max-width:640px){
+ .wrap{padding:0 20px 40px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}
+ h1,.page-head h1{font-size:24px}.page-head{margin:20px 0 16px}.page-head .sub,.lead{font-size:13px}
+ .card{padding:16px}.tabs,.subtabs{gap:22px}.tab,.stab{font-size:12px}.aff-notice{line-height:1.7!important}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
+@media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
+.wrap{max-width:480px;padding-top:24px}body{--ground:#f2e9d9;--panel:#fffaf3;--line:#d3c4af;--line-2:#b6a38a;--accent:#645338}.brand{letter-spacing:.08em}.cta{border-radius:4px}button{border-radius:4px}h1{font-size:30px}.card{border-radius:8px}</style>
+<style id="detail-alignment">
+/* Align detail pages to the approved price-page canvas. */
+html{overflow-y:scroll}
+:root{--detail-gutter:48px}
+body{background:#f2e9d9;color:#382719}
+body::after{display:none}
+body::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall);background-position:center;background-size:cover}
+body>.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 var(--detail-gutter) 32px}
+.site-band{margin:0 0 24px;width:100%;border:0}
+header.site{padding:28px 0;max-width:none;margin:0}
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;max-width:none!important}
+@media(max-width:800px){:root{--detail-gutter:28px}body>.wrap{padding-bottom:28px}}
+@media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
+@media(max-width:359px){:root{--detail-gutter:18px}}
+#app{width:100%;max-width:520px;margin:0 auto}</style>
+<style>html{-webkit-text-size-adjust:100%}[hidden]{display:none!important}</style>
+<style id="color-friends-v2">/* Color play: one palette, three clearly separated kinds of results. */
+body>.wrap{max-width:1200px;padding-top:24px;padding-bottom:40px}#app{max-width:620px;margin:0 auto;width:100%;gap:24px}
+#app h1,#app h2{font-family:'Pretendard Variable',Pretendard,var(--sans);font-weight:550;letter-spacing:-.04em}
+#app h1{font-size:32px;line-height:1.4}#app h2{font-size:19px;line-height:1.5;margin:0 0 15px}
+#app p{overflow-wrap:anywhere}#app .lede{font-size:15px;line-height:1.8}#app input{width:100%;min-width:0;font:inherit;font-size:16px;border:1px solid var(--border);border-radius:4px;background:#fffaf3;padding:12px;color:var(--ink)}
+.result-heading .note{margin:8px 0 0}.my-color,.invite-actions,.friend-result,.pick-confirm,.result-send{padding:24px;background:#fffaf3;border:1px solid var(--border);border-radius:8px}
+.my-color>p{font-size:14px;line-height:1.85;color:var(--ink-2);margin:20px 0 0}.color-tile{display:flex;gap:16px;align-items:center;min-width:0}.color-tile>div{min-width:0;display:flex;flex-direction:column;gap:5px}.color-sample{display:block;width:96px;height:112px;border-radius:5px;flex-shrink:0}.color-tile strong{font-size:20px;font-weight:550;line-height:1.45}.small-label{font-size:11px;color:var(--muted);display:block;line-height:1.6}.hex-label{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.invite-actions{display:flex;flex-direction:column;gap:12px}.invite-actions h2{margin-bottom:2px!important}.invite-button{text-align:left;padding:16px;border:1px solid var(--border);border-radius:5px;background:#f5eee2;color:var(--ink);display:flex;flex-direction:column;gap:6px;width:100%}.invite-button strong{font-size:14px;font-weight:600}.invite-button span{font-size:12px;color:var(--muted);line-height:1.6}.invite-button:hover{border-color:var(--series)}
+.received-section h2 small{font-size:12px;font-weight:400;color:var(--muted);margin-left:6px}.empty-color{padding:22px 18px;border:1px dashed var(--border);border-radius:6px;font-size:13px;line-height:1.8;background:#fffaf17d}.empty-color span{font-size:12px;color:var(--muted)}
+.friend-result{margin-top:12px}.friend-result-head{margin-bottom:18px;font-size:13px}.compare-colors{display:grid;grid-template-columns:1fr 1fr;gap:16px}.compare-colors .color-tile{display:block}.compare-colors .color-sample{width:100%;height:90px;margin-bottom:10px}.compare-colors .color-tile strong{font-size:15px}.relationship-copy{font-size:14px;line-height:1.85;color:var(--ink-2);margin-top:18px}.relationship-copy p{margin:0 0 10px}.relationship-copy p:last-child{margin-bottom:0}
+.our-swatch{margin-top:22px;border-radius:6px;padding:24px 20px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:8px}.our-swatch>span,.our-swatch small{font-size:11px}.our-swatch strong{font-family:var(--serif);font-size:24px;line-height:1.4;font-weight:500}
+.share-link{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:15px}.share-link input{font-size:12px!important}.share-link .note{margin:0}.color-products{border-top:1px solid var(--border);padding-top:18px}.color-products>summary{font-size:13px;padding:8px 0;cursor:pointer}.color-products .plist{margin-top:15px}.play-note{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.pick-confirm{display:flex;flex-direction:column;gap:16px}.result-send .note{margin:0 0 16px}.grid .sw .nm{font-size:11px}.cta{background:var(--series);color:#fff;border-radius:4px}.cta:hover{filter:brightness(.95)}
+@media(max-width:640px){#app h1{font-size:26px}#app{gap:20px}.my-color,.invite-actions,.friend-result,.pick-confirm,.result-send{padding:18px}.color-sample{width:76px;height:92px}.color-tile{gap:13px}.color-tile strong{font-size:18px}.my-color>p{font-size:13px}.invite-button{padding:13px}.invite-button strong{font-size:13px}.invite-button span{font-size:11px}.compare-colors{gap:12px}.relationship-copy{font-size:13px}.our-swatch strong{font-size:21px}.our-swatch{padding:20px 16px}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid .sw{min-width:0;padding:5px}.grid .sw .nm{font-size:10px}}
+</style>
+<style id="color-map-v1">.map-heading{margin:14px 0 20px}.map-heading h1{font-size:30px;margin:6px 0 10px}.map-heading .note{margin:0}.palette-map{position:relative;border:1px solid #cbbda6;border-radius:22px;background:#fffaf0b8;overflow:hidden;padding:18px 12px 16px}.map-tabs{display:flex;justify-content:center;gap:4px;background:#eee5d7;border-radius:30px;padding:4px;width:fit-content;margin:auto}.map-tabs button{border:0;background:transparent;color:#786953;font:inherit;font-size:12px;padding:10px 15px;border-radius:24px;cursor:pointer}.map-tabs button[aria-selected=true]{background:#fffaf1;color:#3f3021;box-shadow:0 2px 8px #65523412}.map-canvas svg{display:block;width:100%;height:auto;overflow:visible;font-family:Pretendard,-apple-system,sans-serif}.map-canvas [role=button]{cursor:pointer;outline:none}.map-canvas [role=button]:focus .node-outline{stroke:#483922;stroke-width:3}.map-canvas [role=button]:hover{filter:brightness(1.04)}.map-canvas .node-outline{fill:none;stroke:transparent}.map-node{animation:color-arrival .6s ease both;transform-box:fill-box;transform-origin:center}@keyframes color-arrival{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.map-node{animation:none}}.map-summary{text-align:center;font-size:13px;line-height:1.7;padding:0 12px;min-height:44px;margin:0;color:#5f513e}.map-tip{font-size:10px;text-align:center;color:#8a7b66;margin:10px 0 0}.map-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0 22px}.map-tools label{font-size:11px;display:flex;align-items:center;gap:6px;color:#75664f}.map-tools input{width:auto;margin:0}.map-tools button{margin:0;padding:9px 13px;font-size:12px}.map-invite-toggle{width:100%;background:#68563c;color:#fffaf2;border:0;border-radius:4px;min-height:46px;font:inherit;cursor:pointer}.map-invite-drawer{margin-top:12px}.map-invite-drawer[hidden]{display:none}.map-invite-drawer .invite-actions{margin:0}.map-details{margin:20px 0}.map-details:empty{display:none}.map-detail-card{background:#fffaf3e8;border:1px solid #cbbda6;border-radius:16px;padding:22px}.map-detail-card h2{font-size:21px;font-weight:550;margin:6px 0 16px}.map-detail-card .eyebrow{font-size:10px}.map-detail-card .relationship-copy p{font-size:13px}.map-detail-card blockquote{margin:20px 0 10px;padding:14px;border-left:2px solid #ae9574;background:#f2ebdf;font-size:14px;line-height:1.8}.map-detail-card cite{display:block;font-size:11px;color:#86745a;font-style:normal;margin-top:8px}.map-group{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}.map-group button{font:inherit;font-size:12px;border:1px solid #c9b99e;background:transparent;border-radius:20px;padding:7px 11px;cursor:pointer}.map-group button[aria-pressed=true]{background:#68563c;color:#fff}.map-detail-close{float:right;border:0;background:none;font-size:18px;cursor:pointer;color:#8a7b66}.map-own-note{margin:20px 0;border-bottom:1px solid #d9cdbb;padding-bottom:16px}.map-own-note summary{cursor:pointer;font-size:13px}.map-own-note p{font-size:13px;line-height:1.8;color:#75654e}.friend-extras{border:0;padding:12px 0 0;margin:0}.friend-extras legend,.friend-extras label{font-size:12px;line-height:1.6;display:block;color:#75654e;margin:12px 0 8px}.friend-extras select,.friend-extras textarea{box-sizing:border-box;width:100%;font:inherit;font-size:14px;background:#fffaf3;border:1px solid #c6b59c;color:#4b3924;border-radius:4px;padding:12px}.friend-extras textarea{resize:vertical;min-height:70px}.save-status{font-size:12px;line-height:1.6;color:#75654e}.map-portrait{margin:0 0 20px}.map-portrait svg{width:100%;display:block}.map-detail-card .ghost{margin-bottom:0}@media(max-width:420px){.map-heading h1{font-size:26px}.palette-map{padding:14px 4px}.map-tabs button{font-size:11px;padding:9px 12px}.map-detail-card{padding:17px}.map-summary{font-size:12px}}
+
+.map-tools button{width:auto;flex-shrink:0}.map-tools label{white-space:nowrap;flex-shrink:0}.save-status:empty{display:none}.map-canvas{max-width:500px;margin:auto}
+</style>
+
+<style id="collage-book-v1">.map-heading{text-align:center;margin:24px 0 26px}.map-heading h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:30px;letter-spacing:-1.2px}.map-heading .note{font-size:13px}.palette-map{background:transparent;border:0;box-shadow:none;padding:0;overflow:visible}.map-tabs{border-radius:0;background:none;border-bottom:1px solid #cbbba340;gap:24px;padding:0;box-shadow:none}.map-tabs button{border-radius:0;padding:10px 0;font-size:13px}.map-tabs button[aria-selected=true]{background:none;border-bottom:2px solid #604a35;box-shadow:none}.map-canvas{max-width:500px;padding:16px 0 4px;margin:auto}.map-canvas svg{overflow:visible}.collage-piece{outline:none;cursor:pointer}.collage-piece:not([role=button]){cursor:default}.collage-piece:hover .paper-focus,.collage-piece:focus .paper-focus{opacity:1}.map-summary{min-height:0;max-width:440px;font-size:13px;line-height:1.8;margin:8px auto;padding:0 10px}.map-tip{text-align:center;font-size:11px;color:#8c795f;margin:10px 0 18px}.collage-pages,.book-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;margin:16px 0}.collage-pages:empty{display:none}.collage-pages button,.book-nav button{font:inherit;width:auto;background:none;border:1px solid #cbbba3;border-radius:20px;padding:10px 14px;color:#59452e;cursor:pointer;margin:0}.collage-pages button:disabled,.book-nav button:disabled{opacity:.35;cursor:default}.map-tools{margin:14px 0 24px}.map-invite-toggle{border-radius:28px;background:#604b36}.book-open .result-heading,.book-open .palette-map,.book-open .map-tools,.book-open #map-save-status,.book-open #map-save-status + .export-preview,.book-open .map-invite-toggle,.book-open .map-invite-drawer,.book-open .map-own-note,.book-open .color-products,.book-open .server-controls,.book-open .play-note{display:none}.map-details{margin:0 0 28px}.book-back{background:none;border:0;font:inherit;font-size:13px;color:#735c43;padding:6px 0 20px;text-align:left;cursor:pointer;width:auto}.color-book{position:relative;background:linear-gradient(90deg,#e6dccd 0,#fcf7ed 4%,#fffaf2 10%,#fffaf3 94%,#f1e7d8);border:1px solid #dccfbc;border-radius:5px 18px 18px 5px;padding:26px 26px 28px 32px;box-shadow:3px 4px 0 #e5d9c8,5px 7px 0 #f8f0e3,7px 10px 0 #d7cab7,0 18px 30px #684e3212}.book-top{display:flex;justify-content:space-between;font-size:10px;letter-spacing:1px;color:#9b8970}.color-book h2{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:500;margin:18px 0 22px;outline:none}.book-swatches{display:grid;grid-template-columns:1fr 1fr;gap:16px}.book-sample{min-width:0}.book-sample>span{display:block;aspect-ratio:1;background:var(--swatch);border-radius:8px;box-shadow:inset 0 0 28px #ffffff20;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' opacity='.16' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E")}.book-sample small{display:block;font-size:11px;line-height:1.5;color:#8c7962;margin:12px 0 4px}.book-sample strong{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:500}.color-book h3{border-top:1px solid #d9cbb8;padding-top:23px;margin:24px 0 14px;font-size:18px;font-family:'Noto Serif KR',serif;font-weight:500}.color-book p{font-size:13px;line-height:1.9;margin:7px 0;color:#78634b}.color-book blockquote{margin:24px 0 0;padding:16px 0 0;border-top:1px solid #d9cbb8;font-family:'Noto Serif KR',serif;line-height:1.8;font-size:15px}.color-book cite{display:block;font-family:inherit;font-size:11px;font-style:normal;color:#978169;margin-top:8px}.book-mix{padding:16px;margin-top:22px;border-radius:7px}.book-mix small,.book-mix strong{display:block}.book-mix small{font-size:11px;margin-bottom:4px}.book-mix strong{font-size:19px;font-family:'Noto Serif KR',serif;font-weight:500}.book-nav{margin-top:24px}.book-index{display:flex;gap:8px;overflow:auto;padding:4px 2px 12px;scrollbar-width:thin}.book-index button{background:none;border:1px solid transparent;border-radius:6px;padding:4px;flex:0 0 54px;max-width:74px;font:inherit;font-size:10px;color:#806b52;cursor:pointer;margin:0}.book-index button[aria-pressed=true]{border-color:#806449}.book-index i{height:42px;border-radius:3px;display:block;margin-bottom:7px}.book-index span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.map-details>.ghost{border-radius:24px;margin-top:16px}.save-status:empty{display:none}@media(max-width:420px){.map-heading h1{font-size:25px}.map-heading .note{font-size:12px}.map-tabs{gap:22px}.map-tabs button{font-size:12px}.color-book{padding:22px 18px 24px 24px}.book-swatches{gap:12px}.color-book h2{font-size:23px}.book-sample strong{font-size:15px}.book-nav button{font-size:11px;padding:10px}.map-summary{font-size:12px}}
+#app .map-heading h1,#app .color-book h2{font-family:'Noto Serif KR',serif;font-weight:500}#app .map-heading h1{font-size:29px}#app .color-book h2{font-size:25px;margin:18px 0 22px}.book-open #redo{display:none}.map-tools button{border-radius:22px}.map-canvas{padding-top:10px}.map-heading{margin-bottom:6px}@media(max-width:420px){#app .map-heading h1{font-size:24px}#app .color-book h2{font-size:23px}}
+</style>
+<style id="color-mode-cards">
+.map-tabs{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:10px;border:0}.map-tabs button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;min-width:0;padding:15px 13px;border:1px solid #cbbba3;border-radius:14px;background:#fffaf1b8;color:#6d5c48;box-shadow:none}.map-tabs button[aria-selected=true]{background:#f4ddcf;border:2px solid #9d6c54;padding:14px 12px;box-shadow:0 4px 14px #76543b12}.map-tabs button[data-map-mode=pair][aria-selected=true]{background:#e9e2ee;border-color:#8c7498}.mode-symbol{font-size:11px;letter-spacing:.04em;border-radius:20px;background:#ffffff80;padding:3px 8px}.map-tabs strong{font-size:15px;font-weight:600}.map-tabs small{font-size:11px;line-height:1.6}.mode-explain{text-align:center;font-size:12px;color:#78634c;line-height:1.7;margin:16px 8px 0}.map-invite-toggle{font-size:14px;padding:14px 12px;background:#88604a}#app[data-color-mode=pair] .map-invite-toggle{background:#75617f}.mixed-products{margin-top:24px;border-top:1px solid #d1c1aa;padding-top:18px}.mixed-products>summary{cursor:pointer;font-size:14px;font-weight:500}.mixed-products .note{font-size:12px}.mixed-products .pcard{margin-top:12px}.mixed-products .prow{flex-wrap:wrap}.mixed-products .th{width:48px;height:58px}.mixed-products .bd{min-width:100px}.mixed-products .spk{margin-left:auto}@media(max-width:359px){.map-tabs strong{font-size:13px}.map-tabs small{font-size:10px}.map-tabs button{padding:12px 9px}.map-tabs button[aria-selected=true]{padding:11px 8px}}
+</style>
+<style id="own-result-main-style">
+.own-result-main{text-align:center;padding:16px 12px 4px}.own-result-paint{width:200px;height:182px;margin:18px auto 10px;mask-image:url('watercolor-paper-v1.png');mask-mode:luminance;mask-size:100% 100%;mask-repeat:no-repeat;transform:rotate(-8deg)}#app .own-result-main h1{font-family:'Noto Serif KR',serif;font-size:34px;font-weight:500;margin:10px 0 8px}.own-result-tone{font-size:10px;letter-spacing:.15em;color:#94816c;margin:0 0 24px}.own-result-copy{font-size:16px;line-height:1.95;max-width:390px;margin:0 auto;color:#66513d}.friends-subheading{border-top:1px solid #cdbb9e;padding-top:30px;margin-top:12px}.friends-subheading .eyebrow{font-size:9px}#app .friends-subheading h2{font-family:'Noto Serif KR',serif;font-size:21px;font-weight:500;margin:7px 0 9px}.friends-subheading>p:last-child{font-size:12px;color:#8c7861;margin:0;line-height:1.8}.book-open .friends-subheading{display:none}#app>.color-products{margin:0;padding-top:8px;border:0}#app>#redo{align-self:center;margin:0;font-size:12px;color:#8b7863}#app .book-open #redo{display:none}@media(max-width:420px){.own-result-paint{width:170px;height:155px}#app .own-result-main h1{font-size:29px}.own-result-copy{font-size:14px;line-height:1.9}.friends-subheading{padding-top:25px}}
+</style>
+<style id="color-flower-style">
+#app .own-save{margin:26px auto 0;padding:11px 20px;border:1px solid #baa48b;border-radius:30px;color:#715a43;font-size:12px;background:#fff8ef}.map-canvas svg text{font-family:'Noto Serif KR',serif}.map-canvas{overflow:visible}.own-result-main .save-status:empty{display:none}
+</style><style id="soft-friend-style">
+#app .color-book{background:transparent;border:0;border-radius:0;box-shadow:none;padding:18px 10px 28px;text-align:center}.book-top{justify-content:center;gap:14px;font-size:10px;letter-spacing:.08em;color:#9a806d}#app .color-book h2{font-size:28px;line-height:1.5;margin:24px 0 28px}.book-swatches{gap:0;margin:0 -8px}.book-sample>span{border-radius:0;box-shadow:none;background-image:none;mask:url('watercolor-paper-v1.png') center/100% 100% no-repeat;mask-mode:luminance;transform:rotate(-12deg);aspect-ratio:1.05}.book-sample:nth-child(2)>span{transform:rotate(13deg)}.book-sample small{margin:4px 0 8px;font-size:11px}.book-sample strong{font-size:19px;line-height:1.6}.book-mix{position:relative;isolation:isolate;background:none!important;padding:42px 12px;margin:16px auto 10px;max-width:390px;border-radius:0}.book-mix:before{content:'';position:absolute;inset:0;background:var(--mix);mask:url('watercolor-paper-v1.png') center/100% 100% no-repeat;mask-mode:luminance;z-index:-1}.book-mix small{font-size:11px}.book-mix strong{font-size:20px}#app .color-book h3{border:0;font-family:'Noto Serif KR',serif;font-weight:400;font-size:23px;padding-top:0;margin:38px 0 22px}.color-book>p{font-size:14px;line-height:2;max-width:430px;margin:16px auto;color:#715b49;word-break:keep-all}.color-book>p:last-of-type{font-family:'Noto Serif KR',serif;font-size:13px;color:#9a7b68;margin:28px auto}.color-book blockquote{border:0;background:#fffaf070;border-radius:30px;padding:24px 20px;margin:28px auto 0;max-width:410px;font-weight:400}.book-index i{border-radius:0;mask:url('watercolor-paper-v1.png') center/100% 100% no-repeat;mask-mode:luminance}.book-index button[aria-pressed=true]{border-color:#c6a68b;border-radius:24px;background:#fff8ec66}.book-nav{margin-top:0}.book-back{font-size:12px}.mixed-products{text-align:left}@media(max-width:420px){#app .color-book{padding:10px 0 24px}#app .color-book h2{font-size:25px}.book-sample strong{font-size:16px}.color-book>p{font-size:13px;padding:0 5px}#app .color-book h3{font-size:21px}}
+</style><style id="color-welcome-style">
+.color-welcome{text-align:center;width:100%;max-width:540px;margin:12px auto 0}.color-welcome .eyebrow{color:#967a65;letter-spacing:.2em;font-size:10px}#app .color-welcome h1{font-family:'Noto Serif KR',serif;font-size:38px;font-weight:400;line-height:1.5;letter-spacing:-.04em;margin:24px 0 18px}.color-welcome .lede{font-size:14px;line-height:1.9;color:#826c56}.intro-bloom{position:relative;width:290px;height:260px;margin:32px auto 28px}.intro-bloom span{position:absolute;width:165px;height:164px;mask:url('watercolor-paper-v1.png') center/100% 100% no-repeat;mask-mode:luminance}.intro-bloom span:nth-child(1){background:#e8a5b5;left:7px;top:0;transform:rotate(-17deg)}.intro-bloom span:nth-child(2){background:#c9b9b6;right:0;top:14px;transform:rotate(28deg)}.intro-bloom span:nth-child(3){background:#b76c85;left:8px;top:92px;transform:rotate(33deg)}.intro-bloom span:nth-child(4){background:#dbb39b;right:2px;top:94px;transform:rotate(-20deg)}.intro-bloom span:nth-child(5){background:#efa78a;left:58px;top:49px;width:182px;height:175px;transform:rotate(-9deg)}.intro-bloom small{position:absolute;left:0;right:0;top:125px;font-family:'Noto Serif KR',serif;font-size:14px;color:#634c3c}.color-welcome .cta{max-width:330px;margin:6px auto 0;border-radius:32px;background:#8c6655;color:#fff8ef;font-size:14px;padding:16px 24px;box-shadow:none}.color-welcome .ghost{display:block;width:auto;margin:15px auto 0;border:0;border-radius:24px;padding:8px 18px;font-size:12px;color:#8c735e}.color-welcome .note{font-size:11px;margin-top:17px;color:#97816c}@media(max-width:420px){#app .color-welcome h1{font-size:31px}.intro-bloom{margin-top:22px;margin-bottom:20px;transform:scale(.9);height:245px}.color-welcome .lede{font-size:13px}}
+</style><style id="safari-paper-fix">
+/* Use rendered alpha: older Safari treats an opaque RGB luminance mask as a rectangle. */
+.own-result-paint,.book-sample>span,.book-mix:before,.book-index i,.intro-bloom span{
+-webkit-mask-image:url('watercolor-mask.svg');mask-image:url('watercolor-mask.svg');
+-webkit-mask-size:100% 100%;mask-size:100% 100%;
+-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+-webkit-mask-position:center;mask-position:center;mask-mode:alpha;
+}
+.book-swatches{gap:12px;margin:0}.book-sample>span{width:84%;margin:0 auto 12px;transform:rotate(-8deg)}
+.book-sample:nth-child(2)>span{transform:rotate(8deg)}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="brand"><a href="../" style="color:inherit;text-decoration:none">← Themaric Lab</a><span id="mode">beta</span></div>
+  <div id="app"></div>
+</div>
+
+<script>
+const ARCH=[
+ {s:"first-love",n:"딸기우유 핑크",h:"#E698AA",f:"glossy",tone:"PINK · MILK · SHEER",W:-0.49,D:0.00,S:0.74,T:0.80,
+  c:"먼저 다가가는 편은 아니지만, 한번 곁을 내주면 오래 두는 사람. 목소리를 높이지 않아도 옆에 있으면 마음이 놓이는 쪽이에요."},
+ {s:"first-snow",n:"안개 베이지",h:"#D1B8B9",f:"matte",tone:"NUDE · DUST · MATTE",W:0.03,D:0.00,S:0.02,T:0.00,
+  c:"조용히 왔다가 조용히 스며드는 사람. 눈에 띄는 걸 즐기진 않지만, 지나고 나면 오래 기억에 남는 쪽이에요."},
+ {s:"sunday-peach",n:"노을 피치",h:"#E99F81",f:"glossy",tone:"PEACH · SUN · GLOW",W:0.92,D:0.02,S:0.91,T:0.80,
+  c:"같이 있으면 시간이 느리게 가는 사람. 애쓰지 않아도 주변이 편해져서, 사람들이 자연스럽게 곁에 머무는 쪽이에요."},
+ {s:"loud-pink",n:"형광펜 푸시아",h:"#E35C9C",f:"glow",tone:"FUCHSIA · NEON · GLOW",W:-1.00,D:0.21,S:0.92,T:1.00,
+  c:"자기 기분을 숨기지 않는 사람. 솔직한 만큼 오해를 덜 사고, 함께 있으면 하루가 선명해지는 쪽이에요."},
+ {s:"monday-coral",n:"토마토 코럴",h:"#E25947",f:"glossy",tone:"CORAL · WARM · JUICY",W:0.45,D:0.31,S:0.96,T:0.80,
+  c:"가라앉는 날에도 밝은 쪽을 고르는 사람. 자기 기분을 스스로 챙길 줄 알아서, 옆 사람 기분까지 같이 올라가는 쪽이에요."},
+ {s:"after-work",n:"마른 장미 로즈",h:"#B67175",f:"satin",tone:"ROSE · WOOD · SATIN",W:-0.02,D:0.32,S:0.22,T:0.45,
+  c:"힘을 뺄 줄 아는 사람. 잘 보이려 애쓰지 않는데, 그 편안함이 오히려 오래 남는 쪽이에요."},
+ {s:"cold-icetea",n:"홍차 브릭",h:"#B0744F",f:"matte",tone:"BRICK · TEA · MATTE",W:1.00,D:0.50,S:0.33,T:0.00,
+  c:"유행보다 자기 기준이 먼저인 사람. 취향이 분명해서 처음엔 낯설어도, 알수록 계속 눈이 가는 쪽이에요."},
+ {s:"dawn-rose",n:"새벽 1:17 로즈",h:"#AE476E",f:"satin",tone:"ROSE · WINE · MUTED",W:-0.90,D:0.54,S:0.40,T:0.45,
+  c:"낮보다 밤에 더 자기다워지는 사람. 말수는 적은데 한 마디가 오래 남아서, 헤어지고 나서 더 생각나는 쪽이에요."},
+ {s:"left-on-mauve",n:"잿빛 모브",h:"#805F64",f:"matte",tone:"MAUVE · ASH · MATTE",W:-0.28,D:0.64,S:0.00,T:0.00,
+  c:"자기 속도를 지키는 사람. 반응이 빠르진 않지만 흘려듣는 법이 없어서, 필요할 때 가장 정확하게 곁에 있는 쪽이에요."},
+ {s:"drunk-cherry",n:"체리코크 레드",h:"#A22029",f:"glossy",tone:"CHERRY · DEEP · GLOSS",W:-0.05,D:0.77,S:0.85,T:0.80,
+  c:"평소엔 조용하다가 편해지면 제일 즐거워지는 사람. 마음을 여는 데 시간이 걸릴 뿐, 열고 나면 아낌없는 쪽이에요."},
+ {s:"plum-night",n:"자정 플럼",h:"#742B49",f:"satin",tone:"PLUM · NIGHT · SATIN",W:-0.98,D:0.93,S:0.47,T:0.45,
+  c:"한 번에 다 보여주지 않는 사람. 알아가는 데 시간이 걸려서, 오래 본 사람일수록 더 좋아하게 되는 쪽이에요."},
+ {s:"midnight-choco",n:"다크초코 브라운",h:"#6A3E32",f:"matte",tone:"COCOA · DARK · MATTE",W:0.72,D:0.94,S:0.29,T:0.00,
+  c:"조용하고 다정한 사람. 표현이 크진 않은데, 곁에 있으면 마음이 놓이는 쪽이에요."}];
+
+const PROD={"first-love":[{"b":"얼터너티브스테레오","o":"[산리오기획/단독컬러] 08호 피오니 볼","h":"#E08A9E","c":7900,"u2":"9,350원","lo":"7,750원","tag":"판정 보류","tone":"hold","t":"통상 가격대 — 실질 할인 16%","d":"표시정가 11,000원에 판 날 7일 / 41일 · 평소 9,350원","u":"https://themaric.kr/?g=A000000232078&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023207836ko.jpg","s":{"p":"0.0,16.9 2.7,16.9 5.3,16.9 8.0,13.2 10.7,13.2 13.3,18.9 16.0,18.9 18.7,18.9 21.3,18.9 24.0,18.9 26.7,13.2 29.3,13.2 32.0,13.2 34.7,13.2 37.3,13.2 40.0,13.2 42.7,13.2 45.3,13.2 48.0,13.2 50.7,13.2 53.3,13.2 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,23.0 77.3,24.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,23.0 101.3,23.0 104.0,23.0","n":44},"w":1,"ld":3},{"b":"페리페라","o":"20 피오니허그 (온)","h":"#E08A9E","c":12000,"u2":"9,600원","lo":"9,030원","tag":"판정 보류","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 12,000원에 판 날 5일 / 40일 · 평소 9,600원","u":"https://themaric.kr/?g=A000000200745&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/A00000020074583ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,19.8 8.0,19.8 10.7,19.8 13.3,19.8 16.0,19.8 18.7,19.8 21.3,19.8 24.0,19.8 26.7,19.8 29.3,19.8 32.0,19.8 34.7,19.8 37.3,19.8 40.0,19.8 42.7,19.8 45.3,19.8 48.0,19.8 50.7,19.8 53.3,19.8 56.0,19.8 58.7,19.8 61.3,19.8 64.0,19.8 66.7,19.8 69.3,19.8 72.0,19.8 74.7,19.8 77.3,19.8 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":1,"ld":1},{"b":"밀크터치","o":"03 피오니 레인","h":"#E08A9E","c":16000,"u2":null,"lo":"11,900원","tag":"판정 보류","tone":"hold","t":"할인 종료 — 최근까지 12,130원, 지금 16,000원","d":"12,130원 → 16,000원 (+32%) · 표시정가는 그대로 · 급하지 않다면 다음 할인 대기","u":"https://themaric.kr/?g=A000000248610&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024861024ko.jpg","s":{"p":"0.0,20.8 2.7,20.8 5.3,18.6 8.0,18.6 10.7,18.6 13.3,18.6 16.0,18.6 18.7,18.6 21.3,18.6 24.0,18.6 26.7,18.6 29.3,18.6 32.0,18.6 34.7,18.6 37.3,18.6 40.0,18.6 42.7,18.6 45.3,18.6 48.0,18.6 50.7,18.6 53.3,18.6 56.0,18.6 58.7,18.6 61.3,18.6 64.0,18.6 66.7,18.6 69.3,18.6 72.0,18.6 74.7,18.6 77.3,24.0 80.0,24.0 82.7,22.8 85.3,22.8 88.0,22.8 90.7,22.8 93.3,22.8 96.0,22.8 98.7,22.8 101.3,2.0 104.0,2.0","n":42},"w":1,"ld":40}],"first-snow":[{"b":"티르티르","o":"06 스모키 로즈우드","h":"#987071","c":8100,"u2":"9,000원","lo":"7,700원","tag":"평소보다 10% 싸요","tone":"ok","t":"정직한 가격 — 40일 중 28일이 표시정가","d":"표시정가 9,000원 · 평소 9,000원","u":"https://themaric.kr/?g=A000000244284&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024428417ko.jpg","s":{"p":"0.0,17.2 2.7,17.2 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,17.2 101.3,17.2 104.0,17.2","n":40},"w":0,"ld":1},{"b":"오플로우","o":"[슬릭 블러] A04 로우 피오니","h":"#D6A3AF","c":20900,"u2":"19,800원","lo":"16,500원","tag":"평소보다 6% 비싸요","tone":"bad","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 22,000원에 판 날 2일 / 40일 · 평소 19,800원","u":"https://themaric.kr/?g=A000000260935&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026093509ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,6.4 10.7,6.4 13.3,6.4 16.0,6.4 18.7,6.4 21.3,6.4 24.0,6.4 26.7,6.4 29.3,6.4 32.0,6.4 34.7,6.4 37.3,10.8 40.0,10.8 42.7,10.8 45.3,24.0 48.0,24.0 50.7,10.8 53.3,10.8 56.0,10.8 58.7,10.8 61.3,10.8 64.0,10.8 66.7,10.8 69.3,10.8 72.0,10.8 74.7,10.8 77.3,10.8 80.0,10.8 82.7,10.8 85.3,10.8 88.0,18.9 90.7,18.9 93.3,18.9 96.0,18.9 98.7,18.9 101.3,6.4 104.0,6.4","n":55},"w":0,"ld":1},{"b":"하트퍼센트","o":"07 드라이로즈","h":"#A9646C","c":12600,"u2":"12,600원","lo":"11,500원","tag":"평소 가격","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 14,000원에 판 날 29일 / 64일 · 평소 12,600원","u":"https://themaric.kr/?g=A000000174066&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0017/A00000017406680ko.png","s":{"p":"0.0,14.3 2.7,14.3 5.3,14.3 8.0,14.3 10.7,14.3 13.3,14.3 16.0,14.3 18.7,14.3 21.3,14.3 24.0,14.3 26.7,14.3 29.3,14.3 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,2.0 82.7,2.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,14.3 104.0,14.3","n":160},"w":0,"ld":31}],"sunday-peach":[{"b":"롬앤","o":"02 솔티 피치","h":"#E99F81","c":9900,"u2":"9,900원","lo":"9,410원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 13,000원 · 평소 9,900원 (+31%)","u":"https://themaric.kr/?g=A000000158893&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0015/A00000015889314ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":0,"ld":1},{"b":"에스쁘아","o":"[NEW/단품] 17호 진저 피치","h":"#E99F81","c":22000,"u2":"17,600원","lo":"16,200원","tag":"판정 보류","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 22,000원에 판 날 5일 / 40일 · 평소 17,600원","u":"https://themaric.kr/?g=A000000197490&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0019/A000000197490113ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,18.7 8.0,18.7 10.7,18.7 13.3,18.7 16.0,18.7 18.7,18.7 21.3,18.7 24.0,18.7 26.7,18.7 29.3,18.7 32.0,18.7 34.7,18.7 37.3,18.7 40.0,18.7 42.7,18.7 45.3,18.7 48.0,18.7 50.7,18.7 53.3,18.7 56.0,18.7 58.7,18.7 61.3,22.9 64.0,22.9 66.7,22.9 69.3,22.9 72.0,22.9 74.7,22.9 77.3,22.9 80.0,22.9 82.7,22.9 85.3,22.9 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,2.0 104.0,2.0","n":52},"w":1,"ld":1},{"b":"토니모리","o":"[김고은PICK] 03 피치 시럽","h":"#E99F81","c":12000,"u2":"12,000원","lo":"10,500원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 16,000원 · 평소 12,000원 (+33%)","u":"https://themaric.kr/?g=A000000223922&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A000000223922110ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,24.0 16.0,24.0 18.7,24.0 21.3,13.7 24.0,13.7 26.7,13.7 29.3,13.7 32.0,13.7 34.7,13.7 37.3,13.7 40.0,13.7 42.7,18.1 45.3,18.1 48.0,18.1 50.7,18.1 53.3,18.1 56.0,18.1 58.7,18.1 61.3,18.1 64.0,18.1 66.7,18.1 69.3,18.1 72.0,18.1 74.7,18.1 77.3,2.0 80.0,2.0 82.7,2.0 85.3,2.0 88.0,2.0 90.7,2.0 93.3,2.0 96.0,10.8 98.7,10.8 101.3,24.0 104.0,2.0","n":137},"w":1,"ld":6}],"loud-pink":[{"b":"바닐라코","o":"PK06 캔디","h":"#E2568C","c":13500,"u2":"14,400원","lo":"11,960원","tag":"판정 보류","tone":"hold","t":"통상 가격대 — 실질 할인 6%","d":"표시정가 18,000원에 판 날 0일 / 40일 · 평소 14,400원","u":"https://themaric.kr/?g=A000000204373&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/A00000020437359ko.jpg","s":{"p":"0.0,10.1 2.7,10.1 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,10.1 101.3,10.1 104.0,10.1","n":40},"w":1,"ld":1},{"b":"엔비피시스","o":"06 캔디팝","h":"#E2568C","c":14900,"u2":"14,400원","lo":"14,160원","tag":"평소보다 3% 비싸요","tone":"bad","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 16,000원에 판 날 12일 / 40일 · 평소 14,400원","u":"https://themaric.kr/?g=A000000242874&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024287421ko.jpg","s":{"p":"0.0,15.2 2.7,15.2 5.3,21.1 8.0,21.1 10.7,21.1 13.3,21.1 16.0,21.1 18.7,21.1 21.3,21.1 24.0,21.1 26.7,21.1 29.3,21.1 32.0,21.1 34.7,21.1 37.3,21.1 40.0,21.1 42.7,21.1 45.3,21.1 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,15.2 101.3,15.2 104.0,15.2","n":40},"w":1,"ld":1},{"b":"투에이엔","o":"09 캔디츄","h":"#E2568C","c":4430,"u2":"9,000원","lo":"4,430원","tag":"관측 중 최저가","tone":"ok","t":"진짜 할인 신호 — 관측 최고가 대비 −51%","d":"평소 9,000원 → 지금 4,430원","u":"https://themaric.kr/?g=A000000233215&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023321536ko.jpg","s":{"p":"0.0,7.3 2.7,7.3 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,13.0 82.7,13.0 85.3,13.0 88.0,13.0 90.7,13.0 93.3,13.0 96.0,13.0 98.7,24.0 101.3,24.0 104.0,24.0","n":40},"w":0,"ld":1}],"monday-coral":[{"b":"롬앤","o":"01 인 코랄","h":"#E8705F","c":9900,"u2":"9,900원","lo":"9,410원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 13,000원 · 평소 9,900원 (+31%)","u":"https://themaric.kr/?g=A000000158893&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0015/A00000015889314ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":0,"ld":1},{"b":"패션캣","o":"02 뮤즈코랄","h":"#E8705F","c":10950,"u2":"10,950원","lo":"10,710원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 17,000원 · 평소 10,950원 (+55%)","u":"https://themaric.kr/?g=A000000227860&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022786004ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":0,"ld":1},{"b":"데이지크","o":"22 러브 코랄","h":"#E8705F","c":11900,"u2":"17,000원","lo":"10,710원","tag":"평소보다 크게 싸요","tone":"ok","t":"진짜 할인 신호 — 관측 최고가 대비 −30%","d":"평소 17,000원 → 지금 11,900원","u":"https://themaric.kr/?g=A000000184327&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A00000018432749ko.png","s":{"p":"0.0,19.8 2.7,19.8 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,19.8 101.3,19.8 104.0,19.8","n":40},"w":0,"ld":40}],"after-work":[{"b":"하트퍼센트","o":"07 드라이로즈","h":"#A9646C","c":12600,"u2":"12,600원","lo":"11,500원","tag":"평소 가격","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 14,000원에 판 날 29일 / 64일 · 평소 12,600원","u":"https://themaric.kr/?g=A000000174066&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0017/A00000017406680ko.png","s":{"p":"0.0,14.3 2.7,14.3 5.3,14.3 8.0,14.3 10.7,14.3 13.3,14.3 16.0,14.3 18.7,14.3 21.3,14.3 24.0,14.3 26.7,14.3 29.3,14.3 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,2.0 82.7,2.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,14.3 104.0,14.3","n":160},"w":0,"ld":31},{"b":"티르티르","o":"06 스모키 로즈우드","h":"#987071","c":8100,"u2":"9,000원","lo":"7,700원","tag":"평소보다 10% 싸요","tone":"ok","t":"정직한 가격 — 40일 중 28일이 표시정가","d":"표시정가 9,000원 · 평소 9,000원","u":"https://themaric.kr/?g=A000000244284&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024428417ko.jpg","s":{"p":"0.0,17.2 2.7,17.2 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,17.2 101.3,17.2 104.0,17.2","n":40},"w":0,"ld":1},{"b":"포트레","o":"레드 블러쉬","h":"#B7464C","c":25650,"u2":"27,000원","lo":"22,830원","tag":"평소보다 5% 싸요","tone":"ok","t":"정직한 가격 — 41일 중 28일이 표시정가","d":"표시정가 27,000원 · 평소 27,000원","u":"https://themaric.kr/?g=A000000229845&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022984509ko.jpg","s":{"p":"0.0,9.1 2.7,9.1 5.3,9.1 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,2.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,9.1 104.0,9.1","n":41},"w":0,"ld":2}],"cold-icetea":[{"b":"클리오","o":"[블러] 100 플러피 진저","h":"#AE775C","c":12600,"u2":"12,600원","lo":"11,220원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 40일 중 2일만 그 가격","d":"표시정가 18,000원 · 평소 12,600원 (+43%)","u":"https://themaric.kr/?g=A000000224939&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022493935ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,19.5 8.0,19.5 10.7,19.5 13.3,19.5 16.0,19.5 18.7,19.5 21.3,19.5 24.0,19.5 26.7,19.5 29.3,19.5 32.0,19.5 34.7,19.5 37.3,19.5 40.0,19.5 42.7,19.5 45.3,19.5 48.0,19.5 50.7,19.5 53.3,19.5 56.0,19.5 58.7,19.5 61.3,19.5 64.0,19.5 66.7,19.5 69.3,19.5 72.0,19.5 74.7,19.5 77.3,19.5 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,19.5 101.3,19.5 104.0,19.5","n":40},"w":0,"ld":1},{"b":"웨이크메이크","o":"[미니틴트 기획]14 어반 브릭","h":"#A8563A","c":12800,"u2":"8,000원","lo":"8,000원","tag":"얼마 전까지 8,000원","tone":"bad","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 16,000원 · 평소 8,000원 (+100%)","u":"https://themaric.kr/?g=A000000263408&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026340802ko.jpg","s":{"p":"0.0,24.0 5.2,24.0 10.4,24.0 15.6,24.0 20.8,24.0 26.0,24.0 31.2,24.0 36.4,24.0 41.6,24.0 46.8,24.0 52.0,24.0 57.2,24.0 62.4,24.0 67.6,24.0 72.8,24.0 78.0,7.9 83.2,7.9 88.4,7.9 93.6,2.0 98.8,2.0 104.0,2.0","n":21},"w":0,"ld":1},{"b":"맥","o":"브릭쓰루","h":"#A8563A","c":42000,"u2":"42,000원","lo":"35,700원","tag":"평소 가격","tone":"hold","t":"정직한 가격 — 49일 중 31일이 표시정가","d":"표시정가 42,000원 · 평소 42,000원","u":"https://themaric.kr/?g=A000000244466&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024446621ko.jpg","s":{"p":"0.0,16.7 2.7,16.7 5.3,22.5 8.0,22.5 10.7,22.5 13.3,22.5 16.0,21.1 18.7,21.1 21.3,21.1 24.0,21.1 26.7,21.1 29.3,21.1 32.0,21.1 34.7,21.1 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,2.0 82.7,2.0 85.3,2.0 88.0,2.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,24.0 104.0,2.0","n":61},"w":1,"ld":2}],"dawn-rose":[{"b":"클리오","o":"04 페일플럼","h":"#A13C65","c":18000,"u2":"12,600원","lo":"11,850원","tag":"판정 보류","tone":"hold","t":"표시정가 부풀림 신호 — 52일 중 3일만 그 가격","d":"표시정가 18,000원 · 평소 12,600원 (+43%)","u":"https://themaric.kr/?g=A000000185265&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A00000018526594ko.jpg","s":{"p":"0.0,21.3 2.7,21.3 5.3,21.3 8.0,21.3 10.7,21.3 13.3,21.3 16.0,21.3 18.7,21.3 21.3,21.3 24.0,21.3 26.7,21.3 29.3,21.3 32.0,21.3 34.7,21.3 37.3,21.3 40.0,21.3 42.7,21.3 45.3,21.3 48.0,21.3 50.7,21.3 53.3,21.3 56.0,21.3 58.7,21.3 61.3,21.3 64.0,21.3 66.7,21.3 69.3,21.3 72.0,21.3 74.7,21.3 77.3,21.3 80.0,21.3 82.7,21.3 85.3,21.3 88.0,21.3 90.7,21.3 93.3,24.0 96.0,24.0 98.7,24.0 101.3,24.0 104.0,2.0","n":73},"w":1,"ld":60},{"b":"하트퍼센트","o":"[기획]07드리미핑크(+미니 플럼소르베)","h":"#A13C65","c":15000,"u2":null,"lo":"12,690원","tag":"판정 보류","tone":"hold","t":"할인 종료 — 최근까지 12,690원, 지금 15,000원","d":"12,690원 → 15,000원 (+18%) · 표시정가는 그대로 · 급하지 않다면 다음 할인 대기","u":"https://themaric.kr/?g=A000000230792&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023079233ko.png","s":{"p":"0.0,16.3 2.7,16.3 5.3,16.3 8.0,16.3 10.7,16.3 13.3,16.3 16.0,16.3 18.7,16.3 21.3,16.3 24.0,16.3 26.7,16.3 29.3,16.3 32.0,16.3 34.7,16.3 37.3,16.3 40.0,16.3 42.7,16.3 45.3,16.3 48.0,16.3 50.7,16.3 53.3,16.3 56.0,16.3 58.7,16.3 61.3,16.3 64.0,16.3 66.7,16.3 69.3,16.3 72.0,16.3 74.7,16.3 77.3,16.3 80.0,16.3 82.7,16.3 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,2.0 104.0,2.0","n":45},"w":1,"ld":52},{"b":"어뮤즈","o":"[NEW] 07 루비 베리","h":"#A63A5C","c":12750,"u2":"12,750원","lo":"12,120원","tag":"평소 가격","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 15,000원에 판 날 0일 / 40일 · 평소 12,750원","u":"https://themaric.kr/?g=A000000216862&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0021/A00000021686260ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":0,"ld":1}],"left-on-mauve":[{"b":"클리오","o":"[블러] 104 미스티 피그","h":"#846066","c":12600,"u2":"12,600원","lo":"11,220원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 40일 중 2일만 그 가격","d":"표시정가 18,000원 · 평소 12,600원 (+43%)","u":"https://themaric.kr/?g=A000000224939&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022493935ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,19.5 8.0,19.5 10.7,19.5 13.3,19.5 16.0,19.5 18.7,19.5 21.3,19.5 24.0,19.5 26.7,19.5 29.3,19.5 32.0,19.5 34.7,19.5 37.3,19.5 40.0,19.5 42.7,19.5 45.3,19.5 48.0,19.5 50.7,19.5 53.3,19.5 56.0,19.5 58.7,19.5 61.3,19.5 64.0,19.5 66.7,19.5 69.3,19.5 72.0,19.5 74.7,19.5 77.3,19.5 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,19.5 101.3,19.5 104.0,19.5","n":40},"w":0,"ld":1},{"b":"웨이크메이크","o":"06 그레이피그","h":"#846066","c":12800,"u2":"10,800원","lo":"8,000원","tag":"평소보다 19% 비싸요","tone":"bad","t":"표시정가 부풀림 신호 — 40일 중 1일만 그 가격","d":"표시정가 16,000원 · 평소 10,800원 (+48%)","u":"https://themaric.kr/?g=A000000223250&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022325040ko.jpg","s":{"p":"0.0,18.8 2.7,2.0 5.3,16.3 8.0,16.3 10.7,16.3 13.3,16.3 16.0,16.3 18.7,16.3 21.3,16.3 24.0,16.3 26.7,16.3 29.3,10.8 32.0,10.8 34.7,10.8 37.3,10.8 40.0,24.0 42.7,24.0 45.3,24.0 48.0,24.0 50.7,24.0 53.3,24.0 56.0,24.0 58.7,24.0 61.3,24.0 64.0,24.0 66.7,24.0 69.3,24.0 72.0,24.0 74.7,24.0 77.3,24.0 80.0,14.3 82.7,14.3 85.3,14.3 88.0,14.3 90.7,14.3 93.3,14.3 96.0,14.3 98.7,10.8 101.3,10.8 104.0,10.8","n":40},"w":0,"ld":40},{"b":"에스쁘아","o":"9호 타로 모브","h":"#8B6068","c":17600,"u2":"18,700원","lo":"10,920원","tag":"평소보다 6% 싸요","tone":"ok","t":"통상 가격대 — 실질 할인 6%","d":"표시정가 22,000원에 판 날 0일 / 40일 · 평소 18,700원","u":"https://themaric.kr/?g=A000000222885&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022288534ko.jpg","s":{"p":"0.0,5.1 2.7,5.1 5.3,5.1 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,9.9 69.3,9.9 72.0,9.9 74.7,9.9 77.3,9.9 80.0,9.9 82.7,9.1 85.3,9.1 88.0,9.1 90.7,9.1 93.3,9.1 96.0,9.1 98.7,9.1 101.3,24.0 104.0,24.0","n":41},"w":0,"ld":1}],"drunk-cherry":[{"b":"릴리바이레드","o":"05 체리캔디","h":"#A8212D","c":14000,"u2":"10,500원","lo":"9,770원","tag":"판정 보류","tone":"hold","t":"표시정가 부풀림 신호 — 40일 중 3일만 그 가격","d":"표시정가 14,000원 · 평소 10,500원 (+33%)","u":"https://themaric.kr/?g=A000000235400&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023540020ko.jpg","s":{"p":"0.0,20.2 2.7,20.2 5.3,20.2 8.0,20.2 10.7,20.2 13.3,20.2 16.0,20.2 18.7,20.2 21.3,20.2 24.0,20.2 26.7,20.2 29.3,20.2 32.0,20.2 34.7,20.2 37.3,20.2 40.0,20.2 42.7,20.2 45.3,20.2 48.0,20.2 50.7,20.2 53.3,20.2 56.0,20.2 58.7,20.2 61.3,20.2 64.0,20.2 66.7,20.2 69.3,20.2 72.0,20.2 74.7,20.2 77.3,20.2 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,2.0 101.3,2.0 104.0,2.0","n":40},"w":1,"ld":1},{"b":"어퓨","o":"03 체리 젤리","h":"#A8212D","c":9750,"u2":"9,800원","lo":"9,310원","tag":"평소 가격","tone":"hold","t":"표시정가 부풀림 신호 — 그 가격에 팔린 날 0일","d":"표시정가 13,000원 · 평소 9,800원 (+33%)","u":"https://themaric.kr/?g=A000000246909&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024690904ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,4.2 101.3,4.2 104.0,4.2","n":40},"w":1,"ld":1},{"b":"에스쁘아","o":"[NEW/단품] 4호 허쉬드 체리","h":"#A8212D","c":22000,"u2":"17,600원","lo":"16,200원","tag":"판정 보류","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 22,000원에 판 날 5일 / 40일 · 평소 17,600원","u":"https://themaric.kr/?g=A000000197490&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0019/A000000197490113ko.jpg","s":{"p":"0.0,2.0 2.7,2.0 5.3,18.7 8.0,18.7 10.7,18.7 13.3,18.7 16.0,18.7 18.7,18.7 21.3,18.7 24.0,18.7 26.7,18.7 29.3,18.7 32.0,18.7 34.7,18.7 37.3,18.7 40.0,18.7 42.7,18.7 45.3,18.7 48.0,18.7 50.7,18.7 53.3,18.7 56.0,18.7 58.7,18.7 61.3,22.9 64.0,22.9 66.7,22.9 69.3,22.9 72.0,22.9 74.7,22.9 77.3,22.9 80.0,22.9 82.7,22.9 85.3,22.9 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,2.0 104.0,2.0","n":52},"w":1,"ld":1}],"plum-night":[{"b":"팁토우","o":"108 플럼 피즈","h":"#742B49","c":18000,"u2":null,"lo":"13,900원","tag":"판정 보류","tone":"hold","t":"할인 종료 — 최근까지 15,390원, 지금 18,000원","d":"15,390원 → 18,000원 (+17%) · 표시정가는 그대로 · 급하지 않다면 다음 할인 대기","u":"https://themaric.kr/?g=A000000229501&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A00000022950120ko.png","s":{"p":"0.0,16.0 2.7,24.0 5.3,16.0 8.0,16.0 10.7,11.7 13.3,11.7 16.0,16.0 18.7,16.0 21.3,16.0 24.0,16.0 26.7,16.0 29.3,16.0 32.0,16.0 34.7,11.7 37.3,11.7 40.0,11.7 42.7,11.7 45.3,11.7 48.0,11.7 50.7,11.7 53.3,11.7 56.0,11.7 58.7,11.7 61.3,11.7 64.0,11.7 66.7,11.7 69.3,11.7 72.0,11.7 74.7,11.7 77.3,11.7 80.0,11.7 82.7,16.0 85.3,16.0 88.0,16.0 90.7,16.0 93.3,16.0 96.0,16.0 98.7,16.0 101.3,2.0 104.0,2.0","n":44},"w":1,"ld":2},{"b":"모렛","o":"04 플럼나잇","h":"#742B49","c":16200,"u2":"16,200원","lo":"8,910원","tag":"평소 가격","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 18,000원에 판 날 2일 / 41일 · 평소 16,200원","u":"https://themaric.kr/?g=A000000234351&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023435109ko.jpg","s":{"p":"0.0,8.5 2.7,2.0 5.3,2.0 8.0,6.4 10.7,6.4 13.3,6.4 16.0,6.4 18.7,6.4 21.3,6.4 24.0,6.4 26.7,6.4 29.3,6.4 32.0,6.4 34.7,6.4 37.3,6.4 40.0,6.4 42.7,24.0 45.3,24.0 48.0,24.0 50.7,24.0 53.3,24.0 56.0,24.0 58.7,6.4 61.3,6.4 64.0,6.4 66.7,6.4 69.3,6.4 72.0,6.4 74.7,6.4 77.3,6.4 80.0,6.4 82.7,8.3 85.3,8.3 88.0,8.3 90.7,8.3 93.3,8.3 96.0,8.3 98.7,8.3 101.3,6.4 104.0,6.4","n":41},"w":0,"ld":2},{"b":"엔트로피 메이크업","o":"M5 플럼 트위스트","h":"#742B49","c":10450,"u2":"10,450원","lo":"9,310원","tag":"평소 가격","tone":"hold","t":"통상 가격대 — 실질 할인 0%","d":"표시정가 11,000원에 판 날 2일 / 40일 · 평소 10,450원","u":"https://themaric.kr/?g=A000000253178&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025317808ko.png","s":{"p":"0.0,2.0 2.7,2.0 5.3,9.2 8.0,9.2 10.7,9.2 13.3,9.2 16.0,9.2 18.7,9.2 21.3,9.2 24.0,9.2 26.7,9.2 29.3,9.2 32.0,9.2 34.7,9.2 37.3,9.2 40.0,9.2 42.7,9.2 45.3,9.2 48.0,9.2 50.7,9.2 53.3,9.2 56.0,9.2 58.7,9.2 61.3,9.2 64.0,16.3 66.7,16.3 69.3,16.3 72.0,16.3 74.7,16.3 77.3,16.3 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,9.2 101.3,9.2 104.0,9.2","n":40},"w":0,"ld":1}],"midnight-choco":[{"b":"컬러그램","o":"[틴트] 08 힙초콜릿","h":"#6A3E32","c":8800,"u2":"10,000원","lo":"7,900원","tag":"평소보다 12% 싸요","tone":"ok","t":"진짜 할인 신호 — 관측 최고가 대비 −12%","d":"평소 10,000원 → 지금 8,800원","u":"https://themaric.kr/?g=A000000257259&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025725909ko.jpg","s":{"p":"0.0,14.6 2.7,14.6 5.3,14.6 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,21.9 32.0,14.6 34.7,17.7 37.3,17.7 40.0,17.7 42.7,17.7 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,24.0 80.0,21.9 82.7,21.9 85.3,21.9 88.0,21.9 90.7,21.9 93.3,21.9 96.0,14.6 98.7,14.6 101.3,14.6 104.0,14.6","n":43},"w":0,"ld":1},{"b":"삐아","o":"[단품] V52 초코맛 인생","h":"#6A3E32","c":11700,"u2":"14,000원","lo":"11,640원","tag":"평소보다 16% 싸요","tone":"ok","t":"진짜 할인 신호 — 관측 최고가 대비 −16%","d":"평소 14,000원 → 지금 11,700원","u":"https://themaric.kr/?g=A000000207121&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0020/A00000020712163ko.jpg","s":{"p":"0.0,20.6 2.7,20.6 5.3,2.0 8.0,2.0 10.7,2.0 13.3,2.0 16.0,2.0 18.7,2.0 21.3,2.0 24.0,2.0 26.7,2.0 29.3,2.0 32.0,2.0 34.7,2.0 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,24.0 82.7,24.0 85.3,24.0 88.0,24.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,23.4 101.3,23.4 104.0,23.4","n":40},"w":0,"ld":1},{"b":"맥","o":"체스트넛","h":"#6A4436","c":42000,"u2":"42,000원","lo":"35,700원","tag":"평소 가격","tone":"hold","t":"정직한 가격 — 49일 중 31일이 표시정가","d":"표시정가 42,000원 · 평소 42,000원","u":"https://themaric.kr/?g=A000000244466&from=lip","i":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024446621ko.jpg","s":{"p":"0.0,16.7 2.7,16.7 5.3,22.5 8.0,22.5 10.7,22.5 13.3,22.5 16.0,21.1 18.7,21.1 21.3,21.1 24.0,21.1 26.7,21.1 29.3,21.1 32.0,21.1 34.7,21.1 37.3,2.0 40.0,2.0 42.7,2.0 45.3,2.0 48.0,2.0 50.7,2.0 53.3,2.0 56.0,2.0 58.7,2.0 61.3,2.0 64.0,2.0 66.7,2.0 69.3,2.0 72.0,2.0 74.7,2.0 77.3,2.0 80.0,2.0 82.7,2.0 85.3,2.0 88.0,2.0 90.7,24.0 93.3,24.0 96.0,24.0 98.7,24.0 101.3,24.0 104.0,2.0","n":61},"w":1,"ld":2}]};
+const BIAS={"sunday-peach":0.34404,"cold-icetea":0.34964,"midnight-choco":0.29740,"loud-pink":0.27200,
+ "first-snow":0.07068,"plum-night":-0.06748,"first-love":-0.07888,"monday-coral":-0.11188,
+ "dawn-rose":-0.19792,"left-on-mauve":-0.23040,"drunk-cherry":-0.29076,"after-work":-0.35644};
+
+const Q=[
+ {q:"갑자기 약속이 취소됐다.",k:"row",o:[["아쉽다","🥲",{W:.4,S:.2,T:.5}],["반반","😐",{}],["개이득","🛌",{W:-.4,S:-.2,T:-.5}]]},
+ {q:"마음에 드는 사람이 생겼다.",k:"scene",o:[["티 다 남","💐",{D:-.4,S:1,T:.3}],["절대 안 들킴","🤐",{D:.6,S:-.7,T:-.3}]]},
+ {q:"오늘 입고 싶은 건?",k:"scene",o:[["발레코어","🩰",{W:-.4,D:-.9,S:-.3,T:.6}],["흰 티","👕",{W:.3,D:-.2,S:-.1,T:.2}],
+   ["올블랙","🖤",{W:-.5,D:.9,S:.2,T:-.6}],["체리 포인트","🍒",{W:.1,D:.5,S:.9,T:.4}]]},
+ {q:"오늘 밤의 나는?",k:"scene",o:[["새벽 1시 침대","🌙",{W:.9,D:-.4,T:.3}],["새벽 1시 바","🍸",{W:-.7,D:.6,T:-.3}]]},
+ {q:"하나만 바른다면?",k:"swatch",o:[["반짝이는 쪽","#E0808F",{D:-.2,S:.4,T:1}],["바랜 쪽","#9E7C7A",{D:.2,S:-.8,T:-.8}]]},
+ {q:"더 손이 가는 건?",k:"scene",o:[["복숭아","🍑",{W:.9,D:-.3,S:.3,T:.6}],["아이스 아메리카노","🧊",{W:-.3,D:.4,S:-.5,T:-.5}],
+   ["와인","🍷",{W:-.5,D:.9,S:.5,T:.3}],["딸기우유","🥛",{W:-.6,D:-.8,S:.2,T:.7}]]},
+ {q:"사진 찍힐 때 나는?",k:"row",o:[["카메라 정면","📸",{W:.1,D:.2,S:.8}],["살짝 딴 데","🙈",{S:-.3,T:.2}],
+   ["아예 피함","🚪",{D:.4,S:-.8,T:-.5}]]},
+ {q:"듣고 싶은 말은?",k:"word",o:[["분위기 있다","",{W:-.5,D:.8,S:-.2,T:-.2}],["화사하다","",{W:.6,D:-.9,S:.4,T:.5}],
+   ["세 보인다","",{W:-.2,D:.5,S:.9,T:-.3}],["편안하다","",{W:.4,D:-.3,S:-.7,T:.1}]]}];
+
+const RMIN={W:-2.7,D:-3.6,S:-4.0,T:-3.8}, RMAX={W:3.2,D:4.4,S:4.7,T:4.1};
+const AMIN={W:-1,D:0,S:0,T:0}, AMAX={W:1,D:.94,S:.96,T:1};
+const WG={W:1,D:1.2,S:1,T:.5};
+const AX=["W","D","S","T"];
+const PHRASE={W:["따뜻하게","서늘하게"],D:["깊게","환하게"],S:["또렷하게","은은하게"],T:["부드럽게","담백하게"]};
+const TRAIT=[["다정함","W"],["낯가림","D"],["충동성","S"],["여운","T"]];
+const IDXC="0123456789ab";
+
+function scoreOf(ans){
+  const r={W:0,D:0,S:0,T:0};
+  ans.forEach((oi,qi)=>{const w=Q[qi].o[oi][2];for(const k in w)r[k]+=w[k];});
+  const p={};AX.forEach(a=>{const t=(r[a]-RMIN[a])/(RMAX[a]-RMIN[a]);p[a]=AMIN[a]+t*(AMAX[a]-AMIN[a]);});
+  return p;
+}
+function nearest(p,useBias){
+  let best=null,bv=Infinity;
+  for(const a of ARCH){let d=0;AX.forEach(k=>{d+=WG[k]*Math.pow(p[k]-a[k],2)});
+    if(useBias)d-=BIAS[a.s];if(d<bv){bv=d;best=a}}
+  return best;
+}
+const bySlug=s=>ARCH.find(a=>a.s===s);
+const rgb=h=>{const x=h.replace("#","");return[0,2,4].map(i=>parseInt(x.substr(i,2),16))};
+const hex=(r,g,b)=>"#"+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("").toUpperCase();
+function lum(h){const[r,g,b]=rgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
+  return .2126*r+.7152*g+.0722*b}
+const isLight=h=>lum(h)>0.45;
+function lab(h){
+  let[r,g,b]=rgb(h).map(v=>v/255);
+  const li=c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);
+  r=li(r);g=li(g);b=li(b);
+  const X=(.4124564*r+.3575761*g+.1804375*b)/.95047,Y=(.2126729*r+.7151522*g+.0721750*b),
+        Z=(.0193339*r+.1191920*g+.9503041*b)/1.08883;
+  const f=t=>t>216/24389?Math.cbrt(t):(841/108)*t+4/29;
+  const fx=f(X),fy=f(Y),fz=f(Z);return[116*fy-16,500*(fx-fy),200*(fy-fz)];
+}
+function lab2hex(L,A,B){
+  const fy=(L+16)/116,fx=fy+A/500,fz=fy-B/200;
+  const g=t=>{const t3=t*t*t;return t3>216/24389?t3:(t-4/29)*108/841};
+  let X=g(fx)*.95047,Y=g(fy),Z=g(fz)*1.08883;
+  let r=3.2404542*X-1.5371385*Y-0.4985314*Z,gg=-0.9692660*X+1.8760108*Y+0.0415560*Z,b=0.0556434*X-0.2040259*Y+1.0572252*Z;
+  const s=c=>{c=c<=0.0031308?12.92*c:1.055*Math.pow(Math.max(c,0),1/2.4)-0.055;return c*255};
+  return hex(s(r),s(gg),s(b));
+}
+function deltaE(h1,h2){
+  const A=lab(h1),B=lab(h2);
+  const L1=A[0],a1=A[1],b1=A[2],L2=B[0],a2=B[1],b2=B[2];
+  const C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2;
+  const cb7=Math.pow(Cb,7),p25=Math.pow(25,7);
+  const G=.5*(1-Math.sqrt(cb7/(cb7+p25)||0));
+  const a1p=(1+G)*a1,a2p=(1+G)*a2;
+  const C1p=Math.hypot(a1p,b1),C2p=Math.hypot(a2p,b2);
+  const rad=d=>d*Math.PI/180;
+  const h1p=(Math.atan2(b1,a1p)*180/Math.PI+360)%360,h2p=(Math.atan2(b2,a2p)*180/Math.PI+360)%360;
+  const dLp=L2-L1,dCp=C2p-C1p;let dhp=0;
+  if(C1p*C2p!==0){dhp=h2p-h1p;if(dhp>180)dhp-=360;else if(dhp<-180)dhp+=360;}
+  const dHp=2*Math.sqrt(C1p*C2p)*Math.sin(rad(dhp)/2);
+  const Lbp=(L1+L2)/2,Cbp=(C1p+C2p)/2;let hbp;
+  if(C1p*C2p===0)hbp=h1p+h2p;
+  else if(Math.abs(h1p-h2p)<=180)hbp=(h1p+h2p)/2;
+  else hbp=(h1p+h2p<360)?(h1p+h2p+360)/2:(h1p+h2p-360)/2;
+  const T=1-.17*Math.cos(rad(hbp-30))+.24*Math.cos(rad(2*hbp))+.32*Math.cos(rad(3*hbp+6))-.20*Math.cos(rad(4*hbp-63));
+  const dth=30*Math.exp(-Math.pow((hbp-275)/25,2));
+  const cbp7=Math.pow(Cbp,7),Rc=2*Math.sqrt(cbp7/(cbp7+p25)||0);
+  const Sl=1+(.015*Math.pow(Lbp-50,2))/Math.sqrt(20+Math.pow(Lbp-50,2));
+  const Sc=1+.045*Cbp,Sh=1+.015*Cbp*T,Rt=-Math.sin(rad(2*dth))*Rc;
+  return Math.sqrt(Math.pow(dLp/Sl,2)+Math.pow(dCp/Sc,2)+Math.pow(dHp/Sh,2)+Rt*(dCp/Sc)*(dHp/Sh));
+}
+function judge(mine,theirs){
+  if(mine.s===theirs.s)return"나를 정확히 알고 있는 친구";
+  if(deltaE(mine.h,theirs.h)<18)return"반 발짝 옆에서 나를 보는 친구";
+  let ax="W",mx=0;
+  AX.forEach(k=>{const d=theirs[k]-mine[k];if(Math.abs(d)>Math.abs(mx)){mx=d;ax=k}});
+  return"생각보다 나를 더 "+PHRASE[ax][mx>0?0:1]+" 보는 친구";
+}
+/* 두 색을 Lab 공간에서 섞어 '우리의 색'을 만든다 */
+/* Lab 색상각 실측 기준 — HSL 아님 */
+const HUE=[[320,340,"Berry"],[340,353,"Fuchsia"],[353,360,"Rose"],[0,2,"Rose"],
+           [2,14,"Pink"],[14,24,"Mauve"],[24,34,"Cherry"],[34,44,"Coral"],
+           [44,54,"Peach"],[54,80,"Cocoa"]];
+const MOD=[[70,"Pale"],[58,"Soft"],[46,""],[34,"Deep"],[0,"Dark"]];
+const MAT=[[.75,"Glow"],[.50,"Silk"],[.20,"Satin"],[0,"Velvet"]];
+function hueName(hd,C){
+  if(C<15)return"Nude";
+  for(const x of HUE){if(x[0]<=hd&&hd<x[1])return x[2]}
+  return"Rose";
+}
+function ourColor(a,b){
+  const A=lab(a.h),B=lab(b.h);
+  const L=(A[0]+B[0])/2,aa=(A[1]+B[1])/2,bb=(A[2]+B[2])/2;
+  const h=lab2hex(L,aa,bb);
+  const hd=(Math.atan2(bb,aa)*180/Math.PI+360)%360, C=Math.hypot(aa,bb);
+  let hue=hueName(hd,C);
+  if(C>=15&&C<24)hue="Dusty "+hue;
+  const mod=(MOD.find(x=>L>=x[0])||MOD[MOD.length-1])[1];
+  const t=(a.T+b.T)/2;
+  const mat=(MAT.find(x=>t>=x[0])||MAT[MAT.length-1])[1];
+  const de=deltaE(a.h,b.h);
+  const rel=de<18?"닮은 두 사람이에요. 같은 걸 보고 비슷한 데서 웃는 편."
+    :de<32?"조금 다른데 이상하게 잘 맞는 조합이에요."
+    :"완전히 다른데 이상하게 오래 보게 되는 조합이에요.";
+  return{hex:h,name:[mod,hue,mat].filter(Boolean).join(" "),rel:rel,de:Math.round(de)};
+}
+function serial(a,ans){
+  let s=7;(ans||[]).forEach((v,i)=>s=(s*31+v*13+i)%997);
+  s=(s+ARCH.indexOf(a)*83)%900+100;return String(s);
+}
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clean=s=>String(s).replace(/[^가-힣ㄱ-ㅎa-zA-Z0-9]/g,"").slice(0,8);
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+          set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function enc(s){try{const b=new TextEncoder().encode(s);let t="";
+  for(let i=0;i<b.length;i++)t+=String.fromCharCode(b[i]);
+  return btoa(t).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}catch(e){return""}}
+function dec(b){try{const t=b.replace(/-/g,"+").replace(/_/g,"/");
+  const s=atob(t),a=new Uint8Array(s.length);
+  for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);
+  return new TextDecoder().decode(a)}catch(e){return""}}
+const baseUrl=()=>location.origin+location.pathname+location.search;
+function clearHash(){try{history.replaceState(null,"",baseUrl())}catch(e){}}
+function setAccent(h){
+  document.documentElement.style.setProperty("--accent",h);
+  document.documentElement.style.setProperty("--accent-ink",isLight(h)?"#1B1614":"#FFFFFF");
+}
+function resetAccent(){
+  document.documentElement.style.setProperty("--accent","#8C3A50");
+  document.documentElement.style.setProperty("--accent-ink","#FFFFFF");
+}
+const app=()=>document.getElementById("app");
+function show(h){app().innerHTML=h;window.scrollTo(0,0)}
+
+function prodHTML(slug,selectedRows=null,prefix="wb"){
+  const rows=selectedRows||((typeof PROD!=="undefined"&&PROD[slug])||[]);
+  if(!rows.length)return'<p class="note">이 색의 제품은 준비 중이에요.</p>';
+  return'<div class="plist">'+rows.map(function(r,i){
+    const p=r.c?Number(r.c).toLocaleString("ko-KR")+"원":"가격 확인";
+    const line=[r.u2?"평소 "+esc(r.u2):"",r.lo?"최저 "+esc(r.lo):""].filter(Boolean).join("  ·  ");
+    const warn=r.w?'<div class="cav">최근 그래프의 움직임은 <b>대표 옵션이 바뀐 표기 변경</b>일 수 있어요. '+
+      (r.ld<6?'옵션별 가격 관측이 '+r.ld+'일뿐이라 실제 인상·인하인지 확정하지 않았습니다.'
+             :'옵션별 가격은 '+r.ld+'일 관측했어요. 전체 이력에서 사다리가 실제로 움직였는지 확인할 수 있습니다.')+
+      '</div>':"";
+    return'<div class="pcard"><div class="prow">'+
+      (r.i?'<img class="th" src="'+esc(r.i)+'" alt="" loading="lazy" style="background:'+esc(r.h)+'" onerror="this.removeAttribute(\'src\')">'
+          :'<span class="th" style="background:'+esc(r.h)+'"></span>')+
+      '<span class="bd"><span class="bn">'+esc(r.b)+'</span>'+
+      '<span class="on">'+esc(r.o)+'</span>'+
+      '<span class="pr">'+p+'</span>'+
+      (line?'<span class="usual">'+line+'</span>':"")+'</span>'+
+      sparkHTML(r.s)+'</div>'+
+      '<button class="why" data-w="'+i+'">가격 자세히 →</button>'+
+      '<div class="whybox hide" id="'+prefix+i+'"><b>'+esc(r.t||"")+'</b>'+
+      (r.d?'<br>'+esc(r.d):"")+warn+
+      '<br><a class="oy" href="'+esc(r.u)+'" target="_blank" rel="noopener">가격 이력 전체 보기 →</a></div></div>';
+  }).join("")+'</div>';
+}
+function sparkHTML(sp){
+  if(!sp||!sp.p)return"";
+  const pts=sp.p.split(" "), last=pts[pts.length-1].split(",");
+  return'<span class="spk"><svg viewBox="0 0 104 26" preserveAspectRatio="none" role="img" aria-label="가격 추이">'+
+    '<polyline points="'+sp.p+'" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="2.6" fill="currentColor"/></svg>'+
+    '<span class="spkl">표시가 '+sp.n+'일</span></span>';
+}
+function wireWhy(){
+  app().querySelectorAll(".why").forEach(b=>b.onclick=()=>{
+    const x=b.closest(".pcard").querySelector(".whybox");
+    const open=!x.classList.contains("hide");
+    x.classList.toggle("hide");b.textContent=open?"가격 자세히 →":"접기";
+  });
+}
+function gridHTML(){
+  return'<div class="grid">'+ARCH.map((a,i)=>
+    '<button class="sw" data-i="'+i+'" aria-pressed="false">'+
+    '<span class="chip" style="background:'+a.h+'"></span><span class="nm">'+esc(a.n)+'</span></button>').join("")+'</div>';
+}
+function pickWire(cb){
+  app().querySelectorAll(".sw").forEach(b=>b.onclick=()=>{
+    app().querySelectorAll(".sw").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");cb(ARCH[+b.dataset.i]);
+  });
+}
+function heroHTML(a,ans){
+  return'<div class="pant"><div class="fill" style="background:'+a.h+'"></div>'+
+    '<div class="band"><div class="bt"><span>Themaric</span><span>My Lip No. '+serial(a,ans)+'</span></div>'+
+    '<div class="bn">'+esc(a.n)+'</div>'+
+    '<div class="bh">'+a.h+'</div>'+
+    '<div class="bs">'+a.tone+'</div></div></div>';
+}
+
+
+/* ───────── API (Cloudflare Worker) ───────── */
+const API="https://api.themaric.kr";   /* workers.dev 로 배포했다면 그 주소로 바꾼다 */
+async function apiPost(path,body){
+  const r=await fetch(API+path,{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify(body)});
+  if(!r.ok) throw new Error("api "+r.status);
+  return r.json();
+}
+async function apiGet(path){
+  const r=await fetch(API+path,{cache:"no-store"});
+  if(!r.ok) throw new Error("api "+r.status);
+  return r.json();
+}
+const myRid=()=>LS.get("rid"), myTok=()=>LS.get("tok");
+
+/* ───────── 커플템 ───────── */
+let POOL=null;
+async function pool(){
+  if(POOL) return POOL;
+  try{ const r=await fetch("palette_products.json",{cache:"force-cache"}); POOL=r.ok?await r.json():{}; }
+  catch(e){ POOL={}; }
+  return POOL;
+}
+const CATNAME={lip:"립",nail:"네일",cheek:"블러셔"};
+function nearestIn(list,ax){
+  let best=null,bv=Infinity;
+  (list||[]).forEach(r=>{
+    const d=1.0*Math.pow(r.W-ax.W,2)+1.2*Math.pow(r.D-ax.D,2)+1.0*Math.pow(r.S-ax.S,2)+0.5*Math.pow(r.T-ax.T,2);
+    if(d<bv){bv=d;best=r}
+  });
+  return best;
+}
+function hexAxes(h,t){
+  const[r,g,b]=rgb(h).map(v=>v/255);
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;
+  let hd=0,sa=0;
+  if(mx!==mn){const d=mx-mn; sa=l>.5?d/(2-mx-mn):d/(mx+mn);
+    hd=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4); hd*=60;}
+  const hu=hd>180?hd-360:hd;
+  return{W:Math.max(-1,Math.min(1,(hu+3)/22)),D:Math.max(0,Math.min(1,(0.72-l)/0.44)),
+         S:Math.max(0,Math.min(1,(sa-0.20)/0.55)),T:t};
+}
+async function coupleHTML(hex,t){
+  const P=await pool();
+  const ax=hexAxes(hex,t);
+  const picks=["lip","cheek","nail"].map(c=>[c,nearestIn(P[c],ax)]).filter(x=>x[1]);
+  if(!picks.length) return "";
+  return'<p class="eyebrow" style="margin-top:4px">둘이 같이 쓰기 좋은 것</p>'+
+  '<div class="plist">'+picks.map(function(x){
+    const c=x[0],r=x[1];
+    return'<a class="pcard" href="https://themaric.kr/?g='+esc(r.g)+'&from=lab-couple" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">'+
+      '<div class="prow">'+
+      (r.i?'<img class="th" src="'+esc(r.i)+'" alt="" loading="lazy" style="background:'+esc(r.h)+'" onerror="this.removeAttribute(\'src\')">'
+          :'<span class="th" style="background:'+esc(r.h)+'"></span>')+
+      '<span class="bd"><span class="bn">'+CATNAME[c]+' · '+esc(r.b)+'</span>'+
+      '<span class="on">'+esc(r.o)+'</span>'+
+      '<span class="pr">'+Number(r.c).toLocaleString("ko-KR")+'원</span></span>'+
+      '<span class="spk"><span class="mini" style="background:'+esc(r.h)+';width:26px;height:26px;border-radius:6px;display:block"></span></span>'+
+      '</div></a>';
+  }).join("")+'</div>'+
+  '<p class="note">우리의 색과 가장 가까운 호수예요. 가격은 더마릭이 매일 관측한 값이고, 카드를 누르면 가격 이력을 볼 수 있어요.</p>';
+}
+
+/* ───────── 화면 ───────── */
+/* Shareable color stories: every invitation and reply works without a server. */
+const COLOR_HOME='https://themaric.kr/lab/lip/';
+let activeInvite=null;
+const readJSON=(key,fallback)=>{try{return JSON.parse(LS.get(key)||'null')||fallback}catch(e){return fallback}};
+const uid=()=>crypto.randomUUID();
+function ownerId(){let id=LS.get('color-owner-v2');if(!id){id=uid();LS.set('color-owner-v2',id)}return id;}
+function validInvite(p){return p&&p.v===2&&['seen','pair'].includes(p.mode)&&typeof p.owner==='string'&&/^[a-zA-Z0-9-]{8,64}$/.test(p.owner)&&!!bySlug(p.mine)&&typeof p.name==='string'&&p.name.length<=8;}
+function decodeLink(raw){if(raw.length>1800)return null;try{return JSON.parse(dec(raw))}catch(e){return null}}
+function validReply(p){return validInvite(p)&&!!bySlug(p.pick)&&typeof p.nick==='string'&&p.nick.length<=8&&typeof p.id==='string'&&/^[a-zA-Z0-9-]{8,64}$/.test(p.id);}
+function linkFor(kind,p){return COLOR_HOME+'#'+kind+'='+enc(JSON.stringify(p));}
+function linesHTML(lines){return lines.map(x=>'<p>'+esc(x)+'</p>').join('');}
+const SIDES={
+ 'first-love':'조심스럽게 마음을 내어주는 다정한 면', 'first-snow':'차분하게 곁을 지켜주는 면',
+ 'sunday-peach':'주변을 편안하게 만드는 따뜻한 면','loud-pink':'좋아하는 것을 솔직하게 표현하는 면',
+ 'monday-coral':'먼저 움직이며 분위기를 밝히는 면','after-work':'말없이도 마음을 알아주는 섬세한 면',
+ 'cold-icetea':'자기만의 기준이 또렷한 면','dawn-rose':'작은 순간을 오래 기억하는 면',
+ 'left-on-mauve':'조용해 보여도 취향이 분명한 면','drunk-cherry':'마음이 가는 일에 깊이 몰입하는 면',
+ 'plum-night':'쉽게 다 보여주지 않는 깊은 면','midnight-choco':'믿고 기댈 수 있는 단단한 면'
+};
+const FRIEND_WORDS={"first-love": ["친구는 당신의 다정함을 딸기우유 핑크로 기억하나 봐요.", "작은 선물에 오래 기뻐하거나, 무심히 건넨 말을 기억해주는 모습이 떠올랐을지도요.", "딸기우유 핑크를 고른 친구는 작은 기쁨을 함께 나누는 쪽에 마음이 가나 봐요.", "서로 좋아할 만한 것을 발견하면 사진부터 보내는 하루가 어울려요."], "first-snow": ["안개 베이지는 친구가 당신 곁에서 느끼는 조용한 편안함에 가까워요.", "말이 잠시 끊겨도 어색하지 않았던 시간이 이 색으로 남았을지 몰라요.", "안개 베이지를 고른 친구와는 서두르지 않는 시간이 잘 어울려요.", "일정 없이 걷다가 마음에 드는 자리에 앉아 쉬어가도 좋겠어요."], "sunday-peach": ["친구 눈에는 당신이 주변의 긴장을 풀어주는 노을 피치처럼 보이나 봐요.", "낯선 자리에서 먼저 웃어주던 얼굴이나, 집에 가기 아쉬웠던 저녁이 떠오르는 색이에요.", "노을 피치를 고른 친구는 함께 있을 때의 편안한 온도를 좋아하나 봐요.", "노을이 내려앉는 창가에서 별일 없던 하루를 나눠보면 어떨까요."], "loud-pink": ["친구가 골라준 형광펜 푸시아에는 당신의 솔직한 취향이 보여요.", "좋아하는 이야기를 할 때 목소리가 커지고 눈이 반짝이던 모습이 기억에 남았을지도요.", "형광펜 푸시아를 고른 친구에게는 좋아하는 것을 숨기지 않는 즐거움이 있나 봐요.", "서로의 최애를 하나씩 소개하다 보면 생각보다 긴 취향 목록이 생길 거예요."], "monday-coral": ["친구에게 당신은 평범한 날에도 활기를 더하는 토마토 코럴인가 봐요.", "먼저 약속을 잡거나, 망설이는 친구의 등을 가볍게 밀어준 순간이 떠오르는 색이에요.", "토마토 코럴을 고른 친구와는 생각만 하던 일을 작게 시작해봐도 좋겠어요.", "가보고 싶던 가게 하나를 골라 함께 문을 열어보는 하루가 어울려요."], "after-work": ["마른 장미 로즈는 친구가 알아본 당신의 세심한 마음 같아요.", "괜찮다는 말 뒤에 남은 표정을 알아봐 준 순간을 친구는 기억하고 있을지도요.", "마른 장미 로즈를 고른 친구와는 하루 끝의 이야기를 천천히 나눠봐요.", "답을 찾기보다 오늘 가장 오래 마음에 남은 장면부터 꺼내도 좋겠어요."], "cold-icetea": ["친구가 본 당신에게는 홍차 브릭처럼 차분하고 또렷한 기준이 있나 봐요.", "모두가 좋다고 해도 자기에게 맞는 것을 고르던 모습이 이 색과 닮았어요.", "홍차 브릭을 고른 친구는 오래 곁에 둘 만한 취향을 찾는 쪽인가 봐요.", "각자 아끼는 물건 하나를 가져와 왜 좋아하는지 이야기해보면 어떨까요."], "dawn-rose": ["친구는 당신의 오래 기억하는 마음을 새벽 1:17 로즈로 골랐어요.", "함께 들었던 노래나 지나간 대화를 다시 꺼내주던 순간이 생각났을지도요.", "새벽 1:17 로즈를 고른 친구와는 지나간 장면에도 새 이야기가 생겨요.", "둘이 찍은 사진 한 장을 골라 그날 서로 무엇을 기억하는지 나눠봐요."], "left-on-mauve": ["친구 눈에 당신은 조용히 자기 색을 지키는 모브처럼 보이나 봐요.", "말수보다 옷의 작은 디테일이나 예상 밖의 노래 취향이 더 많은 이야기를 했을지도요.", "모브를 고른 친구에게는 천천히 발견하는 취향이 어울려요.", "서로의 재생 목록에서 의외의 노래 한 곡씩 골라 들어보면 좋겠어요."], "drunk-cherry": ["체리빛을 골라준 친구는 당신이 무언가에 푹 빠지는 모습을 떠올렸나 봐요.", "관심 있는 주제 앞에서 시간 가는 줄 모르던 열기가 친구에게도 전해졌을지도요.", "체리빛을 고른 친구와는 요즘 가장 빠져 있는 이야기를 나눠봐요.", "서로의 관심사를 하루씩 따라가 보면 혼자서는 몰랐을 재미가 생길 거예요."], "plum-night": ["친구가 골라준 플럼에는 한 번에 다 알 수 없는 당신의 깊이가 담겨 있어요.", "익숙한 대화 중에 툭 꺼낸 새로운 생각이 오래 기억에 남았을지도요.", "플럼을 고른 친구와는 정답 없는 질문 하나로도 긴 대화가 시작될 것 같아요.", "좋아하는 영화의 마지막 장면처럼, 서로 다르게 느낀 이야기를 꺼내봐요."], "midnight-choco": ["친구에게 당신은 마음을 놓고 기대고 싶은 짙은 초콜릿빛인가 봐요.", "큰 말보다 작은 약속을 지키던 모습이 믿음으로 쌓였을지도요.", "초콜릿빛을 고른 친구와는 소박한 약속을 오래 이어가도 좋겠어요.", "한 달에 한 번 같은 곳에서 만나도 매번 다른 근황이 두 사람 사이를 채워줄 거예요."]};
+const FRIEND_LAST='같은 색이든 다른 색이든, 함께 나눈 순간이 우리만의 색이 돼요.';
+function seenStory(mine,pick){const w=FRIEND_WORDS[pick.s];return [w[0]+(mine.s===pick.s?' 내가 고른 색과도 같네요.':''),w[1],FRIEND_LAST];}
+function pairStory(a,b){const w=FRIEND_WORDS[b.s];return [a.n+'와 '+b.n+'가 만났어요. '+w[2],w[3],FRIEND_LAST];}
+function colorTile(a,label){return '<div class="color-tile"><span class="color-sample" style="background:'+a.h+'"></span><div><span class="small-label">'+esc(label)+'</span><strong>'+esc(a.n)+'</strong><span class="hex-label">'+a.h+'</span></div></div>';}
+function relationshipHTML(p){
+ const mine=bySlug(p.mine),pick=bySlug(p.pick);
+ if(p.mode==='seen')return '<div class="compare-colors">'+colorTile(mine,p.name?p.name+'님의 선택':'스스로 고른 색')+colorTile(pick,p.nick+'님의 시선')+'</div><div class="relationship-copy">'+linesHTML(seenStory(mine,pick))+'</div>';
+ const mix=ourColor(mine,pick);
+ return '<div class="compare-colors">'+colorTile(mine,p.name||'링크를 보낸 친구')+colorTile(pick,p.nick||'친구')+'</div><div class="our-swatch" style="background:'+mix.hex+';color:'+(isLight(mix.hex)?'#382719':'#fff')+'"><span>두 색을 섞은 우리의 색</span><strong>'+esc(mix.name)+'</strong><small>'+mix.hex+'</small></div><div class="relationship-copy">'+linesHTML(pairStory(mine,pick))+'</div>';
+}
+function savedRows(a){return readJSON('color-replies-v2',[]).filter(r=>validReply(r)&&r.owner===ownerId()&&r.mine===a.s);}
+function saveReply(p){const rows=readJSON('color-replies-v2',[]).filter(validReply);if(!rows.some(r=>r.id===p.id)){rows.push(p);LS.set('color-replies-v2',JSON.stringify(rows.slice(-100)));}}
+function sectionRows(rows,mode){const selected=rows.filter(r=>r.mode===mode);return selected.length?selected.map(r=>'<article class="friend-result"><div class="friend-result-head"><strong>'+esc(r.nick)+'님'+(mode==='pair'?'과 만든 색':'이 보는 나')+'</strong></div>'+relationshipHTML(r)+'</article>').join(''):'<div class="empty-color">'+(mode==='seen'?'친구가 골라준 내 색이 이곳에 모여요.':'친구와 만든 우리 색이 이곳에 모여요.')+'<br><span>친구가 보내준 결과 링크를 열면 여기에 저장돼요.</span></div>';}
+function viewIntro(){
+ activeInvite=null;resetAccent();
+ show('<section class="color-welcome"><p class="eyebrow">COLOR PLAY</p><h1>내 취향은<br>어떤 색일까?</h1><p class="lede">여덟 가지 질문으로 내 색을 찾고,<br>친구의 시선도 더해보세요.</p><div class="intro-bloom" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><small>나를 닮은 색 한 조각</small></div><button class="cta" id="go">내 색 찾기</button>'+(bySlug(LS.get('slug'))?'<button class="ghost" id="mine">내 팔레트 보기</button>':'')+'<p class="note">약 30초 · 회원가입 없음</p></section>');
+ document.getElementById('go').onclick=()=>viewQ(0,[]);const b=document.getElementById('mine');if(b)b.onclick=()=>viewResult(bySlug(LS.get('slug')),readJSON('ans',[]));
+}
+
+function viewQ(i,ans){
+  resetAccent();
+  const q=Q[i],n=q.o.length;
+  const cls=q.k==="row"?"q3":(n>=4?"q4":"q2");
+  const cards=q.o.map((o,k)=>{
+    let inner;
+    if(q.k==="swatch") inner='<span class="swm" style="background:'+o[1]+'"></span><span class="lb">'+esc(o[0])+'</span>';
+    else if(q.k==="word") inner='<span class="word">'+esc(o[0])+'</span>';
+    else inner='<span class="em">'+o[1]+'</span><span class="lb">'+esc(o[0])+'</span>';
+    return'<button class="qc'+(q.k==="row"?" row":"")+'" data-k="'+k+'">'+inner+'</button>';
+  }).join("");
+  show('<p class="eyebrow">'+(i+1)+' / '+Q.length+'</p>'+
+  '<div class="bar"><i style="width:'+(i/Q.length*100)+'%"></i></div>'+
+  '<h2>'+esc(q.q)+'</h2>'+
+  '<div class="qgrid '+cls+'">'+cards+'</div>'+
+  (i>0?'<button class="link" id="back">이전</button>':""));
+  app().querySelectorAll(".qc").forEach(b=>b.onclick=()=>{
+    const na=ans.slice(0,i);na.push(+b.dataset.k);
+    if(i+1<Q.length)viewQ(i+1,na);else finish(na);
+  });
+  const bk=document.getElementById("back");if(bk)bk.onclick=()=>viewQ(i-1,ans);
+}
+
+function finish(ans){
+ const a=nearest(scoreOf(ans),true);
+ if(activeInvite){return pickFriend(activeInvite,a);}
+ LS.set('slug',a.s);LS.set('ans',JSON.stringify(ans));ownerId();clearHash();viewResult(a,ans);
+}
+function viewResult(a,ans){
+ if(!a)return viewIntro();activeInvite=null;resetAccent();const rows=savedRows(a);
+ show('<div class="result-heading"><p class="eyebrow">MY PALETTE</p><h1>나와 친구들의 색</h1><p class="note">나를 보는 여러 시선을 한곳에 모았어요.</p></div><section class="my-color"><h2>내가 고른 내 색</h2>'+colorTile(a,'MY COLOR')+'<p>'+esc(a.c)+'</p></section><section class="invite-actions"><h2>친구의 색도 더해볼까요?</h2><label class="small-label" for="owner-name">친구에게 보여줄 내 이름 · 선택</label><input id="owner-name" maxlength="8" placeholder="이름 또는 별명" value="'+esc(LS.get('myname')||'')+'"><button class="invite-button" id="invite-seen"><strong>친구가 보는 나는 어떤 색깔일까?</strong><span>나를 닮은 색을 골라줄 친구에게 링크 보내기 ↗</span></button><button class="invite-button" id="invite-pair"><strong>친구는 무슨 색일까?</strong><span>자기 색을 고를 친구에게 링크 보내기 ↗</span></button><div id="share-box" aria-live="polite"></div></section><section class="received-section"><h2>친구가 보는 내 색 <small>'+rows.filter(r=>r.mode==='seen').length+'</small></h2>'+sectionRows(rows,'seen')+'</section><section class="received-section"><h2>친구와 만든 우리 색 <small>'+rows.filter(r=>r.mode==='pair').length+'</small></h2>'+sectionRows(rows,'pair')+'</section><details class="color-products"><summary>이 색을 담은 뷰티 제품 보기</summary>'+prodHTML(a.s)+'<p class="note">더마릭이 관측한 가격 기록이에요. 제품별 관측 일수와 주의사항을 함께 확인해 주세요.</p></details><p class="play-note">색과 취향을 바탕으로 만든 가벼운 이야기예요. 성격이나 관계를 판단하는 검사는 아니에요.</p><button class="link" id="redo">내 색 다시 찾기</button>');
+ ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=()=>{
+ const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);
+ const p={v:2,mode,owner:ownerId(),mine:a.s,name};showLink('share-box',linkFor('invite',p),mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');});
+ document.getElementById('redo').onclick=()=>viewQ(0,[]);wireWhy();
+}
+function showLink(target,url,message){
+ const box=document.getElementById(target);box.innerHTML='<div class="share-link"><label class="small-label" for="copy-link">이 링크를 친구에게 보내주세요</label><input id="copy-link" readonly value="'+esc(url)+'"><button class="ghost" id="copy-button">링크 복사</button><p class="note" id="copy-status" role="status">'+(location.hostname==='localhost'||location.hostname==='127.0.0.1'?'미리보기예요. 사이트에 반영한 뒤 친구에게 보내주세요.':'친구가 보내준 결과 링크를 처음 내 색을 만든 브라우저에서 열면 저장돼요.')+'</p></div>';
+ document.getElementById('copy-link').onclick=e=>e.target.select();
+ document.getElementById('copy-button').onclick=async()=>{const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(message+'\n'+url);status.textContent='복사했어요. 친구와의 대화창에 붙여넣어 주세요.';}catch(e){document.getElementById('copy-link').select();status.textContent='위 링크를 길게 눌러 복사해 주세요.';}};
+}
+function viewInvite(p){
+ activeInvite=p;resetAccent();const who=p.name?p.name+'님':'이 친구';
+ show('<p class="eyebrow">친구에게서 온 색 초대</p><h1>'+(p.mode==='seen'?esc(who)+' 하면<br>어떤 색이 떠오르나요?':'내 색을 골라<br>우리 색을 만들어봐요.')+'</h1><p class="lede">'+(p.mode==='seen'?'떠오르는 색 하나를 골라주세요. 친구가 고른 색은 선택한 뒤 보여드릴게요.':'나를 닮은 색을 하나 골라주세요. 친구의 색과 섞으면 어떤 색이 나올까요?')+'</p>'+gridHTML()+'<div id="friend-pick"></div>'+(p.mode==='pair'?'<button class="ghost" id="friend-quiz">질문으로 내 색 찾기</button>':'')+'<div id="friend-history"></div>');
+ pickWire(a=>pickFriend(p,a));const q=document.getElementById('friend-quiz');if(q)q.onclick=()=>viewQ(0,[]);
+}
+function pickFriend(p,a){
+ if(!document.getElementById('friend-pick')){show('<h1>내 색을 찾았어요</h1>'+colorTile(a,'선택한 색')+'<div id="friend-pick"></div>');}
+ const box=document.getElementById('friend-pick');box.innerHTML='<section class="pick-confirm">'+colorTile(a,p.mode==='seen'?'친구를 닮은 색':'나를 닮은 색')+'<label for="friend-name" class="small-label">친구에게 보여줄 이름</label><input id="friend-name" maxlength="8" placeholder="이름 또는 별명"><button class="cta" id="see-relation">'+(p.mode==='seen'?'친구가 고른 색과 비교하기':'우리의 색 보기')+'</button><p id="name-error" class="note" role="alert"></p></section>';
+ document.getElementById('see-relation').onclick=()=>{const nick=clean(document.getElementById('friend-name').value);if(!nick){document.getElementById('name-error').textContent='이름이나 별명을 입력해 주세요.';return;}const result={...p,pick:a.s,nick,id:uid()};LS.set('color-last-reply-v2',JSON.stringify(result));if(p.mode==='pair'&&ownerId()!==p.owner){LS.set('slug',a.s);LS.set('ans','[]');LS.set('myname',nick);saveReply({...result,owner:ownerId(),mine:a.s,pick:p.mine,name:nick,nick:p.name||'친구'});}viewFriendResult(result);};
+}
+function viewFriendResult(p){
+ resetAccent();show('<p class="eyebrow">'+(p.mode==='seen'?'친구의 시선':'둘이 만든 색')+'</p><h1>'+(p.mode==='seen'?'우리는 서로를<br>이렇게 보고 있어요.':'두 사람의 색이<br>하나 더 생겼어요.')+'</h1>'+relationshipHTML(p)+'<section class="result-send"><h2>친구에게도 보여주세요</h2><p class="note">결과 링크를 보내면 친구도 같은 이야기를 보고, 자신의 팔레트에 담을 수 있어요.</p><div id="reply-link"></div></section><p class="play-note">색과 취향으로 즐기는 이야기예요. 관계를 판단하는 검사는 아니에요.</p><button class="ghost" id="to-mine">내 팔레트 보기</button>');
+ showLink('reply-link',linkFor('reply',p),'우리 색 결과가 나왔어. 어떤 것 같아?');document.getElementById('to-mine').onclick=()=>{clearHash();route();};
+}
+function viewReply(p){
+ resetAccent();const mine=bySlug(LS.get('slug'));
+ const isOwner=LS.get('color-owner-v2')===p.owner&&mine&&mine.s===p.mine;
+ if(isOwner){saveReply(p);clearHash();viewResult(mine,readJSON('ans',[]));return;}
+ show('<p class="eyebrow">친구가 보낸 결과</p><h1>'+esc(p.nick)+'님과의 색 이야기</h1>'+relationshipHTML(p)+'<p class="note">이 브라우저에는 초대한 사람의 팔레트가 없어요. 결과는 여기서 그대로 볼 수 있어요.</p><button class="ghost" id="reply-home">내 색 찾으러 가기</button>');document.getElementById('reply-home').onclick=()=>{clearHash();viewIntro();};
+}
+function route(){
+ const h=location.hash;
+ if(h.startsWith('#invite=')){const p=decodeLink(h.slice(8));if(validInvite(p))return viewInvite(p);return invalidLink();}
+ if(h.startsWith('#reply=')){const p=decodeLink(h.slice(7));if(validReply(p))return viewReply(p);return invalidLink();}
+ if(h.startsWith('#a='))return invalidLink(true);
+ const a=bySlug(LS.get('slug'));if(a)return viewResult(a,readJSON('ans',[]));viewIntro();
+}
+function invalidLink(legacy=false){show('<h1>'+(legacy?'이전 방식의 초대 링크예요.':'링크를 확인해 주세요.')+'</h1><p class="lede">'+(legacy?'친구에게 새 화면에서 초대 링크를 다시 만들어 달라고 해주세요.':'링크가 끝까지 복사되지 않았을 수 있어요. 친구에게 다시 받아보세요.')+'</p><button class="ghost" id="restart">내 색 찾기</button>');document.getElementById('restart').onclick=()=>{clearHash();viewIntro();};}
+/* Server mode keeps existing v2 reply links readable. */
+const SERVER_API=['localhost','127.0.0.1'].includes(location.hostname)?'http://127.0.0.1:8787':'https://themaric-lab.themaric.workers.dev';
+const serverKeyOK=k=>typeof k==='string'&&/^[a-f0-9]{64}$/.test(k);
+const serverKey=()=>Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+async function serverCall(path,body,secret,method){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{const r=await fetch(SERVER_API+path,{method:method||(body?'POST':'GET'),headers:{...(body?{'Content-Type':'application/json'}:{}),...(secret?{Authorization:'Bearer '+secret}:{})},body:body?JSON.stringify(body):undefined,signal:controller.signal});const data=await r.json();if(!r.ok){const e=new Error(data.error||'server');e.status=r.status;throw e;}return data;}finally{clearTimeout(timer)}
+}
+function serverRecord(a){const p=readJSON('color-server-v3',null);return p&&p.slug===a.s&&serverKeyOK(p.secret)&&serverKeyOK(p.token)?p:null;}
+function storeServer(p){LS.set('color-server-v3',JSON.stringify(p));}
+let serverCreating=null,screenVersion=0;
+async function ensureServer(a,name){
+ const old=serverRecord(a);if(old)return old;
+ if(serverCreating)return serverCreating;
+ serverCreating=serverCall('/v3/palettes',{slug:a.s,name}).then(p=>{storeServer(p);return p}).finally(()=>serverCreating=null);return serverCreating;
+}
+const baseResult=viewResult,basePick=pickFriend,baseFriendResult=viewFriendResult,baseRoute=route;
+viewResult=function(a,ans){
+ baseResult(a,ans);if(!a)return;const version=++screenVersion;
+ const actions=document.querySelector('.invite-actions');
+ actions.insertAdjacentHTML('beforeend','<p class="note">친구가 제출하면 이 팔레트에 모여요. 이름과 색, 선택해서 남긴 이야기는 서버에 최대 180일 동안 보관해요.</p><button class="ghost" id="refresh-colors">친구 응답 새로고침</button><button class="link" id="private-palette">내 결과 링크 보관하기</button><p class="note" id="server-status" role="status"></p><details><summary class="note">저장 관리</summary><button class="link" id="delete-palette">서버의 내 팔레트 삭제</button><p class="note">삭제하면 기존 초대 링크도 사용할 수 없어요.</p></details>');
+ document.querySelectorAll('.empty-color span').forEach(e=>e.textContent='친구가 제출한 색을 새로고침하면 볼 수 있어요.');
+ const status=document.getElementById('server-status');
+ ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=async()=>{
+  const button=document.getElementById('invite-'+mode);button.disabled=true;status.textContent='초대 링크를 준비하고 있어요.';
+  try{const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);const p=await ensureServer(a,name);if(version!==screenVersion||mapMode!==mode)return;
+   showLink('share-box',COLOR_HOME+'#join='+p.token+'&mode='+mode,mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');
+   document.getElementById('copy-status').textContent='친구가 선택하고 제출하면 내 팔레트에 모여요.';status.textContent='초대 링크를 만들었어요.';
+  }catch(e){if(version!==screenVersion||mapMode!==mode)return;const fallback={v:2,mode,owner:ownerId(),mine:a.s,name:clean(document.getElementById('owner-name').value)};showLink('share-box',linkFor('invite',fallback),'내 색 팔레트에 초대할게.');status.textContent='서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.';}finally{button.disabled=false;}
+ });
+ document.getElementById('refresh-colors').onclick=()=>refreshServer(a,version);
+ document.getElementById('private-palette').onclick=async()=>{
+  try{const p=await ensureServer(a,clean(document.getElementById('owner-name').value));if(version!==screenVersion)return;
+   showLink('share-box',COLOR_HOME+'#palette='+p.secret,'내 색 팔레트');
+   document.querySelector('label[for="copy-link"]').textContent='나만 보관하는 개인 결과 링크';document.getElementById('copy-status').textContent='이 링크로 결과 조회와 삭제가 가능해요. 친구에게 보내지 말고 나만 보관해 주세요.';
+   document.getElementById('copy-button').onclick=async()=>{try{await navigator.clipboard.writeText(COLOR_HOME+'#palette='+p.secret);document.getElementById('copy-status').textContent='개인 결과 링크를 복사했어요. 나만 볼 수 있는 곳에 보관해 주세요.';}catch{document.getElementById('copy-link').select();document.getElementById('copy-status').textContent='위 개인 링크를 길게 눌러 복사해 주세요.';}};
+  }catch{status.textContent='결과 링크를 준비하지 못했어요. 다시 시도해 주세요.';}
+ };
+ document.getElementById('delete-palette').onclick=async()=>{
+  const p=serverRecord(a);if(!p){status.textContent='연결된 서버 팔레트가 없어요.';return;}
+  if(!confirm('서버의 내 팔레트와 받은 응답을 삭제할까요? 기존 초대 링크도 사용할 수 없게 됩니다.'))return;
+  try{await serverCall('/v3/me',null,p.secret,'DELETE');LS.set('color-server-v3','null');LS.set('color-replies-v2',JSON.stringify(readJSON('color-replies-v2',[]).filter(r=>r.serverToken!==p.token)));viewResult(a,ans);document.getElementById('server-status').textContent='서버 팔레트를 삭제했어요.';}catch{status.textContent='삭제하지 못했어요. 다시 시도해 주세요.';}
+ };
+ if(serverRecord(a))refreshServer(a,version);
+};
+async function refreshServer(a,version){
+ const status=document.getElementById('server-status'),p=serverRecord(a);if(!p){status.textContent='초대 링크를 만들면 친구의 응답을 받을 수 있어요.';return;}
+ status.textContent='친구의 색을 확인하고 있어요.';
+ try{const remote=await serverCall('/v3/me',null,p.secret);if(version!==screenVersion||!document.getElementById('server-status'))return;
+  const rows=remote.answers.filter(r=>serverKeyOK(r.id)&&['seen','pair'].includes(r.mode)&&bySlug(r.pick)).map(r=>({v:2,owner:ownerId(),mine:a.s,name:remote.name,mode:r.mode,pick:r.pick,nick:clean(r.nick),id:r.id,serverToken:p.token,moment:r.moment||'',reason:r.reason||''}));
+  // Merge new answers with cached ones: KV reads can briefly lag behind writes.
+  rows.forEach(saveReply);const all=savedRows(a);document.querySelectorAll('.received-section').forEach((el,i)=>{const mode=i?'pair':'seen';el.innerHTML='<h2>'+(i?'친구와 만든 우리 색':'친구가 보는 내 색')+' <small>'+all.filter(r=>r.mode===mode).length+'</small></h2>'+sectionRows(all,mode);});
+  status.textContent='확인했어요. 방금 보낸 응답은 반영까지 잠시 걸릴 수 있어요.';
+ }catch(e){if(version!==screenVersion)return;status.textContent=e.status===404?'팔레트가 만료되었거나 삭제됐어요. 잠시 후에도 같으면 새 초대 링크를 만들어 주세요.':'응답을 불러오지 못했어요. 저장해 둔 결과는 그대로예요.';if(e.status===404){status.insertAdjacentHTML('beforeend',' <button class=link id=new-server-palette>새 팔레트 시작</button>');document.getElementById('new-server-palette').onclick=()=>{LS.set('color-server-v3','null');viewResult(a,readJSON('ans',[]));};}}
+}
+pickFriend=function(p,a){
+ basePick(p,a);if(!p.serverToken)return;
+ const button=document.getElementById('see-relation'),original=button.onclick,id=serverKey();
+ document.getElementById('name-error').textContent='제출하면 이름과 색, 남긴 이야기가 친구에게 전달돼요. 서버 보관 기간은 팔레트를 만든 날부터 최대 180일이에요.';
+ button.onclick=async()=>{
+  const nick=clean(document.getElementById('friend-name').value);if(!nick){document.getElementById('name-error').textContent='이름이나 별명을 입력해 주세요.';return;}
+  button.disabled=true;document.getElementById('name-error').textContent='친구에게 보내고 있어요.';
+  try{await serverCall('/v3/answers',{token:p.serverToken,mode:p.mode,pick:a.s,nick,id,moment:p.moment||'',reason:p.reason||''});original();}
+  catch(e){document.getElementById('name-error').textContent=e.status===404?'초대 정보를 찾지 못했어요. 새 링크라면 잠시 후 다시 눌러주세요.':e.status===429?'잠시 쉬었다 다시 보내주세요. 응답이 가득 찼을 수도 있어요.':'아직 전달을 확인하지 못했어요. 다시 눌러도 중복 저장되지 않아요.';button.disabled=false;}
+ };
+};
+viewFriendResult=function(p){
+ baseFriendResult(p);if(!p.serverToken)return;
+ document.querySelector('.result-send').innerHTML='<h2>친구에게 보냈어요</h2><p class="note">친구가 자신의 팔레트를 열면 이 결과를 볼 수 있어요. 반영까지 잠시 걸릴 수 있어요.</p>';
+};
+route=function(){
+ const hash=location.hash;
+ if(hash.startsWith('#join=')){
+  ++screenVersion;const params=new URLSearchParams(hash.slice(1)),token=params.get('join'),mode=params.get('mode');if(!serverKeyOK(token)||!['seen','pair'].includes(mode))return invalidLink();
+  show('<h1>친구의 초대를<br>열고 있어요.</h1>');
+  serverCall('/v3/invites/'+token).then(p=>{if(location.hash!==hash)return;viewInvite({v:2,owner:token,mine:p.slug,name:p.name,mode,serverToken:token});}).catch(()=>{if(location.hash!==hash)return;show('<h1>초대를 열지 못했어요.</h1><p class="note">새 링크는 반영까지 잠시 걸릴 수 있어요. 계속 열리지 않으면 친구에게 새 초대를 받아주세요.</p><button class="ghost" id="retry-invite">다시 열기</button>');document.getElementById('retry-invite').onclick=route;});return;
+ }
+ if(hash.startsWith('#palette=')){
+  ++screenVersion;const secret=hash.slice(9);if(!serverKeyOK(secret))return invalidLink();
+  show('<h1>내 팔레트를<br>불러오고 있어요.</h1>');
+  serverCall('/v3/me',null,secret).then(p=>{if(location.hash!==hash)return;storeServer({...p,secret});LS.set('slug',p.slug);LS.set('myname',p.name);clearHash();viewResult(bySlug(p.slug),[]);}).catch(()=>{show('<h1>팔레트를 불러오지 못했어요.</h1><p class="note">연결 상태와 개인 결과 링크를 확인해 주세요.</p><button class="ghost" id="retry-palette">다시 열기</button>');document.getElementById('retry-palette').onclick=route;});return;
+ }
+ ++screenVersion;return baseRoute();
+};
+
+/* One map, two perspectives. Positions represent colors, never friendship rank. */
+let mapMode='seen',mapSelected=null,mapNames=true,mapColor=null;
+const MOMENTS={talk:['수다 메이트','이야기가 길어져도 편한 사이. 둘의 색 옆에는 아직 나눌 말이 많이 남아 있어요.'],explore:['새로운 취향 담당','혼자라면 지나쳤을 것을 함께라서 한 번 더 보게 되는 사이예요.'],rest:['편안한 온도','특별한 일을 하지 않아도 함께 있는 시간이 편한 사이. 둘의 색도 느긋하게 머물러요.']};
+function colorStory(r){const a=bySlug(r.mine),b=bySlug(r.pick);const lines=r.mode==='seen'?seenStory(a,b):pairStory(a,b);if(r.mode==='pair'&&MOMENTS[r.moment])lines[1]+={talk:' 오늘은 조금 길게 수다를 떨어도 좋겠어요.',explore:' 다음 나들이에 작은 목록을 챙겨봐요.',rest:' 바쁘게 채우지 않아도 괜찮은 시간이면 좋겠어요.'}[r.moment];return lines;}
+const mapBaseRelationship=relationshipHTML;
+relationshipHTML=function(r){return '<section class="color-book friend-story">'+bookHTML(r,true)+'</section>';};
+function relationshipTitle(a,b,r){if(MOMENTS[r.moment])return MOMENTS[r.moment][0];if(a.s===b.s||deltaE(a.h,b.h)<18)return '취향 통역사';if(deltaE(a.h,b.h)<32)return '새로운 취향 담당';return '뜻밖의 단짝';}
+function mapGroups(a,mode){const rows=savedRows(a).filter(r=>r.mode===mode);return ARCH.map((c,index)=>({color:c,index,rows:rows.filter(r=>r.pick===c.s)})).filter(g=>g.rows.length);}
+function mapSummary(a,mode){const groups=mapGroups(a,mode),rows=groups.flatMap(g=>g.rows);if(!rows.length)return mode==='seen'?'첫 친구가 골라준 색부터, 한 조각씩 모아보세요.':'친구가 자기 색을 고르면, 둘이 섞은 색이 여기에 모여요.';
+ if(mode==='pair')return rows.length+'개의 우리 색이 모였어요. 조각을 누르면 둘만의 컬러북이 열려요.';
+ const same=rows.filter(r=>r.pick===a.s).length;if(same===rows.length)return '모인 '+rows.length+'개의 시선이 모두 내가 고른 색과 같아요.';
+ const max=Math.max(...groups.map(g=>g.rows.length)),top=groups.filter(g=>g.rows.length===max);if(top.length===1)return '친구들이 가장 많이 골라준 색은 '+top[0].color.n+'. '+(same?'내 색과 같은 선택도 '+same+'개 있어요.':'내가 고른 색과는 또 다른 모습이에요.');
+ return groups.length+'가지 색으로 나를 보고 있어요. 친구마다 떠올리는 내 모습이 조금씩 달라요.';
+}
+// Each reply keeps its own paper piece, including identical colors.
+let collagePage=0;
+const COLLAGE_SIZE=8;
+function collageRows(a,mode){return savedRows(a).filter(r=>r.mode===mode);}
+function paperPath(x,y,w,h,index){
+ let d='';const n=44;
+ for(let i=0;i<n;i++){const t=i/n*Math.PI*2,j=1+Math.sin(i*13.7+index*4.1)*.032+Math.cos(i*7.1+index)*.018;
+ const px=x+Math.sign(Math.cos(t))*Math.pow(Math.abs(Math.cos(t)),.85)*w/2*j,py=y+Math.sign(Math.sin(t))*Math.pow(Math.abs(Math.sin(t)),.82)*h/2*j;
+ d+=(i?'L':'M')+px.toFixed(2)+' '+py.toFixed(2);}
+ return d+'Z';
+}
+function collageLayout(a,mode,page=collagePage){
+ const rows=collageRows(a,mode),pages=Math.max(1,Math.ceil(rows.length/COLLAGE_SIZE)),p=Math.max(0,Math.min(page,pages-1));
+ const pieces=[{own:true,color:a},...rows.slice(p*COLLAGE_SIZE,(p+1)*COLLAGE_SIZE).map(r=>({r,color:r.mode==='pair'?{h:ourColor(a,bySlug(r.pick)).hex,n:ourColor(a,bySlug(r.pick)).name}:bySlug(r.pick)}))];
+ const slots=[-90,-45,0,45,90,135,180,225];
+ pieces.forEach((v,i)=>{const t=slots[i-1]*Math.PI/180;v.x=i?210+Math.cos(t)*128:210;v.y=i?210+Math.sin(t)*128:210;v.w=i?148:190;v.h=i?150:183;v.angle=i?slots[i-1]+90:-8;});
+ return {pieces,pages,page:p,height:420};
+}
+const PAPER_TEXTURE='watercolor-paper-v1.png';
+let paperExportPromise;
+function paperForExport(){
+ if(!paperExportPromise)paperExportPromise=fetch(PAPER_TEXTURE).then(r=>{if(!r.ok)throw Error('paper');return r.blob();}).then(blob=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob);})).catch(e=>{paperExportPromise=null;throw e;});
+ return paperExportPromise;
+}
+function mapSVG(a,mode,names=true,interactive=true,texture=PAPER_TEXTURE,labels=true){
+ const layout=collageLayout(a,mode);let svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 '+layout.height+'" role="group" aria-label="'+(mode==='seen'?'친구가 보는 내 색 콜라주':'친구와 만든 우리 색 콜라주')+'"><defs><filter id="paper-levels" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="1.08" intercept="-.055"/><feFuncG type="linear" slope="1.08" intercept="-.055"/><feFuncB type="linear" slope="1.08" intercept="-.055"/></feComponentTransfer></filter>';
+ layout.pieces.forEach((v,i)=>{svg+='<mask id="torn-paper-'+i+'" maskUnits="userSpaceOnUse" x="'+(v.x-v.w/2)+'" y="'+(v.y-v.h/2)+'" width="'+v.w+'" height="'+v.h+'" style="mask-type:luminance"><image href="'+texture+'" x="'+(v.x-v.w/2)+'" y="'+(v.y-v.h/2)+'" width="'+v.w+'" height="'+v.h+'" preserveAspectRatio="none" filter="url(#paper-levels)"/></mask>';});svg+='</defs>';
+ [...layout.pieces.slice(1),layout.pieces[0]].forEach(v=>{const i=layout.pieces.indexOf(v);const name=v.own?'내가 고른 나':names?v.r.nick:'친구 '+(layout.page*COLLAGE_SIZE+i),text=lum(v.color.h)>.16?'#3c291e':'#fffaf2',short=Array.from(name).slice(0,7).join('')+(Array.from(name).length>7?'…':'');
+ const angle=v.angle;
+ svg+='<g class="collage-piece"'+(!v.own&&interactive?' role="button" tabindex="0" data-collage-id="'+esc(v.r.id)+'" aria-label="'+esc(name+' · '+v.color.n+' · 컬러북 열기')+'"':'')+'><title>'+esc(name+' · '+v.color.n)+'</title><g transform="rotate('+angle+' '+v.x+' '+v.y+')"><rect x="'+(v.x-v.w/2)+'" y="'+(v.y-v.h/2)+'" width="'+v.w+'" height="'+v.h+'" fill="'+v.color.h+'" mask="url(#torn-paper-'+i+')"/><path class="paper-focus" d="'+paperPath(v.x,v.y,v.w*.72,v.h*.72,i)+'" fill="none" stroke="#57402b" stroke-width="1" stroke-dasharray="2 4" opacity="0"/></g>'+(labels?'<text x="'+v.x+'" y="'+(v.y-4)+'" text-anchor="middle" font-size="'+(v.own?12:12)+'" fill="'+text+'">'+esc(short)+'</text><text x="'+v.x+'" y="'+(v.y+16)+'" text-anchor="middle" font-size="10" fill="'+text+'">'+esc(v.color.n)+'</text>':'')+'</g>';
+ });return svg+'</svg>';
+}
+function syncColorMode(){
+ const pair=mapMode==='pair';document.getElementById('app').dataset.colorMode=mapMode;
+ document.getElementById('mode-explain').textContent=pair?'친구가 자기 색을 고르면, 내 색과 섞어 우리만의 색을 만들어요.':'친구에게 나를 닮은 색을 골라달라고 해보세요.';
+ document.getElementById('map-invite-toggle').textContent=pair?'친구는 무슨 색일까? ↗':'친구가 보는 나는 어떤 색깔일까? ↗';
+ document.getElementById('invite-seen').hidden=pair;document.getElementById('invite-pair').hidden=!pair;
+ document.querySelector('.invite-actions h2').textContent=pair?'친구의 색을 초대해요':'친구의 시선을 초대해요';
+ document.querySelector('.color-products').hidden=false;
+}
+function renderMap(){syncColorMode();const holder=document.getElementById('color-map');if(!holder||!mapColor)return;
+ const layout=collageLayout(mapColor,mapMode);collagePage=layout.page;holder.innerHTML=mapSVG(mapColor,mapMode,mapNames);
+ document.getElementById('map-summary').textContent=mapSummary(mapColor,mapMode);
+ document.querySelectorAll('[data-map-mode]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.mapMode===mapMode)));
+ holder.querySelectorAll('[data-collage-id]').forEach(g=>{g.onclick=()=>openMapFriend(g.dataset.collageId,true);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openMapFriend(g.dataset.collageId,true);}};});
+ const pager=document.getElementById('collage-pages');pager.innerHTML=layout.pages>1?'<button id="collage-prev" '+(layout.page===0?'disabled':'')+'>← 이전</button><span>'+(layout.page+1)+' / '+layout.pages+'</span><button id="collage-next" '+(layout.page===layout.pages-1?'disabled':'')+'>다음 →</button>':'';
+ if(layout.pages>1){document.getElementById('collage-prev').onclick=()=>{collagePage--;renderMap();document.getElementById('collage-prev').focus();};document.getElementById('collage-next').onclick=()=>{collagePage++;renderMap();document.getElementById('collage-next').focus();};}
+ document.getElementById('save-color-map').textContent=layout.pages>1?'이 콜라주 장 저장':'콜라주 이미지 저장';
+ if(mapSelected&&collageRows(mapColor,mapMode).some(r=>r.id===mapSelected))openMapFriend(mapSelected);else closeColorBook(false);
+}
+function mixedProducts(hex){
+ const unique=new Map();Object.values(PROD).flat().forEach(p=>{if(!/^#[0-9a-f]{6}$/i.test(p.h||''))return;const key=p.u+'|'+p.o;if(!unique.has(key))unique.set(key,p);});
+ return [...unique.values()].map(p=>({p,d:deltaE(hex,p.h)})).filter(x=>x.d<=18).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>x.p);
+}
+function mixedProductsHTML(r){if(r.mode!=='pair')return '';const mix=ourColor(bySlug(r.mine),bySlug(r.pick)),rows=mixedProducts(mix.hex);
+ return '<details class="mixed-products"><summary>우리 색과 닮은 제품 보기</summary><p class="note">두 색을 섞은 '+esc(mix.name)+'에 가까운 제품이에요. 등록된 색상값 기준이며 실제 발색은 다를 수 있어요.</p>'+(rows.length?prodHTML('',rows,'mix-wb'):'<p class="note">지금은 충분히 가까운 색의 제품이 없어요.</p>')+'</details>';
+}
+function bookHTML(r,names=true){const a=bySlug(r.mine),b=bySlug(r.pick),nick=names?r.nick:'친구',title=r.mode==='seen'?(a.s===b.s?'서로 알아본 색':'친구가 발견한 나'):relationshipTitle(a,b,r);
+ const sample=(c,label)=>'<div class="book-sample"><span style="--swatch:'+c.h+'"></span><small>'+esc(label)+'</small><strong>'+esc(c.n)+'</strong></div>';
+ const mix=ourColor(a,b);
+ return '<div class="book-swatches">'+sample(a,'내가 고른 나')+sample(b,r.mode==='seen'?nick+'님이 보는 나':nick+'님의 색')+'</div>'+(r.mode==='pair'?'<div class="book-mix" style="--mix:'+mix.hex+';color:#493924"><small>우리의 색</small><strong>'+esc(mix.name)+'</strong></div>':'')+'<h3>'+esc(title)+'</h3>'+linesHTML(colorStory(r))+(r.reason?'<blockquote>'+esc(r.reason)+'<cite>— '+esc(nick)+'님이 남긴 말</cite></blockquote>':'');
+}
+function closeColorBook(focus=true){const id=mapSelected;mapSelected=null;document.getElementById('app').classList.remove('book-open');const detail=document.getElementById('map-detail');if(detail)detail.innerHTML='';if(focus){const el=Array.from(document.querySelectorAll('[data-collage-id]')).find(e=>e.dataset.collageId===id);el?.focus();}}
+function openMapFriend(id,focus=false){const rows=collageRows(mapColor,mapMode),index=rows.findIndex(r=>r.id===id),r=rows[index];if(!r)return;
+ mapSelected=id;document.getElementById('app').classList.add('book-open');const detail=document.getElementById('map-detail');
+ detail.innerHTML='<button class="book-back" id="book-back">← 콜라주로 돌아가기</button><article class="color-book" aria-labelledby="book-title"><div class="book-top"><span>'+String(index+1).padStart(2,'0')+' / '+String(rows.length).padStart(2,'0')+'</span><span>우리 사이에 남은 색</span></div><h2 id="book-title" tabindex="-1">'+esc(mapNames?r.nick:'친구')+(r.mode==='seen'?'님의 시선':'님과 나')+'</h2>'+bookHTML(r,mapNames)+mixedProductsHTML(r)+'</article><nav class="book-nav" aria-label="컬러북 넘기기"><button id="book-prev" '+(index===0?'disabled':'')+'>← 이전 친구</button><span>'+(index+1)+' / '+rows.length+'</span><button id="book-next" '+(index===rows.length-1?'disabled':'')+'>다음 친구 →</button></nav><div class="book-index" aria-label="친구별 컬러북">'+rows.map((v,i)=>'<button data-book-id="'+esc(v.id)+'" aria-pressed="'+(v.id===id)+'"><i style="background:'+bySlug(v.pick).h+'"></i><span>'+esc(mapNames?v.nick:'친구 '+(i+1))+'</span></button>').join('')+'</div><button class="ghost" id="save-friend-color">우리 이야기 이미지 저장</button><p id="friend-save-status" class="save-status" role="status"></p>';
+ document.getElementById('book-back').onclick=()=>{collagePage=Math.floor(index/COLLAGE_SIZE);mapSelected=null;renderMap();const target=Array.from(document.querySelectorAll('[data-collage-id]')).find(e=>e.dataset.collageId===id);target?.focus();};
+ document.getElementById('book-prev').onclick=()=>{if(index>0)openMapFriend(rows[index-1].id,true);};document.getElementById('book-next').onclick=()=>{if(index<rows.length-1)openMapFriend(rows[index+1].id,true);};
+ detail.querySelectorAll('[data-book-id]').forEach(b=>b.onclick=()=>openMapFriend(b.dataset.bookId,true));document.getElementById('save-friend-color').onclick=()=>saveColorImage(r);wireWhy();
+ detail.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();document.getElementById('book-back').click();}if(e.target.id==='book-title'&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){e.preventDefault();document.getElementById(e.key==='ArrowLeft'?'book-prev':'book-next').click();}};
+ const strip=detail.querySelector('.book-index'),active=strip.querySelector('[aria-pressed=true]');if(active)strip.scrollLeft=active.offsetLeft-strip.offsetLeft-strip.clientWidth/2+active.clientWidth/2;
+ if(focus)document.getElementById('book-title').focus();
+}
+
+const mapBaseResult=viewResult,mapBaseRefresh=refreshServer;
+viewResult=function(a,ans){mapBaseResult(a,ans);if(!a)return;mapColor=a;mapSelected=null;collagePage=0;document.getElementById('app').classList.remove('book-open');
+ document.querySelector('.result-heading').innerHTML='<section class="own-result-main"><p class="eyebrow">내가 고른 나의 색</p><div class="own-result-paint" style="background:'+a.h+'" aria-hidden="true"></div><h1>'+esc(a.n)+'</h1><p class="own-result-tone">'+esc(a.tone)+'</p><p class="own-result-copy">'+esc(a.c)+'</p><button class="ghost own-save" id="save-own-color">내 색 결과 이미지 저장</button><p id="own-save-status" class="save-status" role="status"></p></section>';
+ document.getElementById('save-own-color').onclick=()=>saveColorImage(null,true);
+ const actions=document.querySelector('.invite-actions'),my=document.querySelector('.my-color');
+ my.outerHTML='<section class="palette-map"><div class="map-tabs" role="tablist" aria-label="콜라주 보기"><button role="tab" data-map-mode="seen" aria-selected="true"> <span class="mode-symbol" aria-hidden="true">나 ← 친구</span><strong>친구가 보는 나</strong><small>친구가 내 색을 골라줘요</small></button><button role="tab" data-map-mode="pair" aria-selected="false"><span class="mode-symbol" aria-hidden="true">나 + 친구</span><strong>함께 만든 색</strong><small>서로의 색을 섞어봐요</small></button></div><p class="mode-explain" id="mode-explain"></p><div id="color-map" class="map-canvas"></div><p id="map-summary" class="map-summary"></p><div id="collage-pages" class="collage-pages" aria-label="콜라주 넘기기"></div><p class="map-tip">친구의 조각을 누르면 컬러북이 열려요.</p></section><div class="map-tools"><label><input type="checkbox" id="map-names" checked>친구 이름 표시</label><button class="ghost" id="save-color-map">지도 이미지 저장</button></div><p id="map-save-status" class="save-status" role="status"></p><div id="map-detail" class="map-details" aria-live="polite"></div><button class="map-invite-toggle" id="map-invite-toggle" aria-expanded="false">친구에게 색 물어보기 +</button><div id="map-invite-drawer" class="map-invite-drawer" hidden></div>';
+ document.getElementById('map-invite-drawer').append(actions);document.querySelectorAll('.received-section').forEach(e=>e.remove());
+ const products=document.querySelector('.color-products');products.querySelector('summary').textContent='내 색과 닮은 제품 보기';document.querySelector('.result-heading').after(products);const redo=document.getElementById('redo');products.after(redo);const sub=document.createElement('div');sub.className='friends-subheading';sub.innerHTML='<p class="eyebrow">친구와 함께</p><h2>친구들이 더해준 나의 색</h2><p>내 색에 친구의 시선을 더하거나, 서로의 색을 섞어보세요.</p>';document.querySelector('.palette-map').before(sub);
+ document.getElementById('map-invite-toggle').onclick=()=>{const drawer=document.getElementById('map-invite-drawer');drawer.hidden=!drawer.hidden;document.getElementById('map-invite-toggle').setAttribute('aria-expanded',String(!drawer.hidden));};
+ document.querySelectorAll('[data-map-mode]').forEach(b=>b.onclick=()=>{mapMode=b.dataset.mapMode;mapSelected=null;collagePage=0;document.getElementById('map-invite-drawer').hidden=true;document.getElementById('map-invite-toggle').setAttribute('aria-expanded','false');document.getElementById('share-box').innerHTML='';renderMap();});
+ document.getElementById('map-names').checked=mapNames;document.getElementById('map-names').onchange=e=>{mapNames=e.target.checked;renderMap();};document.getElementById('save-color-map').onclick=()=>saveColorImage();renderMap();
+};
+refreshServer=async function(a,version){await mapBaseRefresh(a,version);if(document.getElementById('color-map')&&mapColor?.s===a.s)renderMap();};
+const mapBasePick=pickFriend;
+pickFriend=function(p,a){mapBasePick(p,a);const button=document.getElementById('see-relation');button.insertAdjacentHTML('beforebegin','<fieldset class="friend-extras"><legend>둘의 이야기를 조금 더해볼까요? · 선택</legend><label for="friend-moment">이 친구와 잘 어울리는 시간</label><select id="friend-moment"><option value="">고르지 않아도 괜찮아요</option value="talk">수다 떠는 밤</option><option value="explore">같이 구경하는 오후</option><option value="rest">조용히 쉬는 시간</option></select><label for="friend-reason">왜 이 색이 떠올랐나요?</label><textarea id="friend-reason" maxlength="80" placeholder="친구에게 전할 한마디 · 80자까지"></textarea></fieldset>');const submit=button.onclick;button.onclick=()=>{p.moment=document.getElementById('friend-moment').value;p.reason=document.getElementById('friend-reason').value.trim().slice(0,80);return submit();};};
+const mapBaseFriend=viewFriendResult;
+viewFriendResult=function(p){mapBaseFriend(p);if(p.mode==='pair'){document.querySelector('.result-send').insertAdjacentHTML('beforebegin',mixedProductsHTML(p));wireWhy();}const title=document.querySelector('#app h1');if(p.mode==='pair')title.textContent=relationshipTitle(bySlug(p.mine),bySlug(p.pick),p);const send=document.querySelector('.result-send');send.insertAdjacentHTML('beforebegin','<button class="ghost" id="save-friend-result">둘의 색 이미지 저장</button><p id="friend-save-status" class="save-status" role="status"></p>');document.getElementById('save-friend-result').onclick=()=>saveColorImage(p);};
+function canvasLines(ctx,text,x,y,width,lineHeight){let line='';for(const word of text.split(/\s+/)){const next=line?line+' '+word:word;if(ctx.measureText(next).width>width&&line){ctx.fillText(line,x,y);y+=lineHeight;line='';}if(ctx.measureText(word).width>width){for(const c of word){if(ctx.measureText(line+c).width>width&&line){ctx.fillText(line,x,y);y+=lineHeight;line='';}line+=c;}}else line=line?line+' '+word:word;}if(line)ctx.fillText(line,x,y);return y+lineHeight;}
+async function saveColorImage(friend,own=false){
+ const status=document.getElementById(own?'own-save-status':friend?'friend-save-status':'map-save-status');if(status)status.textContent='이미지를 만들고 있어요.';
+ try{
+ const a=friend?bySlug(friend.mine):mapColor,b=friend?bySlug(friend.pick):null;
+ const layout=!friend&&!own?collageLayout(a,mapMode):null;
+ const fontText=[a.n,a.c,friend?friend.nick:'',...(friend?colorStory(friend):[]),...(layout?layout.pieces.map(v=>v.color.n+(mapNames?v.r?.nick||'':'')):[])].join('');
+ await Promise.all([document.fonts.load('500 48px "Noto Serif KR"',fontText),document.fonts.load('400 28px "Noto Serif KR"',fontText)]);await document.fonts.ready;
+ const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=own?1440:friend?2600:1500;let contentBottom=0;const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#f8f1e5';ctx.fillRect(0,0,1080,canvas.height);
+ let seed=47;for(let i=0;i<130000;i++){seed=(seed*16807)%2147483647;const x=seed%1080;seed=(seed*16807)%2147483647;ctx.fillStyle=i%2?'rgba(104,77,43,.045)':'rgba(255,255,255,.28)';ctx.fillRect(x,seed%canvas.height,1+i%3,1);}
+ const text=(value,x,y,size=28,color='#493924',align='center',serif=true)=>{ctx.fillStyle=color;ctx.textAlign=align;ctx.font='400 '+size+'px '+(serif?'"Noto Serif KR", serif':'Pretendard, sans-serif');ctx.fillText(value,x,y);};
+ const paragraph=(value,y,size=28,width=820)=>{ctx.fillStyle='#665440';ctx.textAlign='center';ctx.font='400 '+size+'px "Noto Serif KR", serif';return canvasLines(ctx,value,540,y,width,size*1.8);};
+ const paper=await paperForExport();
+ const drawSVG=async(raw,x,y,w,h)=>{const url=URL.createObjectURL(new Blob([raw],{type:'image/svg+xml;charset=utf-8'}));try{const im=new Image();await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject;im.src=url});ctx.drawImage(im,x,y,w,h);}finally{URL.revokeObjectURL(url)}};
+ const wash=async(hex,x,y,w,h,angle=-9)=>{await drawSVG('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><defs><mask id="wash" style="mask-type:luminance"><image href="'+paper+'" width="500" height="500"/></mask></defs><g transform="rotate('+angle+' 250 250)"><rect width="500" height="500" fill="'+hex+'" mask="url(#wash)"/></g></svg>',x,y,w,h)};
+ text('themaric',540,92,38);text(own?'MY COLOR':friend?'COLOR BOOK':'OUR COLOR GARDEN',540,145,16,'#96826b','center',false);
+ if(own){
+ text('내가 고른 나의 색',540,262,27,'#85725e');await wash(a.h,210,285,660,600);text(a.n,540,909,62);text(a.tone,540,971,19,'#96826b','center',false);paragraph(a.c,1075,30,790);
+ }else if(!friend){
+ text('친구들이 더해준 나의 색',540,250,43);text((mapMode==='seen'?'친구가 보는 나':'함께 만든 색')+(layout.pages>1?' · '+(layout.page+1)+' / '+layout.pages:''),540,305,22,'#85725e');
+ const scale=2.32,ox=(1080-420*scale)/2,oy=355;
+ await drawSVG(mapSVG(a,mapMode,mapNames,false,paper,false),ox,oy,420*scale,layout.height*scale);
+ layout.pieces.forEach((v,i)=>{const name=v.own?'내가 고른 나':mapNames?v.r.nick:'친구 '+(layout.page*COLLAGE_SIZE+i),short=Array.from(name).slice(0,7).join('')+(Array.from(name).length>7?'…':'');const color=lum(v.color.h)>.16?'#3c291e':'#fffaf2';text(short,ox+v.x*scale,oy+(v.y-4)*scale,v.own?27:28,color);text(v.color.n,ox+v.x*scale,oy+(v.y+16)*scale,20,color);});
+ paragraph(mapSummary(a,mapMode),1370,23,850);
+ }else{
+ const nick=mapNames?friend.nick:'친구',mix=ourColor(a,b);
+ text(friend.mode==='seen'?'친구에게 보이는 나':'둘이 만든 우리 색',540,250,43);
+ await wash(a.h,35,285,520,410,-12);await wash(b.h,525,285,520,410,13);
+ text('내가 고른 나',295,721,22,'#85725e');text(nick+(friend.mode==='seen'?'님이 보는 나':'님의 색'),785,721,22,'#85725e');text(a.n,295,785,36);text(b.n,785,785,36);
+ let y=900;if(friend.mode==='pair'){await wash(mix.hex,200,817,680,235,0);text('우리의 색 · '+mix.name,540,960,31,lum(mix.hex)>.16?'#493924':'#fffaf2');y=1110;}
+ text(friend.mode==='pair'?relationshipTitle(a,b,friend):a.s===b.s?'서로 알아본 색':'친구가 발견한 나',540,y,37);y+=80;
+ for(const line of colorStory(friend))y=paragraph(line,y,26,850)+14;
+ if(friend.reason){y+=20;y=paragraph('“'+friend.reason+'”',y,24,850);}contentBottom=y;
+ }
+ if(friend){const copy=document.createElement('canvas');copy.width=1080;copy.height=Math.max(1550,Math.ceil(contentBottom+180));copy.getContext('2d').drawImage(canvas,0,0);canvas.height=copy.height;ctx.drawImage(copy,0,0);}
+ ctx.strokeStyle='#d6c7b2';ctx.beginPath();ctx.moveTo(440,canvas.height-105);ctx.lineTo(640,canvas.height-105);ctx.stroke();text('색과 취향으로 즐기는 이야기 · themaric.kr',540,canvas.height-58,18,'#96826b','center',false);
+ const file=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!file)throw Error('image');const url=URL.createObjectURL(file),link=document.createElement('a');link.href=url;link.download=own?'themaric-my-color.png':friend?'themaric-our-color.png':'themaric-color-collage.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);
+ if(status){status.textContent='이미지 저장을 요청했어요. 저장이 안 되면 아래 이미지를 길게 눌러주세요.';const prior=status.nextElementSibling;if(prior?.classList.contains('export-preview'))prior.remove();const preview=document.createElement('details');preview.className='export-preview';const summary=document.createElement('summary');summary.textContent='저장할 이미지 보기';const img=document.createElement('img');img.alt=own?'내 색 결과 저장 이미지':friend?'둘의 색 저장 이미지':'우리의 색 콜라주 저장 이미지';img.src=canvas.toDataURL('image/png');img.style.width='100%';preview.append(summary,img);status.after(preview);}
+ }catch{if(status)status.textContent='이미지를 만들지 못했어요. 다시 시도해 주세요.';}
+}
+
+
+window.addEventListener('hashchange',route);
+route();
+
+</script>
+</body>
+</html>

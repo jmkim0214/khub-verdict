@@ -608,10 +608,10 @@ function finish(ans){
 }
 function viewResult(a,ans){
  if(!a)return viewIntro();activeInvite=null;resetAccent();const rows=savedRows(a);
- show('<div class="result-heading"><p class="eyebrow">MY PALETTE</p><h1>나와 친구들의 색</h1><p class="note">나를 보는 여러 시선을 한곳에 모았어요.</p></div><section class="my-color"><h2>내가 고른 내 색</h2>'+colorTile(a,'MY COLOR')+'<p>'+esc(a.c)+'</p></section><section class="invite-actions"><h2>친구의 색도 더해볼까요?</h2><label class="small-label" for="owner-name">친구에게 보여줄 내 이름 · 선택</label><input id="owner-name" maxlength="8" placeholder="이름 또는 별명" value="'+esc(LS.get('myname')||'')+'"><button class="invite-button" id="invite-seen"><strong>친구가 보는 나는 어떤 색깔일까?</strong><span>나를 닮은 색을 골라줄 친구에게 링크 보내기 ↗</span></button><button class="invite-button" id="invite-pair"><strong>친구는 무슨 색일까?</strong><span>자기 색을 고를 친구에게 링크 보내기 ↗</span></button><div id="share-box" aria-live="polite"></div></section><section class="received-section"><h2>친구가 보는 내 색 <small>'+rows.filter(r=>r.mode==='seen').length+'</small></h2>'+sectionRows(rows,'seen')+'</section><section class="received-section"><h2>친구와 만든 우리 색 <small>'+rows.filter(r=>r.mode==='pair').length+'</small></h2>'+sectionRows(rows,'pair')+'</section><details class="color-products"><summary>이 색을 담은 뷰티 제품 보기</summary>'+prodHTML(a.s)+'<p class="note">더마릭이 관측한 가격 기록이에요. 제품별 관측 일수와 주의사항을 함께 확인해 주세요.</p></details><p class="play-note">색과 취향을 바탕으로 만든 가벼운 이야기예요. 성격이나 관계를 판단하는 검사는 아니에요.</p><button class="link" id="redo">내 색 다시 찾기</button>');
+ show('<div class="result-heading"><p class="eyebrow">MY PALETTE</p><h1>나와 친구들의 색</h1><p class="note">나를 보는 여러 시선을 한곳에 모았어요.</p></div><section class="my-color"><h2>내가 고른 내 색</h2>'+colorTile(a,'MY COLOR')+'<p>'+esc(a.c)+'</p></section><section class="invite-actions"><h2>친구의 색도 더해볼까요?</h2><label class="small-label" for="owner-name">친구에게 보여줄 내 이름 · 선택</label><input id="owner-name" maxlength="8" placeholder="이름 또는 별명" value="'+esc(LS.get('myname')||'')+'"><button class="invite-button" id="invite-seen"><strong>친구가 보는 나는 어떤 색깔일까?</strong><span>나를 닮은 색을 골라줄 친구에게 링크 보내기 ↗</span></button><button class="invite-button" id="invite-pair"><strong>친구는 무슨 색일까?</strong><span>질문으로 자기 색을 찾을 친구에게 링크 보내기 ↗</span></button><div id="share-box" aria-live="polite"></div></section><section class="received-section"><h2>친구가 보는 내 색 <small>'+rows.filter(r=>r.mode==='seen').length+'</small></h2>'+sectionRows(rows,'seen')+'</section><section class="received-section"><h2>친구와 만든 우리 색 <small>'+rows.filter(r=>r.mode==='pair').length+'</small></h2>'+sectionRows(rows,'pair')+'</section><details class="color-products"><summary>이 색을 담은 뷰티 제품 보기</summary>'+prodHTML(a.s)+'<p class="note">더마릭이 관측한 가격 기록이에요. 제품별 관측 일수와 주의사항을 함께 확인해 주세요.</p></details><p class="play-note">색과 취향을 바탕으로 만든 가벼운 이야기예요. 성격이나 관계를 판단하는 검사는 아니에요.</p><button class="link" id="redo">내 색 다시 찾기</button>');
  ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=()=>{
  const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);
- const p={v:2,mode,owner:ownerId(),mine:a.s,name};showLink('share-box',linkFor('invite',p),mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');});
+ const p={v:2,mode,owner:ownerId(),mine:a.s,name};showLink('share-box',linkFor('invite',p),mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'질문으로 너의 색을 찾아봐. 우리 둘의 색을 섞어보자.');});
  document.getElementById('redo').onclick=()=>viewQ(0,[]);wireWhy();
 }
 function showLink(target,url,message){
@@ -620,7 +620,7 @@ function showLink(target,url,message){
  document.getElementById('copy-button').onclick=async()=>{const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(message+'\n'+url);status.textContent='복사했어요. 친구와의 대화창에 붙여넣어 주세요.';}catch(e){document.getElementById('copy-link').select();status.textContent='위 링크를 길게 눌러 복사해 주세요.';}};
 }
 function viewInvite(p){
- activeInvite=p;resetAccent();const who=p.name?p.name+'님':'이 친구';
+ activeInvite=p;resetAccent();if(p.mode==='pair')return viewQ(0,[]);const who=p.name?p.name+'님':'이 친구';
  show('<p class="eyebrow">친구에게서 온 색 초대</p><h1>'+(p.mode==='seen'?esc(who)+' 하면<br>어떤 색이 떠오르나요?':'내 색을 골라<br>우리 색을 만들어봐요.')+'</h1><p class="lede">'+(p.mode==='seen'?'떠오르는 색 하나를 골라주세요. 친구가 고른 색은 선택한 뒤 보여드릴게요.':'나를 닮은 색을 하나 골라주세요. 친구의 색과 섞으면 어떤 색이 나올까요?')+'</p>'+gridHTML()+'<div id="friend-pick"></div>'+(p.mode==='pair'?'<button class="ghost" id="friend-quiz">질문으로 내 색 찾기</button>':'')+'<div id="friend-history"></div>');
  pickWire(a=>pickFriend(p,a));const q=document.getElementById('friend-quiz');if(q)q.onclick=()=>viewQ(0,[]);
 }
@@ -673,7 +673,7 @@ viewResult=function(a,ans){
  ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=async()=>{
   const button=document.getElementById('invite-'+mode);button.disabled=true;status.textContent='초대 링크를 준비하고 있어요.';
   try{const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);const p=await ensureServer(a,name);if(version!==screenVersion||mapMode!==mode)return;
-   showLink('share-box',COLOR_HOME+'#join='+p.token+'&mode='+mode,mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'너의 색도 골라봐. 우리 둘의 색을 섞어보자.');
+   showLink('share-box',COLOR_HOME+'#join='+p.token+'&mode='+mode,mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'질문으로 너의 색을 찾아봐. 우리 둘의 색을 섞어보자.');
    document.getElementById('copy-status').textContent='친구가 선택하고 제출하면 내 팔레트에 모여요.';status.textContent='초대 링크를 만들었어요.';
   }catch(e){if(version!==screenVersion||mapMode!==mode)return;const fallback={v:2,mode,owner:ownerId(),mine:a.s,name:clean(document.getElementById('owner-name').value)};showLink('share-box',linkFor('invite',fallback),'내 색 팔레트에 초대할게.');status.textContent='서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.';}finally{button.disabled=false;}
  });
@@ -780,7 +780,7 @@ function mapSVG(a,mode,names=true,interactive=true,texture=PAPER_TEXTURE,labels=
 }
 function syncColorMode(){
  const pair=mapMode==='pair';document.getElementById('app').dataset.colorMode=mapMode;
- document.getElementById('mode-explain').textContent=pair?'친구가 자기 색을 고르면, 내 색과 섞어 우리만의 색을 만들어요.':'친구에게 나를 닮은 색을 골라달라고 해보세요.';
+ document.getElementById('mode-explain').textContent=pair?'친구가 질문에 답해 자기 색을 찾으면, 내 색과 섞어 우리만의 색을 만들어요.':'친구에게 나를 닮은 색을 골라달라고 해보세요.';
  document.getElementById('map-invite-toggle').textContent=pair?'친구는 무슨 색일까? ↗':'친구가 보는 나는 어떤 색깔일까? ↗';
  document.getElementById('invite-seen').hidden=pair;document.getElementById('invite-pair').hidden=!pair;
  document.querySelector('.invite-actions h2').textContent=pair?'친구의 색을 초대해요':'친구의 시선을 초대해요';
