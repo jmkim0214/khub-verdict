@@ -294,6 +294,13 @@
   @media (max-width:640px){
     #view-report #r-prod .thumb{width:76px; height:auto;}
   }
+  /* 긴 상품명은 3줄에서 자른다 (2026-09-15)
+     괄호부터 자르는 규칙은 쓰지 않는다 — 실측상 괄호 안이 (본품+리필)·(50ml+50ml)·(택1)
+     처럼 가격을 설명하는 구성 정보이고, 괄호가 문장 중간에 오는 제목도 흔해서
+     뒤쪽의 용량·색상 수까지 함께 날아간다. 어느 말이 중요한지 고르지 않고 줄 수로 자른다.
+     전체 제목은 DOM 과 title 속성에 그대로 남는다. */
+  #view-report #r-name{display:-webkit-box; -webkit-box-orient:vertical;
+                       -webkit-line-clamp:3; line-clamp:3; overflow:hidden;}
   /* 상품 → 판정 순서 (2026-09-15) — 구분선은 이제 판정 블록 위에 */
   #view-report #r-prod{border-top:0; padding-top:0; margin-bottom:0;}
   #view-report #r-verdict{padding:20px 0 0; margin:20px 0 0; border-top:1px solid var(--grid);}
@@ -897,6 +904,7 @@ function renderReport(key){
   else { $('#r-thumb').textContent = (c.brand||'·').slice(0,1); $('#r-thumb').style.fontSize='24px'; $('#r-thumb').style.color='var(--series)'; $('#r-thumb').style.fontWeight='800'; }
   $('#r-brand').textContent = c.brand;
   $('#r-name').textContent = c.name;
+  $('#r-name').title = c.name;
   /* 상품명·CTA·썸네일 → 올리브영(어필리에이트 링크가 있으면 그 링크). 판정과 수수료는 분리 원칙. */
   const oyHref = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
   const nameEl = $('#r-name'), ctaEl = $('#r-oy');
