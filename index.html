@@ -589,7 +589,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 </style>
 <style id="hero-serif">#view-home .hero h1{font-family:"Noto Serif KR",serif;font-weight:600;letter-spacing:-.045em}</style>
 <style id="stable-page-width">html{overflow-y:scroll}</style>
-<style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:6px;flex-wrap:nowrap}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:16px}}</style>
+<style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:12px;flex-wrap:nowrap;overflow-x:auto;max-width:100%}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:12px}.primary-nav a{font-size:12px}}</style>
 <style id="compact-report-proposal">
 #view-report{max-width:760px;margin:0 auto}.preview-label{text-align:center;font-size:11px;color:#8d7057;border-bottom:1px solid #d6c4ad;padding:10px}.report-top{gap:12px}.rid{font-size:10px}#view-report .card{border-radius:12px;padding:24px;margin-bottom:16px;background:#fffaf3;border-color:#d7c3aa}#view-report .verdict{padding:0 0 20px;background:transparent;border:0}#r-vtitle{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:500;line-height:1.5}#r-vdesc{display:none}.v-kicker{font-size:10px;letter-spacing:.12em}.v-ic{display:none}#view-report .prod{border-top:1px solid #e1d1bf;padding-top:20px;margin-top:0}#r-name{font-size:16px;line-height:1.6}#view-report .sec-h h3{font-size:18px}#view-report .sec-sub{font-size:12px}.claim-fold{padding:15px 0;border-top:1px solid #e5d6c5}.claim-fold summary{cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 42px 12px;gap:12px;align-items:center;font-size:13px;list-style:none}.claim-fold summary:after{content:'+';color:#947b61}.claim-fold summary>.badge{justify-self:end;text-align:center;white-space:nowrap}.claim-fold summary:after{justify-self:end}.claim-fold[open] summary:after{content:'−'}.claim-fold .c-title{font-size:13px;font-weight:500}.claim-fold .c-note{font-size:12px;line-height:1.8;margin-top:12px}.claim-fold .c-src{font-size:10px}.compact-note{font-size:11px;color:#8a735d;line-height:1.8;margin:10px 0 16px}.basis-fold summary{font-size:13px;padding:14px 0;cursor:pointer}.basis-fold .basis{margin:10px 0}.basis-observed{font-size:12px;color:#816b54}.actions{gap:8px}.actions button{font-size:11px}#view-report .fine summary{font-size:11px;line-height:1.8}@media(max-width:640px){#view-report .card{padding:18px 14px}.report-top{display:block}#r-vtitle{font-size:24px}.report-top .rid{margin:12px 0}#view-report .prod .thumb{width:66px;height:80px}#view-report .sec-h{flex-wrap:wrap;gap:6px}#view-report .tiles{gap:8px}.claim-fold summary{gap:7px}.claim-fold .badge{font-size:10px;white-space:nowrap}}
 </style><style id="price-chart-clear">
@@ -605,9 +605,9 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 <div class="wrap">
   <div class="site-band"><header class="site">
     <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
-    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a><a href="sale/report/">세일 리포트</a></nav>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
-      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a><a href="sale/report/">세일 리포트</a></nav>
     </details>
   </header></div>
 
@@ -622,7 +622,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <input id="url-input" type="search" placeholder="상품명 또는 올리브영 URL" aria-describedby="search-description" spellcheck="false" autocomplete="off" enterkeyhint="search">
         <button class="btn" id="go-btn" aria-label="가격 기록 확인"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 14h19m-7-7 7 7-7 7"/></svg></button>
       </div>
-      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
+      <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a><a href="sale/report/">세일 리포트</a></nav>
       <div id="search-results" aria-live="polite" aria-label="상품 검색 결과"></div>
     </div>
   </section>
