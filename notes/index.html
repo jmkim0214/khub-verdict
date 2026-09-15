@@ -70,12 +70,12 @@ header.site{padding:28px 0;max-width:none;margin:0}
 [hidden]{display:none!important}
 .notes-head h1{font-size:34px;font-weight:650}.notes-head p{font-size:17px;line-height:1.7}.report-tabs button{font-size:16px;padding:14px 0}
 .sale-intro{margin:24px 0;color:var(--ink-2);font-size:17px;line-height:1.8}
-.sale-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0 32px}
-.sale-tile{display:flex;flex-direction:column;color:inherit;text-decoration:none;min-width:0;background:#fffcf7;border:1px solid #c6b79f;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #3827190b;transition:border-color .18s,box-shadow .18s}
-.sale-tile-head{display:flex;flex-direction:column;flex:1;padding:18px 20px}
-.sale-tile strong{display:block;font-size:22px;line-height:1.45;margin:0;font-weight:700;letter-spacing:-.025em}
-.sale-tile small{display:block;color:var(--ink-2);font-size:14px;margin-top:8px}
-.sale-tile:hover{border-color:#8c785b;box-shadow:0 6px 20px #38271916}.sale-tile:focus-visible{outline:2px solid #645338;outline-offset:4px}
+.sale-grid{display:flex;flex-direction:column;margin:28px 0 36px;border-top:1px solid #a89579}
+.sale-tile{display:block;color:inherit;text-decoration:none;min-width:0;border-bottom:1px solid #cfc2ae;transition:background-color .18s}
+.sale-tile-head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;padding:24px 10px}
+.sale-tile strong{display:block;min-width:0;font-size:23px;line-height:1.5;margin:0;font-weight:600;letter-spacing:-.035em}
+.sale-tile small{display:block;flex:none;color:#82725c;font-size:14px;line-height:1.5;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.sale-tile:hover{background:#fffaf180}.sale-tile:hover strong{color:#756043}.sale-tile:focus-visible{outline:2px solid #645338;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.sale-tile{transition:none}}
 .sale-disclosure{font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding:20px 0;line-height:1.8}
 .sale-reader{max-width:860px;margin:28px auto 0}
@@ -89,9 +89,8 @@ header.site{padding:28px 0;max-width:none;margin:0}
 .sale-pager{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:16px 0 0}.sale-pager button{font:inherit;font-size:16px;color:var(--ink);background:transparent;border:1px solid var(--border);padding:10px 16px;min-height:44px;cursor:pointer}.sale-pager button:disabled{opacity:.35;cursor:default}.sale-pager span{font-size:15px;color:var(--ink-2)}
 .sale-method{margin:36px 0 20px;border-top:1px solid var(--border);padding-top:20px;font-size:16px;line-height:1.9}
 .sale-method summary{cursor:pointer;font-weight:600}.sale-method p{margin-bottom:0}
-@media(max-width:800px){.sale-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 18px}}
 @media(max-width:640px){.sale-reader{margin-top:16px}.sale-reader h2{font-size:23px}.sale-pages{gap:24px}}
-@media(max-width:640px){.notes-head h1{font-size:28px}.notes-head p,.sale-intro{font-size:16px}.sale-tile strong{font-size:22px}.sale-tile-head{padding:16px 18px}.sale-tile small{font-size:14px;margin-top:10px}.sale-grid{grid-template-columns:1fr;gap:12px}}
+@media(max-width:640px){.notes-head h1{font-size:28px}.notes-head p,.sale-intro{font-size:16px}.sale-tile strong{font-size:20px;line-height:1.55}.sale-tile-head{padding:20px 0;gap:18px}.sale-tile small{font-size:12px;padding-top:4px}.sale-grid{margin-top:24px}}
 </style><meta name="description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 THEMARIC"><meta property="og:locale" content="ko_KR"><meta property="og:url" content="https://themaric.kr/notes/#sale"><meta property="og:title" content="올영세일 데이터 리포트 2026-09 — 더마릭"><meta property="og:description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta property="og:image" content="https://themaric.kr/og/sale_report.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="올영세일 데이터 리포트 2026-09 — 더마릭"><meta name="twitter:description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta name="twitter:image" content="https://themaric.kr/og/sale_report.png"></head><body><div class="wrap"><div class="site-band"><header class="site">
     <a href="../" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
     <nav class="primary-nav" aria-label="주요 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/">뷰티 LAB</a><a href="../notes/" aria-current="page">리포트</a></nav>
