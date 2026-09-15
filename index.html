@@ -280,6 +280,9 @@
   .v-axis.t-good .v{color:var(--good-text);}
   .v-axis.t-bad .v{color:var(--critical);}
 
+  /* 관측 줄(#r-chart-sub)이 보일 때만 바짝 붙인다 — 감춰지면 제목과 간격이 필요 (2026-09-15) */
+  #r-chart-fine{margin-top:9px;}
+  #r-chart-sub:not(.hidden) + #r-chart-fine{margin-top:-8px;}
   .v-band{margin-top:20px;}
   .vb-pill-row{position:relative; height:27px;}
   .vb-pill{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
@@ -694,7 +697,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
     <div class="card">
       <div class="sec-h"><h3>가격 기록</h3><span class="tag" id="price-tag">실데이터 기반 설계</span></div>
       <div class="sec-sub" id="r-chart-sub"></div>
-      <div class="sec-sub" style="margin-top:-8px">올리브영 공개가 기준 — 쿠폰·카드사 할인은 반영되지 않습니다</div>
+      <div class="sec-sub" id="r-chart-fine">올리브영 공개가 기준 — 쿠폰·카드사 할인은 반영되지 않습니다</div>
       <div class="chart-legend" id="r-legend">
         <span class="k"><span class="sw-line"></span>실판매가</span>
         <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
