@@ -281,23 +281,38 @@
   .v-axis.t-bad .v{color:var(--critical);}
 
   .v-band{margin-top:20px;}
-  .vb-head{position:relative; height:22px;}
-  .vb-cur{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
-          font-size:12.5px; font-weight:700; color:var(--ink);
-          font-variant-numeric:tabular-nums;}
-  .vb-cur.at-start{transform:none; left:0 !important;}
-  .vb-cur.at-end{transform:translateX(-100%);}
-  .vb-track{position:relative; height:18px; border-radius:5px; overflow:hidden; display:flex;}
-  .vb-z{height:100%;}
-  .vb-z.z1{background:rgba(89,96,68,0.20);}
-  .vb-z.z2{background:rgba(32,34,30,0.07);}
-  .vb-z.z3{background:rgba(217,92,79,0.20);}
-  .vb-pin{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink);
-          border-radius:1px;}
-  .vb-foot{display:flex; justify-content:space-between; gap:12px; margin-top:7px;
-           font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
-  .vb-foot span:last-child{text-align:right;}
-
+  .vb-pill-row{position:relative; height:27px;}
+  .vb-pill{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+           font-size:12.5px; font-weight:700; border:1px solid currentColor; border-radius:999px;
+           padding:2px 11px; background:var(--page); font-variant-numeric:tabular-nums;}
+  .vb-pill.t-mid{color:var(--ink-2);}
+  .vb-pill.t-low{color:var(--good-text);}
+  .vb-pill.t-high{color:var(--critical);}
+  .vb-pill.at-start{transform:none;}
+  .vb-pill.at-end{transform:translateX(-100%);}
+  .vb-track{position:relative; height:22px; border-radius:5px; overflow:hidden; display:flex;}
+  .vb-z{height:100%; display:grid; place-items:center; font-size:10.5px;
+        white-space:nowrap; overflow:hidden; letter-spacing:.02em;}
+  .vb-z.z1{background:rgba(89,96,68,0.20); color:var(--good-text);}
+  .vb-z.z2{background:rgba(32,34,30,0.07); color:var(--muted);}
+  .vb-z.z3{background:rgba(217,92,79,0.18); color:var(--critical);}
+  .vb-pin{position:absolute; top:-3px; bottom:-3px; width:2px; margin-left:-1px;
+           background:var(--ink); border-radius:1px;}
+  .vb-pin.off:after{content:''; position:absolute; top:50%; margin-top:-4px;
+                    border-top:4px solid transparent; border-bottom:4px solid transparent;}
+  .vb-pin.off.hi:after{left:4px; border-left:5px solid var(--ink);}
+  .vb-pin.off.lo:after{right:4px; border-right:5px solid var(--ink);}
+  .vb-gap{position:relative; height:21px;}
+  .vb-gap i{position:absolute; top:10px; height:1px; background:var(--muted); opacity:.55; display:block;}
+  .vb-gap i:before,.vb-gap i:after{content:''; position:absolute; top:-3px; width:1px; height:7px;
+                                   background:var(--muted); opacity:.9;}
+  .vb-gap i:before{left:0;} .vb-gap i:after{right:0;}
+  .vb-gap b{position:absolute; top:1px; transform:translateX(-50%); background:var(--page);
+            padding:0 7px; font-size:11.5px; font-weight:700; color:var(--ink-2);
+            font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .vb-foot{position:relative; height:19px;}
+  .vb-med{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+          font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
   .rid-foot{margin:2px 0 14px; padding-top:14px; border-top:1px solid var(--grid);}
   .sec-h{display:flex; align-items:baseline; gap:8px; margin:0 0 4px;}
   .sec-h h3{font-size:15.5px; font-weight:800; letter-spacing:-0.01em;}
@@ -649,12 +664,13 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
           </div>
         </div>
         <div class="v-band hidden" id="r-band">
-          <div class="vb-head"><span class="vb-cur" id="vb-cur"></span></div>
+          <div class="vb-pill-row"><span class="vb-pill" id="vb-pill"></span></div>
           <div class="vb-track" id="vb-track">
             <div class="vb-z z1"></div><div class="vb-z z2"></div><div class="vb-z z3"></div>
             <div class="vb-pin" id="vb-pin"></div>
           </div>
-          <div class="vb-foot"><span id="vb-min"></span><span id="vb-org"></span></div>
+          <div class="vb-gap" id="vb-gap"></div>
+          <div class="vb-foot"><span class="vb-med" id="vb-med"></span></div>
         </div>
         <div class="v-axes hidden" id="r-axes"></div>
       </div>
@@ -918,21 +934,42 @@ function renderReport(key){
     axEl.append(el);
   });
 
-  /* 구간 띠 — 20일 최저 ~ 표시정가 사이에서 현재가의 위치 */
+  /* 구간 띠 — 평소 판매가를 한가운데 두고 현재가가 어느 쪽에 있는지 */
   const bd = c.band;
   $('#r-band').classList.toggle('hidden', !bd);
   if (bd) {
     const zs = $('#vb-track').querySelectorAll('.vb-z');
-    zs[0].style.width = bd.z1 + '%';
-    zs[1].style.width = Math.max(0, bd.z2 - bd.z1) + '%';
-    zs[2].style.width = Math.max(0, 100 - bd.z2) + '%';
-    $('#vb-pin').style.left = bd.curAt + '%';
-    const cu = $('#vb-cur');
-    cu.textContent = won(bd.cur);
-    cu.style.left = bd.curAt + '%';
-    cu.className = 'vb-cur' + (bd.curAt < 18 ? ' at-start' : bd.curAt > 82 ? ' at-end' : '');
-    $('#vb-min').textContent = `최근 ${bd.win}일 최저 ${won(bd.min)}`;
-    $('#vb-org').textContent = `정가 ${won(bd.org)}`;
+    const ws = [bd.z1, Math.max(0, bd.z2 - bd.z1), Math.max(0, 100 - bd.z2)];
+    const nms = ['싼 편', '보통', '비싼 편'];
+    zs.forEach((z, i) => { z.style.width = ws[i] + '%'; z.textContent = ws[i] >= 14 ? nms[i] : ''; });
+    const pin = $('#vb-pin');
+    pin.style.left = Math.min(98.5, Math.max(1.5, bd.curAt)) + '%';
+    pin.className = 'vb-pin' + (bd.off ? (bd.pct > 0 ? ' off hi' : ' off lo') : '');
+    const pill = $('#vb-pill');
+    pill.textContent = '현재 ' + won(bd.cur);
+    pill.style.left = bd.curAt + '%';
+    pill.className = 'vb-pill t-' + bd.zone
+      + (bd.curAt < 16 ? ' at-start' : bd.curAt > 84 ? ' at-end' : '');
+    const med = $('#vb-med');
+    med.textContent = '평소 판매가 ' + won(bd.med);
+    med.style.left = bd.medAt + '%';
+    const gap = $('#vb-gap');
+    gap.textContent = '';
+    const diff = Math.abs(bd.pct);
+    if (diff >= 0.1) {
+      const a = Math.min(bd.medAt, bd.curAt), b = Math.max(bd.medAt, bd.curAt);
+      const bar = document.createElement('i');
+      bar.style.left = a + '%'; bar.style.width = (b - a) + '%';
+      const lab = document.createElement('b');
+      lab.style.left = ((a + b) / 2) + '%';
+      lab.textContent = (bd.pct > 0 ? '+' : '−') + diff.toFixed(diff < 10 ? 1 : 0) + '%';
+      gap.append(bar, lab);
+    } else {
+      const lab = document.createElement('b');
+      lab.style.left = bd.medAt + '%';
+      lab.textContent = '평소와 같음';
+      gap.append(lab);
+    }
   }
   $('#r-chart-sub').textContent = c.chartSub;
 
