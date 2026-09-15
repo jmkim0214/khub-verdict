@@ -284,6 +284,7 @@
   #r-chart-fine{margin-top:9px;}
   #r-chart-sub:not(.hidden) + #r-chart-fine{margin-top:-8px;}
   #view-report .tile{text-align:center;}
+  #view-report .v-kicker{display:none;}
   /* 썸네일을 상품 블록 전체 높이로 (2026-09-15)
      기존 규칙(#view-report .prod .thumb)이 뒤쪽 미니파이 블록에 있어 순서로는 못 이긴다.
      id 를 두 번 써 특이도로 덮는다. */
@@ -321,11 +322,6 @@
   .vb-caret.t-mid{border-top-color:var(--baseline);}
   .vb-caret.t-low{border-top-color:var(--good-text);}
   .vb-caret.t-high{border-top-color:var(--critical);}
-  .vb-pill.t-mid{color:var(--ink); border-color:var(--baseline); background:var(--page);}
-  .vb-pill.t-low{color:var(--good-text); border-color:rgba(89,96,68,0.35); background:var(--good-bg);}
-  .vb-pill.t-high{color:var(--critical); border-color:rgba(217,92,79,0.35); background:var(--critical-bg);}
-  .vb-pill.at-start{transform:none;}
-  .vb-pill.at-end{transform:translateX(-100%);}
   .vb-track{position:relative; height:22px; border-radius:5px; overflow:hidden; display:flex;}
   .vb-z{height:100%; display:grid; place-items:center; font-size:10.5px;
         white-space:nowrap; overflow:hidden; letter-spacing:.02em;}
@@ -1428,7 +1424,6 @@ renderReport=function(key){
  fullReportRenderer(key);
  document.querySelectorAll('#r-safety .safety-row').forEach(row=>{const title=row.querySelector('b');if(title?.textContent!=='제조사 공식 주의사항')return;const detail=document.createElement('details');detail.className='fine official-caution';const summary=document.createElement('summary');summary.textContent='제조사 공식 주의사항';const body=row.querySelector('.s-note');detail.append(summary,body);row.replaceWith(detail);});
 
- document.querySelector('.v-kicker').textContent='가격 한눈에';
  const title=document.getElementById('r-vtitle');if(title.textContent.includes(' — ')){title.textContent=title.textContent.split(' — ')[0];}
  const claims=document.getElementById('r-claims');
  if(claims.querySelector('.claim')){

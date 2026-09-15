@@ -392,7 +392,7 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 /* Mobile compact header: small thumbnail beside the product title. */
 @media(max-width:640px){
  .grid .pcard{display:grid;grid-template-columns:96px minmax(0,1fr);gap:0 14px;padding:16px;align-content:start}
- .pcard .product-image{grid-column:1;grid-row:1;width:96px;height:112px;border:1px solid #e5d9c9;border-radius:5px;padding-bottom:22px;align-self:start}
+ .pcard .product-image{grid-column:1;grid-row:1;width:96px;height:112px;border:1px solid #e5d9c9;border-radius:5px;align-self:start}
  .pcard .product-image img{width:86%;height:84%}
  .pcard .product-image .rank{top:3px;left:3px;font-size:10px;padding:2px 4px}
  .pcard .product-image .vchip{bottom:3px;right:3px;top:auto;font-size:10px;padding:2px 5px}
@@ -413,6 +413,11 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 .card-body .price-context .real{white-space:nowrap}
 .card-body .price-context .fchip{font-size:11px;line-height:1.5;padding:2px 5px;white-space:nowrap}
 
+
+/* Sparkline fills the card width; height follows the viewBox. (2026-09-15) */
+.card-history .spark svg,.card-body .spark svg,.pcard .spark svg{height:auto!important;width:100%}
+.pcard .xlab{align-items:baseline}
+.pcard .xlab .obs{font-size:10px;opacity:.75;font-weight:500}
 
 /* Compact price header, filters and brand purchase link. */
 .page-head{margin:16px 0 14px;padding:0}
@@ -558,7 +563,7 @@ function shownLine(it){
 }
 const flagsOf = it => it.flags || [];
 /* ---------- 스파크 차트 ---------- */
-const CW=260, CH=84, L=6, R=6, T=12, B=6;
+const CW=300, CH=80, L=2, R=5, T=10, B=4;
 function spark(it){
   const pts = it.series, n = pts.length;
   if(!n) return '';
@@ -616,12 +621,12 @@ function render(){
     const media = it.img ? `<img src="${esc(it.img)}" alt="${esc(it.brand)} ${esc(displayProductName(it))}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="m-fallback" hidden>제품 이미지 없음</span>` : '<span class="m-fallback">제품 이미지 없음</span>';
     return `<article class="pcard" data-g="${it.gno}">
       <a class="product-image" href="${esc(reportUrl)}" aria-label="${esc(it.name)} 판정서 보기">
-        <span class="rank ${it.rank<=3?'top':''}">${it.rank}위</span><span class="vchip ${cls}">${label}</span>${media}
+        <span class="rank ${it.rank<=3?'top':''}">${it.rank}위</span>${media}
       </a>
       <div class="card-body">
       <div class="pmeta"><div class="brand-row"><div class="brand">${esc(it.brand)}</div><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
-      <div class="price"><span class="cur">${won(it.cur)}</span><span class="price-context">${realTag(it)}<span class="card-flags">${ftags}</span></span></div>
-      <div class="card-history"><span class="days">관측 ${it.days}일</span><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span>${last}</span></div></div>
+      <div class="price"><span class="cur">${won(it.cur)}</span><span class="price-context"><span class="vchip ${cls}">${label}</span><span class="card-flags">${ftags}</span></span></div>
+      <div class="card-history"><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span class="obs">관측 ${it.days}일</span><span>${last}</span></div></div>
       <details class="card-evidence"><summary>가격 근거 · 상품 전체 이름</summary>${shownLine(it)}<div class="original-name">${esc(it.name)}</div></details>
       </div>
     </article>`;
