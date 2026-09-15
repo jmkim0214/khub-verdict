@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>더마릭 리포트 — 더마릭</title><meta name="description" content="브랜드 이야기와 올영세일 데이터 분석을 카드뉴스로 만나보세요."><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap"><style>body{margin:0;font-family:'Pretendard Variable',Pretendard,sans-serif;line-height:1.6;word-break:keep-all}:root{--beige-wall:url("/assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+
+*{box-sizing:border-box}
+.wrap{margin:0 auto;max-width:1120px}
+h1,.page-head h1{font-size:30px;font-weight:550;letter-spacing:-.04em;line-height:1.4}
+h1 .u{box-shadow:none!important}
+h2{font-size:18px;font-weight:650}
+.page-head{margin:24px 0 20px}.page-head .sub,.lead{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.aff-notice{border-radius:0!important;background:#fffaf1aa!important;border-color:var(--border)!important;text-align:left!important;max-width:none!important;font-size:11px!important;margin:6px 0 24px!important}
+.card,.item,.lab{background:#fffaf3eF;border:1px solid var(--border);border-radius:8px;box-shadow:none}
+input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid var(--baseline);border-radius:0;font-size:16px;padding:15px;min-width:0}
+.tabs,.subtabs{border-bottom:1px solid var(--border);gap:24px;margin:20px 0;display:flex}
+.tab,.stab{background:none;border:0;border-radius:0;padding:12px 0;font-size:13px;color:var(--ink-2);text-decoration:none}
+.tab.on,.stab.on{background:none;color:var(--ink);border-bottom:1px solid var(--ink)}
+.btn,.more-btn{border-radius:4px}
+@media(max-width:800px){.wrap{padding:0 28px 40px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}}
+@media(max-width:640px){
+ .wrap{padding:0 20px 40px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}
+ h1,.page-head h1{font-size:24px}.page-head{margin:20px 0 16px}.page-head .sub,.lead{font-size:13px}
+ .card{padding:16px}.tabs,.subtabs{gap:22px}.tab,.stab{font-size:12px}.aff-notice{line-height:1.7!important}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
+@media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
+
+/* Align detail pages to the approved price-page canvas. */
+html{overflow-y:scroll}
+:root{--detail-gutter:48px}
+body{background:#f2e9d9;color:#382719}
+body::after{display:none}
+body::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall);background-position:center;background-size:cover}
+body>.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 var(--detail-gutter) 32px}
+.site-band{margin:0 0 24px;width:100%;border:0}
+header.site{padding:28px 0;max-width:none;margin:0}
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;max-width:none!important}
+@media(max-width:800px){:root{--detail-gutter:28px}body>.wrap{padding-bottom:28px}}
+@media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
+@media(max-width:359px){:root{--detail-gutter:18px}}
+
+.notes-head{margin:32px 0 24px}.notes-head h1{font-size:30px;font-weight:550;margin:0 0 10px}.notes-head p{font-size:14px;color:var(--ink-2);margin:0}.notes-empty{border:1px solid var(--border);background:#fffaf3;border-radius:6px;padding:48px 24px;text-align:center;margin:24px 0 48px}.notes-empty strong{font-size:18px;font-weight:550}.notes-empty p{font-size:13px;color:var(--muted);margin:10px 0 0}@media(max-width:640px){.notes-head{margin:20px 0}.notes-head h1{font-size:22px}.notes-head p{font-size:13px}.notes-empty{padding:36px 20px}}
+</style><style>.report-tabs{display:flex;gap:24px;border-bottom:1px solid var(--border);margin:24px 0 0}.report-tabs button{border:0;border-bottom:1px solid transparent;background:none;color:var(--ink-2);font:inherit;font-size:13px;padding:12px 0;cursor:pointer;font-weight:600}.report-tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}.notes-empty[hidden]{display:none}.notes-empty strong{line-height:1.7}@media(max-width:640px){.notes-empty strong{font-size:16px}}</style><style>/* Five detail navigation links */
+@media(min-width:641px) and (max-width:1000px){.primary-nav{gap:16px}.primary-nav a{font-size:13px}}
+@media(max-width:640px){header.site{flex-wrap:wrap!important;row-gap:12px!important}header.site .brand-link{order:1}header.site .site-menu{order:2;margin-left:auto}header.site .primary-nav{order:3;display:flex!important;flex:0 0 100%;width:100%;margin:0;justify-content:space-between;gap:6px;flex-wrap:nowrap}header.site .primary-nav a{font-size:12px;white-space:nowrap;padding:10px 0;flex-shrink:0}}
+</style><style>
+[hidden]{display:none!important}
+.notes-head h1{font-size:34px;font-weight:650}.notes-head p{font-size:17px;line-height:1.7}.report-tabs button{font-size:16px;padding:14px 0}
+.sale-intro{margin:24px 0;color:var(--ink-2);font-size:17px;line-height:1.8}
+.sale-grid{display:flex;flex-direction:column;margin:28px 0 36px;border-top:1px solid #a89579}
+.sale-tile{display:block;color:inherit;text-decoration:none;min-width:0;border-bottom:1px solid #cfc2ae;transition:background-color .18s}
+.sale-tile-head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;padding:24px 10px}
+.sale-tile strong{display:block;min-width:0;font-size:23px;line-height:1.5;margin:0;font-weight:600;letter-spacing:-.035em}
+.sale-tile small{display:block;flex:none;color:#82725c;font-size:14px;line-height:1.5;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.sale-tile:hover{background:#fffaf180}.sale-tile:hover strong{color:#756043}.sale-tile:focus-visible{outline:2px solid #645338;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.sale-tile{transition:none}}
+.sale-disclosure{font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding:20px 0;line-height:1.8}
+.sale-reader{max-width:860px;margin:28px auto 0}
+.sale-back{display:inline-block;color:var(--ink-2);font-size:16px;padding:12px 0;text-underline-offset:5px}
+.sale-reader h2{font-size:28px;font-weight:600;line-height:1.45;margin:18px 0 12px;letter-spacing:-.03em}
+.sale-reader-lead{font-size:17px;line-height:1.8;color:var(--ink-2);margin:0 0 16px}
+.sale-reader-hint{font-size:14px;color:var(--muted);margin:0 0 28px}
+.sale-pages{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:12px}.sale-page{margin:0;flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;background:#fffcf7;border:1px solid #b7a78e;box-shadow:0 5px 10px rgba(56,39,25,.13)}.sale-page img{display:block;width:100%;height:auto}
+.sale-page figcaption{display:flex;justify-content:space-between;font-size:14px;color:var(--ink-2);padding:12px 14px;background:#fffcf7;border-top:1px solid #d8cdbc}
+.sale-page figcaption a{color:inherit;text-underline-offset:4px}
+.sale-pager{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:16px 0 0}.sale-pager button{font:inherit;font-size:16px;color:var(--ink);background:transparent;border:1px solid var(--border);padding:10px 16px;min-height:44px;cursor:pointer}.sale-pager button:disabled{opacity:.35;cursor:default}.sale-pager span{font-size:15px;color:var(--ink-2)}
+.sale-method{margin:36px 0 20px;border-top:1px solid var(--border);padding-top:20px;font-size:16px;line-height:1.9}
+.sale-method summary{cursor:pointer;font-weight:600}.sale-method p{margin-bottom:0}
+@media(max-width:640px){.sale-reader{margin-top:16px}.sale-reader h2{font-size:23px}.sale-pages{gap:24px}}
+@media(max-width:640px){.notes-head h1{font-size:28px}.notes-head p,.sale-intro{font-size:16px}.sale-tile strong{font-size:20px;line-height:1.55}.sale-tile-head{padding:20px 0;gap:18px}.sale-tile small{font-size:12px;padding-top:4px}.sale-grid{margin-top:24px}}
+</style><meta name="description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 THEMARIC"><meta property="og:locale" content="ko_KR"><meta property="og:url" content="https://themaric.kr/notes/#sale"><meta property="og:title" content="올영세일 데이터 리포트 2026-09 — 더마릭"><meta property="og:description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta property="og:image" content="https://themaric.kr/og/sale_report.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="올영세일 데이터 리포트 2026-09 — 더마릭"><meta name="twitter:description" content="2026년 9월 올영세일 데이터 리포트. 세일 뒤 가격, 실제 할인율, 쿠폰 구조와 방법·근거를 담았습니다. 9월 14일 관측 기준."><meta name="twitter:image" content="https://themaric.kr/og/sale_report.png"></head><body><div class="wrap"><div class="site-band"><header class="site">
+    <a href="../" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/">뷰티 LAB</a><a href="../notes/" aria-current="page">리포트</a></nav>
+    <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="../price.html">가격 확인</a><a href="../routine.html">루틴 점검</a><a href="../glossary.html">성분 찾기</a><a href="../lab/">뷰티 LAB</a><a href="../inflated/" class="secondary-start">부풀린 정가 기록</a><a href="../notes/" aria-current="page">더마릭 리포트</a></nav>
+    </details>
+  </header></div><main><div class="notes-head"><h1>더마릭 리포트</h1><p>브랜드를 읽는 카드뉴스, 세일을 돌아보는 리포트.</p></div><div class="report-tabs" role="tablist" aria-label="리포트 분류">
+<button id="tab-brand" role="tab" aria-selected="true" aria-controls="panel-brand">브랜드 이야기</button>
+<button id="tab-sale" role="tab" aria-selected="false" aria-controls="panel-sale" tabindex="-1">세일 분석</button></div>
+<section id="panel-brand" class="notes-empty" role="tabpanel" aria-labelledby="tab-brand" tabindex="0"><strong>첫 번째 브랜드 이야기를 준비하고 있어요.</strong><p>브랜드마다 눈여겨볼 특징을 카드뉴스로 전해드릴게요.</p></section>
+<section id="panel-sale" role="tabpanel" aria-labelledby="tab-sale" tabindex="0" hidden><div id="sale-gallery"><p class="sale-intro">2026년 9월 올영세일 · 9월 14일 관측 기준<br>읽고 싶은 리포트를 골라보세요.</p><div class="sale-grid"><a class="sale-tile" id="sale-tile-post" href="#sale/post"><span class="sale-tile-head"><strong>세일 끝, 가격은 돌아왔을까</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-audit" href="#sale/audit"><span class="sale-tile-head"><strong>표시 할인 27%, 실제 할인 10%</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-coupon" href="#sale/coupon"><span class="sale-tile-head"><strong>세일이 아니라 쿠폰이다</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-timeline" href="#sale/timeline"><span class="sale-tile-head"><strong>세일은 자정에 켜지고 자정에 꺼졌다</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-cats" href="#sale/cats"><span class="sale-tile-head"><strong>카테고리별 올영세일 성적표</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-soldout" href="#sale/soldout"><span class="sale-tile-head"><strong>세일 마지막 날, 4개 중 1개가 품절</strong><small>2026.09</small></span></a><a class="sale-tile" id="sale-tile-newsku" href="#sale/newsku"><span class="sale-tile-head"><strong>세일 랭킹 진입 46종 중 43종은 이력이 없다</strong><small>2026.09</small></span></a></div></div>
+<article id="sale-reader" class="sale-reader" aria-labelledby="sale-reader-title" hidden><a class="sale-back" href="#sale">← 세일 분석 목록</a><h2 id="sale-reader-title" tabindex="-1"></h2><p id="sale-reader-lead" class="sale-reader-lead"></p><p class="sale-reader-hint">옆으로 넘겨 읽어보세요. 작은 글씨는 카드 아래 ‘원본 크게 보기’로 확대할 수 있어요.</p><div id="sale-pages" class="sale-pages" tabindex="0" role="region" aria-label="옆으로 넘기는 리포트 카드"></div><div class="sale-pager" aria-label="카드 이동"><button id="sale-prev" type="button" aria-controls="sale-pages">← 이전</button><span id="sale-position" aria-live="polite" aria-atomic="true"></span><button id="sale-next" type="button" aria-controls="sale-pages">다음 →</button></div><details id="sale-method" class="sale-method"><summary>방법과 근거</summary><p id="sale-method-text"></p></details></article><p class="sale-disclosure">더마릭은 올리브영 쇼핑 큐레이터 파트너입니다. 일부 상품 링크로 구매 시 수수료를 받을 수 있으며, 수수료는 판정·순위·본 리포트의 수치에 영향을 주지 않습니다. 모든 가격은 관측 시점의 올리브영 온라인몰 표시 기준이며 회원 등급별 쿠폰은 반영되지 않습니다.</p></section></main></div><script>
+const reportTabs=[...document.querySelectorAll('.report-tabs [role="tab"]')];
+function selectReport(tab){reportTabs.forEach(t=>{const selected=t===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!selected;});}
+reportTabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectReport(tab));tab.addEventListener('keydown',e=>{let index;if(e.key==='ArrowRight')index=(i+1)%reportTabs.length;else if(e.key==='ArrowLeft')index=(i+reportTabs.length-1)%reportTabs.length;else if(e.key==='Home')index=0;else if(e.key==='End')index=reportTabs.length-1;else return;e.preventDefault();selectReport(reportTabs[index]);reportTabs[index].focus();});});
+</script><script id="sale-data" type="application/json">[{"key": "post", "title": "세일 끝, 가격은 돌아왔을까", "lead": "8/28 대비 9/14 · 8,204종. 복귀 37% · 더 비쌈 33% · 더 쌈 30% — 세일 후 9일째 그대로.", "method": "세일 전(8/28 pm) 리스트 대표가와 9/14 pm 리스트 대표가를 ±2% 기준으로 세 갈래로 나눴다. 리스트 대표가는 노출 옵션이 바뀌면 튀므로 상세 페이지 옵션 10,232개(2,224종)를 세일 전 8/16~8/28 중앙값과 옵션 단위로 따로 비교해 같은 결론(상승 34 · 동일 34 · 하락 32%)을 확인했다. 제목에 택1·N종·기획·증량·세트가 있는 상품은 제외. 관측은 매일 오후 카테고리 전수(약 15,000종).", "images": [{"src": "/assets/sale-report/post-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-06.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/post-07.png", "width": 2448, "height": 2928}]}, {"key": "audit", "title": "표시 할인 27%, 실제 할인 10%", "lead": "세일 7일 내내 관측한 8,272종. 열에 일곱은 진짜 최저가였지만, 화면의 숫자보다 폭은 작았다.", "method": "실제 할인율 = 1 − (세일 기간 최저 리스트가 ÷ 세일 전 53일(7/6~8/28) 리스트가 중앙값). 표시 할인율 = 1 − (판매가 ÷ 올리브영 표시 정가), 세일 기간 최대값. 관측 14일 미만·세일 중 5일 미만 관측·비율 1.5배 초과 또는 하락 60% 초과(옵션 전환 의심)·택1/기획 제목은 제외해 8,272종. 옵션가와 겹치는 187종에서 15% 기준 분류 일치 87%.", "images": [{"src": "/assets/sale-report/audit-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-06.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-07.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/audit-08.png", "width": 2448, "height": 2928}]}, {"key": "coupon", "title": "세일이 아니라 쿠폰이다", "lead": "세일 기간 실제로 켜졌다 꺼진 장치는 '쿠폰' 태그였다. 하락률은 5·10·15·20%에 정확히 멈춘다.", "method": "매일 오후 카테고리 전수 관측(약 15,000종)의 리스트 태그(세일·쿠폰·오늘드림 등) 비중을 날짜별로 집계. 계단 그래프는 8,272종 중 8/30에 쿠폰 태그가 새로 붙은 5,613종의 8/29→8/30 리스트가 하락률 최빈값 6개. 조합 표는 9/1 태그 조합별로 세일 기간 실제 할인율(세일 전 53일 중앙값 대비)을 집계.", "images": [{"src": "/assets/sale-report/coupon-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/coupon-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/coupon-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/coupon-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/coupon-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/coupon-06.png", "width": 2448, "height": 2928}]}, {"key": "timeline", "title": "세일은 자정에 켜지고 자정에 꺼졌다", "lead": "8,272종 하루 3회 관측. 15%+ 할인 비중 1.6% → 30.7% → 16.4%. 선반영도, 직전 정가 인상도 없었다.", "method": "오후 카테고리 스윕(엄격 모집단 8,272종)의 리스트가를 세일 전 53일 중앙값과 비교해 15% 이상 싼 상품 비중을 일별로 집계. 시각 확대는 랭킹 소스(아침 8시·저녁 8시, 약 400종)로 확인. 세일 전날 상승은 8/28→8/29 오후 리스트가 2% 초과 상승 기준.", "images": [{"src": "/assets/sale-report/timeline-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/timeline-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/timeline-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/timeline-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/timeline-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/timeline-06.png", "width": 2448, "height": 2928}]}, {"key": "cats", "title": "카테고리별 올영세일 성적표", "lead": "더모·마스크팩·클렌징이 실제 할인 상위, 향수·헤어·네일이 하위. 마스크팩은 표시 37% vs 실제 10%.", "method": "카테고리는 오후 스윕 소스 코드(cat_1000001000XX…)로 매핑. 각 카테고리·브랜드의 실제 할인율 중앙값, 표시 할인율 중앙값, 세일 중 53일 최저가 갱신 비중, 세일 7일 무변동 비중을 집계. 브랜드는 엄격 모집단 15종 이상만.", "images": [{"src": "/assets/sale-report/cats-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-06.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/cats-07.png", "width": 2448, "height": 2928}]}, {"key": "soldout", "title": "세일 마지막 날, 4개 중 1개가 품절", "lead": "품절 비중 12.6% → 23.0% → 9/14 16.0%. 3,171종이 세일 중 처음 품절, 그중 58%가 첫 3일.", "method": "오후 스윕 약 16,000행의 리스트 품절 마커(일시품절, 대표 옵션 기준) 비중을 일별 집계. 첫 품절은 8/28·8/29 모두 재고 있던 12,977종 중 세일 기간 처음 품절 표시된 날짜. 옵션 단위 품절률(16% → 31% → 24%)로 방향 일치 확인.", "images": [{"src": "/assets/sale-report/soldout-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/soldout-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/soldout-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/soldout-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/soldout-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/soldout-06.png", "width": 2448, "height": 2928}]}, {"key": "newsku", "title": "세일 랭킹 진입 46종 중 43종은 이력이 없다", "lead": "Top 100 진입 상품 대부분이 세일 직전 등록된 새 상품 번호(올영픽 기획·콜라보). 평소가 비교가 불가능한 구조.", "method": "best100 아침 관측 기준. 세일 7일 중 3일 이상 Top 100에 들었고 8/26·8/28·8/29에는 없던 상품을 진입으로 정의. 가격 이력 유무는 세일 전 베이스라인(관측 14일 이상) 존재 여부. 신규 등록은 goods.first_seen 일별 집계.", "images": [{"src": "/assets/sale-report/newsku-01.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/newsku-02.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/newsku-03.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/newsku-04.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/newsku-05.png", "width": 2448, "height": 2928}, {"src": "/assets/sale-report/newsku-06.png", "width": 2448, "height": 2928}]}]</script><script>
+const saleReports=JSON.parse(document.getElementById('sale-data').textContent);
+const gallery=document.getElementById('sale-gallery');
+const reader=document.getElementById('sale-reader');
+let lastReport=null;
+const salePages=document.getElementById('sale-pages');
+const salePrev=document.getElementById('sale-prev');
+const saleNext=document.getElementById('sale-next');
+let saleIndex=0;
+function cardStride(){return salePages.clientWidth+parseFloat(getComputedStyle(salePages).columnGap||0);}
+function updateSalePager(){
+ saleIndex=Math.max(0,Math.min(salePages.children.length-1,Math.round(salePages.scrollLeft/cardStride())));
+ document.getElementById('sale-position').textContent=(saleIndex+1)+' / '+salePages.children.length;
+ salePrev.disabled=saleIndex===0;saleNext.disabled=saleIndex===salePages.children.length-1;
+}
+function moveSaleCard(delta){
+ const index=Math.max(0,Math.min(salePages.children.length-1,saleIndex+delta));
+ salePages.scrollTo({left:index*cardStride(),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+salePages.addEventListener('scroll',updateSalePager,{passive:true});
+salePrev.addEventListener('click',()=>moveSaleCard(-1));saleNext.addEventListener('click',()=>moveSaleCard(1));
+reader.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();moveSaleCard(e.key==='ArrowRight'?1:-1);}});
+new ResizeObserver(()=>{if(!reader.hidden){salePages.scrollTo({left:saleIndex*cardStride(),behavior:'instant'});updateSalePager();}}).observe(salePages);
+function saleRoute(){
+ const key=location.hash.startsWith('#sale/')?location.hash.slice(6):null;
+ const report=saleReports.find(r=>r.key===key);
+ selectReport(document.getElementById(location.hash==='#brand'?'tab-brand':'tab-sale'));
+ gallery.hidden=!!report;reader.hidden=!report;
+ if(report){
+  lastReport=report.key;
+  document.getElementById('sale-reader-title').textContent=report.title;
+  document.getElementById('sale-reader-lead').textContent=report.lead;
+  document.getElementById('sale-method-text').textContent=report.method;
+  document.getElementById('sale-method').open=false;
+  const pages=document.getElementById('sale-pages');pages.replaceChildren();
+  report.images.forEach((image,i)=>{
+   const figure=document.createElement('figure');figure.className='sale-page';
+   const img=document.createElement('img');img.src=image.src;img.width=image.width;img.height=image.height;img.alt=report.title+' — '+(i+1)+' / '+report.images.length;img.loading=i===0?'eager':'lazy';img.decoding='async';
+   const caption=document.createElement('figcaption');
+   const count=document.createElement('span');count.textContent=(i+1)+' / '+report.images.length;
+   const link=document.createElement('a');link.href=image.src;link.target='_blank';link.rel='noopener';link.textContent='원본 크게 보기';link.setAttribute('aria-label',(i+1)+'번째 카드 원본 크게 보기 (새 탭)');
+   caption.append(count,link);figure.append(img,caption);pages.append(figure);
+  });
+  saleIndex=0;pages.scrollTo({left:0,behavior:'instant'});updateSalePager();
+  reader.scrollIntoView({block:'start'});document.getElementById('sale-reader-title').focus({preventScroll:true});
+ }else if(lastReport&&location.hash==='#sale'){
+  const tile=document.getElementById('sale-tile-'+lastReport);tile?.focus({preventScroll:true});tile?.scrollIntoView({block:'center'});
+ }
+}
+reportTabs.forEach(tab=>tab.addEventListener('click',()=>{const hash=tab.id==='tab-sale'?'#sale':'#brand';if(location.hash!==hash)location.hash=hash;else saleRoute();}));
+window.addEventListener('hashchange',saleRoute);saleRoute();
+</script></body></html>
