@@ -548,6 +548,14 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 <style id="report-nav-five">@media(max-width:640px){.quick-nav{gap:6px;flex-wrap:nowrap}.quick-nav a{flex-shrink:0}}@media(min-width:641px) and (max-width:900px){.primary-nav{gap:16px}}</style>
 <style id="compact-report-proposal">
 #view-report{max-width:760px;margin:0 auto}.preview-label{text-align:center;font-size:11px;color:#8d7057;border-bottom:1px solid #d6c4ad;padding:10px}.report-top{gap:12px}.rid{font-size:10px}#view-report .card{border-radius:12px;padding:24px;margin-bottom:16px;background:#fffaf3;border-color:#d7c3aa}#view-report .verdict{padding:0 0 20px;background:transparent;border:0}#r-vtitle{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:500;line-height:1.5}#r-vdesc{font-size:13px;line-height:1.8}.v-kicker{font-size:10px;letter-spacing:.12em}.v-ic{display:none}#view-report .prod{border-top:1px solid #e1d1bf;padding-top:20px;margin-top:0}#r-name{font-size:16px;line-height:1.6}#view-report .sec-h h3{font-size:18px}#view-report .sec-sub{font-size:12px}.claim-fold{padding:15px 0;border-top:1px solid #e5d6c5}.claim-fold summary{cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 42px 12px;gap:12px;align-items:center;font-size:13px;list-style:none}.claim-fold summary:after{content:'+';color:#947b61}.claim-fold summary>.badge{justify-self:end;text-align:center;white-space:nowrap}.claim-fold summary:after{justify-self:end}.claim-fold[open] summary:after{content:'−'}.claim-fold .c-title{font-size:13px;font-weight:500}.claim-fold .c-note{font-size:12px;line-height:1.8;margin-top:12px}.claim-fold .c-src{font-size:10px}.compact-note{font-size:11px;color:#8a735d;line-height:1.8;margin:10px 0 16px}.basis-fold summary{font-size:13px;padding:14px 0;cursor:pointer}.basis-fold .basis{margin:10px 0}.basis-observed{font-size:12px;color:#816b54}.actions{gap:8px}.actions button{font-size:11px}#view-report .fine summary{font-size:11px;line-height:1.8}@media(max-width:640px){#view-report .card{padding:18px 14px}.report-top{display:block}#r-vtitle{font-size:24px}.report-top .rid{margin:12px 0}#view-report .prod .thumb{width:66px;height:80px}#view-report .sec-h{flex-wrap:wrap;gap:6px}#view-report .tiles{gap:8px}.claim-fold summary{gap:7px}.claim-fold .badge{font-size:10px;white-space:nowrap}}
+</style><style id="price-chart-clear">
+:root{--list-price:#b87860;--usual-price:#628899}
+.k .sw-ref{height:0;background:none;border-top:2px dashed var(--list-price)}
+.k .sw-usual{width:16px;height:0;border-top:2px dotted var(--usual-price)}
+#view-report #r-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#r-tiles .tile{min-width:0;padding:14px 8px}#r-tiles .l{font-size:11px}#r-tiles .v{font-size:23px;white-space:nowrap}
+.discount-formula{font-size:10px;color:var(--ink-2);text-align:right;margin-top:10px}
+@media(max-width:640px){#r-tiles .v{font-size:clamp(15px,4.5vw,21px)}#r-tiles .l{font-size:10px}#r-tiles .tile{padding:12px 4px}.chart-legend{gap:10px}}
 </style></head>
 <body>
 <div class="wrap">
@@ -638,12 +646,13 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
         <span class="k"><span class="sw-line"></span>실판매가</span>
         <span class="k" id="lg-band"><span class="sw-band"></span>12개월 통상 판매가 구간 (p10–p90)</span>
         <span class="k"><span class="sw-ref"></span>표시정가</span>
+        <span class="k" id="lg-usual"><span class="sw-usual"></span>평소 판매가</span>
       </div>
       <div class="chart-box">
         <div id="chart"></div>
         <div class="tooltip" id="tooltip"></div>
       </div>
-      <div class="tiles" id="r-tiles"></div>
+      <div class="tiles" id="r-tiles"></div><div class="discount-formula">실질 할인율 = (1 − 현재가 ÷ 평소 판매가) × 100</div>
       <!-- 문장형 요약(findings)은 위 타일·차트와 중복이라 비노출 — 2026-08-12
       <div class="findings" id="r-findings"></div>
       -->
@@ -882,13 +891,17 @@ function renderReport(key){
     .replaceAll('{p90}', won(p90)).replaceAll('{pct}', pct).replaceAll('{realDc}', Math.max(0,realDc));
   $('#r-vdesc').textContent = fill(c.vdesc);
 
-  const tiles = c.tiles || [
+  const originalTiles = c.tiles || [
     ['현재가', won(c.cur), ''],
     [hasBand?'12개월 중앙값':'관측 중앙값', won(med), ''],
     [hasBand?'12개월 최저 구간 (p10)':'관측 최저', won(hasBand?p10:Math.min(...prices)), ''],
     ['실질 할인율', (realDc>=0?realDc:0) + '%',
       c.verdict==='good' ? 'up-good' : (c.verdict==='bad' ? 'up-bad' : '')],
   ];
+  const usualTile = originalTiles.find(t=>t[0]==='평소 판매가') || (!isReal ? ['평소 판매가',won(med),''] : ['평소 판매가','자료 없음','']);
+  const usualPrice = Number(String(usualTile[1]).replace(/[^0-9]/g,'')) || null;
+  const tiles = [originalTiles.find(t=>t[0]==='현재가') || ['현재가',won(c.cur),''], usualTile,
+    originalTiles.find(t=>t[0]==='실질 할인율') || ['실질 할인율','판정 보류','']];
   $('#r-tiles').innerHTML = tiles.map(([l,val,cls]) =>
     `<div class="tile"><div class="l">${l}</div><div class="v ${cls||''}">${val}</div></div>`).join('');
 
@@ -906,7 +919,6 @@ function renderReport(key){
     lgEl.classList.remove('hidden');
     lgEl.innerHTML =
       `<div class="lh">${lg.head}</div>` +
-      `<div class="lb">${fill(lg.body)}</div>` +
       (lg.short ? `<div class="lshort">※ 관측이 20일에 못 미쳐 확보된 기간만으로 계산했습니다. 관측이 쌓이면 자동 갱신됩니다.</div>` : '') +
       `<details><summary>왜 20일인가요?</summary><div class="ld">` +
         `<p>${lg.why}</p><p>${lg.limit}</p>` +
@@ -1049,11 +1061,12 @@ function renderReport(key){
   $('#lg-band').style.display = hasBand ? '' : 'none';
   const cfg = isReal
     ? {pts, cur:c.cur, verdict:c.verdict, normal:c.chart.normal, normalNote:c.chart.normalNote,
-       band:null, median:null, note:null}
+       band:null, median:usualPrice, note:null}
     : {pts, cur:c.cur, verdict:c.verdict, normal:c.normal,
        normalNote:`표시정가 ${c.normal.toLocaleString('ko-KR')}원${c.verdict==='bad' ? ' · 판매 실적 0일' : ''}`,
-       band: hasBand?{p10,p90}:null, median: hasBand?med:null,
+       band: hasBand?{p10,p90}:null, median:usualPrice,
        note: hasBand?null:'관측 41일 — 통상 구간(밴드) 산출 기준(90일) 미달'};
+  $('#lg-usual').style.display = usualPrice == null ? 'none' : '';
   drawChart(cfg);
   show('report');
 }
@@ -1063,7 +1076,7 @@ function drawChart(cfg){
   const W=720, H=250, L=58, R=14, T=18, B=30;
   const iw = W-L-R, ih = H-T-B;
   const pts = cfg.pts, n = pts.length;
-  const allVals = pts.map(p=>p.price).concat([cfg.normal]);
+  const allVals = pts.map(p=>p.price).concat([cfg.normal,cfg.median].filter(v=>v!=null));
   let yMin = Math.min(...allVals), yMax = Math.max(...allVals);
   const padY = Math.max((yMax-yMin)*0.12, yMax*0.03); yMin=Math.max(0,yMin-padY); yMax+=padY;
   const x = i => n>1 ? L + (i/(n-1))*iw : L + iw/2;
@@ -1096,15 +1109,15 @@ function drawChart(cfg){
     s += `<rect x="${L}" y="${y(cfg.band.p90)}" width="${iw}" height="${y(cfg.band.p10)-y(cfg.band.p90)}" rx="4" fill="var(--series-wash)"/>`;
   }
   if(cfg.median != null){
-    s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.median)}" y2="${y(cfg.median)}" stroke="var(--baseline)" stroke-width="1"/>`;
-    s += `<text x="${L+4}" y="${y(cfg.median)-5}" font-size="10.5" fill="var(--muted)">중앙값 ${cfg.median.toLocaleString('ko-KR')}</text>`;
+    s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.median)}" y2="${y(cfg.median)}" stroke="var(--usual-price)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>`;
+    s += `<text x="${W-R}" text-anchor="end" y="${y(cfg.median)+15}" font-size="11" fill="var(--usual-price)">평소 판매가 ${cfg.median.toLocaleString('ko-KR')}원</text>`;
   }
   if(cfg.note){
     s += `<text x="${L+iw*0.38}" y="${T+ih*0.45}" text-anchor="middle" font-size="12" fill="var(--muted)">${cfg.note}</text>`;
   }
   /* 표시정가 기준선 */
-  s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--muted)" stroke-width="1.5"/>`;
-  s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--ink-2)" font-weight="600">${cfg.normalNote}</text>`;
+  s += `<line x1="${L}" x2="${W-R}" y1="${y(cfg.normal)}" y2="${y(cfg.normal)}" stroke="var(--list-price)" stroke-width="1.5" stroke-dasharray="9 7" stroke-dashoffset="-3"/>`;
+  s += `<text x="${L+4}" y="${y(cfg.normal)-6}" font-size="11" fill="var(--list-price)" font-weight="600">${cfg.normalNote}</text>`;
   /* 가격 라인 */
   const d = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p.price).toFixed(1)).join(' ');
   s += `<path d="${d}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
