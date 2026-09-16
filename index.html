@@ -284,6 +284,16 @@
   #r-chart-fine{margin-top:9px;}
   #r-chart-sub:not(.hidden) + #r-chart-fine{margin-top:-8px;}
   #view-report .tile{text-align:center;}
+  /* 대안 카드 썸네일 — 오른쪽 위 (2026-09-16) */
+  .alt.has-thumb{position:relative; padding-right:84px;}
+  .alt .a-thumb{position:absolute; top:13px; right:13px; width:60px; height:60px;
+                border:1px solid var(--hair-soft, var(--border)); border-radius:9px;
+                overflow:hidden; background:var(--page);}
+  .alt .a-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  @media (max-width:600px){
+    .alt.has-thumb{padding-right:72px;}
+    .alt .a-thumb{width:52px; height:52px; top:12px; right:12px;}
+  }
   #view-report .v-kicker{display:none;}
   /* 썸네일을 상품 블록 전체 높이로 (2026-09-15)
      기존 규칙(#view-report .prod .thumb)이 뒤쪽 미니파이 블록에 있어 순서로는 못 이긴다.
@@ -1118,13 +1128,7 @@ function renderReport(key){
     const oy = c.aff || (c.gno ? 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + c.gno : '');
     $('#r-claims').innerHTML =
       `<div class="empty-sec">
-         <div class="es-t">이 상품은 아직 고시 정보를 수집하지 못했습니다</div>
-         <div class="es-b">제조국·제조자·품질보증기준 같은 「상품정보 제공고시」 항목이 <b>아직 더마릭에 들어오지 않았습니다</b>.
-         판매자가 표기하지 않았다는 뜻이 아니라, 이 상품이 아직 수집 순번이 아니라는 뜻입니다 —
-         기획세트·신규 등록 상품에서 자주 생깁니다. 다음 수집 회차에 채워지면 판정서도 새 번호로 갱신됩니다.</div>
-         <div class="es-b" style="margin-top:8px">위 <b>① 가격 진실</b> 판정은 이 항목과 무관하게 매일 갱신되니 그대로 참고하셔도 됩니다.
-         고시 표기를 지금 바로 확인하려면 ${oy ? `<a href="${oy}" target="_blank" rel="noopener sponsored">올리브영 상품 페이지</a>` : '올리브영 상품 페이지'}의
-         「상품정보 제공고시」를 펼쳐 보세요.</div>
+         <div class="es-b">지금 확인하려면 ${oy ? `<a href="${oy}" target="_blank" rel="noopener sponsored">올리브영 상품 페이지</a>` : '올리브영 상품 페이지'}의 「상품정보 제공고시」를 펼쳐 보세요.</div>
        </div>`;
   }
 
@@ -1182,7 +1186,8 @@ function renderReport(key){
       bn.classList.toggle('hidden', !c.altsBanner);
       if(c.altsBanner) $('#alts-banner-txt').innerHTML = c.altsBanner;
       $('#r-alts').innerHTML = c.alts.map(a=>`
-        <div class="alt">
+        <div class="alt${a.img?' has-thumb':''}">
+          ${a.img?`<div class="a-thumb"><img src="${a.img}" alt="" loading="lazy" onerror="this.parentNode.remove()"></div>`:''}
           <div class="a-why">${a.why}</div>
           <div class="a-brand">${a.brand}</div>
           <div class="a-name">${a.name}</div>
