@@ -232,7 +232,7 @@ body>.wrap{max-width:1200px;padding-top:24px;padding-bottom:40px}#app{max-width:
 }
 .book-swatches{gap:12px;margin:0}.book-sample>span{width:84%;margin:0 auto 12px;transform:rotate(-8deg)}
 .book-sample:nth-child(2)>span{transform:rotate(8deg)}
-</style></head>
+</style><style id="story-tight-v2">#app .color-book p.story-copy,#app .relationship-copy p.story-copy{font-family:inherit;font-size:14px;line-height:1.45;margin:10px auto 18px;padding:0;max-width:430px;color:#715b49;word-break:normal;overflow-wrap:break-word}#app .color-book h3:has(+p.story-copy){margin-bottom:12px}@media(max-width:640px){#app .color-book p.story-copy,#app .relationship-copy p.story-copy{font-size:13px;line-height:1.45}}</style></head>
 <body>
 <div class="wrap">
   <div class="brand"><a href="../" style="color:inherit;text-decoration:none">← Themaric Lab</a><span id="mode">beta</span></div>
@@ -549,7 +549,7 @@ function validInvite(p){return p&&p.v===2&&['seen','pair'].includes(p.mode)&&typ
 function decodeLink(raw){if(raw.length>1800)return null;try{return JSON.parse(dec(raw))}catch(e){return null}}
 function validReply(p){return validInvite(p)&&!!bySlug(p.pick)&&typeof p.nick==='string'&&p.nick.length<=8&&typeof p.id==='string'&&/^[a-zA-Z0-9-]{8,64}$/.test(p.id);}
 function linkFor(kind,p){return COLOR_HOME+'#'+kind+'='+enc(JSON.stringify(p));}
-function linesHTML(lines){return lines.map(x=>'<p>'+esc(x)+'</p>').join('');}
+function linesHTML(lines){return '<p class="story-copy">'+lines.map(x=>esc(x)).join(' ')+'</p>';}
 const SIDES={
  'first-love':'조심스럽게 마음을 내어주는 다정한 면', 'first-snow':'차분하게 곁을 지켜주는 면',
  'sunday-peach':'주변을 편안하게 만드는 따뜻한 면','loud-pink':'좋아하는 것을 솔직하게 표현하는 면',
