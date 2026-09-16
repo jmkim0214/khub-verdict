@@ -232,7 +232,7 @@ body>.wrap{max-width:1200px;padding-top:24px;padding-bottom:40px}#app{max-width:
 }
 .book-swatches{gap:12px;margin:0}.book-sample>span{width:84%;margin:0 auto 12px;transform:rotate(-8deg)}
 .book-sample:nth-child(2)>span{transform:rotate(8deg)}
-</style><style id="friend-story-spacing">.color-book .friend-story{max-width:430px;margin:12px auto 24px}.color-book .friend-story p{font-family:inherit;font-size:14px;line-height:1.65;color:#715b49;margin:0;padding:0;word-break:keep-all}@media(max-width:420px){.color-book .friend-story p{font-size:13px}}</style></head>
+</style></head>
 <body>
 <div class="wrap">
   <div class="brand"><a href="../" style="color:inherit;text-decoration:none">← Themaric Lab</a><span id="mode">beta</span></div>
@@ -671,11 +671,21 @@ viewResult=function(a,ans){
  document.querySelectorAll('.empty-color span').forEach(e=>e.textContent='친구가 제출한 색을 새로고침하면 볼 수 있어요.');
  const status=document.getElementById('server-status');
  ['seen','pair'].forEach(mode=>document.getElementById('invite-'+mode).onclick=async()=>{
-  const button=document.getElementById('invite-'+mode);button.disabled=true;status.textContent='초대 링크를 준비하고 있어요.';
-  try{const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);const p=await ensureServer(a,name);if(version!==screenVersion||mapMode!==mode)return;
-   showLink('share-box',COLOR_HOME+'#join='+p.token+'&mode='+mode,mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'질문으로 너의 색을 찾아봐. 우리 둘의 색을 섞어보자.');
-   document.getElementById('copy-status').textContent='친구가 선택하고 제출하면 내 팔레트에 모여요.';status.textContent='초대 링크를 만들었어요.';
-  }catch(e){if(version!==screenVersion||mapMode!==mode)return;const fallback={v:2,mode,owner:ownerId(),mine:a.s,name:clean(document.getElementById('owner-name').value)};showLink('share-box',linkFor('invite',fallback),'내 색 팔레트에 초대할게.');status.textContent='서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.';}finally{button.disabled=false;}
+  const button=document.getElementById('invite-'+mode),toggle=document.getElementById('map-invite-toggle');button.disabled=true;if(toggle)toggle.disabled=true;status.textContent='초대 링크를 준비하고 있어요.';
+  const name=clean(document.getElementById('owner-name').value);LS.set('myname',name);
+  const invite=ensureServer(a,name).then(p=>({url:COLOR_HOME+'#join='+p.token+'&mode='+mode,message:mode==='seen'?'내가 무슨 색으로 보여? 나를 닮은 색 하나 골라줘.':'질문으로 너의 색을 찾아봐. 우리 둘의 색을 섞어보자.'})).catch(()=>({url:linkFor('invite',{v:2,mode,owner:ownerId(),mine:a.s,name}),message:'내 색 팔레트에 초대할게.',fallback:true}));
+  // Start clipboard access in the click event; the link may need a server response.
+  let copied;
+  try{const text=invite.then(p=>p.message+'\n'+p.url);
+   copied=(navigator.clipboard.write&&typeof ClipboardItem!=='undefined'?navigator.clipboard.write([new ClipboardItem({'text/plain':text.then(value=>new Blob([value],{type:'text/plain'}))})]):text.then(value=>navigator.clipboard.writeText(value))).then(()=>true,()=>false);
+  }catch(e){copied=Promise.resolve(false);}
+  try{const p=await invite;if(version!==screenVersion||mapMode!==mode)return;
+   showLink('share-box',p.url,p.message);
+   status.textContent=p.fallback?'서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.':'친구가 선택하고 제출하면 내 팔레트에 모여요.';
+   const ok=await copied;if(version!==screenVersion||mapMode!==mode)return;
+   document.getElementById('copy-status').textContent=ok?'복사했어요. 친구와의 대화창에 붙여넣어 주세요.':'자동 복사가 허용되지 않았어요. 링크 복사를 누르거나 위 링크를 길게 눌러 복사해 주세요.';
+   if(!ok)document.getElementById('copy-link').select();
+  }finally{button.disabled=false;if(toggle)toggle.disabled=false;}
  });
  document.getElementById('refresh-colors').onclick=()=>refreshServer(a,version);
  document.getElementById('private-palette').onclick=async()=>{
@@ -806,7 +816,7 @@ function mixedProductsHTML(r){if(r.mode!=='pair')return '';const mix=ourColor(by
 function bookHTML(r,names=true){const a=bySlug(r.mine),b=bySlug(r.pick),nick=names?r.nick:'친구',title=r.mode==='seen'?(a.s===b.s?'서로 알아본 색':'친구가 발견한 나'):relationshipTitle(a,b,r);
  const sample=(c,label)=>'<div class="book-sample"><span style="--swatch:'+c.h+'"></span><small>'+esc(label)+'</small><strong>'+esc(c.n)+'</strong></div>';
  const mix=ourColor(a,b);
- return '<div class="book-swatches">'+sample(a,'내가 고른 나')+sample(b,r.mode==='seen'?nick+'님이 보는 나':nick+'님의 색')+'</div>'+(r.mode==='pair'?'<div class="book-mix" style="--mix:'+mix.hex+';color:#493924"><small>우리의 색</small><strong>'+esc(mix.name)+'</strong></div>':'')+'<h3>'+esc(title)+'</h3>'+'<div class="friend-story">'+linesHTML(colorStory(r))+'</div>'+(r.reason?'<blockquote>'+esc(r.reason)+'<cite>— '+esc(nick)+'님이 남긴 말</cite></blockquote>':'');
+ return '<div class="book-swatches">'+sample(a,'내가 고른 나')+sample(b,r.mode==='seen'?nick+'님이 보는 나':nick+'님의 색')+'</div>'+(r.mode==='pair'?'<div class="book-mix" style="--mix:'+mix.hex+';color:#493924"><small>우리의 색</small><strong>'+esc(mix.name)+'</strong></div>':'')+'<h3>'+esc(title)+'</h3>'+linesHTML(colorStory(r))+(r.reason?'<blockquote>'+esc(r.reason)+'<cite>— '+esc(nick)+'님이 남긴 말</cite></blockquote>':'');
 }
 function closeColorBook(focus=true){const id=mapSelected;mapSelected=null;document.getElementById('app').classList.remove('book-open');const detail=document.getElementById('map-detail');if(detail)detail.innerHTML='';if(focus){const el=Array.from(document.querySelectorAll('[data-collage-id]')).find(e=>e.dataset.collageId===id);el?.focus();}}
 function openMapFriend(id,focus=false){const rows=collageRows(mapColor,mapMode),index=rows.findIndex(r=>r.id===id),r=rows[index];if(!r)return;
@@ -828,7 +838,7 @@ viewResult=function(a,ans){mapBaseResult(a,ans);if(!a)return;mapColor=a;mapSelec
  my.outerHTML='<section class="palette-map"><div class="map-tabs" role="tablist" aria-label="콜라주 보기"><button role="tab" data-map-mode="seen" aria-selected="true"> <span class="mode-symbol" aria-hidden="true">나 ← 친구</span><strong>친구가 보는 나</strong><small>친구가 내 색을 골라줘요</small></button><button role="tab" data-map-mode="pair" aria-selected="false"><span class="mode-symbol" aria-hidden="true">나 + 친구</span><strong>함께 만든 색</strong><small>서로의 색을 섞어봐요</small></button></div><p class="mode-explain" id="mode-explain"></p><div id="color-map" class="map-canvas"></div><p id="map-summary" class="map-summary"></p><div id="collage-pages" class="collage-pages" aria-label="콜라주 넘기기"></div><p class="map-tip">친구의 조각을 누르면 컬러북이 열려요.</p></section><div class="map-tools"><label><input type="checkbox" id="map-names" checked>친구 이름 표시</label><button class="ghost" id="save-color-map">지도 이미지 저장</button></div><p id="map-save-status" class="save-status" role="status"></p><div id="map-detail" class="map-details" aria-live="polite"></div><button class="map-invite-toggle" id="map-invite-toggle" aria-expanded="false">친구에게 색 물어보기 +</button><div id="map-invite-drawer" class="map-invite-drawer" hidden></div>';
  document.getElementById('map-invite-drawer').append(actions);document.querySelectorAll('.received-section').forEach(e=>e.remove());
  const products=document.querySelector('.color-products');products.querySelector('summary').textContent='내 색과 닮은 제품 보기';document.querySelector('.result-heading').after(products);const redo=document.getElementById('redo');products.after(redo);const sub=document.createElement('div');sub.className='friends-subheading';sub.innerHTML='<p class="eyebrow">친구와 함께</p><h2>친구들이 더해준 나의 색</h2><p>내 색에 친구의 시선을 더하거나, 서로의 색을 섞어보세요.</p>';document.querySelector('.palette-map').before(sub);
- document.getElementById('map-invite-toggle').onclick=()=>{const drawer=document.getElementById('map-invite-drawer');drawer.hidden=!drawer.hidden;document.getElementById('map-invite-toggle').setAttribute('aria-expanded',String(!drawer.hidden));};
+ document.getElementById('map-invite-toggle').onclick=()=>{document.getElementById('map-invite-drawer').hidden=false;document.getElementById('map-invite-toggle').setAttribute('aria-expanded','true');document.getElementById('invite-'+mapMode).click();};
  document.querySelectorAll('[data-map-mode]').forEach(b=>b.onclick=()=>{mapMode=b.dataset.mapMode;mapSelected=null;collagePage=0;document.getElementById('map-invite-drawer').hidden=true;document.getElementById('map-invite-toggle').setAttribute('aria-expanded','false');document.getElementById('share-box').innerHTML='';renderMap();});
  document.getElementById('map-names').checked=mapNames;document.getElementById('map-names').onchange=e=>{mapNames=e.target.checked;renderMap();};document.getElementById('save-color-map').onclick=()=>saveColorImage();renderMap();
 };
@@ -838,6 +848,35 @@ pickFriend=function(p,a){mapBasePick(p,a);const button=document.getElementById('
 const mapBaseFriend=viewFriendResult;
 viewFriendResult=function(p){mapBaseFriend(p);if(p.mode==='pair'){document.querySelector('.result-send').insertAdjacentHTML('beforebegin',mixedProductsHTML(p));wireWhy();}const title=document.querySelector('#app h1');if(p.mode==='pair')title.textContent=relationshipTitle(bySlug(p.mine),bySlug(p.pick),p);const send=document.querySelector('.result-send');send.insertAdjacentHTML('beforebegin','<button class="ghost" id="save-friend-result">둘의 색 이미지 저장</button><p id="friend-save-status" class="save-status" role="status"></p>');document.getElementById('save-friend-result').onclick=()=>saveColorImage(p);};
 function canvasLines(ctx,text,x,y,width,lineHeight){let line='';for(const word of text.split(/\s+/)){const next=line?line+' '+word:word;if(ctx.measureText(next).width>width&&line){ctx.fillText(line,x,y);y+=lineHeight;line='';}if(ctx.measureText(word).width>width){for(const c of word){if(ctx.measureText(line+c).width>width&&line){ctx.fillText(line,x,y);y+=lineHeight;line='';}line+=c;}}else line=line?line+' '+word:word;}if(line)ctx.fillText(line,x,y);return y+lineHeight;}
+
+function showColorExport(status,blob,filename,alt){
+ const appleMobile=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ const prior=status.nextElementSibling;if(prior?.classList.contains('export-preview')){if(prior.dataset.objectUrl)URL.revokeObjectURL(prior.dataset.objectUrl);prior.remove();}
+ const url=URL.createObjectURL(blob),preview=document.createElement('details');preview.className='export-preview';preview.open=true;preview.dataset.objectUrl=url;
+ const summary=document.createElement('summary');summary.textContent='저장할 이미지 보기';
+ const img=document.createElement('img');img.alt=alt;img.style.width='100%';img.style.height='auto';
+ const download=document.createElement('a');download.className='ghost';download.textContent='PNG 파일 저장';download.href=url;download.download=filename;
+ const open=document.createElement('a');open.className='link';open.textContent='이미지 새 창에서 열기';open.href=url;open.target='_blank';open.rel='noopener';
+ preview.append(summary,img);if(!appleMobile)preview.append(download);preview.append(open);status.after(preview);
+ let share=null;
+ const photoHelp='아래 이미지를 길게 눌러 사진에 저장해 주세요. 메뉴가 없으면 Safari에서 열어 주세요.';
+ if(typeof File!=='undefined'&&navigator.share&&navigator.canShare){
+  const file=new File([blob],filename,{type:'image/png'});let canShare=false;try{canShare=navigator.canShare({files:[file]});}catch(e){}
+  if(canShare){share=document.createElement('button');share.className='ghost';share.textContent=appleMobile?'사진첩에 저장':'이미지 저장 / 공유';share.onclick=async()=>{
+   status.textContent=appleMobile?'공유 창에서 ‘이미지 저장’을 선택하면 사진 앱에 저장돼요.':'공유 창에서 저장하거나 공유할 곳을 선택해 주세요.';
+   try{await navigator.share({files:[file]});}catch(e){if(e.name==='AbortError'){status.textContent=appleMobile?'저장을 취소했어요. 사진첩에 저장을 누르면 다시 열 수 있어요.':'공유를 취소했어요.';}else{status.textContent=appleMobile?'공유 창을 열지 못했어요. '+photoHelp:'공유 창을 열지 못했어요. PNG 파일 저장을 누르거나 이미지를 길게 눌러 저장해 주세요.';}}
+  };preview.insertBefore(share,img);}
+ }
+ // Keep the PNG URL alive while its preview and save controls are available.
+ const ready=appleMobile?(share?'‘사진첩에 저장’을 누른 뒤 공유 창의 ‘이미지 저장’을 선택해 주세요.':photoHelp):'이미지가 준비됐어요. PNG 파일 저장을 누르거나 이미지를 길게 눌러 저장해 주세요.';
+ status.textContent=ready;
+ img.onload=()=>{if(!appleMobile){try{download.click();}catch(e){/* The visible save link remains usable. */}}};
+ img.onerror=()=>{status.textContent=appleMobile?'미리보기를 표시하지 못했어요. '+(share?'사진첩에 저장을 눌러주세요.':'이미지 새 창에서 열기를 눌러주세요.'):'미리보기를 표시하지 못했어요. PNG 파일 저장이나 이미지 새 창에서 열기를 눌러주세요.';};img.src=url;
+ // Open the iOS sheet immediately if image generation retained the tap activation.
+ // Otherwise the photo button supplies a fresh tap, without downloading to Files.
+ if(appleMobile&&share&&navigator.userActivation?.isActive)share.click();
+}
+
 async function saveColorImage(friend,own=false){
  const status=document.getElementById(own?'own-save-status':friend?'friend-save-status':'map-save-status');if(status)status.textContent='이미지를 만들고 있어요.';
  try{
@@ -874,8 +913,9 @@ async function saveColorImage(friend,own=false){
  }
  if(friend){const copy=document.createElement('canvas');copy.width=1080;copy.height=Math.max(1550,Math.ceil(contentBottom+180));copy.getContext('2d').drawImage(canvas,0,0);canvas.height=copy.height;ctx.drawImage(copy,0,0);}
  ctx.strokeStyle='#d6c7b2';ctx.beginPath();ctx.moveTo(440,canvas.height-105);ctx.lineTo(640,canvas.height-105);ctx.stroke();text('색과 취향으로 즐기는 이야기 · themaric.kr',540,canvas.height-58,18,'#96826b','center',false);
- const file=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!file)throw Error('image');const url=URL.createObjectURL(file),link=document.createElement('a');link.href=url;link.download=own?'themaric-my-color.png':friend?'themaric-our-color.png':'themaric-color-collage.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);
- if(status){status.textContent='이미지 저장을 요청했어요. 저장이 안 되면 아래 이미지를 길게 눌러주세요.';const prior=status.nextElementSibling;if(prior?.classList.contains('export-preview'))prior.remove();const preview=document.createElement('details');preview.className='export-preview';const summary=document.createElement('summary');summary.textContent='저장할 이미지 보기';const img=document.createElement('img');img.alt=own?'내 색 결과 저장 이미지':friend?'둘의 색 저장 이미지':'우리의 색 콜라주 저장 이미지';img.src=canvas.toDataURL('image/png');img.style.width='100%';preview.append(summary,img);status.after(preview);}
+ const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob||!blob.size)throw Error('image');
+ const filename=own?'themaric-my-color.png':friend?'themaric-our-color.png':'themaric-color-collage.png';
+ if(status&&status.isConnected)showColorExport(status,blob,filename,own?'내 색 결과 저장 이미지':friend?'둘의 색 저장 이미지':'우리의 색 콜라주 저장 이미지');
  }catch{if(status)status.textContent='이미지를 만들지 못했어요. 다시 시도해 주세요.';}
 }
 
