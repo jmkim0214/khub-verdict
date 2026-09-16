@@ -684,11 +684,11 @@ viewResult=function(a,ans){
    copied=(navigator.clipboard.write&&typeof ClipboardItem!=='undefined'?navigator.clipboard.write([new ClipboardItem({'text/plain':text.then(value=>new Blob([value],{type:'text/plain'}))})]):text.then(value=>navigator.clipboard.writeText(value))).then(()=>true,()=>false);
   }catch(e){copied=Promise.resolve(false);}
   try{const p=await invite;if(version!==screenVersion||mapMode!==mode)return;
-   showLink('share-box',p.url,p.message);
-   status.textContent=p.fallback?'서버에 연결하지 못해 결과 링크를 주고받는 초대를 만들었어요. 이 링크는 친구의 답장 링크를 받아 열어야 저장돼요.':'친구가 선택하고 제출하면 내 팔레트에 모여요.';
    const ok=await copied;if(version!==screenVersion||mapMode!==mode)return;
-   document.getElementById('copy-status').textContent=ok?'복사했어요. 친구와의 대화창에 붙여넣어 주세요.':'자동 복사가 허용되지 않았어요. 링크 복사를 누르거나 위 링크를 길게 눌러 복사해 주세요.';
-   if(!ok)document.getElementById('copy-link').select();
+   const box=document.getElementById('share-box');
+   box.innerHTML='<p class="note" role="status">'+(ok?'복사했어요. 친구와의 대화창에 붙여넣어 주세요.':'자동 복사가 차단됐어요. 위 초대 버튼을 다시 누르거나 아래 주소를 길게 눌러 복사해 주세요.')+'</p>';
+   if(!ok){const input=document.createElement('input');input.type='text';input.readOnly=true;input.value=p.url;input.setAttribute('aria-label','친구 초대 링크');box.append(input);input.select();}
+   status.textContent=p.fallback?'서버에 연결하지 못해 답장 링크를 주고받는 초대를 만들었어요. 친구의 답장 링크를 받아 열어야 저장돼요.':'';
   }finally{button.disabled=false;if(toggle)toggle.disabled=false;}
  });
  document.getElementById('refresh-colors').onclick=()=>refreshServer(a,version);
