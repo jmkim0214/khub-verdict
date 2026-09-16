@@ -1629,7 +1629,7 @@ function rpSVG(d){
      장식을 걷어내고 타이포·여백·1px 선만 남긴다. 색은 올리브 하나.
      관계는 왼쪽 거터의 브래킷으로 표시하되, 가로 팔은 '걸린 제품'에만 뻗는다.
      세로선만 그으면 사이에 낀 무관한 제품까지 포함으로 읽히기 때문. */
-  const W = 1080, MG = 60, CW = W - MG*2, CAT_W = 145;
+  const W = 1080, MG = 60, CW = W - MG*2, CAT_W = 190;
   const e2 = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const F  = "'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif";
   const FS = "'Cormorant Garamond', Georgia, serif";
@@ -1638,6 +1638,12 @@ function rpSVG(d){
   const BG='#F5F1E8', INK='#191919', SEC='#464646', SUB='#6E6E6D', LGRAY='#BEBDBA',
         DIV='#E7E5E2', HAIR='#C8C5C0', OLIVE='#6A715E', RING='#9D9D99', META='#777572';
 
+  // 2026-09-16: approved larger typography; measure long labels before fitting.
+  const measure = document.createElement('canvas').getContext('2d');
+  const fitText = (t, size, width, weight=400) => {
+    measure.font = weight+' '+size+'px '+F;
+    return Math.min(size, size * width / Math.max(1, measure.measureText(String(t)).width));
+  };
   const textW = t => [...String(t)].reduce((a,c)=>a + (/[\x00-\x7F]/.test(c) ? 0.5 : 1), 0);
   const T = (x, y, t, o) => {
     o = o || {};
@@ -1692,7 +1698,7 @@ function rpSVG(d){
   cutList.sort((a,b)=>b.v-a.v);
 
   // ── 세로 리듬 ──────────────────────────────────────────
-  const ROW_H = 72, TOP = 656;
+  const ROW_H = 104, TOP = 656;
   const tableEnd = TOP + rows.length*ROW_H;
   // 빠진 단계는 표에도 있지만 주석에서 한 줄로 다시 접어준다 (2026-08-20)
   const missKo = [];
@@ -1700,7 +1706,7 @@ function rpSVG(d){
   gaps.forEach(g=>missKo.push((axRole(g.cls) ? axRole(g.cls)+' ' : '') + axKo(g.cls)));
   const nBad  = Math.min(badProd.size, Math.max(0, 4 - rel.length));  // 4건 넘으면 카드가 끝없이 길어진다
   const notes = rel.length + nBad + (missKo.length ? 1 : 0);
-  const NOTE_H = 62;
+  const NOTE_H = 90;
   const blockTop = tableEnd + 38;
   const blockEnd = blockTop + 30 + notes*NOTE_H;
   const H = Math.max(1920, blockEnd + 90 + 324);
@@ -1723,10 +1729,10 @@ function rpSVG(d){
   s += HR(115, HAIR);
 
   // ── 2. 마스트헤드 + 점수 ───────────────────────────────
-  s += T(MG, 248, '더마릭',     {s:72, w:800, ls:-3.5});
-  s += T(MG, 336, '루틴 리포트', {s:72, w:800, ls:-3.5});
+  s += T(MG, 248, '더마릭',     {s:78, w:800, ls:-3.5});
+  s += T(MG, 336, '루틴 리포트', {s:78, w:800, ls:-3.5});
   const combo = rpCombo();
-  if (combo) s += T(MG, 375, combo, {s:19, c:SUB});
+  if (combo) s += T(MG, 375, combo, {s:28, c:SUB});
 
   const CX = 828, CY = 268, R = 100;
   s += '<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+RING+'" stroke-width="1"/>';
@@ -1751,7 +1757,7 @@ function rpSVG(d){
   const cut = summary.indexOf(' — ');
   const sKey = cut > 0 ? summary.slice(0, cut+1) : '';
   const sRest = cut > 0 ? summary.slice(cut+3) : summary;
-  const sSize = Math.max(16, Math.min(25, Math.floor(CW / Math.max(1, textW(summary)+1))));
+  const sSize = fitText(summary, 32, CW-20, 600);
   s += '<text x="'+MG+'" y="566" font-family="'+F+'" font-size="'+sSize+'" fill="'+SUB+'">'
      + (sKey ? '<tspan font-weight="600" fill="'+INK+'">'+e2(sKey)+'</tspan><tspan dx="7">'+e2(sRest)+'</tspan>'
              : e2(sRest)) + '</text>';
@@ -1761,7 +1767,7 @@ function rpSVG(d){
     // tspan + text-anchor="end" 조합은 렌더러마다 기준점 계산이 달라 잘린다.
     // 메타 한 줄이라 색 구분을 포기하고 단일 텍스트로 간다 — 우측 정렬이 확실해진다.
     const flat = cutList.map(x=>x.t+' −'+x.v).join('  ·  ');
-    const dSize = Math.max(13, Math.min(17, Math.floor(CW / Math.max(1, textW(flat)))));
+    const dSize = fitText(flat, 24, CW);
     s += T(W-MG, 616, flat, {s:dSize, c:SEC, a:'end'});
   }
 
@@ -1773,7 +1779,7 @@ function rpSVG(d){
   rows.forEach((r, i)=>{
     const cy = rowCY(i);
     if (r.t === 'g'){
-      s += T(MG, cy+5, r.cat, {s:13, w:500, ls:0.9, c:META});
+      s += T(MG, cy+5, r.cat, {s:18, w:500, ls:0.5, c:META});
       s += '<rect x="'+(MG+CAT_W)+'" y="'+(cy-18)+'" width="'+(CW-CAT_W)+'" height="36" fill="none" stroke="'+
            LGRAY+'" stroke-width="1" stroke-dasharray="6 5"/>';
       s += T(MG+CAT_W+16, cy+6, r.ko, {s:18, w:500, c:META});
@@ -1781,35 +1787,35 @@ function rpSVG(d){
       return;
     }
     const p = r.p;
-    s += T(MG, cy+5, RP_CAT_EN[rpSlotKo(p)] || 'CARE', {s:13, w:500, ls:0.9, c:'#242424'});
+    s += T(MG, cy+5, RP_CAT_EN[rpSlotKo(p)] || 'CARE', {s:18, w:500, ls:0.5, c:'#242424'});
     let nm = rpTrimName(String(p.t||'').replace(/\[[^\]]*\]\s*/g,'').trim());
     if (p.b && nm.indexOf(p.b) === 0) nm = rpTrimName(nm.slice(p.b.length).trim());
     const bad = badProd.has(p) ? '<tspan fill="'+OLIVE+'"> *</tspan>' : '';
     const brand = String(p.b||'').slice(0,16);
     const tag = TIME_KO[slotOf(p)[0]];
-    // 제품명을 키우되(21px) 태그 자리를 침범하면 그만큼 줄인다
-    const avail = CW - CAT_W - (tag ? 76 : 0) - 16;
-    const nSize = Math.max(16, Math.min(21, Math.floor(avail / Math.max(1, textW(nm)))));
+    // 제품명을 키우되(34px) 태그 자리를 침범하면 그만큼 줄인다
+    const avail = CW - CAT_W - (tag ? 110 : 0) - 16;
+    const nSize = fitText(nm+(bad ? ' *' : ''), 34, avail, 600);
     if (brand){
-      s += T(MG+CAT_W, cy-10, brand, {s:13, c:META});
-      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+19)+'" font-family="'+F+'" font-size="'+nSize+'" font-weight="600" fill="'+
+      s += T(MG+CAT_W, cy-16, brand, {s:21, c:META});
+      s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+25)+'" font-family="'+F+'" font-size="'+nSize+'" font-weight="600" fill="'+
            INK+'">'+e2(nm)+bad+'</text>';
     } else {
       s += '<text x="'+(MG+CAT_W)+'" y="'+(cy+7)+'" font-family="'+F+'" font-size="'+nSize+'" font-weight="600" fill="'+
            INK+'">'+e2(nm)+bad+'</text>';
     }
     if (tag){
-      const tw = 62;
-      s += '<rect x="'+(W-MG-tw)+'" y="'+(cy-13.5)+'" width="'+tw+'" height="27" rx="13.5" fill="none" stroke="'+
+      const tw = 94;
+      s += '<rect x="'+(W-MG-tw)+'" y="'+(cy-18)+'" width="'+tw+'" height="36" rx="18" fill="none" stroke="'+
            LGRAY+'" stroke-width="1"/>';
-      s += T(W-MG-tw/2, cy+5, tag, {s:13, c:'#555555', a:'middle'});
+      s += T(W-MG-tw/2, cy+7, tag, {s:20, c:'#555555', a:'middle'});
     }
     s += HR(TOP + (i+1)*ROW_H, DIV);
   });
 
   // ── 관계 브래킷 — 걸린 제품에만 팔이 뻗는다 ─────────────
   rel.forEach((r, k)=>{
-    const gx = MG + CAT_W - 17 - k*16;
+    const gx = MG + CAT_W - 20 - k*13;
     const col = (r.g === 'dup') ? SUB : OLIVE;
     const dash = (r.g === 'dup') ? ' stroke-dasharray="5 5"' : '';
     const a = rowCY(idx.get(r.A)), b = rowCY(idx.get(r.B));
@@ -1821,36 +1827,36 @@ function rpSVG(d){
 
   // ── 5. 주석 ────────────────────────────────────────────
   // 2026-08-20: 헤드라인과 처방 문장을 걷어냈다. 표 바로 밑에 라벨 + 걸린 제품만.
-  if (notes) s += T(W-MG, blockTop+14, 'ROUTINE NOTES', {serif:1, s:13, w:500, ls:3, c:SUB, a:'end'});
+  if (notes) s += T(W-MG, blockTop+14, 'ROUTINE NOTES', {serif:1, s:19, w:500, ls:3, c:SUB, a:'end'});
   s += HR(blockTop+30, HAIR);
 
   const REL_T = {clash:'같이 쓰지 마세요', split:'시간대 분리', dup:'성분 중복'};
   // 표·이슈 목록과 같은 규칙 — 단일 출처는 shortName() 이다 (2026-08-21)
   const shortNm = shortName;
-  // 제품 줄은 길어지면 알아서 줄인다 (14 → 11px)
+  // 설명은 24px, 긴 제품 조합은 실제 글자 폭에 맞춘다.
   const subLine = (y, t) => T(MG+24, y, t,
-    {s: Math.max(11, Math.min(14, Math.floor((CW-24) / Math.max(1, textW(t))))), c:META});
+    {s: fitText(t, 24, CW-24), c:META});
 
   let ny = blockTop + 30;
   rel.forEach((r, k)=>{
     const col = (r.g === 'dup') ? SUB : OLIVE;
-    s += T(MG, ny+30, String(k+1), {s:13, w:500, c:col});
-    s += T(MG+24, ny+31, r.t || REL_T[r.g], {s:19, w:600});
-    s += subLine(ny+53,shortNm(r.A)+' · '+shortNm(r.B));
+    s += T(MG, ny+39, String(k+1), {s:13, w:500, c:col});
+    s += T(MG+24, ny+40, r.t || REL_T[r.g], {s:fitText(r.t || REL_T[r.g],28,CW-24,600), w:600});
+    s += subLine(ny+73,shortNm(r.A)+' · '+shortNm(r.B));
     ny += NOTE_H;
   });
   let nLeft = nBad;
   badProd.forEach((cls, p)=>{
     if (nLeft-- <= 0) return;
-    s += T(MG, ny+30, '*', {s:14, w:600, c:OLIVE});
-    s += T(MG+24, ny+31, '조건에 안 맞는 성분 — '+cls.join('·'), {s:19, w:600});
-    s += subLine(ny+53,shortNm(p));
+    s += T(MG, ny+39, '*', {s:14, w:600, c:OLIVE});
+    s += T(MG+24, ny+40, '조건에 안 맞는 성분 — '+cls.join('·'), {s:fitText('조건에 안 맞는 성분 — '+cls.join('·'),28,CW-24,600), w:600});
+    s += subLine(ny+73,shortNm(p));
     ny += NOTE_H;
   });
   if (missKo.length){
-    s += T(MG, ny+30, '·', {s:14, w:600, c:SUB});
-    s += T(MG+24, ny+31, '빠진 단계', {s:19, w:600});
-    s += subLine(ny+53,missKo.join(' · '));
+    s += T(MG, ny+39, '·', {s:14, w:600, c:SUB});
+    s += T(MG+24, ny+40, '빠진 단계', {s:28, w:600});
+    s += subLine(ny+73,missKo.join(' · '));
     ny += NOTE_H;
   }
 
@@ -1861,9 +1867,9 @@ function rpSVG(d){
   if (nSplit) foot.push('시간대 분리 '+nSplit+'건');
   if (nDup)   foot.push('성분 중복 '+nDup+'건');
   if (badProd.size) foot.push('조건에 안 맞는 성분 '+badProd.size+'개');
-  s += T(MG, footY+32, foot.join(' · ') || '제품 '+shelf.length+'개', {s:14, c:SUB});
-  s += T(W-MG, footY+32, '전성분 기준 · 개인차 있음', {s:14, c:SUB, a:'end'});
-  s += T(W/2, footY+106, 'themaric.kr', {serif:1, s:19, w:500, ls:5.5, c:OLIVE, a:'middle'});
+  s += T(MG, footY+32, foot.join(' · ') || '제품 '+shelf.length+'개', {s:fitText(foot.join(' · ') || '제품 '+shelf.length+'개',20,CW-300), c:SUB});
+  s += T(W-MG, footY+32, '전성분 기준 · 개인차 있음', {s:20, c:SUB, a:'end'});
+  s += T(W/2, footY+106, 'themaric.kr', {serif:1, s:25, w:500, ls:5.5, c:OLIVE, a:'middle'});
 
   return s + '</svg>';
 }
