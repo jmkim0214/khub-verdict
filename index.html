@@ -969,6 +969,7 @@ function renderReport(key){
     const m = document.createElement('span'); m.className = 'mk'; m.textContent = ax.mk;
     const v = document.createElement('span'); v.className = 'v'; v.textContent = ax.v;
     el.append(k, m, v);
+    if (ax.tip) { el.title = ax.tip; el.setAttribute('aria-label', ax.k + ' ' + ax.v + ' — ' + ax.tip); }
     axEl.append(el);
   });
 
