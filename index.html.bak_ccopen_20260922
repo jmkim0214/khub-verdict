@@ -434,8 +434,6 @@
   .cheaper .cc-h{font-size:13px; font-weight:800; color:var(--good-text); margin-bottom:6px;}
   .cheaper .cc-type{font-size:11px; font-weight:700; color:var(--muted); margin-right:6px;}
   .cheaper .cc-name{font-size:13.5px; font-weight:700; line-height:1.4;}
-  .cheaper a.cc-name{color:inherit; text-decoration:underline; text-decoration-color:var(--border); text-underline-offset:4px;}
-  .cheaper a.cc-name:hover{text-decoration-color:currentColor;}
   .cheaper .cc-price{margin-top:7px; font-size:13px; color:var(--ink-2); line-height:1.6;}
   .cheaper .cc-price b{font-size:16px; font-weight:800; color:var(--ink);}
   .cheaper .cc-unit{font-size:12px; color:var(--muted);}
@@ -1183,7 +1181,7 @@ function renderReport(key){
       <div class="cc-h">💡 같은 제품, 더 싼 구성이 있어요</div>
       <div class="cc-body">
         <span class="cc-type">${cc.offerType||''}</span>
-        ${cc.goodsNo?`<a class="cc-name cc-open" href="/?g=${cc.goodsNo}" data-g="${cc.goodsNo}" data-aff="${cc.aff||''}">${cc.title||''} <span aria-hidden="true">›</span></a>`:`<span class="cc-name">${cc.title||''}</span>`}
+        <span class="cc-name">${cc.title||''}</span>
         <div class="cc-price"><b>${won(cc.cur)}</b>${upTxt} · <span class="cc-save">이 구성보다 ${cc.savePct}% 저렴</span>${moreTxt}</div>
         ${cc.goodsNo?`<a class="a-link" href="${cc.aff || 'https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo='+cc.goodsNo}" target="_blank" rel="noopener sponsored">올리브영에서 보기 →</a>`:''}
       </div>`;
@@ -1409,8 +1407,8 @@ async function judgeUrl(u, opt={}){
         CASES['_fetched'] = j; renderReport('_fetched');
         /* 메인 검색에서 연 판정서 — 방문 기록을 남겨 폰 뒤로가기가 검색 화면으로 오게 한다 (2026-09-22) */
         if(opt.push){
-          cameFrom = opt.from || 'search';
-          history.pushState({v:'report', g:gno, from:cameFrom}, '', '?g=' + gno);
+          cameFrom = 'search';
+          history.pushState({v:'report', g:gno}, '', '?g=' + gno);
         }
         setBackLabel();
         return;
@@ -1461,7 +1459,6 @@ const ORIGIN_LABEL = {'device.html':'← 디바이스 목록으로', 'price.html
 function setBackLabel(){
   const b = $('#back-btn');
   if(cameFrom === 'search') b.textContent = '← 검색으로';
-  else if(cameFrom === 'related') b.textContent = '← 이전 판정서로';
   else if(backTo) b.textContent = ORIGIN_LABEL[backTo.split('?')[0]] || '← 이전 화면으로';
   else b.textContent = '← 메인으로';
 }
@@ -1492,10 +1489,7 @@ function goHome(clear){
       if([...p].length) backTo += '?' + p.toString();
     }
   }
-  if(qg && /^[AB]\d{12}$/.test(qg)){
-    history.replaceState({v:'report', g:qg, from:cameFrom}, '', location.href);
-    judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
-  }
+  if(qg && /^[AB]\d{12}$/.test(qg)) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + qg);
   /* 다른 탭의 헤더 검색 버튼(/?focus=search)으로 들어온 경우 */
   else if(q.get('focus') === 'search'){ history.replaceState(null, '', location.pathname); focusSearch(); }
   setBackLabel();
@@ -1503,7 +1497,7 @@ function goHome(clear){
 // Home is search-only; the product index is loaded when a search is requested.
 $('#back-btn').addEventListener('click', ()=>{
   // 메인 검색에서 왔으면 브라우저 뒤로가기와 똑같이 — 검색어·결과 목록이 그대로 남은 검색 화면
-  if((cameFrom === 'search' || cameFrom === 'related') && history.state && history.state.v === 'report'){ history.back(); return; }
+  if(cameFrom === 'search' && history.state && history.state.v === 'report'){ history.back(); return; }
   if(cameFrom === 'origin' && backTo){ location.href = backTo; return; }   // 가격 확인·디바이스·루틴에서 왔으면 그 목록으로
   goHome(true);                                                              // 공유 링크로 바로 들어온 경우 → 메인
   cameFrom = 'direct'; setBackLabel();
@@ -1513,22 +1507,12 @@ let focusAfterPop = false;
 window.addEventListener('popstate', e=>{
   const st = e.state;
   if(st && st.v === 'report' && st.g){
-    cameFrom = st.from || 'search';
+    cameFrom = 'search';
     judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + st.g);
     return;
   }
   goHome(false);
   if(focusAfterPop){ focusAfterPop = false; focusSearch(); }
-});
-/* '같은 제품, 더 싼 구성' 제품명 → 그 구성의 판정서 (2026-09-22). 판정서가 없는 구성은 올리브영으로 */
-document.getElementById('cheaper-config')?.addEventListener('click', async e=>{
-  const a = e.target.closest('a.cc-open'); if(!a) return;
-  e.preventDefault();
-  const g = a.dataset.g;
-  let ok = false;
-  try{ ok = (await fetch('verdicts/' + g + '.json', {method:'HEAD', cache:'no-store'})).ok; }catch(_){}
-  if(ok) judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + g, {push:true, from:'related'});
-  else window.open(a.dataset.aff || ('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + g), '_blank', 'noopener');
 });
 /* 헤더 검색 버튼 — 이 페이지에선 이동 없이 검색 화면으로 */
 document.querySelector('.site-search')?.addEventListener('click', e=>{
