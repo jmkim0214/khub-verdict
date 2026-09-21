@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>그때 그 가격, 잘 샀을까 — 더마릭 LAB</title>
+<meta name="description" content="샀던 화장품과 기억나는 가격을 넣으면, 더마릭이 매일 관측한 가격대와 비교해 며칠짜리 가격이었는지 알려드려요.">
+<link rel="canonical" href="https://themaric.kr/lab/price/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="더마릭 LAB">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://themaric.kr/lab/price/">
+<meta property="og:title" content="그때 그 가격, 잘 샀을까">
+<meta property="og:description" content="샀던 가격을 넣으면 관측된 가격대 중 어디였는지 보여드려요.">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#F5F1E8; --surface:#FFFEFB;
+    --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+    --grid:rgba(32,34,30,0.10); --border:rgba(32,34,30,0.12);
+    --series:#596044; --series-wash:rgba(89,96,68,0.10);
+    --gold:#B49A62; --gold-wash:rgba(180,154,98,0.14);
+    --deal:#D95C4F;
+    --serif:"Cormorant Garamond","Noto Serif KR","Times New Roman",serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--page); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word; overflow-x:hidden;}
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .logo{font-family:var(--serif); font-size:23px; font-weight:600; letter-spacing:0.20em; line-height:1.1;}
+  .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px;
+    font-family:'Pretendard Variable',Pretendard,sans-serif;}
+  .logo-sub{font-family:var(--serif); font-size:10.5px; letter-spacing:0.28em; color:var(--gold); margin-top:6px; text-transform:uppercase;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);} .nav-link.here{color:var(--series); font-weight:800;}
+
+  .eyebrow{font-family:var(--serif); font-size:11px; letter-spacing:0.28em; color:var(--gold); text-transform:uppercase;}
+  .lbl{font-size:11.5px; font-weight:700; letter-spacing:0.06em; color:var(--muted); display:block; margin-bottom:6px;}
+  h1{font-size:30px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:10px 0 10px;}
+  h2{font-size:20px; font-weight:800; letter-spacing:-0.02em; line-height:1.35;}
+  .lead{font-size:15px; color:var(--ink-2);}
+  .rule{height:1px; background:var(--grid); margin:22px 0;}
+  .note{font-size:12.5px; color:var(--muted); line-height:1.7;}
+
+  input{width:100%; font-family:inherit; font-size:16px; padding:13px 14px;
+    border:1px solid var(--border); border-radius:4px; background:var(--surface); color:var(--ink);}
+  input:focus{outline:2px solid var(--series); outline-offset:-1px; border-color:transparent;}
+  button{font-family:inherit; cursor:pointer; border-radius:4px; font-size:15px;}
+  .btn{background:var(--series); color:#fff; border:none; padding:14px 18px; width:100%; font-weight:600;}
+  .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{opacity:.45; cursor:default; filter:none;}
+  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--border); font-weight:500;}
+  .btn.ghost:hover{border-color:var(--series);}
+  .linkbtn{background:none; border:none; color:var(--muted); font-size:13px; text-decoration:underline;
+    text-underline-offset:3px; padding:4px 0; width:auto;}
+  .form{display:flex; flex-direction:column; gap:16px;}
+  .err{color:var(--deal); font-size:13px; margin-top:6px;}
+
+  /* 자동완성 */
+  .field{position:relative;}
+  .ac{position:absolute; left:0; right:0; top:calc(100% + 5px); z-index:30; background:var(--surface);
+    border:1px solid var(--border); border-radius:4px; box-shadow:0 6px 20px rgba(32,34,30,.10);
+    max-height:322px; overflow-y:auto;}
+  .ac .row{display:flex; gap:10px; align-items:center; padding:10px 12px; width:100%; text-align:left;
+    background:none; border:none; border-bottom:1px solid var(--grid);}
+  .ac .row:last-child{border-bottom:none;}
+  .ac .row:hover,.ac .row.on{background:var(--series-wash);}
+  .ac img{width:34px; height:34px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
+  .ac .t{flex:1; min-width:0;}
+  .ac .b{font-size:11px; color:var(--muted);}
+  .ac .n{font-size:13.5px; line-height:1.4;}
+  .ac .msg{padding:12px 13px; font-size:13px; color:var(--muted);}
+  .ac mark{background:var(--gold-wash); color:inherit; padding:0 1px; border-radius:2px;}
+
+  .prod{display:flex; gap:12px; align-items:center; background:var(--surface); border:1px solid var(--border);
+    border-radius:4px; padding:11px 12px;}
+  .prod img{width:46px; height:46px; border-radius:3px; flex:none; object-fit:cover; background:var(--grid);}
+  .prod .t{flex:1; min-width:0;}
+  .prod .b{font-size:11.5px; color:var(--muted);}
+  .prod .n{font-size:14px; line-height:1.4;}
+
+  .verdict{font-family:var(--serif); font-size:30px; font-weight:700; letter-spacing:-0.02em; line-height:1.3; margin:2px 0 8px;}
+  .levels{display:flex; flex-direction:column; gap:9px; margin-top:6px;}
+  .lv{display:grid; grid-template-columns:92px 1fr auto; align-items:center; gap:11px; font-size:13px;}
+  .lv .p{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; letter-spacing:-0.02em;}
+  .lv .track{height:20px; background:var(--grid); border-radius:2px; overflow:hidden;}
+  .lv .track i{display:block; height:100%; background:var(--series); opacity:.30;}
+  .lv .d{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .lv.me .track i{opacity:1; background:var(--gold);}
+  .lv.me .p{font-weight:700;} .lv.me .d{color:var(--ink); font-weight:600;}
+  .lv.cheap .track i{opacity:.55;}
+  .youtag{display:inline-block; background:var(--gold-wash); color:#8A7440; font-size:10.5px; font-weight:700;
+    padding:1px 6px; border-radius:999px; margin-left:6px; vertical-align:1px;}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--grid);
+    border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-top:4px;}
+  .stat{background:var(--surface); padding:11px 12px;}
+  .stat .k{font-size:11px; color:var(--muted);}
+  .stat .v{font-family:var(--mono); font-size:15px; font-variant-numeric:tabular-nums; margin-top:2px;}
+  .cav{background:var(--gold-wash); border-radius:4px; padding:11px 13px; font-size:12.5px; color:#7A6738; line-height:1.65;}
+  .foot{margin-top:30px; font-size:12.5px; color:var(--muted); line-height:1.7;}
+  .foot a{color:var(--ink-2);}
+  .hide{display:none!important;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;} .nav-link + .nav-link{margin-left:0;} .nav-first{margin-left:0;}
+    h1{font-size:22px;} .verdict{font-size:25px;}
+    .lv{grid-template-columns:80px 1fr auto; gap:8px; font-size:12.5px;}
+    .stats{grid-template-columns:1fr 1fr;}
+  }
+</style>
+<style id="related-beige">:root{--beige-wall:url("/assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+
+*{box-sizing:border-box}
+.wrap{margin:0 auto;max-width:1120px}
+h1,.page-head h1{font-size:30px;font-weight:550;letter-spacing:-.04em;line-height:1.4}
+h1 .u{box-shadow:none!important}
+h2{font-size:18px;font-weight:650}
+.page-head{margin:24px 0 20px}.page-head .sub,.lead{font-size:14px;line-height:1.7;color:var(--ink-2)}
+.aff-notice{border-radius:0!important;background:#fffaf1aa!important;border-color:var(--border)!important;text-align:left!important;max-width:none!important;font-size:11px!important;margin:6px 0 24px!important}
+.card,.item,.lab{background:#fffaf3eF;border:1px solid var(--border);border-radius:8px;box-shadow:none}
+input[type=search],input#q,.dsearch input{background:#fffaf3;border:1px solid var(--baseline);border-radius:0;font-size:16px;padding:15px;min-width:0}
+.tabs,.subtabs{border-bottom:1px solid var(--border);gap:24px;margin:20px 0;display:flex}
+.tab,.stab{background:none;border:0;border-radius:0;padding:12px 0;font-size:13px;color:var(--ink-2);text-decoration:none}
+.tab.on,.stab.on{background:none;color:var(--ink);border-bottom:1px solid var(--ink)}
+.btn,.more-btn{border-radius:4px}
+@media(max-width:800px){.wrap{padding:0 28px 40px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}}
+@media(max-width:640px){
+ .wrap{padding:0 20px 40px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}
+ h1,.page-head h1{font-size:24px}.page-head{margin:20px 0 16px}.page-head .sub,.lead{font-size:13px}
+ .card{padding:16px}.tabs,.subtabs{gap:22px}.tab,.stab{font-size:12px}.aff-notice{line-height:1.7!important}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}}
+@media print{body::before{display:none}.site-menu,.primary-nav{display:none}}
+.wrap{max-width:900px}.panel,.box{background:var(--surface);border-color:var(--border);border-radius:8px}input{font-size:16px!important;border-radius:4px!important}h1{margin-top:28px}</style>
+<style id="detail-alignment">
+/* Align detail pages to the approved price-page canvas. */
+html{overflow-y:scroll}
+:root{--detail-gutter:48px}
+body{background:#f2e9d9;color:#382719}
+body::after{display:none}
+body::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall);background-position:center;background-size:cover}
+body>.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 var(--detail-gutter) 32px}
+.site-band{margin:0 0 24px;width:100%;border:0}
+header.site{padding:28px 0;max-width:none;margin:0}
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;max-width:none!important}
+@media(max-width:800px){:root{--detail-gutter:28px}body>.wrap{padding-bottom:28px}}
+@media(max-width:640px){:root{--detail-gutter:24px}body>.wrap{padding-bottom:22px}header.site{padding:24px 0}.site-band{margin-bottom:14px}.aff-notice{margin-bottom:16px!important}}
+@media(max-width:359px){:root{--detail-gutter:18px}}
+</style>
+<style id="shopping-diary-style">
+.shopping-diary{max-width:600px;margin:0 auto;padding-bottom:40px;--series:#9a6855;--series-wash:#f1ded3;--gold:#ad7963;--gold-wash:#f5e5da}.diary-hero{text-align:center;position:relative;padding:8px 0 28px}.lab-back{display:block;text-align:left;font-size:12px;text-decoration:none;color:#8b745d;margin-bottom:25px}.diary-hero .eyebrow{font-family:inherit;font-size:10px;letter-spacing:.15em;color:#9e7961}.diary-hero h1{font-family:'Noto Serif KR',serif;font-weight:600;font-size:35px;line-height:1.45;margin:12px 0 16px;letter-spacing:-.045em}.diary-hero .lead{font-size:14px;line-height:1.9;color:#8a735d}.receipt-mark{position:relative;width:86px;height:99px;background:#fffaf0;border:1px solid #d9bda4;box-shadow:5px 7px 0 #c9957830;transform:rotate(-9deg);margin:0 auto 28px;padding:13px 12px;color:#b08067}.receipt-mark:after{content:'';position:absolute;left:-1px;right:-1px;bottom:-5px;height:9px;background:linear-gradient(135deg,transparent 50%,#fffaf0 50%) 0 0/10px 10px;transform:rotate(180deg)}.receipt-mark span{font-size:7px;letter-spacing:.08em;display:block}.receipt-mark i{display:block;height:1px;background:#dfc7b5;margin-top:9px}.receipt-mark i:nth-of-type(2){width:70%}.receipt-mark b{display:block;font-family:var(--serif);font-size:23px;font-weight:500;text-align:right;line-height:1.5}.purchase-note{background:#fffaf2dc;border:1px solid #dfc9b4;border-radius:20px;padding:27px;gap:22px;box-shadow:0 10px 30px #815b3508}.note-title{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:600;padding-bottom:14px;border-bottom:1px dashed #d8bfa7;color:#77533f}.shopping-diary .lbl{font-size:12px;font-weight:500;letter-spacing:0;color:#8c6b54;margin-bottom:10px}.shopping-diary input,.shopping-diary input#q{border-radius:10px!important;border-color:#ddc9b5;background:#fffdf8;padding:14px;font-size:16px}.shopping-diary .btn{border-radius:26px;background:#9a6855;font-size:14px;min-height:48px}.shopping-diary .btn.ghost{background:transparent;color:#805d46}.shopping-diary .note{font-size:11px;color:#8a7762}.input-note{text-align:center;font-size:11px;color:#8e7e69;margin:16px 0 30px}.shopping-diary .prod{border-radius:10px;border-color:#dfc9b5;background:#fffdf8}.prod .b,.prod .n{display:block}.shopping-diary .ac{border-radius:12px}.shopping-diary .ac .b,.shopping-diary .ac .n{display:block}.shopping-diary .linkbtn{font-size:11px;margin-top:9px}#out:empty{display:none}#out{scroll-margin-top:20px;position:relative;background:#fffcf5;border:1px solid #dfcdb7;padding:28px 25px;margin-top:34px;border-radius:4px 4px 18px 18px;box-shadow:0 12px 28px #7b5c3110}#out:before{content:'';position:absolute;top:-9px;left:0;right:0;height:12px;background:radial-gradient(circle at 6px 0,transparent 6px,#fffcf5 6.5px) 0 0/12px 12px}.result-label{font-size:11px;letter-spacing:.12em;color:#a78165;margin-bottom:22px}#out .eyebrow{font-family:inherit;letter-spacing:.04em;color:#a1785b;font-size:13px}#out .verdict{font-family:'Noto Serif KR',serif;font-size:27px;color:#79533d;line-height:1.5;margin:12px 0}#out .lead{font-size:13px;line-height:1.9}#out .stats{margin-top:24px;border:0;border-radius:12px;gap:8px;background:none;grid-template-columns:repeat(3,1fr)}#out .stat{padding:12px 6px;background:#f4ebde;text-align:center}#out .stat .v{font-family:inherit;font-size:14px;font-weight:600}#out .stat .k{font-size:10px}#out .rule{background:none;border-top:1px dashed #dac7ae}#out .lv .track{height:10px;border-radius:8px;background:#f0e7d9}#out .lv .track i{border-radius:8px}#out .lv{grid-template-columns:105px 1fr auto;font-size:12px;gap:8px}#out .lv .p{font-family:inherit}#out .cav{background:#f5eee2;color:#82705b;border-radius:10px;font-size:11px}#out .foot{font-size:11px}.shopping-diary button:focus-visible{outline-offset:3px}@media(max-width:640px){.diary-hero h1{font-size:29px}.diary-hero .lead{font-size:13px}.purchase-note{padding:20px 18px}.diary-hero{padding-bottom:25px}#out{padding:24px 17px}#out .verdict{font-size:23px}#out .lv{grid-template-columns:91px 1fr auto;font-size:11px}#out .lv .d{font-size:10px}#out .stat .v{font-size:12px}.shopping-diary .note{font-size:10.5px}}
+</style>
+<style>/* Five detail navigation links */
+@media(min-width:641px) and (max-width:1000px){.primary-nav{gap:16px}.primary-nav a{font-size:13px}}
+@media(max-width:640px){header.site{flex-wrap:wrap!important;row-gap:12px!important}header.site .brand-link{order:1}header.site .site-menu{order:2;margin-left:auto}header.site .primary-nav{order:3;display:flex!important;flex:0 0 100%;width:100%;margin:0;justify-content:space-between;gap:6px;flex-wrap:nowrap}header.site .primary-nav a{font-size:12px;white-space:nowrap;padding:10px 0;flex-shrink:0}}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="site-band"><header class="site">
+    <a href="../../" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
+    <nav class="primary-nav" aria-label="주요 메뉴"><a href="../../price.html">가격 확인</a><a href="../../routine.html">루틴 점검</a><a href="../../glossary.html">성분 찾기</a><a href="../../lab/" aria-current="page">뷰티 LAB</a><a href="notes/">리포트</a></nav>
+    <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="../../price.html">가격 확인</a><a href="../../routine.html">루틴 점검</a><a href="../../glossary.html">성분 찾기</a><a href="../../lab/" aria-current="page">뷰티 LAB</a><a href="../../inflated/" class="secondary-start">부풀린 정가 기록</a><a href="../../notes/">더마릭 리포트</a></nav>
+    </details>
+  </header></div>
+
+  <main class="shopping-diary">
+  <div class="diary-hero"><a class="lab-back" href="../">← 뷰티 LAB</a><div class="receipt-mark" aria-hidden="true"><span>MY SHOPPING</span><i></i><i></i><b>₩</b></div><p class="eyebrow">나의 쇼핑 돌아보기</p>
+  <h1>그때 그 가격,<br> 잘 샀을까?</h1>
+  <p class="lead">샀던 제품과 결제 금액을 넣어보세요.<br>가격 기록 속에서 내 쇼핑을 돌아봐요.</p></div>
+
+  <div class="form purchase-note">
+    <p class="note-title">기억나는 그 쇼핑</p>
+    <div id="pslot">
+      <label class="lbl" for="q">01 · 어떤 제품을 샀나요?</label>
+      <div class="field">
+        <input type="text" id="q" placeholder="예) 아누아 어성초 토너" autocomplete="off"
+               role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="ac">
+        <div class="ac hide" id="ac" role="listbox"></div>
+      </div>
+      <p class="note" style="margin-top:6px">브랜드명을 같이 넣으면 더 잘 찾아요.</p>
+    </div>
+
+    <div>
+      <label class="lbl" for="p">02 · 얼마에 샀나요?</label>
+      <input type="tel" id="p" inputmode="numeric" placeholder="예) 19800">
+      <p class="err hide" id="pe">숫자로 가격을 입력해 주세요.</p>
+      <p class="note" style="margin-top:6px">할인·쿠폰을 적용해 실제로 결제한 금액을 넣어주세요.</p>
+    </div>
+
+    <button class="btn" id="ok" disabled>내 쇼핑 돌아보기 →</button>
+  </div>
+
+  <p class="input-note">올리브영에서 관측한 가격 기록과 비교해요.</p>
+  <div id="out" aria-live="polite"></div>
+  </main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const won=n=>Number(n).toLocaleString("ko-KR")+"원";
+const VD="../../verdicts/";
+let INDEX=null, LOADING=false, PICK=null, ACROWS=[], ACI=-1, TIMER=null;
+
+/* ───────── 검색 인덱스 ───────── */
+async function loadIndex(){
+  if(INDEX) return INDEX;
+  if(LOADING) return null;
+  LOADING=true;
+  try{
+    const r=await fetch(VD+"index.json",{cache:"force-cache"});
+    INDEX=r.ok?((await r.json()).items||{}):{};
+  }catch(e){ INDEX={}; }
+  LOADING=false;
+  return INDEX;
+}
+function hi(text,terms){
+  let out=esc(text);
+  terms.forEach(t=>{
+    if(!t) return;
+    const re=new RegExp("("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");
+    out=out.replace(re,"<mark>$1</mark>");
+  });
+  return out;
+}
+
+/* ───────── 자동완성 ───────── */
+function closeAC(){ $("#ac")?.classList.add("hide"); $("#q")?.setAttribute("aria-expanded","false"); ACI=-1; }
+function openAC(html){ const a=$("#ac"); a.innerHTML=html; a.classList.remove("hide"); $("#q").setAttribute("aria-expanded","true"); }
+
+async function suggest(){
+  const q=($("#q").value||"").trim();
+  if(q.length<2){ closeAC(); return; }
+  if(!INDEX){
+    openAC('<div class="msg">상품 목록을 불러오는 중이에요…</div>');
+    await loadIndex();
+    if(($("#q").value||"").trim()!==q) return;
+  }
+  if(!INDEX || !Object.keys(INDEX).length){
+    openAC('<div class="msg">상품 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>'); return;
+  }
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits=[];
+  for(const g in INDEX){
+    const it=INDEX[g];
+    const hay=((it.name||"")+" "+(it.brand||"")).toLowerCase();
+    if(terms.every(t=>hay.includes(t))) hits.push([g,it]);
+  }
+  if(!hits.length){ openAC('<div class="msg">찾는 상품이 없어요. 브랜드명만으로도 검색해 보세요.</div>'); return; }
+  hits.sort((a,b)=>(a[1].name||"").length-(b[1].name||"").length);
+  ACROWS=hits.slice(0,8);
+  openAC(ACROWS.map(([g,it],i)=>
+    '<button type="button" class="row" role="option" data-i="'+i+'">'+
+    (it.img?'<img src="'+esc(it.img)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<img alt="">')+
+    '<span class="t"><span class="b">'+hi(it.brand||"",terms)+'</span>'+
+    '<span class="n">'+hi(it.name||"",terms)+'</span></span></button>').join(""));
+  $("#ac").querySelectorAll(".row").forEach(b=>b.onmousedown=e=>{e.preventDefault(); choose(+b.dataset.i);});
+  ACI=-1;
+}
+function moveAC(d){
+  const rows=$("#ac").querySelectorAll(".row");
+  if(!rows.length) return;
+  ACI=(ACI+d+rows.length)%rows.length;
+  rows.forEach((r,i)=>r.classList.toggle("on",i===ACI));
+  rows[ACI].scrollIntoView({block:"nearest"});
+}
+async function choose(i){
+  const ent=ACROWS[i]; if(!ent) return;
+  closeAC();
+  await setProduct(ent[0]);
+}
+
+/* ───────── 상품 선택 ───────── */
+async function setProduct(gno){
+  const slot=$("#pslot");
+  slot.innerHTML='<label class="lbl">01 · 내가 고른 제품</label><p class="note">불러오는 중…</p>';
+  let j=null;
+  try{ const r=await fetch(VD+gno+".json",{cache:"force-cache"}); if(r.ok) j=await r.json(); }catch(e){}
+  if(!j){ PICK=null; resetProduct("그 상품의 가격 기록을 찾지 못했어요."); return; }
+  PICK={gno:gno,j:j};
+  slot.innerHTML='<label class="lbl">01 · 내가 고른 제품</label>'+
+    '<div class="prod">'+
+    (j.img?'<img src="'+esc(j.img)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<img alt="">')+
+    '<span class="t"><span class="b">'+esc(j.brand||"")+'</span>'+
+    '<span class="n">'+esc(j.name||"")+'</span></span></div>'+
+    '<button class="linkbtn" id="chg">다른 상품 고르기</button>';
+  $("#chg").onclick=()=>resetProduct();
+  sync();
+  if(!$("#p").value) $("#p").focus();
+}
+function resetProduct(msg){
+  PICK=null;
+  $("#pslot").innerHTML='<label class="lbl" for="q">01 · 어떤 제품을 샀나요?</label>'+
+    '<div class="field"><input type="text" id="q" placeholder="예) 아누아 어성초 토너" autocomplete="off" '+
+    'role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="ac">'+
+    '<div class="ac hide" id="ac" role="listbox"></div></div>'+
+    (msg?'<p class="err">'+esc(msg)+'</p>':'<p class="note" style="margin-top:6px">브랜드명을 같이 넣으면 더 잘 찾아요.</p>');
+  wireSearch();
+  $("#out").innerHTML="";
+  history.replaceState(null,"",location.pathname);
+  sync();
+  $("#q").focus();
+}
+function wireSearch(){
+  const q=$("#q");
+  q.oninput=()=>{ clearTimeout(TIMER); TIMER=setTimeout(suggest,130); };
+  q.onfocus=()=>{ loadIndex(); if((q.value||"").trim().length>=2) suggest(); };
+  q.onblur=()=>setTimeout(closeAC,120);
+  q.onkeydown=e=>{
+    if(e.key==="ArrowDown"){ e.preventDefault(); moveAC(1); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); moveAC(-1); }
+    else if(e.key==="Enter"){ e.preventDefault(); if(ACI>=0) choose(ACI); else if(ACROWS.length) choose(0); }
+    else if(e.key==="Escape"){ closeAC(); }
+  };
+}
+function priceVal(){ return parseInt(($("#p").value||"").replace(/[^0-9]/g,""),10); }
+function sync(){ $("#ok").disabled = !(PICK && priceVal()>0); }
+
+/* ───────── 분석 ───────── */
+function analyze(series, mine){
+  const prices=series.map(p=>p.price).filter(p=>p);
+  const n=prices.length, cnt={};
+  prices.forEach(p=>cnt[p]=(cnt[p]||0)+1);
+  const levels=Object.keys(cnt).map(Number).sort((a,b)=>a-b).map(p=>({p:p,c:cnt[p]}));
+  const cheaper=prices.filter(p=>p<mine).length;
+  const same=cnt[mine]||0;
+  return{n:n, levels:levels, cheaper:cheaper, same:same, pricier:n-cheaper-same,
+    mid:(cheaper+same/2)/n, min:levels[0].p, max:levels[levels.length-1].p,
+    mode:levels.slice().sort((a,b)=>b.c-a.c)[0].p};
+}
+function headline(a,mine){
+  if(mine< a.min)  return["관측된 어떤 날보다 쌌어요","이 기간엔 이만큼 싼 값이 나온 적이 없어요."];
+  if(mine===a.min) return["관측 최저가예요","이보다 싼 날은 없었어요."];
+  if(mine> a.max)  return["관측된 어떤 날보다 비쌌어요","이 기간엔 이보다 싼 값만 나왔어요."];
+  if(mine===a.max) return["가장 비쌌던 가격이에요","관측된 날 대부분이 이보다 쌌어요."];
+  const r=a.mid;
+  if(r<=0.15) return["싸게 산 편이에요","이보다 싼 날이 드물었어요."];
+  if(r<=0.42) return["조금 싸게 샀어요","중간보다는 아래였어요."];
+  if(r<=0.62) return["무난하게 샀어요","이 상품이 자주 머무는 가격대예요."];
+  if(r<=0.85) return["조금 아쉬운 가격이에요","더 싼 날이 꽤 있었어요."];
+  return["더 낮은 가격도 있었어요","대부분의 날이 이보다 쌌어요."];
+}
+
+/* ───────── 결과 ───────── */
+function render(){
+  if(!PICK) return;
+  const mine=priceVal();
+  if(!mine || mine<100 || mine>3000000){ $("#pe").classList.remove("hide"); return; }
+  $("#pe").classList.add("hide");
+  const j=PICK.j, out=$("#out");
+  const series=((j.chart||{}).series||[]).filter(p=>p.price);
+  history.replaceState(null,"","#g="+PICK.gno+"&p="+mine);
+
+  if(series.length<8){
+    out.innerHTML='<div class="rule"></div><h2>아직 비교할 만큼 쌓이지 않았어요</h2>'+
+      '<p class="lead" style="margin-top:8px">이 상품은 관측 기록이 '+series.length+'회뿐이라 가격대를 말하기 어려워요. 관측은 매일 이어지고 있어요.</p>';
+    out.scrollIntoView({behavior:"smooth",block:"start"}); return;
+  }
+  const a=analyze(series,mine), h=headline(a,mine);
+  const first=(series[0].label||"").split("·")[0], last=(series[series.length-1].label||"").split("·")[0];
+  const maxc=Math.max.apply(null,a.levels.map(l=>l.c));
+  const inLv=a.levels.some(l=>l.p===mine);
+  let rows=a.levels.map(l=>({p:l.p,c:l.c,me:l.p===mine}));
+  if(!inLv) rows.push({p:mine,c:0,me:true});
+  rows.sort((x,y)=>x.p-y.p);
+
+  out.innerHTML='<div class="result-label">나의 쇼핑 기록</div>'+
+  '<p class="eyebrow">'+esc(won(mine))+'에 샀다면</p>'+
+  '<p class="verdict">'+esc(h[0])+'</p>'+
+  '<p class="lead">'+esc(h[1])+' 관측 '+a.n+'회 중 — 더 싼 값 <b>'+a.cheaper+'회</b>'+
+    (a.same?' · 같은 값 <b>'+a.same+'회</b>':"")+
+    (a.pricier?' · 더 비싼 값 <b>'+a.pricier+'회</b>':"")+'.</p>'+
+  '<div class="stats">'+
+    '<div class="stat"><div class="k">관측 최저</div><div class="v">'+won(a.min)+'</div></div>'+
+    '<div class="stat"><div class="k">가장 흔한 값</div><div class="v">'+won(a.mode)+'</div></div>'+
+    '<div class="stat"><div class="k">관측 최고</div><div class="v">'+won(a.max)+'</div></div>'+
+  '</div>'+
+  '<div class="rule"></div>'+
+  '<p class="eyebrow">가격대별 관측 횟수</p>'+
+  '<div class="levels">'+rows.map(function(l){
+    const cls="lv"+(l.me?" me":"")+(!l.me&&l.p<mine?" cheap":"");
+    const w=maxc?Math.max(l.c/maxc*100,l.c?4:0):0;
+    return'<div class="'+cls+'"><span class="p">'+won(l.p)+(l.me?'<span class="youtag">나</span>':"")+'</span>'+
+      '<span class="track"><i style="width:'+w.toFixed(1)+'%"></i></span>'+
+      '<span class="d">'+(l.c?l.c+"회":"관측 없음")+'</span></div>';
+  }).join("")+'</div>'+
+  '<p class="note" style="margin-top:10px">'+esc(first)+' ~ '+esc(last)+
+    (j.chartSub?' · '+esc(j.chartSub):"")+' · 기록 '+a.n+'회</p>'+
+  (!inLv?'<div class="cav" style="margin-top:14px">이 가격은 관측 기록에 없어요. 쿠폰·카드 할인이나 옵션(용량·구성)이 달랐을 수 있어요.</div>':"")+
+  '<div class="cav" style="margin-top:10px">올리브영 목록에 <b>대표로 표시된 가격</b> 기준이에요. 옵션이 여러 개인 상품은 고른 옵션에 따라 실제 가격이 달랐을 수 있습니다.</div>'+
+  '<div class="rule"></div>'+
+  '<div class="form">'+
+    '<button class="btn ghost" id="share">결과 링크 복사하기</button>'+
+    '<a class="btn ghost" style="display:block;text-align:center;text-decoration:none;line-height:1.4" '+
+      'href="../../?g='+esc(PICK.gno)+'&from=lab-price">이 상품 판정서 보기 →</a>'+
+  '</div>'+
+  '<p class="foot">더마릭은 올리브영 가격을 하루 두 번 관측해 기록합니다. 표시 할인율이 아니라 실제로 관측된 가격만 씁니다. '+
+    '<a href="../">LAB의 다른 실험 보기</a></p>';
+
+  $("#share").onclick=async function(){
+    const url=location.origin+location.pathname+"#g="+PICK.gno+"&p="+mine;
+    const msg=(j.name||"")+" "+won(mine)+" — "+h[0]+"\n"+url;
+    try{ await navigator.clipboard.writeText(msg); this.textContent="복사됐어요"; }
+    catch(e){ this.textContent="주소창의 링크를 복사해 주세요"; }
+  };
+  out.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ───────── 초기화 ───────── */
+wireSearch();
+$("#p").oninput=()=>{ $("#pe").classList.add("hide"); sync(); };
+$("#p").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); if(!$("#ok").disabled) render(); } };
+$("#ok").onclick=render;
+
+(async function(){
+  const m=/^#g=([A-Z0-9]+)(?:&p=(\d+))?/.exec(location.hash||"");
+  if(!m) return;
+  await setProduct(m[1]);
+  if(m[2] && PICK){ $("#p").value=m[2]; sync(); render(); }
+})();
+</script>
+</body>
+</html>

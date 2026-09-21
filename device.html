@@ -123,6 +123,7 @@ header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-i
 .site-menu summary::-webkit-details-marker{display:none}
 .site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
 .site-menu[open] summary{background:var(--surface)}
+.site-search{display:flex;width:44px;height:44px;align-items:center;justify-content:center;flex-shrink:0;color:var(--ink);margin-right:-20px}.site-search svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5}.site-search:hover{background:var(--surface)}.site-search:focus-visible{outline:2px solid #785b3b;outline-offset:2px}header.site .site-search+.site-menu{margin-left:0}@media(max-width:1000px){header.site .site-search{margin-left:auto;margin-right:-6px;order:2}header.site .site-search+.site-menu{order:2}}@media print{.site-search{display:none}}
 .menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
 .menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
 .menu-panel a:hover{background:var(--series-wash)}
@@ -193,6 +194,7 @@ header.site{padding:28px 0;max-width:none;margin:0}
 @media(min-width:641px) and (max-width:1000px){.primary-nav{gap:16px}.primary-nav a{font-size:13px}}
 @media(max-width:640px){header.site{flex-wrap:wrap!important;row-gap:12px!important}header.site .brand-link{order:1}header.site .site-menu{order:2;margin-left:auto}header.site .primary-nav{order:3;display:flex!important;flex:0 0 100%;width:100%;margin:0;justify-content:space-between;gap:6px;flex-wrap:nowrap}header.site .primary-nav a{font-size:12px;white-space:nowrap;padding:10px 0;flex-shrink:0}}
 </style><nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
+    <a class="site-search" href="/?focus=search" aria-label="상품 검색"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m16 16 5 5"/></svg></a>
     <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
       <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
     </details>
