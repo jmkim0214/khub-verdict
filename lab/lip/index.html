@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<meta name="description" content="색으로 읽는 나의 성격과 분위기">
 <link rel="canonical" href="https://themaric.kr/lab/lip/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23AE476E'/%3E%3C/svg%3E">
 <meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 LAB">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:title" content="내 취향은 어떤 색일까?">
-<meta property="og:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<meta property="og:title" content="The Color of You">
+<meta property="og:description" content="색으로 읽는 나의 성격과 분위기">
 <meta property="og:url" content="https://themaric.kr/lab/lip/">
 <meta property="og:image" content="https://themaric.kr/lab/lip/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="내 취향은 어떤 색일까?">
-<meta name="twitter:description" content="내 색, 친구가 보는 내 색, 둘이 만든 우리 색을 한 팔레트에 모아보세요.">
+<meta name="twitter:title" content="The Color of You">
+<meta name="twitter:description" content="색으로 읽는 나의 성격과 분위기">
 <meta name="twitter:image" content="https://themaric.kr/lab/lip/og.png">
-<title>내 취향은 어떤 색일까? — 더마릭 LAB</title>
+<title>The Color of You — 더마릭 LAB</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -578,7 +578,7 @@ function saveReply(p){const rows=readJSON('color-replies-v2',[]).filter(validRep
 function sectionRows(rows,mode){const selected=rows.filter(r=>r.mode===mode);return selected.length?selected.map(r=>'<article class="friend-result"><div class="friend-result-head"><strong>'+esc(r.nick)+'님'+(mode==='pair'?'과 만든 색':'이 보는 나')+'</strong></div>'+relationshipHTML(r)+'</article>').join(''):'<div class="empty-color">'+(mode==='seen'?'친구가 골라준 내 색이 이곳에 모여요.':'친구와 만든 우리 색이 이곳에 모여요.')+'<br><span>친구가 보내준 결과 링크를 열면 여기에 저장돼요.</span></div>';}
 function viewIntro(){
  activeInvite=null;resetAccent();
- show('<section class="color-welcome"><p class="eyebrow">COLOR PLAY</p><h1>내 취향은<br>어떤 색일까?</h1><p class="lede">여덟 가지 질문으로 내 색을 찾고,<br>친구의 시선도 더해보세요.</p><div class="intro-bloom" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><small>나를 닮은 색 한 조각</small></div><button class="cta" id="go">내 색 찾기</button>'+(bySlug(LS.get('slug'))?'<button class="ghost" id="mine">내 팔레트 보기</button>':'')+'<p class="note">약 30초 · 회원가입 없음</p></section>');
+ show('<section class="color-welcome"><p class="eyebrow">COLOR PLAY</p><h1>The Color of You</h1><p class="lede">색으로 읽는 나의 성격과 분위기</p><div class="intro-bloom" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><small>나를 닮은 색 한 조각</small></div><button class="cta" id="go">나의 색 알아보기</button>'+(bySlug(LS.get('slug'))?'<button class="ghost" id="mine">내 팔레트 보기</button>':'')+'<p class="note">약 30초 · 회원가입 없음</p></section>');
  document.getElementById('go').onclick=()=>viewQ(0,[]);const b=document.getElementById('mine');if(b)b.onclick=()=>viewResult(bySlug(LS.get('slug')),readJSON('ans',[]));
 }
 
