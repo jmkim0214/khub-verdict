@@ -641,7 +641,8 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
 #view-report #r-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #r-tiles .tile{min-width:0;padding:14px 8px}#r-tiles .l{font-size:11px}#r-tiles .v{font-size:23px;white-space:nowrap}
 @media(max-width:640px){#r-tiles .v{font-size:clamp(15px,4.5vw,21px)}#r-tiles .l{font-size:10px}#r-tiles .tile{padding:12px 4px}.chart-legend{gap:10px}}
-</style></head>
+</style><link rel="stylesheet" href="assets/home-discovery.css?v=20260923">
+</head>
 <body>
 <div class="wrap">
   <div class="site-band"><header class="site">
@@ -667,6 +668,16 @@ body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-i
       <nav class="quick-nav" aria-label="바로 가기"><a href="price.html">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
       <div id="search-results" aria-live="polite" aria-label="상품 검색 결과"></div>
     </div>
+  </section>
+
+  <section id="home-discovery" aria-labelledby="hd-title">
+    <div class="hd-heading"><div><p class="hd-eyebrow">A GOOD TIME TO LOOK</p><h2 id="hd-title">오늘 눈여겨볼 가격</h2></div><a href="price.html">가격 더 보기 →</a></div>
+    <p class="hd-intro">올영 인기 상품의 가격 기록을 살펴보세요.</p>
+    <div id="hd-products" class="hd-products" aria-live="polite"><p>가격 기록을 불러오고 있어요.</p></div>
+    <p id="hd-observed" class="hd-note"></p>
+    <details class="hd-method"><summary>이 상품들은 어떻게 골랐나요?</summary><p>올영 인기 상품 중 가격 기록이 14일 이상 있고, 구성 정보 확인을 통과한 상품을 우선 보여줍니다. 브랜드가 한쪽으로 몰리지 않게 고릅니다. 할인율 순위나 구매 추천은 아닙니다.</p><p>가격과 그래프는 상품 목록의 대표가격 관측 기록입니다. 대표 옵션·품절·증정 구성에 따라 달라질 수 있으며, 쿠폰·카드 할인은 포함하지 않습니다.</p></details>
+    <details class="hd-method"><summary>할인율보다 평소 가격을 먼저 보는 이유</summary><p>표시정가보다 낮더라도 평소에 관측되던 가격일 수 있어요. 판정서에서 관측 기간과 가격 흐름을 함께 확인하세요.</p><a href="price.html">상품별 가격 기록 살펴보기 →</a></details>
+    <div class="hd-brandlinks"><span>브랜드로 찾기</span><button type="button" data-hd-search="에스트라">에스트라</button><button type="button" data-hd-search="토리든">토리든</button><button type="button" data-hd-search="라로슈포제">라로슈포제</button></div>
   </section>
 
   <!-- ================= LOADING ================= -->
@@ -1361,33 +1372,9 @@ async function loadIndex(){
   return SEARCH_INDEX || {};
 }
 async function searchProducts(q){
-  q = (q||'').trim(); if(!q) return;
-  const box = $('#search-results');
-  const idx = await loadIndex();
-  if(!Object.keys(idx).length){ // file:// 등 index 로드 불가
-    box.innerHTML = `<div class="sr-empty">상품명 검색은 배포된 사이트에서 동작해요. 파일을 직접 열면 상품 URL로만 조회됩니다.</div>`;
-    box.classList.add('on'); return;
-  }
-  // 띄어쓴 단어는 각각 AND로 검색 (예: "아누아 세럼" → '아누아' AND '세럼' 둘 다 포함)
-  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-  const hits = Object.entries(idx)
-    .filter(([g,it]) => { const hay=((it.name||'')+' '+(it.brand||'')).toLowerCase(); return terms.every(t=>hay.includes(t)); })
-    .sort((a,b)=>(a[1].name||'').length-(b[1].name||'').length)   // 짧은(대표) 상품명 우선
-    .slice(0, 40);
-  if(!hits.length){
-    box.innerHTML = `<div class="sr-empty">‘${q}’에 해당하는 추적 상품이 없어요. 아직 추적 목록에 없거나(수집 대기), 상품 URL로 조회해보세요.</div>`;
-    box.classList.add('on'); return;
-  }
-  if(hits.length === 1){ box.classList.remove('on'); box.innerHTML=''; loadGoods(hits[0][0]); return; }
-  box.innerHTML = `<div class="sr-head">‘${q}’ 검색 결과 ${hits.length}개 — 판정서를 볼 상품을 선택하세요</div>` +
-    hits.map(([g,it]) => {
-      const nm=(it.name||''), br=(it.brand||'');
-      const disp = (br && !nm.includes(br)) ? `<b>${br}</b> ${nm}` : nm;
-      const im = it.img ? `<img class="sr-img" src="${it.img}" alt="" loading="lazy" onerror="this.remove()">` : '';
-      return `<button class="sr-item" data-g="${g}">${im}<span>${disp}</span><span class="sr-cur">${(it.cur||0).toLocaleString('ko-KR')}원</span></button>`;
-    }).join('');
-  box.classList.add('on');
+  return window.HomeDiscovery.search(q);
 }
+
 function loadGoods(gno){
   $('#search-results').classList.remove('on');   // 결과 목록은 지우지 않고 숨긴다 — 뒤로 오면 다시 보인다
   judgeUrl('https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=' + gno, {push:true});
@@ -1582,5 +1569,6 @@ document.addEventListener('click', e => {
   if(menu && !menu.contains(e.target)) menu.open = false;
 });
 </script>
+<script src="assets/home-discovery.js?v=20260923"></script>
 </body>
 </html>
