@@ -1,6 +1,6 @@
 /* Homepage discovery and grouped search; source copied by build_home.py. */
 body:has(#view-home:not(.hidden)) #view-home{flex:none;min-height:calc(100svh - 102px);box-sizing:border-box}
-#home-discovery{padding:28px 0 20px;border-top:1px solid var(--border)}
+#home-discovery{padding:28px 28px 20px;border:1px solid #e4ddcf;border-radius:12px;background:rgba(255,253,248,.94);box-shadow:0 5px 24px #49372208}
 body:has(#view-home.hidden) #home-discovery,body:has(#search-results.on) #home-discovery{display:none}
 body:has(#search-results.on) #view-home{align-items:flex-start;min-height:0;padding-top:28px}
 body:has(#search-results.on) .hero{max-width:100%}
@@ -12,3 +12,6 @@ body:has(#view-home:not(.hidden)) footer.site{margin-top:35px;padding-top:24px;b
 @media(max-width:800px){.hd-products{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){body:has(#view-home:not(.hidden)) #view-home{min-height:calc(100svh - 96px);padding-bottom:96px}body:has(#search-results.on) #view-home{min-height:0;padding:22px 0 20px}.hd-heading h2{font-size:22px}.hd-heading{align-items:center}.hd-heading a{font-size:11px}.hd-products{grid-template-columns:1fr;gap:24px}.hd-card{grid-template-columns:86px minmax(0,1fr);gap:15px}.hd-photo{width:86px;height:132px}.hd-name{font-size:14px}.hd-card .hd-graph{width:68px;height:36px}.hd-price{font-size:20px}.hd-grouphead{padding:15px;gap:12px}.hd-grouphead h2{font-size:20px}.hd-option{padding:15px 12px;grid-template-columns:17px minmax(0,1fr) 84px;gap:7px}.hd-optionprice{font-size:15px}.hd-option .hd-graph{width:78px;height:34px}.hd-groupaction{padding:14px 12px;flex-direction:column;align-items:stretch;gap:10px}.hd-open{width:100%;min-height:46px}.hd-grouphead img{width:52px;height:72px}}
 @media(max-width:359px){.hd-option{grid-template-columns:16px minmax(0,1fr) 74px;gap:5px}.hd-optionprice{font-size:14px}.hd-option .hd-graph{width:68px}.hd-optionname{font-size:12px}}
+
+/* Keep readable product width inside the light mobile panel. */
+@media(max-width:640px){#home-discovery{margin-left:-10px;margin-right:-10px;padding:23px 16px 16px;border-radius:10px}.hd-card{grid-template-columns:70px minmax(0,1fr);gap:12px}.hd-photo{width:70px;height:118px}.hd-heading h2{font-size:21px}.hd-heading{gap:8px}.hd-heading a{flex-shrink:0}.hd-products{gap:0}.hd-card{padding:19px 0;border-bottom:1px solid #e9e2d7}.hd-card:first-child{padding-top:0}.hd-card:last-child{padding-bottom:0;border-bottom:0}}
