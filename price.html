@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>더마릭 — 오늘의 올영 Top 30 실제 가격</title>
+<meta name="description" content="올리브영 랭킹 Top 30의 일자별 실제 판매가 그래프. 표시 할인율이 아닌 관측된 가격 흐름으로 진짜 할인을 확인하세요."><meta property="og:type" content="website"><meta property="og:site_name" content="더마릭 THEMARIC"><meta property="og:locale" content="ko_KR"><meta property="og:url" content="https://themaric.kr/price.html"><meta property="og:title" content="더마릭 — 오늘의 올영 Top 30 실제 가격"><meta property="og:description" content="올리브영 랭킹 Top 30의 일자별 실제 판매가 그래프. 표시 할인율이 아닌 관측된 가격 흐름으로 진짜 할인을 확인하세요."><meta property="og:image" content="https://themaric.kr/og/price.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="더마릭 — 오늘의 올영 Top 30 실제 가격"><meta name="twitter:description" content="올리브영 랭킹 Top 30의 일자별 실제 판매가 그래프. 표시 할인율이 아닌 관측된 가격 흐름으로 진짜 할인을 확인하세요."><meta name="twitter:image" content="https://themaric.kr/og/price.png"><script defer src="/a.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#F5F1E8; --surface:#FFFEFB;
+    --ink:#20221E; --ink-2:#5B5D55; --muted:#8F9184;
+    --grid:rgba(32,34,30,0.10); --baseline:rgba(32,34,30,0.20);
+    --border:rgba(32,34,30,0.12);
+    --series:#596044; --series-wash:rgba(89,96,68,0.10);
+    --good:#596044; --good-text:#4A5139;
+    --warn:#6B6D62; --critical:#D95C4F;
+    --good-bg:rgba(89,96,68,0.12); --warn-bg:rgba(32,34,30,0.05);
+    --critical-bg:rgba(217,92,79,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--page); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;  /* 한글 어절 단위 줄바꿈 */
+  ; overflow-x:hidden}
+  .wrap{max-width:780px; margin:0 auto; padding:0 20px 80px;}
+  /* 상단 밴드 — 페이지마다 본문 폭이 달라도(640·780·1080) 헤더는 항상 같은 자리·같은 폭. (2026-08-15) */
+  .site-band{width:100vw; margin-left:calc(50% - 50vw); border-bottom:1px solid var(--grid); margin-bottom:18px;}
+  header.site{display:flex; align-items:center; gap:10px; flex-wrap:wrap; row-gap:10px;
+    max-width:780px; margin:0 auto; padding:24px 20px 14px; border-bottom:none;}
+  .nav-link{align-self:center; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    text-decoration:none; padding:6px 2px; white-space:nowrap;}
+  .nav-link + .nav-link{margin-left:20px;}
+  .nav-first{margin-left:auto;}
+  .nav-link:hover{color:var(--series);}
+  .nav-link.here{color:var(--series); font-weight:800;}
+  @media (max-width:640px){
+    header.site{padding:18px 16px 12px; column-gap:18px;}
+    header.site > a:first-child{width:100%;}
+    .nav-link{font-size:12.5px; padding:5px 0;}
+    .nav-link + .nav-link{margin-left:0;}
+    .nav-first{margin-left:0;}
+  }
+  .logo{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif; font-size:23px; font-weight:600; letter-spacing:0.20em; color:var(--ink); line-height:1.1; text-decoration:none;}
+  .logo-eng{font-size:11.5px; font-weight:600; letter-spacing:0.02em; color:var(--muted); margin-left:9px; vertical-align:3px; font-family:'Pretendard Variable',Pretendard,sans-serif;}
+  .logo-sub{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif; font-size:10.5px; letter-spacing:0.28em; color:var(--gold,#B49A62); margin-top:6px; text-transform:uppercase;}
+  
+
+  .subtabs{display:flex; gap:8px; margin-top:16px;}
+  .subtabs .stab{font-size:13px; font-weight:700; padding:8px 16px; border-radius:999px;
+    border:1px solid var(--baseline); color:var(--ink-2); text-decoration:none; white-space:nowrap;}
+  .subtabs .stab.on{background:var(--series); color:#fff; border-color:var(--series);}
+  .subtabs .stab:not(.on):hover{border-color:var(--series); color:var(--series);}
+  .page-head{margin-top:18px;}
+  .page-head h1{font-size:23px; font-weight:800; letter-spacing:-0.02em;}
+  .page-head h1 .u{box-shadow:inset 0 -9px var(--series-wash);}
+  .page-head .sub{font-size:13.5px; color:var(--ink-2); margin-top:5px;}
+  .obs-sup{font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0;
+    vertical-align:super; margin-left:8px; white-space:nowrap;}
+  .obs-sup .live{width:6px; height:6px; margin-right:4px;}
+  .obs-note{
+    display:inline-block;
+    font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6;
+    border:1px solid var(--baseline); border-radius:14px; padding:4px 12px;
+  }
+  .obs-note .live{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--series); margin-right:6px; vertical-align:1px;}
+
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:14px; margin-top:18px; flex-wrap:wrap;
+  }
+  .chips{display:flex; gap:7px; flex-wrap:wrap;}
+  .chip{
+    font:inherit; font-size:13px; cursor:pointer;
+    padding:7px 14px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .chip:hover{border-color:var(--series); color:var(--ink);}
+  .chip.on{background:var(--series); color:#fff; border-color:var(--series); font-weight:700;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--ink-2); flex-wrap:wrap;}
+  .legend .k{display:flex; align-items:center; gap:6px;}
+  .k .sw-line{width:16px; height:2px; background:var(--series); border-radius:2px;}
+  .k .sw-ref{width:16px; height:0; border-top:1.5px dashed var(--muted);}
+
+  /* 판정별 필터 줄 (2026-08-10) — 메인 티저의 판정 칩이 ?v= 로 여기 들어온다 */
+  .vfilter{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--grid);
+  }
+  .vf-label{font-size:12px; font-weight:700; color:var(--muted); flex:none;}
+  .vchip-btn{
+    font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+    padding:6px 13px; border-radius:999px;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink-2);
+  }
+  .vchip-btn:hover{border-color:var(--series); color:var(--ink);}
+  .vchip-btn .n{font-variant-numeric:tabular-nums; opacity:.7; margin-left:4px;}
+  .vchip-btn.on{font-weight:800; color:#fff; background:var(--series); border-color:var(--series);}
+  .vchip-btn.on .n{opacity:.85;}
+  .vchip-btn.on.v-good{background:var(--good-text); border-color:var(--good-text);}
+  .vchip-btn.on.v-bad{background:var(--critical); border-color:var(--critical);}
+  .vchip-btn.on.v-warn{background:var(--warn); border-color:var(--warn); color:var(--ink);}
+  /* 플래그는 등급보다 한 계위 아래 — 작게, 사각형, 코랄 글씨 (2026-08-15) */
+  .fsep{font-size:11.5px; color:var(--muted); margin:0 2px 0 10px; align-self:center;}
+  .fchip-btn{font:inherit; font-size:12px; cursor:pointer; padding:5px 10px; border-radius:3px;
+    border:1px solid var(--baseline); background:transparent; color:var(--critical);}
+  .fchip-btn .n{font-variant-numeric:tabular-nums; opacity:.7; margin-left:4px;}
+  .fchip-btn.on{background:var(--critical); border-color:var(--critical); color:#fff;}
+  .fchip{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:3px;
+    border:1px solid var(--baseline); color:var(--critical); margin-left:5px;}
+  .filter-note{font-size:12.5px; color:var(--ink-2); margin-top:9px;}
+  .filter-note:empty{display:none;}
+  .linkish{
+    font:inherit; font-size:12.5px; font-weight:700; color:var(--series);
+    background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .empty-grid{
+    margin-top:14px; background:var(--surface); border:1px dashed var(--baseline);
+    border-radius:13px; padding:26px 22px; text-align:center;
+    font-size:13.5px; color:var(--ink-2); line-height:1.7;
+  }
+  .empty-grid b{color:var(--ink);}
+  .hidden{display:none;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.grid{grid-template-columns:1fr;}}
+  .pcard{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:13px; padding:15px 16px 12px; cursor:pointer;
+    display:flex; flex-direction:column; gap:2px;
+    transition:border-color .15s;
+  }
+  .pcard:hover{border-color:var(--series);}
+  .pcard .row1{display:flex; align-items:center; gap:8px;}
+  .rank{
+    font-size:12px; font-weight:800; color:var(--ink-2);
+    background:var(--page); border:1px solid var(--border);
+    border-radius:7px; padding:1px 7px; font-variant-numeric:tabular-nums; flex:none;
+  }
+  .rank.top{color:#fff; background:var(--series); border-color:var(--series);}
+  .vchip{
+    font-size:11px; font-weight:700; border-radius:999px; padding:2px 9px;
+    margin-left:auto; white-space:nowrap; flex:none;
+  }
+  .vchip.v-good{background:var(--good-bg); color:var(--good-text);}
+  .vchip.v-bad{background:var(--critical-bg); color:var(--critical);}
+  .vchip.v-warn{background:var(--warn-bg); color:var(--ink);}
+  .vchip.v-flat{background:transparent; color:var(--ink-2); border:1px solid var(--baseline);}
+  /* 표시 할인율 — 올영의 주장. 진짜 할인일 때만 코랄 ↓, 아니면 회색 '표시 N%' (2026-08-17) */
+  .real{font-size:14px; font-weight:800; margin-left:8px;}
+  .real.hot{color:var(--critical);}
+  .real.up{color:var(--ink-2);}
+  .real.zero{color:var(--muted); font-weight:600; font-size:12.5px;}
+  .shown-sub{margin-top:4px; font-size:11.5px; color:var(--muted); font-weight:500;}
+  .shown-sub s{text-decoration:line-through;}
+  .shown-sub .ok{color:var(--series); font-weight:700;}
+  .phead{display:flex; gap:11px; margin-top:9px; align-items:flex-start;}
+  .pthumb{
+    width:46px; height:46px; border-radius:11px; flex:none; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--series-wash); border:1px solid var(--border);
+    font-size:20px; font-weight:800; color:var(--series);
+  }
+  .pthumb img{width:100%; height:100%; object-fit:cover;}
+  .pmeta{min-width:0;}
+  .pcard .brand{font-size:11.5px; color:var(--muted); font-weight:600;}
+  a.name{
+    font-size:13.5px; font-weight:700; line-height:1.4; letter-spacing:-0.01em;
+    color:var(--ink); text-decoration:none;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    min-height:2.8em;
+  }
+  a.name:hover{color:var(--series); text-decoration:underline;}
+  a.name .ext{font-size:11px; color:var(--series); font-weight:800;}
+  .pcard .price{display:block; margin-top:6px;}
+  .pcard .cur{font-size:17px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .pcard .strike{font-size:12px; color:var(--muted); text-decoration:line-through; font-variant-numeric:tabular-nums;}
+  .pcard .dc{font-size:12px; font-weight:700; color:var(--critical);}
+  .pcard .flat-note{font-size:12px; color:var(--muted);}
+  .pcard .spark{margin-top:9px;}
+  .pcard svg{display:block; width:100%; height:auto;}
+  .pcard .xlab{
+    display:flex; justify-content:space-between;
+    font-size:9.5px; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums;
+  }
+  .tooltip{
+    position:fixed; pointer-events:none; display:none;
+    background:var(--ink); color:var(--page); font-size:12px;
+    padding:5px 10px; border-radius:8px; white-space:nowrap;
+    transform:translate(-50%,-130%); z-index:50;
+  }
+  .tooltip b{font-variant-numeric:tabular-nums;}
+
+  .more-note{
+    margin-top:22px; background:var(--surface); border:1px dashed var(--baseline);
+    border-radius:13px; padding:20px 24px; text-align:center;
+  }
+  .more-note .q{font-size:14.5px; font-weight:700;}
+  .more-note .a{font-size:13px; color:var(--ink-2); margin-top:4px;}
+  .more-note .btn{
+    display:inline-block; margin-top:14px; font-size:13.5px; font-weight:700;
+    background:var(--series); color:#fff; border:none; border-radius:10px;
+    padding:11px 20px; cursor:pointer; font-family:inherit; text-decoration:none;
+  }
+  .more-note .btn:hover{opacity:.9;}
+  .method-note{
+    margin-top:14px; font-size:12px; color:var(--muted); line-height:1.7; text-align:center;
+  }
+  .method-note b{color:var(--ink-2);}
+  footer.site{margin-top:48px; text-align:center; font-size:12px; color:var(--muted); line-height:1.8;}
+  footer.site a{color:var(--series); text-decoration:none;}
+
+  /* ---------- 모바일 (≤640px) ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 14px 60px;}
+    .page-head h1{font-size:19px;}
+    .page-head .sub{font-size:13px;}
+    .obs-note{font-size:11px; padding:4px 10px;}
+    .toolbar{margin-top:14px;}
+    .chip{padding:6px 12px; font-size:12.5px;}
+    .vfilter{gap:8px; margin-top:10px; padding-top:10px;}
+    .vf-label{width:100%;}
+    .vchip-btn{padding:6px 11px; font-size:12px;}
+    .legend{font-size:11.5px; gap:12px;}
+    .pcard{padding:13px 14px 10px;}
+    .more-note{padding:16px 16px;}
+    .more-note .btn{width:100%; text-align:center;}
+  }
+
+  /* 종이 질감 그레인 — 화면 전체에 얹는 고정 오버레이. 외부 이미지 없이 인라인 SVG 노이즈,
+     클릭 통과(pointer-events:none), 인쇄 시 제외. 지우려면 이 블록만 삭제. (2026-08-11) */
+  body::after{content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27240%27%20height%3D%27240%27%3E%3Cfilter%20id%3D%27g%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.9%27%20numOctaves%3D%274%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27240%27%20height%3D%27240%27%20filter%3D%27url%28%23g%29%27%20opacity%3D%270.42%27%2F%3E%3C%2Fsvg%3E");
+    background-size:240px 240px; opacity:0.5; mix-blend-mode:multiply;}
+  @media print{body::after{display:none;}}
+</style>
+<style id="soft-beige">
+:root{--beige-wall:url("assets/beige-plaster.jpg")}
+/* Soft beige — inlined into the staged sources, never a live shared stylesheet. */
+:root{--page:#f2e9d9;--surface:#fffaf1;--ink:#382719;--ink-2:#62513f;--muted:#72604d;--grid:#d9cebc;--border:#d3c4af;--baseline:#b6a38a;--series:#645338;--series-wash:#eae2d3;--gold:#806343;--deal:#aa4435;--critical:#aa4435;--deal-bg:#f9e9e0}
+body{background:var(--page);color:var(--ink)}
+body::after{display:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,#fff8eb99,#fff8eb55),var(--beige-wall);background-position:center;background-size:cover}
+.wrap{max-width:1200px;padding:0 48px 32px}
+.site-band{width:100%;margin:0 0 24px;border:0}
+header.site{max-width:none;position:relative;padding:28px 0;display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.brand-link{color:var(--ink);text-decoration:none;flex-shrink:0}
+.brand-wordmark{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;letter-spacing:-.065em;font-weight:600;line-height:1}
+.primary-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.primary-nav a,.quick-nav a{font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.5;padding:12px 0}
+.primary-nav a[aria-current],.quick-nav a[aria-current]{text-decoration:underline;text-underline-offset:7px}
+.primary-nav a:hover,.quick-nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.site-menu{position:relative;flex-shrink:0}
+.site-menu summary{display:flex;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;list-style:none;color:var(--ink)}
+.site-menu summary::-webkit-details-marker{display:none}
+.site-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5}
+.site-menu[open] summary{background:var(--surface)}
+.site-search{display:flex;width:44px;height:44px;align-items:center;justify-content:center;flex-shrink:0;color:var(--ink);margin-right:-20px}.site-search svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5}.site-search:hover{background:var(--surface)}.site-search:focus-visible{outline:2px solid #785b3b;outline-offset:2px}header.site .site-search+.site-menu{margin-left:0}@media(max-width:1000px){header.site .site-search{margin-left:auto;margin-right:-6px;order:2}header.site .site-search+.site-menu{order:2}}@media print{.site-search{display:none}}
+.menu-panel{position:absolute;right:0;top:50px;width:235px;padding:12px;background:#fffaf3;border:1px solid var(--border);box-shadow:0 12px 30px #38271912;z-index:30;display:flex;flex-direction:column}
+.menu-panel a{display:block;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:14px}
+.menu-panel a:hover{background:var(--series-wash)}
+.menu-panel .secondary-start{border-top:1px solid var(--border);margin-top:8px;padding-top:18px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,summary{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #785b3b;outline-offset:5px}
+body:has(#view-home:not(.hidden)) .wrap{min-height:100svh;display:flex;flex-direction:column}
+body:has(#view-home:not(.hidden)) .site-band{margin-bottom:0}
+#view-home{flex:1;display:flex;align-items:center;padding:60px 0 76px 7.2%}
+#view-home.hidden{display:none}
+.hero{text-align:left;padding:0;max-width:720px;width:100%;background:none}
+.hero h1{font-size:clamp(36px,4.2vw,54px);font-weight:450;letter-spacing:-.055em;line-height:1.38}
+.hero h1 .line{display:block}
+.hero p.lead{font-size:18px;line-height:1.65;letter-spacing:-.015em;color:var(--ink-2);margin:22px 0 0}
+.hero p.lead br{display:none}
+.urlbar{display:flex;flex-direction:row;align-items:center;gap:0;margin:34px 0 0;max-width:660px;border:1px solid #a18a6b;border-radius:0;background:#fffaf1e6;padding:0;min-height:64px}
+.urlbar:focus-within{outline:2px solid #785b3b;outline-offset:4px}
+.search-icon{width:22px;height:22px;margin-left:20px;flex-shrink:0;stroke:currentColor;stroke-width:1.5;fill:none}
+.urlbar input{padding:20px 15px;font-size:16px;border:0;border-radius:0;background:none;color:var(--ink);min-width:0;outline:0;box-shadow:none;width:100%}
+.urlbar input:focus-visible{outline:0}
+.urlbar input::placeholder{color:var(--muted);opacity:1}
+.urlbar input.err{background:#f9e3d9}
+.urlbar .btn{display:flex;align-items:center;justify-content:center;width:62px;min-height:62px;padding:16px;flex-shrink:0;background:none;border:0;border-radius:0;color:var(--ink)}
+.urlbar .btn:hover{background:#e7dccb}
+.urlbar .btn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.5}
+.quick-nav{display:none}
+#search-results{max-width:660px;margin:18px 0 0}
+#search-results .sr-head{color:var(--ink-2)}
+#search-results .sr-item{border-radius:3px;background:#fffaf5f5;gap:12px;padding:13px;line-height:1.5}
+#search-results .sr-item span:not(.sr-cur){min-width:0}
+#search-results .sr-empty{border-radius:3px;background:#fdf8ef;color:var(--ink);border:1px solid var(--border)}
+footer.site{margin-top:28px;padding-top:20px;font-size:12px;line-height:1.9;color:var(--ink-2);text-align:center}
+body:has(#view-home:not(.hidden)) footer.site{margin-top:auto;padding-top:0}
+.footer-policy{display:inline-block;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;font-size:12px;padding:8px}
+.footer-first,.footer-second{display:block}
+#view-report,#view-loading{max-width:780px;margin:0 auto}
+#view-report .card,#view-loading .card{background:#fffaf5f5}
+body:has(#grid)::before,body:has(#view-report:not(.hidden))::before{background-image:linear-gradient(#fff8ebd9,#fff8ebd9),var(--beige-wall)}
+.card{border-radius:4px}
+/* Price cards: the existing observations and warnings remain visible. */
+.aff-notice{max-width:none!important;background:#fffaf2d9!important;border:1px solid var(--border)!important;border-radius:0!important;color:var(--ink-2)!important;text-align:left!important;padding:12px 16px!important;font-size:12px!important;margin:0 0 22px!important}
+.subtabs{margin-top:24px;gap:24px}.stab{border:0;background:none;padding:10px 0;border-radius:0;font-size:14px}.stab.on{color:var(--ink);background:none;border-bottom:1px solid var(--ink)}
+.subtabs .stab{border:0;border-bottom:1px solid transparent;background:none;color:var(--ink-2);padding:10px 0;border-radius:0}.subtabs .stab.on{background:none;border-bottom-color:var(--ink);color:var(--ink)}
+.page-head{margin:26px 0}.page-head h1{font-size:38px;font-weight:500;letter-spacing:-.04em;line-height:1.35}.page-head h1 .u{box-shadow:none;color:var(--ink)}
+.page-head .sub{font-size:15px;margin-top:10px;color:var(--ink-2)}.obs-sup{display:block;font-size:12px;line-height:1.6;font-weight:400;margin:12px 0 0;color:var(--ink-2)}.obs-sup .live{display:none}
+.vfilter{padding:20px 0;border-top:0;border-bottom:0;margin:0}.vchip-btn{font-size:13px;padding:10px 14px}.vchip-btn.on{background:var(--series);border-color:var(--series)}
+.fsep{font-size:12px}.fchip-btn{font-size:12px;padding:8px 10px}.filter-note{font-size:14px}.filter-note:empty{display:none}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px 22px;margin-top:10px}
+.pcard{padding:0;border:0;border-radius:0;background:none;cursor:default;box-shadow:none;min-width:0}.pcard:hover{box-shadow:none;transform:none;border-color:transparent}
+.product-image{display:flex;align-items:center;justify-content:center;position:relative;height:224px;background:#fffaf3de;border:1px solid #d7c9b6;border-radius:2px;overflow:hidden;text-decoration:none;color:var(--ink)}
+.product-image img{width:78%;height:76%;object-fit:contain;mix-blend-mode:multiply;transition:transform .2s}.product-image:hover img{transform:scale(1.03)}
+.m-fallback{font-size:14px;color:var(--muted);padding:24px}
+.product-image .rank{position:absolute;left:12px;top:12px;background:#fffaf3;color:var(--ink);font-size:12px;width:auto;height:auto;margin:0;padding:4px 7px;border-radius:0;z-index:1}
+.product-image .vchip{position:absolute;right:12px;top:12px;background:var(--surface);font-size:12px;padding:4px 8px;z-index:1}
+.product-image .vchip.v-good{background:var(--deal);border-color:var(--deal);color:#fff}.product-image .vchip.v-warn{color:#675135;border-color:#aa8a5c;background:#fff5df}
+.pcard .pmeta{padding-top:16px}.pcard .brand{font-size:12px;color:var(--ink-2)}.pcard a.name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:48px;font-size:16px;line-height:1.5;font-weight:550;color:var(--ink);letter-spacing:-.02em}
+.pcard .price{margin-top:12px;gap:8px;min-height:32px}.pcard .cur{font-size:26px;line-height:1.2;letter-spacing:-.035em}.pcard .real{font-size:12px;color:var(--ink-2)}.pcard .real.hot{color:var(--critical)}
+.card-flags{display:flex;flex-wrap:wrap;gap:5px;min-height:26px;margin-top:12px}.card-flags .fchip{font-size:12px;padding:3px 6px;white-space:normal;background:#fffaf4;border-color:#d7b7ab}
+.card-history{padding:12px;background:#fffaf3bc;margin-top:10px;border:1px solid #dfd2c0}.card-history .days{font-size:12px;color:var(--ink-2)}.pcard .spark{margin-top:0}.pcard .spark svg{height:54px;width:100%}.pcard .xlab{font-size:11px;color:var(--ink-2);margin-top:0}
+.card-evidence{margin-top:12px;border-top:1px solid var(--border);padding-top:7px}.card-evidence summary{cursor:pointer;font-size:13px;color:var(--ink-2);padding:8px 0}.card-evidence .shown-sub,.original-name{font-size:12px;color:var(--ink-2);line-height:1.7;margin:8px 0}
+.card-links{display:flex;justify-content:space-between;gap:10px;margin-top:8px}.card-links a{color:var(--ink);text-decoration:none;font-size:13px;font-weight:600;padding:10px 0}.card-links .purchase{font-size:12px;font-weight:400;color:var(--ink-2)}.card-links a:hover{text-decoration:underline}
+.more-note{background:#fffaf0ce;border:1px solid var(--border);border-radius:0;padding:24px;margin-top:40px}.method-note{font-size:13px;line-height:1.8;color:var(--ink-2)}
+@media(max-width:800px){.wrap{padding:0 28px 28px}.primary-nav{gap:18px}header.site{gap:16px}.brand-wordmark{font-size:38px}.product-image{height:190px}#view-home{padding-left:0}.hero h1{font-size:44px}}
+@media(max-width:640px){
+ .wrap{padding:0 24px 22px}header.site{padding:24px 0;justify-content:space-between;flex-wrap:nowrap;gap:12px}header.site>a.brand-link:first-child{width:auto}.brand-wordmark{font-size:38px}.primary-nav{display:none}.site-band{margin-bottom:14px}.question-end{display:block}
+ #view-home{padding:60px 0 58px;align-items:center}.hero h1{font-size:38px;line-height:1.43;font-weight:450;letter-spacing:-.05em}.hero h1 .line:last-child{max-width:315px}.hero p.lead{font-size:15px;line-height:1.75;max-width:300px;margin-top:22px}.hero p.lead br{display:none}
+ .urlbar{margin-top:28px;min-height:56px;flex-direction:row;max-width:none}.search-icon{width:20px;height:20px;margin-left:14px}.urlbar input{font-size:16px;padding:17px 10px}.urlbar .btn{width:46px;min-height:56px;padding:11px}.urlbar .btn svg{width:24px;height:24px}
+ .quick-nav{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-top:18px}.quick-nav a{font-size:13px;padding:13px 0;min-height:44px}
+ footer.site{font-size:11px;line-height:1.85;padding-top:16px}.footer-policy{font-size:11px}.footer-first{display:block;max-width:325px;margin:0 auto}.footer-second{display:block}
+ #search-results .sr-item{font-size:13px;gap:9px}#search-results .sr-cur{font-size:12px}#search-results .sr-img{width:34px;height:34px}
+ .aff-notice{font-size:11px!important;margin-bottom:16px!important}.page-head{margin:20px 0}.page-head h1{font-size:30px}.page-head .sub{font-size:14px}.obs-sup{font-size:12px;margin-top:9px}.subtabs{margin-top:18px}.vfilter{padding:14px 0}.vchip-btn{font-size:12px;padding:10px 12px}.fsep{width:100%;margin-top:4px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 14px}.product-image{height:164px}.product-image img{width:88%;height:70%}.product-image .rank{left:7px;top:7px;font-size:11px}.product-image .vchip{top:auto;bottom:7px;right:7px;font-size:11px;padding:3px 6px}.pcard .pmeta{padding-top:12px}.pcard .brand{font-size:12px}.pcard a.name{font-size:14px;min-height:63px;-webkit-line-clamp:3}.pcard .price{flex-direction:column;align-items:flex-start;min-height:50px;gap:4px}.pcard .cur{font-size:23px}.card-flags{min-height:50px;margin-top:7px;align-content:flex-start}.card-flags .fchip{font-size:11px}.card-history{padding:8px}.card-history .days{font-size:11px}.pcard .spark svg{height:44px}.pcard .xlab{font-size:10px}.card-evidence summary{font-size:12px}.card-links{flex-direction:column;gap:0}.card-links a{padding:10px 0}.card-links .purchase{padding-top:4px}.more-note{padding:20px}.more-note .btn{width:100%}
+}
+@media(max-width:359px){.wrap{padding-left:18px;padding-right:18px}.hero h1{font-size:33px}.quick-nav a{font-size:12px}.urlbar input{font-size:16px;padding-left:8px}.search-icon{display:none}.grid{grid-template-columns:1fr}.product-image{height:230px}.pcard a.name{min-height:42px}.card-flags{min-height:26px}.card-links{flex-direction:row}}
+@media(max-height:700px) and (max-width:640px){#view-home{padding-top:26px;padding-bottom:36px}.hero h1{font-size:34px}.hero p.lead{margin-top:16px}.urlbar{margin-top:22px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media print{body::before{display:none}.site-menu,.primary-nav,.quick-nav{display:none}}
+
+/* One product, one surface: image and details share the same outer boundary. */
+.grid{gap:24px;align-items:stretch}
+.grid .pcard{display:flex;flex-direction:column;padding:0;background:#fffaf4;border:1px solid #cdbda6;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px #38271906}
+.grid .pcard:hover{border-color:#aa9374;box-shadow:0 5px 16px #3827190c;transform:none}
+.pcard .product-image{height:210px;flex-shrink:0;border:0;border-bottom:1px solid #e5d9c9;border-radius:0;background:#f3ecdf}
+.pcard .product-image img{width:76%;height:76%}
+.card-body{display:flex;flex-direction:column;flex:1;min-width:0;padding:20px}
+.card-body .pmeta{padding:0}
+.card-body .brand{font-size:12px;font-weight:500;color:#74634e;margin-bottom:5px}
+.card-body a.name{font-weight:600;line-height:1.5;text-decoration:none;min-height:48px}
+.card-body a.name:hover{text-decoration:underline;text-underline-offset:3px}
+.card-body .price{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-top:16px;min-height:32px}
+.card-body .cur{font-size:28px;letter-spacing:-.04em;font-weight:750;color:#382719}
+.card-body .real{font-size:12px}
+.card-body .card-flags{min-height:27px;margin-top:10px}
+.card-body .card-history{margin-top:12px;padding:14px 0 0;border:0;border-top:1px solid #e5d9c9;background:none}
+.card-body .card-history .days{font-size:12px;font-weight:500;color:#74634e}
+.card-body .spark svg{height:48px}
+.card-body .card-evidence{margin-top:12px;padding-top:0;border:0}
+.card-body .card-evidence summary{font-size:12px;padding:10px 0;color:#74634e}
+.card-body .card-links{display:flex;flex-direction:column;gap:4px;margin-top:auto;padding-top:4px}
+
+
+.card-body .card-links .purchase{display:block;min-height:36px;padding:9px 8px;text-align:center;font-size:12px;font-weight:400;color:#74634e}
+@media(max-width:800px){.grid{gap:18px}.pcard .product-image{height:180px}.card-body{padding:16px}}
+@media(max-width:640px){
+ .grid{gap:16px 12px}.grid .pcard{border-radius:8px}.pcard .product-image{height:150px}.pcard .product-image img{width:84%;height:72%}
+ .card-body{padding:13px 12px 9px}.card-body .brand{font-size:11px;margin-bottom:5px}.card-body a.name{font-size:14px;min-height:63px;font-weight:600}
+ .card-body .price{margin-top:13px;min-height:48px;display:flex;flex-direction:column;align-items:flex-start;gap:5px}.card-body .cur{font-size:23px;line-height:1.2}.card-body .real{font-size:11px;line-height:1.5}
+ .card-body .card-flags{min-height:46px;gap:4px;margin-top:10px}.card-body .card-flags .fchip{font-size:10.5px;padding:3px 5px}
+ .card-body .card-history{margin-top:10px;padding-top:11px}.card-body .card-history .days{font-size:11px}.card-body .spark svg{height:42px}.card-body .xlab{font-size:10px}
+ .card-body .card-evidence{margin-top:10px}.card-body .card-evidence summary{font-size:11px;line-height:1.6;padding:6px 0}.card-body .card-links{padding-top:2px;gap:4px}.card-body .card-links .purchase{font-size:11px;min-height:36px;padding:9px 0}
+}
+@media(max-width:359px){.pcard .product-image{height:220px}.card-body{padding:18px}.card-body a.name{min-height:42px}.card-body .price{flex-direction:row;align-items:baseline;min-height:32px}.card-body .card-flags{min-height:24px}}
+
+
+/* Mobile: a single complete product per row. */
+@media(max-width:640px){
+ .grid{grid-template-columns:minmax(0,1fr);gap:20px}
+ .pcard .product-image{height:220px}.pcard .product-image img{width:78%;height:78%}
+ .card-body{padding:18px 18px 12px}.card-body .brand{font-size:12px}
+ .card-body a.name{font-size:16px;min-height:0;line-height:1.5}
+ .card-body .price{flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:9px;min-height:0;margin-top:14px}
+ .card-body .cur{font-size:27px}.card-body .real{font-size:12px}
+ .card-body .card-flags{min-height:0;margin-top:10px}.card-body .card-flags:empty{margin-top:0}
+ .card-body .card-flags .fchip{font-size:12px}
+ .card-body .card-history{margin-top:16px;padding-top:13px}.card-body .card-history .days{font-size:12px}
+ .card-body .spark svg{height:48px}.card-body .xlab{font-size:11px}
+ .card-body .card-evidence summary{font-size:12px}.card-body .card-links .purchase{font-size:12px}
+}
+
+/* Mobile compact header: small thumbnail beside the product title. */
+@media(max-width:640px){
+ .grid .pcard{display:grid;grid-template-columns:96px minmax(0,1fr);gap:0 14px;padding:16px;align-content:start}
+ .pcard .product-image{grid-column:1;grid-row:1;width:96px;height:112px;border:1px solid #e5d9c9;border-radius:5px;align-self:start}
+ .pcard .product-image img{width:86%;height:84%}
+ .pcard .product-image .rank{top:3px;left:3px;font-size:10px;padding:2px 4px}
+ .pcard .product-image .vchip{bottom:3px;right:3px;top:auto;font-size:10px;padding:2px 5px}
+ .card-body{display:contents}
+ .card-body>.pmeta{grid-column:2;grid-row:1;align-self:center;min-width:0}
+ .card-body>:not(.pmeta){grid-column:1/-1}
+ .card-body a.name{font-size:15px;line-height:1.5;-webkit-line-clamp:4;min-height:0}
+ .card-body .brand{font-size:12px;margin-bottom:5px}
+ .card-body .price{margin-top:16px}.card-body .card-history{margin-top:12px}
+ .card-body .card-evidence{margin-top:8px}.card-body .card-links{padding-top:0;margin-top:0}
+}
+@media(max-width:359px){.grid .pcard{grid-template-columns:84px minmax(0,1fr);gap:0 12px;padding:14px}.pcard .product-image{width:84px;height:100px}.card-body a.name{font-size:14px}}
+
+/* Keep comparison text and warning flags together beside the price. */
+.card-body .price{align-items:center}
+.card-body .price-context{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px 6px;max-width:100%;line-height:1.5}
+.card-body .price-context .card-flags{display:contents;min-height:0;margin:0;padding:0}
+.card-body .price-context .real{white-space:nowrap}
+.card-body .price-context .fchip{font-size:11px;line-height:1.5;padding:2px 5px;white-space:nowrap}
+
+
+/* Sparkline fills the card width; height follows the viewBox. (2026-09-15) */
+.card-history .spark svg,.card-body .spark svg,.pcard .spark svg{height:auto!important;width:100%}
+.pcard .xlab{align-items:baseline}
+.pcard .xlab .obs{font-size:10px;opacity:.75;font-weight:500}
+
+/* Compact price header, filters and brand purchase link. */
+.page-head{margin:16px 0 14px;padding:0}
+.page-head .sub{margin:0}
+.toolbar{display:none}
+.vfilter{padding:12px 0 16px}
+#v-chips{flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none}
+#v-chips::-webkit-scrollbar{display:none}
+#v-chips button{flex-shrink:0;white-space:nowrap}
+#v-chips .filter-short{display:none}
+.brand-row{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:5px}
+.card-body .brand-row .brand{margin:0;min-width:0;overflow-wrap:anywhere}
+.brand-row .purchase{font-size:10px;white-space:nowrap;flex-shrink:0;color:#74634e;text-decoration:none;padding:3px 0}
+.brand-row .purchase:hover{text-decoration:underline}
+@media(max-width:640px){
+ #v-chips{gap:3px}
+ #v-chips button{font-size:11px;padding:8px 6px;line-height:1.3;border-radius:4px;min-width:0}
+ #v-chips .filter-full,#v-chips .n{display:none}
+ #v-chips .filter-short{display:inline}
+}
+
+
+/* Compact inline mobile price and short flag label. */
+@media(max-width:640px){
+ #v-chips button{font-size:10px;padding:8px 5px}
+ .card-body .price{flex-direction:row;align-items:center;flex-wrap:nowrap;gap:7px}
+ .card-body .cur{font-size:24px;white-space:nowrap;flex-shrink:0}
+ .card-body .price-context{min-width:0;gap:3px 4px}
+ .card-body .price-context .real{font-size:10px;margin-left:0;line-height:1.4}
+ .card-body .price-context .fchip{font-size:10px;padding:1px 3px;line-height:1.4}
+}
+
+
+/* Price heading and disclosure aligned with the device page. */
+.aff-notice{margin:12px 0 24px!important;padding:9px 14px!important;font-size:11px!important;line-height:1.6!important;background:#fffaf1aa!important}
+.page-head .sub{font-family:inherit;font-size:26px;font-weight:550;letter-spacing:-.04em;line-height:1.4;color:var(--ink)}
+@media(max-width:640px){
+ .aff-notice{margin-bottom:16px!important;line-height:1.7!important}
+ .page-head .sub{font-size:22px}
+}
+
+</style>
+<style id="fixed-price-device-tabs">
+.subtabs{display:flex;align-items:stretch;gap:24px;margin:20px 0;border:0;border-bottom:1px solid var(--border);padding:0;height:45px;box-sizing:border-box}
+.subtabs .stab,.subtabs .stab.on{display:flex;align-items:center;justify-content:flex-start;flex:none;box-sizing:border-box;margin:0;padding:10px 0;border:0;border-bottom:1px solid transparent;border-radius:0;background:none;font-family:inherit;font-size:13px;font-weight:700;line-height:24px;letter-spacing:normal;text-decoration:none;white-space:nowrap;color:var(--ink-2)}
+.subtabs .stab:first-child{width:104px}.subtabs .stab:nth-child(2){width:56px}
+.subtabs .stab.on{color:var(--ink);border-bottom-color:var(--ink)}
+@media(max-width:640px){.subtabs{gap:24px;margin:20px 0}}
+</style>
+<style>
+/* Filter chips mirror the card chips: pill shape, same palette, roomier. (2026-09-15) */
+#v-chips{gap:7px!important;padding:2px 0}
+#v-chips button{font:inherit;font-size:12px!important;font-weight:700;line-height:1.4;
+  padding:7px 14px!important;border-radius:999px!important;border:1px solid var(--baseline);
+  background:transparent;color:var(--ink-2)}
+#v-chips .filter-full{display:none!important}
+#v-chips .filter-short{display:inline!important}
+#v-chips .n{display:none!important}
+#v-chips .vchip-btn.v-good{background:var(--good-bg);border-color:transparent;color:var(--good-text)}
+#v-chips .vchip-btn.v-warn{background:var(--warn-bg);border-color:transparent;color:var(--ink)}
+#v-chips .vchip-btn.v-flat{background:transparent;border-color:var(--baseline);color:var(--ink-2)}
+#v-chips .fchip-btn{background:transparent;border-color:var(--baseline);color:var(--critical)}
+#v-chips .vchip-btn.on{background:var(--series);border-color:var(--series);color:#fff}
+#v-chips .vchip-btn.on.v-good{background:var(--good-text);border-color:var(--good-text);color:#fff}
+#v-chips .vchip-btn.on.v-warn{background:var(--warn);border-color:var(--warn);color:#fff}
+#v-chips .fchip-btn.on{background:var(--critical);border-color:var(--critical);color:#fff}
+@media(max-width:640px){#v-chips button{font-size:11.5px!important;padding:7px 12px!important}}
+@media(max-width:359px){#v-chips button{font-size:11px!important;padding:6px 10px!important}}
+</style>
+<style id="stable-page-width">html{overflow-y:scroll}</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="site-band"><header class="site">
+    <a href="./" class="brand-link" aria-label="더마릭 홈"><span class="brand-wordmark">themaric</span></a>
+    <style>/* Five detail navigation links */
+@media(min-width:641px) and (max-width:1000px){.primary-nav{gap:16px}.primary-nav a{font-size:13px}}
+@media(max-width:640px){header.site{flex-wrap:wrap!important;row-gap:12px!important}header.site .brand-link{order:1}header.site .site-menu{order:2;margin-left:auto}header.site .primary-nav{order:3;display:flex!important;flex:0 0 100%;width:100%;margin:0;justify-content:space-between;gap:6px;flex-wrap:nowrap}header.site .primary-nav a{font-size:12px;white-space:nowrap;padding:10px 0;flex-shrink:0}}
+</style><nav class="primary-nav" aria-label="주요 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="notes/">리포트</a></nav>
+    <a class="site-search" href="/?focus=search" aria-label="상품 검색"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+    <details class="site-menu"><summary aria-label="전체 메뉴"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav class="menu-panel" aria-label="전체 메뉴"><a href="price.html" aria-current="page">가격 확인</a><a href="routine.html">루틴 점검</a><a href="glossary.html">성분 찾기</a><a href="lab/">뷰티 LAB</a><a href="inflated/" class="secondary-start">부풀린 정가 기록</a><a href="notes/">더마릭 리포트</a></nav>
+    </details>
+  </header></div>
+<div class="aff-notice" role="note" style="max-width:780px;margin:12px auto 0;padding:9px 14px;border:1px solid var(--grid,#e6e1d8);border-radius:10px;background:rgba(0,0,0,.035);font-size:12px;line-height:1.6;color:var(--muted,#6b665e);text-align:center">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</div>
+
+  <div class="subtabs">
+    <a class="stab on" href="price.html">오늘의 올영 Top 30</a>
+    <a class="stab" href="device.html">디바이스</a>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" id="cat-chips" style="display:none"></div>
+  </div>
+
+  <div class="vfilter">
+    <div class="chips" id="v-chips"></div>
+  </div>
+  <div class="filter-note" id="filter-note"></div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty-grid hidden" id="empty-grid"></div>
+
+  <div class="more-note">
+    <div class="q">그 외 상품이 궁금하다면?</div>
+    <div class="a">메인 페이지에서 <b>상품명이나 올리브영 URL</b>로 검색하면 해당 상품의 가격 이력과 판정서를 볼 수 있어요.</div>
+    <a class="btn" href="./">상품 가격 검색 →</a>
+  </div>
+
+  <div class="method-note">
+    <b>부풀림 신호 기준</b> — 표시정가가 평소 판매가(관측 중앙값)보다 <b>30% 이상</b> 높고,
+    그 가격에 실제로 판 날이 관측 기간의 <b>15% 미만</b>일 때.
+    표시가격 광고의 기준이 되는 '종전거래가격'(그 가격에 실제로 팔린 실적이 있어야 한다) 개념을 참고한 더마릭 자체 기준입니다.
+  </div>
+
+  <footer class="site">
+    <span class="footer-first">올리브영 쇼핑 큐레이터 활동의 일환으로, 구매 시 일정 금액의 수수료를 제공받습니다.</span>
+    <span class="footer-second">수수료는 판정·순위에 영향을 주지 않습니다.</span>
+  </footer>
+</div>
+<div class="tooltip" id="tt"></div>
+
+<script>
+"use strict";
+const META = {"obs_date": "2026-10-24", "obs_slot": "ev", "obs_label": "2026-10-24 저녁 관측", "counts": {"genuine": 7, "watch": 23, "high": 0, "hold": 0}, "fcounts": {"inflated": 13, "raised": 0, "sale_end": 0}};
+const TABS = [{"key":"all","label":"오늘 Top 30","items":[{"rank":1,"gno":"A000000223414","brand":"메디힐","name":"[15년 연속 1위] 메디힐 에센셜 마스크팩 10/10+1매 기획 7종 골라담기","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0022/A000000223414125ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000223414&utm_source=shutter&utm_medium=affiliate&utm_content=OY_2d1d0b274013419b8f657ccb5bd6e3c0","org":20000,"cur":10000,"med":10000,"d_at":1,"nd":111,"days":111,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",10000],["9/16",10000],["9/17",10000],["9/18",10000],["9/19",10000],["9/20",10000],["9/21",10000],["9/22",10000],["9/23",10000],["9/24",10000],["9/25",10000],["9/26",10000],["9/27",10000],["9/28",10000],["9/29",10000],["9/30",10000],["10/1",9900],["10/2",9900],["10/3",9900],["10/4",9900],["10/5",9900],["10/6",10000],["10/7",10000],["10/8",10000],["10/9",10000],["10/10",10000],["10/11",10000],["10/12",10000],["10/13",10000],["10/14",10000],["10/15",10000],["10/16",10000],["10/17",10000],["10/18",10000],["10/19",10000],["10/20",10000],["10/21",10000],["10/22",10000],["10/23",10000],["10/24",10000]]},{"rank":2,"gno":"A000000230854","brand":"리덴스","name":"[나이아신아마이드] 리덴스 톤앤스팟 코렉터 앰플 30ml 더블기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023085441ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000230854&utm_source=shutter&utm_medium=affiliate&utm_content=OY_5798212b001b4b3a8012ed5bdee10ff1","org":39900,"cur":19900,"med":22900,"d_at":2,"nd":102,"days":102,"vtype":"inflated","grade":"genuine","flags":["inflated"],"series":[["9/15",25900],["9/16",25900],["9/17",25900],["9/18",25900],["9/19",25900],["9/20",25900],["9/21",25900],["9/22",25900],["9/23",25900],["9/24",25900],["9/25",25900],["9/26",25900],["9/27",25900],["9/28",25900],["9/29",25900],["9/30",25900],["10/1",39900],["10/2",39900],["10/3",25900],["10/4",25900],["10/5",25900],["10/6",25900],["10/7",25900],["10/8",25900],["10/9",25900],["10/10",25900],["10/11",25900],["10/12",25900],["10/13",25900],["10/14",25900],["10/15",25900],["10/16",25900],["10/17",25900],["10/18",25900],["10/19",25900],["10/20",25900],["10/21",25900],["10/22",25900],["10/23",25900],["10/24",19900]]},{"rank":3,"gno":"A000000261864","brand":"에스트라","name":"[1등크림] 에스트라 아토베리어365 크림 80ml 기획(+토너25ml+클렌징폼3g*3EA)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026186405ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000261864&utm_source=shutter&utm_medium=affiliate&utm_content=OY_e520a68fd95343e3be0778251b358ca2","org":33000,"cur":25900,"med":29700,"d_at":44,"nd":92,"days":92,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/15",29700],["9/16",29700],["9/17",29700],["9/18",29700],["9/19",29700],["9/20",29700],["9/21",29700],["9/22",29700],["9/23",29700],["9/24",29700],["9/25",29700],["9/26",29700],["9/27",29700],["9/28",29700],["9/29",29700],["9/30",29700],["10/1",33000],["10/2",33000],["10/3",33000],["10/4",33000],["10/5",33000],["10/6",33000],["10/7",33000],["10/8",33000],["10/9",33000],["10/10",33000],["10/11",33000],["10/12",33000],["10/13",33000],["10/14",33000],["10/15",33000],["10/16",33000],["10/17",33000],["10/18",33000],["10/19",25900],["10/20",25900],["10/21",25900],["10/22",25900],["10/23",25900],["10/24",25900]]},{"rank":4,"gno":"A000000249154","brand":"티엘라","name":"[NEW 말차향 출시] 티엘라 퍼퓸 너리싱 바디크림 200ml 4종 단품/기획 (+바디크림 증정)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024915415ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000249154&utm_source=shutter&utm_medium=affiliate&utm_content=OY_eba607ea97d441fabeac931367a13f9e","org":32000,"cur":29200,"med":29200,"d_at":28,"nd":99,"days":99,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",29200],["9/16",29200],["9/17",29200],["9/18",29200],["9/19",29200],["9/20",29200],["9/21",26280],["9/22",26280],["9/23",26280],["9/24",26280],["9/25",26280],["9/26",26280],["9/27",26280],["9/28",26280],["9/29",26280],["9/30",25900],["10/1",29200],["10/2",29200],["10/3",29200],["10/4",29200],["10/5",29200],["10/6",29200],["10/7",29200],["10/8",29200],["10/9",27740],["10/10",27740],["10/11",27740],["10/12",27740],["10/13",27740],["10/14",27740],["10/15",27740],["10/16",27740],["10/17",27740],["10/18",27740],["10/19",29200],["10/20",29200],["10/21",29200],["10/22",29200],["10/23",29200],["10/24",29200]]},{"rank":5,"gno":"A000000267747","brand":"메디힐","name":"[겔마스크 증정/10월 올영픽] 메디힐 더마 토너패드 100+100매 7종 골라담기","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A000000267747245ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000267747","org":39900,"cur":28900,"med":28900,"d_at":2,"nd":26,"days":26,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/28",39900],["9/30",39900],["10/1",27900],["10/2",27900],["10/3",28400],["10/4",28000],["10/5",28400],["10/6",28900],["10/7",28900],["10/8",28900],["10/9",28900],["10/10",28900],["10/11",28900],["10/12",28500],["10/13",28500],["10/14",28500],["10/15",28500],["10/16",28500],["10/17",28500],["10/18",28500],["10/19",28900],["10/20",28900],["10/21",28900],["10/22",28900],["10/23",28900],["10/24",28900]]},{"rank":6,"gno":"A000000186792","brand":"도브","name":"[NEW/금목서향 출시] 도브 바디 스크럽 298g 6종 택 1","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A00000018679262ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000186792&utm_source=shutter&utm_medium=affiliate&utm_content=OY_9a474bde17e1444c85f79efa100b133f","org":17900,"cur":10800,"med":10800,"d_at":29,"nd":100,"days":100,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",10800],["9/16",10800],["9/17",10800],["9/18",10800],["9/19",10800],["9/20",10800],["9/21",10800],["9/22",10800],["9/23",10800],["9/24",10800],["9/25",10800],["9/26",10800],["9/27",10800],["9/28",10800],["9/29",10800],["9/30",10800],["10/1",10800],["10/2",10800],["10/3",10800],["10/4",10800],["10/5",10800],["10/6",10800],["10/7",10800],["10/8",10800],["10/9",10500],["10/10",10500],["10/11",10500],["10/12",10500],["10/13",10500],["10/14",10500],["10/15",10500],["10/16",10500],["10/17",10500],["10/18",10500],["10/19",10800],["10/20",10800],["10/21",10800],["10/22",10800],["10/23",10800],["10/24",10800]]},{"rank":7,"gno":"A000000217767","brand":"일리윤","name":"일리윤 세라마이드아토 집중크림 150ml*2","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0021/A00000021776724ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000217767&utm_source=shutter&utm_medium=affiliate&utm_content=OY_7e8f1e342b2d48afbe791fe9d4c83b78","org":25000,"cur":17900,"med":18900,"d_at":25,"nd":99,"days":99,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/14",25000],["9/15",25000],["9/16",25000],["9/17",25000],["9/18",25000],["9/19",25000],["9/20",25000],["9/21",25000],["9/22",25000],["9/23",25000],["9/24",25000],["9/25",25000],["9/26",25000],["9/27",25000],["9/28",25000],["9/29",25000],["9/30",25000],["10/1",18900],["10/2",18900],["10/3",18900],["10/4",18900],["10/5",18900],["10/6",18900],["10/8",18900],["10/9",17100],["10/10",17100],["10/11",17100],["10/12",17100],["10/13",17100],["10/14",17100],["10/15",17100],["10/16",17100],["10/17",17100],["10/18",17100],["10/19",17900],["10/20",17900],["10/21",17900],["10/22",17900],["10/23",17900],["10/24",17900]]},{"rank":8,"gno":"A000000231884","brand":"웰라쥬","name":"[속건조필수템] 웰라쥬 리얼 히알루로닉 블루 100 앰플 100ml 기획 (+원데이키트2ea)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023188426ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000231884&utm_source=shutter&utm_medium=affiliate&utm_content=OY_418d843a20cc4a7a9a32ad56ba319a52","org":30000,"cur":19900,"med":24000,"d_at":25,"nd":108,"days":108,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/15",30000],["9/16",30000],["9/17",30000],["9/18",30000],["9/19",30000],["9/20",30000],["9/21",30000],["9/22",30000],["9/23",30000],["9/24",30000],["9/25",30000],["9/26",30000],["9/27",30000],["9/28",30000],["9/29",30000],["9/30",30000],["10/1",19900],["10/2",19900],["10/3",19900],["10/4",19900],["10/5",19900],["10/6",19900],["10/7",19900],["10/8",19900],["10/9",19900],["10/10",19900],["10/11",19900],["10/12",19900],["10/13",19900],["10/14",19900],["10/15",19900],["10/16",19900],["10/17",19900],["10/18",19900],["10/19",19900],["10/20",19900],["10/21",19900],["10/22",19900],["10/23",19900],["10/24",19900]]},{"rank":9,"gno":"A000000150361","brand":"홀리카홀리카","name":"[NEW/단독컬러 출시] 홀리카홀리카 마이페이브 무드 아이 팔레트","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0015/A000000150361102ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000150361&utm_source=shutter&utm_medium=affiliate&utm_content=OY_820d9fb3af524bc0b15674bfb0e5b08c","org":28000,"cur":21400,"med":21400,"d_at":7,"nd":110,"days":110,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",20500],["9/16",20900],["9/17",20900],["9/18",20600],["9/19",20600],["9/20",20600],["9/21",20600],["9/22",20600],["9/23",20600],["9/24",20600],["9/25",20900],["9/26",20900],["9/27",20900],["9/28",20900],["9/29",20900],["9/30",20900],["10/1",20900],["10/2",20900],["10/3",20900],["10/4",20900],["10/5",20900],["10/6",20900],["10/7",20900],["10/8",20900],["10/9",20900],["10/10",20900],["10/11",20900],["10/12",20900],["10/13",20900],["10/14",20900],["10/15",21400],["10/16",19800],["10/17",20900],["10/18",20900],["10/19",20900],["10/20",21400],["10/21",21400],["10/22",21400],["10/23",21400],["10/24",21400]]},{"rank":10,"gno":"A000000139063","brand":"정샘물","name":"[1위 쿠션] 정샘물 에센셜 스킨 누더 쿠션 한정 기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0013/A000000139063169ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000139063&utm_source=shutter&utm_medium=affiliate&utm_content=OY_6f562b0bddc54723baaa183cb4867af1","org":48000,"cur":39360,"med":39360,"d_at":5,"nd":111,"days":111,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",38400],["9/16",38400],["9/17",38400],["9/18",38400],["9/19",38400],["9/20",38400],["9/21",38400],["9/22",38400],["9/23",38400],["9/24",38400],["9/25",38400],["9/26",38400],["9/27",38400],["9/28",39360],["9/29",39360],["9/30",39360],["10/1",39360],["10/2",39360],["10/3",39360],["10/4",39360],["10/5",39360],["10/6",39360],["10/7",39360],["10/8",39360],["10/9",39360],["10/10",39360],["10/11",39360],["10/12",39360],["10/13",39360],["10/14",39360],["10/15",39360],["10/16",39360],["10/17",39360],["10/18",39360],["10/19",39360],["10/20",39360],["10/21",39360],["10/22",39360],["10/23",39360],["10/24",39360]]},{"rank":11,"gno":"A000000198343","brand":"클리오","name":"[NO.1 아이라이너] 클리오 샤프 쏘 심플 워터프루프 펜슬라이너 단품/더블기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0019/A00000019834329ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000198343&utm_source=shutter&utm_medium=affiliate&utm_content=OY_37f728c5c97e4320be778e23b9f32052","org":11000,"cur":7200,"med":7700,"d_at":36,"nd":111,"days":111,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/15",7700],["9/16",7700],["9/17",7700],["9/18",7700],["9/19",7200],["9/20",7700],["9/21",7700],["9/22",7700],["9/23",7700],["9/24",7700],["9/25",7700],["9/26",7700],["9/27",7700],["9/28",7700],["9/29",7700],["9/30",7700],["10/1",7700],["10/2",7700],["10/3",7700],["10/4",7700],["10/5",7700],["10/6",7700],["10/7",7700],["10/8",7700],["10/9",7700],["10/10",7700],["10/11",7700],["10/12",7700],["10/13",7700],["10/14",7100],["10/15",7700],["10/16",7700],["10/17",7700],["10/18",7700],["10/19",7700],["10/20",7700],["10/21",7700],["10/22",7700],["10/23",7700],["10/24",7200]]},{"rank":12,"gno":"A000000235485","brand":"유리아쥬","name":"[유리아쥬X롬앤 한정판 콜라보] 스틱레브르 컬러드 9종","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023548594ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000235485&utm_source=shutter&utm_medium=affiliate&utm_content=OY_e59692f715e945ba8c4447e089e36708","org":15000,"cur":9900,"med":11500,"d_at":28,"nd":94,"days":94,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/15",15000],["9/16",15000],["9/17",15000],["9/18",15000],["9/19",15000],["9/20",15000],["9/21",15000],["9/22",15000],["9/23",15000],["9/24",15000],["9/25",15000],["9/26",15000],["9/27",15000],["9/28",15000],["9/29",15000],["9/30",15000],["10/1",9400],["10/2",9900],["10/3",9900],["10/4",9900],["10/5",9900],["10/6",9900],["10/7",9900],["10/8",10500],["10/9",10500],["10/10",10500],["10/11",10500],["10/12",10500],["10/13",10500],["10/14",10500],["10/15",10500],["10/16",10500],["10/17",10500],["10/18",10500],["10/19",9900],["10/20",9200],["10/21",9400],["10/22",9900],["10/23",9900],["10/24",9900]]},{"rank":13,"gno":"A000000187479","brand":"비플레인","name":"[말끔모공/국민클폼]비플레인 녹두 약산성 클렌징폼기획 160ml+40ml 기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A00000018747916ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000187479&utm_source=shutter&utm_medium=affiliate&utm_content=OY_a9fd732a4ae34b02b23be5b35e4b7a9c","org":21900,"cur":18600,"med":18600,"d_at":25,"nd":111,"days":111,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",21900],["9/16",21900],["9/17",21900],["9/18",21900],["9/19",21900],["9/20",21900],["9/21",21900],["9/22",21900],["9/23",21900],["9/24",21900],["9/25",21900],["9/26",21900],["9/27",21900],["9/28",21900],["9/29",21900],["9/30",21900],["10/1",18600],["10/2",18600],["10/3",18600],["10/4",18600],["10/5",18200],["10/6",18200],["10/7",18200],["10/8",18200],["10/9",18200],["10/10",18200],["10/11",18200],["10/12",18600],["10/13",18600],["10/14",18600],["10/15",18600],["10/16",18600],["10/17",18600],["10/18",18600],["10/19",18600],["10/20",18600],["10/21",18600],["10/22",18600],["10/23",18600],["10/24",18600]]},{"rank":14,"gno":"A000000174309","brand":"홀리카홀리카","name":"홀리카홀리카 마이페이브 피스 아이섀도우/젤테일/피스 빔/피스 밤","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0017/A00000017430960ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000174309&utm_source=shutter&utm_medium=affiliate&utm_content=OY_1b323a55417546b7b2db6b952f5b2832","org":6000,"cur":4900,"med":4900,"d_at":12,"nd":111,"days":111,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",4580],["9/16",4700],["9/17",4700],["9/18",4600],["9/19",4600],["9/20",4600],["9/21",4600],["9/22",4700],["9/23",4700],["9/24",4700],["9/25",4700],["9/26",4700],["9/27",4700],["9/28",4700],["9/29",4700],["9/30",4700],["10/1",6000],["10/2",6000],["10/3",6000],["10/4",6000],["10/5",6000],["10/6",6000],["10/7",6000],["10/8",6000],["10/9",6000],["10/10",6000],["10/11",6000],["10/12",4900],["10/13",4900],["10/14",4900],["10/15",4900],["10/16",4900],["10/17",4900],["10/18",4900],["10/19",4900],["10/20",4700],["10/21",4700],["10/22",4900],["10/23",4900],["10/24",4900]]},{"rank":15,"gno":"A000000255324","brand":"아누아","name":"[수지 PICK/한정기획] 아누아 피디알엔 히알루론산 캡슐 100 세럼 30ml 더블기획 (+피디알엔 마스크 1매)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025532411ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000255324&utm_source=shutter&utm_medium=affiliate&utm_content=OY_a593a117b80d43f9b8ddb58d5cb1c680","org":57500,"cur":27900,"med":27900,"d_at":2,"nd":70,"days":70,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["8/14",27900],["8/15",27900],["8/16",27900],["8/17",27900],["8/18",27900],["8/19",27900],["8/20",27900],["8/21",27900],["8/22",27900],["8/23",27900],["8/24",27900],["8/25",27900],["8/26",27900],["8/27",27900],["8/28",27900],["8/29",57500],["10/1",27900],["10/2",27900],["10/3",27900],["10/4",27900],["10/5",27900],["10/6",27900],["10/7",27900],["10/8",27900],["10/9",27900],["10/10",27900],["10/11",27900],["10/12",27900],["10/13",27900],["10/14",27900],["10/15",27900],["10/16",27900],["10/17",27900],["10/18",27900],["10/19",27900],["10/20",27900],["10/21",27900],["10/22",27900],["10/23",27900],["10/24",27900]]},{"rank":16,"gno":"A000000234422","brand":"메노킨","name":"[1위 원조 버블팩] 메노킨 30초 퀵 버블 마스크 6종 택1(+30ml 증정)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0023/A00000023442260ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000234422&utm_source=shutter&utm_medium=affiliate&utm_content=OY_f405510aa3bc48aa97b7535d855921f9","org":28500,"cur":24100,"med":25300,"d_at":2,"nd":111,"days":111,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",25300],["9/16",25300],["9/17",25300],["9/18",25300],["9/19",25300],["9/20",25300],["9/21",23700],["9/22",24200],["9/23",24200],["9/24",24200],["9/25",24200],["9/26",24200],["9/27",24200],["9/28",25300],["9/29",28500],["9/30",25300],["10/1",24000],["10/2",24000],["10/3",24000],["10/4",24000],["10/5",24000],["10/6",24100],["10/7",24100],["10/8",24100],["10/9",24100],["10/10",24100],["10/11",24100],["10/12",24100],["10/13",24100],["10/14",24100],["10/15",24100],["10/16",24100],["10/17",24100],["10/18",24100],["10/19",23700],["10/20",24100],["10/21",24100],["10/22",24100],["10/23",24100],["10/24",24100]]},{"rank":17,"gno":"A000000171423","brand":"어노브","name":"[10월올영픽/4년 연속 1위] 어노브 딥 데미지 리페어 헤어 마스크 (트리트먼트/헤어팩) 320ml 더블/듀오 기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0017/A000000171423183ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000171423&utm_source=shutter&utm_medium=affiliate&utm_content=OY_252900b35c4845bea734543f815edacc","org":42000,"cur":29800,"med":29800,"d_at":10,"nd":109,"days":109,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",29800],["9/16",42000],["9/17",29800],["9/18",29800],["9/19",29800],["9/20",29800],["9/21",29800],["9/22",29800],["9/23",29800],["9/24",29800],["9/25",29800],["9/26",29800],["9/27",29800],["9/28",29800],["9/29",42000],["9/30",42000],["10/1",27900],["10/2",27900],["10/3",27900],["10/4",27900],["10/5",27900],["10/6",29800],["10/7",29800],["10/8",27800],["10/9",28900],["10/10",28900],["10/11",28900],["10/12",28900],["10/13",28900],["10/14",28900],["10/15",28900],["10/16",28900],["10/17",28900],["10/18",28900],["10/19",29800],["10/20",29800],["10/21",29800],["10/22",29800],["10/23",29800],["10/24",29800]]},{"rank":18,"gno":"A000000212061","brand":"케라스타즈","name":"[10월 올영픽/열보호] 케라스타즈 시몽 테르미크 노워시 트리트먼트 150ml (기획/단품)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0021/A000000212061125ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000212061&utm_source=shutter&utm_medium=affiliate&utm_content=OY_0249db99d5744275bf75a64eb46ce58d","org":67000,"cur":50250,"med":51590,"d_at":16,"nd":100,"days":100,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",67000],["9/16",67000],["9/17",67000],["9/18",67000],["9/19",67000],["9/20",51590],["9/21",51590],["9/22",51590],["9/23",51590],["9/24",51590],["9/25",51590],["9/26",51590],["9/27",51590],["9/28",48840],["9/29",50920],["9/30",67000],["10/1",51590],["10/2",51590],["10/3",51590],["10/4",51590],["10/5",51590],["10/6",51590],["10/7",51590],["10/8",51590],["10/9",50580],["10/10",50580],["10/11",50580],["10/12",50580],["10/13",50580],["10/14",50580],["10/15",50580],["10/16",50580],["10/17",50580],["10/18",50580],["10/19",50920],["10/20",50920],["10/21",50920],["10/22",50920],["10/23",50920],["10/24",50250]]},{"rank":19,"gno":"A000000264460","brand":"에스트라","name":"에스트라 아토베리어365 로션 150ml 기획(+토너25ml+클렌징폼3g*3EA)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026446004ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000264460","org":33000,"cur":25500,"med":29700,"d_at":20,"nd":58,"days":58,"vtype":"watch","grade":"genuine","flags":[],"series":[["9/15",29700],["9/16",29700],["9/17",29700],["9/18",29700],["9/19",29700],["9/20",29700],["9/21",29700],["9/22",29700],["9/23",29700],["9/24",29700],["9/25",29700],["9/26",24700],["9/27",29700],["9/28",29700],["9/29",29700],["9/30",29700],["10/1",33000],["10/2",33000],["10/3",33000],["10/4",33000],["10/5",33000],["10/6",33000],["10/7",33000],["10/8",33000],["10/9",33000],["10/10",33000],["10/11",33000],["10/12",33000],["10/13",33000],["10/14",33000],["10/15",33000],["10/16",33000],["10/17",33000],["10/18",33000],["10/19",25500],["10/20",25500],["10/21",25500],["10/22",25500],["10/23",25500],["10/24",25500]]},{"rank":20,"gno":"A000000149501","brand":"라보에이치","name":"[10월 올영픽/몬치치] NEW라보에이치 두피강화샴푸 750ML+100ML [탈모증상완화]","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0014/A00000014950190ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000149501&utm_source=shutter&utm_medium=affiliate&utm_content=OY_dd6a243859d6433ab1e9497b663c3ebb","org":36000,"cur":25900,"med":26400,"d_at":2,"nd":101,"days":101,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",26900],["9/16",26900],["9/17",26900],["9/18",26900],["9/19",26900],["9/20",26900],["9/21",26900],["9/22",26900],["9/23",26900],["9/24",26900],["9/25",26900],["9/26",26900],["9/27",26900],["9/28",26900],["9/29",26900],["9/30",36000],["10/1",24400],["10/2",24400],["10/3",24400],["10/4",24400],["10/5",24400],["10/6",25900],["10/7",25900],["10/8",25900],["10/9",24900],["10/10",24900],["10/11",24900],["10/12",24900],["10/13",24900],["10/14",24900],["10/15",24900],["10/16",24900],["10/17",24900],["10/18",24900],["10/19",25900],["10/20",25900],["10/21",25900],["10/22",25900],["10/23",25900],["10/24",25900]]},{"rank":21,"gno":"A000000267748","brand":"메디힐","name":"[10월 올영픽/러기지택 증정] 메디힐 마데카소사이드 더마 세럼 50+50ml 서울 에디션","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026774817ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000267748","org":43000,"cur":24900,"med":24900,"d_at":1,"nd":25,"days":25,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/28",43000],["10/1",24200],["10/2",23900],["10/3",24200],["10/4",24200],["10/5",24200],["10/6",24900],["10/7",24900],["10/8",24900],["10/9",24900],["10/10",24900],["10/11",24900],["10/12",23900],["10/13",24500],["10/14",24500],["10/15",24500],["10/16",24500],["10/17",24500],["10/18",24500],["10/19",24900],["10/20",24900],["10/21",24900],["10/22",24900],["10/23",24900],["10/24",24900]]},{"rank":22,"gno":"A000000186166","brand":"라운드랩","name":"[매끈톤업/1+1] 라운드랩 자작나무 수분 톤업 선크림 50ml 1+1 기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A00000018616648ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000186166&utm_source=shutter&utm_medium=affiliate&utm_content=OY_7877c1482dec446da708eea87914b721","org":25000,"cur":24500,"med":24500,"d_at":1,"nd":88,"days":88,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",24200],["9/16",24200],["9/17",24200],["9/18",24200],["9/19",24200],["9/20",24200],["9/21",24500],["9/22",24500],["9/23",24500],["9/24",24500],["9/25",24500],["9/26",24500],["9/27",24500],["9/28",24500],["9/29",24500],["9/30",24500],["10/1",24500],["10/2",24500],["10/3",24500],["10/4",24500],["10/5",24500],["10/6",24500],["10/7",24500],["10/8",24500],["10/9",24500],["10/10",24500],["10/11",24500],["10/12",24500],["10/13",24500],["10/14",24500],["10/15",24500],["10/16",24500],["10/17",24500],["10/18",24500],["10/19",24500],["10/20",24500],["10/21",24500],["10/22",24500],["10/23",24500],["10/24",24500]]},{"rank":23,"gno":"A000000217620","brand":"메디힐","name":"[15년연속 1위] 메디힐 에센셜 마스크팩 1매 고기능 7종 골라담기","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0021/A00000021762062ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000217620&utm_source=shutter&utm_medium=affiliate&utm_content=OY_e33b91e409614bd3a7d7094b220ff07c","org":2000,"cur":1000,"med":1000,"d_at":4,"nd":111,"days":111,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",1000],["9/16",1000],["9/17",1000],["9/18",1000],["9/19",1000],["9/20",1000],["9/21",1000],["9/22",1000],["9/23",1000],["9/24",1000],["9/25",1000],["9/26",1000],["9/27",1000],["9/28",1000],["9/29",1000],["9/30",1000],["10/1",1000],["10/2",1000],["10/3",1000],["10/4",1000],["10/5",1000],["10/6",1000],["10/7",1000],["10/8",1000],["10/9",1000],["10/10",1000],["10/11",1000],["10/12",1000],["10/13",1000],["10/14",1000],["10/15",1000],["10/16",1000],["10/17",1000],["10/18",1000],["10/19",1000],["10/20",1000],["10/21",1000],["10/22",1000],["10/23",1000],["10/24",1000]]},{"rank":24,"gno":"A000000263017","brand":"라로슈포제","name":"[한정수량] 라로슈포제 시카플라스트 밤 B5+ 200ml기획 (+1.5ml+시카토너50ml+히알루세럼1.5ml)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026301703ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000263017","org":72000,"cur":54000,"med":54000,"d_at":8,"nd":58,"days":58,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",52600],["9/16",54000],["9/17",54000],["9/18",54000],["9/19",54000],["9/20",54000],["9/21",54000],["9/22",54000],["9/23",54000],["9/24",54000],["9/25",54000],["9/26",54000],["9/27",54000],["9/28",54000],["9/29",54000],["9/30",54000],["10/1",54000],["10/2",54000],["10/3",54000],["10/4",54000],["10/5",54000],["10/6",54000],["10/7",54000],["10/8",54000],["10/9",54000],["10/10",54000],["10/11",54000],["10/12",54000],["10/13",54000],["10/14",54000],["10/15",54000],["10/16",54000],["10/17",54000],["10/18",54000],["10/19",54000],["10/20",54000],["10/21",54000],["10/22",54000],["10/23",54000],["10/24",54000]]},{"rank":25,"gno":"A000000267517","brand":"바닐라코","name":"[10월 올영픽/조앤프렌즈] 바닐라코 클린잇제로 오리지널 클렌징밤 100ml 더블기획 (+3ml*4ea+복조리 파우치)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026751712ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000267517","org":40000,"cur":25500,"med":25500,"d_at":2,"nd":27,"days":27,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/23",24900],["9/29",40000],["9/30",40000],["10/1",24400],["10/2",24400],["10/3",24400],["10/4",24400],["10/5",24400],["10/6",25500],["10/7",23900],["10/8",25500],["10/9",25500],["10/10",25500],["10/11",25500],["10/12",25500],["10/13",25500],["10/14",25500],["10/15",25500],["10/16",25500],["10/17",25500],["10/18",25500],["10/19",25500],["10/20",25500],["10/21",25500],["10/22",25500],["10/23",25500],["10/24",25500]]},{"rank":26,"gno":"A000000188988","brand":"클리오","name":"[NEW/10월 올영픽]클리오 프로아이팔레트 에어 단품/기획 (+아이 프라이머 밤 증정)(풍년다방 에디션)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0018/A000000188988166ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000188988&utm_source=shutter&utm_medium=affiliate&utm_content=OY_1520590d14b7440c929a84f692f61eed","org":34000,"cur":23800,"med":23800,"d_at":32,"nd":110,"days":110,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",23500],["9/16",23500],["9/17",23500],["9/18",23500],["9/19",22100],["9/20",23500],["9/21",23800],["9/22",23800],["9/23",23800],["9/24",23800],["9/25",23800],["9/26",23800],["9/27",23800],["9/28",34000],["9/29",34000],["9/30",34000],["10/1",22900],["10/2",22900],["10/3",22900],["10/4",22900],["10/5",22100],["10/6",22900],["10/7",22900],["10/8",22900],["10/9",22900],["10/10",22900],["10/11",22900],["10/12",23800],["10/13",23800],["10/14",21900],["10/15",23800],["10/16",23800],["10/17",23800],["10/18",23800],["10/19",23800],["10/20",23800],["10/21",23800],["10/22",23800],["10/23",23800],["10/24",23800]]},{"rank":27,"gno":"A000000258297","brand":"토리든","name":"[NEW] 토리든 다이브인 저분자 히알루론산 세럼 50ml 기획 (+멀티 패드 10매)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025829706ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000258297&utm_source=shutter&utm_medium=affiliate&utm_content=OY_82081ba310b0404298412f8235406846","org":22000,"cur":16500,"med":16500,"d_at":37,"nd":97,"days":97,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",22000],["9/16",22000],["9/17",22000],["9/18",22000],["9/19",22000],["9/20",22000],["9/21",22000],["9/22",22000],["9/23",22000],["9/24",22000],["9/25",22000],["9/26",22000],["9/27",22000],["9/28",22000],["9/29",22000],["9/30",22000],["10/1",16500],["10/2",16500],["10/3",16500],["10/4",16500],["10/5",16500],["10/6",16500],["10/7",16500],["10/8",16500],["10/9",16500],["10/10",16500],["10/11",16500],["10/12",15680],["10/13",15680],["10/14",15680],["10/15",15680],["10/16",15680],["10/17",15680],["10/18",15680],["10/19",16500],["10/20",16500],["10/21",16500],["10/22",16500],["10/23",16500],["10/24",16500]]},{"rank":28,"gno":"A000000253919","brand":"쥬베룩","name":"[올리브영 단독] 쥬베룩 PDLLA 콜라겐 부스팅 마스크 4+1매 기획/단품","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0025/A00000025391922ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000253919&utm_source=shutter&utm_medium=affiliate&utm_content=OY_6cf47e4f8ec8429ea8f0a347509ed3cb","org":36000,"cur":32500,"med":33400,"d_at":1,"nd":101,"days":101,"vtype":"watch","grade":"watch","flags":[],"series":[["9/15",33400],["9/16",33400],["9/17",33400],["9/18",33400],["9/19",33400],["9/20",33400],["9/21",33400],["9/22",33400],["9/23",33400],["9/24",33400],["9/25",33400],["9/26",33400],["9/27",33400],["9/28",33400],["9/29",33400],["9/30",33400],["10/1",32500],["10/2",32500],["10/3",32500],["10/4",32500],["10/5",32500],["10/6",29000],["10/7",32500],["10/8",32500],["10/9",32500],["10/10",32500],["10/11",32500],["10/12",32000],["10/13",32000],["10/14",32000],["10/15",32000],["10/16",32000],["10/17",32000],["10/18",32000],["10/19",32500],["10/20",32500],["10/21",32500],["10/22",32500],["10/23",32500],["10/24",32500]]},{"rank":29,"gno":"A000000268374","brand":"마녀공장","name":"[10월 올영픽] 마녀공장 퓨어 소이빈 클렌징오일 200ml 2입 기획 (+25ml+폼20ml)","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0026/A00000026837402ko.jpg","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000268374","org":37000,"cur":24900,"med":24900,"d_at":3,"nd":27,"days":27,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/28",37000],["9/29",37000],["9/30",37000],["10/1",23900],["10/2",23900],["10/3",23900],["10/4",23900],["10/5",23900],["10/6",24900],["10/7",24900],["10/8",24900],["10/9",24900],["10/10",24900],["10/11",24900],["10/12",22500],["10/13",24400],["10/14",24400],["10/15",24400],["10/16",24400],["10/17",24400],["10/18",24400],["10/19",24900],["10/20",24900],["10/21",24900],["10/22",24900],["10/23",24900],["10/24",24900]]},{"rank":30,"gno":"A000000247773","brand":"아누아","name":"[수지 PICK/한정기획] 아누아 피디알엔 히알루론산 수분 캡슐 미스트 100ml 2입 기획","img":"https://image.oliveyoung.co.kr/cfimages/cf-goods/uploads/images/thumbnails/400/10/0000/0024/A00000024777322ko.png","aff":"https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000247773&utm_source=shutter&utm_medium=affiliate&utm_content=OY_19cdae9e22714b078debc4b4c56aca7a","org":70000,"cur":31900,"med":33500,"d_at":0,"nd":102,"days":102,"vtype":"inflated","grade":"watch","flags":["inflated"],"series":[["9/15",31900],["9/16",31900],["9/17",31900],["9/18",31900],["9/19",31900],["9/20",31900],["9/21",31900],["9/22",31900],["9/23",31900],["9/24",31900],["9/25",31900],["9/26",31900],["9/27",31900],["9/28",33500],["9/29",33500],["9/30",33500],["10/1",68400],["10/2",31900],["10/3",31900],["10/4",31900],["10/5",31900],["10/6",31900],["10/7",31900],["10/8",31900],["10/9",31900],["10/10",31900],["10/11",31900],["10/12",31900],["10/13",31900],["10/14",31900],["10/15",31900],["10/16",31900],["10/17",31900],["10/18",31900],["10/19",31900],["10/20",31900],["10/21",31900],["10/22",31900],["10/23",31900],["10/24",31900]]}]}];
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* 등급(합쳐서 Top 30) / 플래그(등급과 별개 축) — 2026-08-15 */
+const VCHIP = {
+  genuine:['v-good','싼 편'], watch:['v-flat','보통'],
+  high:['v-bad','비싼 편'], hold:['v-warn','판정 보류'],
+};
+const VEN = {genuine:'BELOW USUAL', watch:'USUAL', high:'ABOVE USUAL', hold:'NO VERDICT'};
+const FCHIP = {inflated:'✕ 부풀림 신호', raised:'↑ 표시정가 인상', sale_end:'↑ 할인 종료'};
+const gradeOf = it => it.grade || (VCHIP[it.vtype] ? it.vtype : 'watch');
+/* B안 (2026-08-17): 주인공 = 평소가 대비 실질 할인. 올영 표시는 아래 인용 줄로.
+   근거(판 날 N일/M일)를 표시율 바로 옆에 붙인다 — 부풀림 신호의 이유가 즉석에서 보인다. */
+function displayProductName(it){
+  // Only leading square-bracket promotion copy is shortened. Preserve sizes/options.
+  let name = String(it.name || '').replace(/^(?:\[[^\]]+\]\s*)+/, '').trim();
+  if(it.brand && name.startsWith(it.brand + ' ')) name = name.slice(it.brand.length).trim();
+  return name || it.name;
+}
+
+function realTag(it){
+  if (!it.med) return '';
+  const r = Math.round((1 - it.cur/it.med)*100);
+  if (r >= 3) return `<span class="real hot">평소보다 −${r}%</span>`;
+  if (r <= -3) return `<span class="real up">평소보다 +${-r}%</span>`;
+  return `<span class="real zero">평소가 그대로</span>`;
+}
+function shownLine(it){
+  const dc = (it.org && it.org > it.cur) ? Math.round((1-it.cur/it.org)*100) : 0;
+  if (!dc) return `<div class="shown-sub">할인 표시 없음</div>`;
+  const g = gradeOf(it);
+  if (g === 'genuine')
+    return `<div class="shown-sub">올영 표시 할인 ${dc}% — <b class="ok">실제 이력과 일치</b></div>`;
+  const r = it.med ? Math.max(0, Math.round((1 - it.cur/it.med)*100)) : 0;
+  return `<div class="shown-sub">올영이 표시한 정가는 ${won(it.org)}이지만 관측 가격은 ${won(it.med||it.cur)} — 실질 할인 ${r}%</div>`;
+}
+const flagsOf = it => it.flags || [];
+/* ---------- 스파크 차트 ---------- */
+const CW=300, CH=80, L=2, R=5, T=10, B=4;
+function spark(it){
+  const pts = it.series, n = pts.length;
+  if(!n) return '';
+  const vals = pts.map(p=>p[1]);
+  const _srt = [...vals].sort((a,b)=>a-b);
+  const mid = it.med || _srt[_srt.length>>1];
+  const reach = Math.max(Math.max(...vals)-mid, mid-Math.min(...vals), mid*0.03);
+  const span = reach*1.35;
+  let yMin = mid-span, yMax = mid+span;
+  const x = i => n>1 ? L + (i/(n-1))*(CW-L-R) : CW/2;
+  const y = v => T + (CH-T-B) - ((v-yMin)/(yMax-yMin))*(CH-T-B);
+  let s = `<svg viewBox="0 0 ${CW} ${CH}" role="img" aria-label="${esc(it.name)} 일자별 가격">`;
+  const d = pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[1]).toFixed(1)).join('');
+  if(n>1) s += `<path d="${d}L${x(n-1).toFixed(1)} ${CH-B}L${x(0).toFixed(1)} ${CH-B}Z" fill="var(--series-wash)"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s += `<circle cx="${x(n-1)}" cy="${y(pts[n-1][1])}" r="3.5" fill="var(--series)" stroke="var(--surface)" stroke-width="2"/>`;
+  if(it.days < 5) s += `<text x="${L+2}" y="${T+22}" font-size="9.5" fill="var(--muted)">관측 ${it.days}일 — 이력 축적 중</text>`;
+  s += `<rect x="0" y="0" width="${CW}" height="${CH}" fill="transparent" class="hover"/>`;
+  s += `</svg>`;
+  return s;
+}
+
+/* ---------- 카드 렌더 ----------
+   state.cat = 카테고리 탭 키 / state.v = 판정 필터 (''이면 전체).
+   메인 티저의 판정 칩이 price.html?v=inflated 형태로 여기 바로 들어온다. */
+const state = {cat:'all', v:'', f:''};
+const VORDER = ['genuine','watch','high','hold'];
+const FORDER = ['inflated','raised','sale_end'];
+function render(){
+  const tab = TABS.find(t=>t.key===state.cat) || TABS[0];
+  let items = state.v ? tab.items.filter(it=>gradeOf(it)===state.v) : tab.items;
+  if(state.f) items = items.filter(it=>flagsOf(it).includes(state.f));
+  const view = {items};
+  const eg = $('#empty-grid');
+  if(!items.length){
+    const lbl = state.f ? FCHIP[state.f] : (VCHIP[state.v]||['','해당 판정'])[1];
+    eg.classList.remove('hidden');
+    eg.innerHTML = `오늘 <b>${esc(tab.label)}</b>에는 <b>${esc(lbl)}</b> 판정을 받은 상품이 없습니다.<br>
+      판정은 관측이 쌓이면 매 회차 갱신되니 내일 다시 확인해 보세요.`;
+  } else eg.classList.add('hidden');
+  $('#grid').innerHTML = items.map(it=>{
+    const [cls,label] = VCHIP[gradeOf(it)] || VCHIP.watch;
+    const ftags = flagsOf(it).map(fl=>`<span class="fchip" title="${esc(FCHIP[fl]||fl)}">${fl==='inflated'?'부풀림':FCHIP[fl]||fl}</span>`).join('');
+    const dc = (it.org && it.org > it.cur) ? Math.round((1-it.cur/it.org)*100) : 0;
+    const thumb = it.img
+      ? `<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc((it.brand||'·').slice(0,1))}'">`
+      : esc((it.brand||'·').slice(0,1));
+    const first = it.series.length ? it.series[0][0] : '';
+    const last  = it.series.length ? it.series[it.series.length-1][0] : '';
+    const reportParams = new URLSearchParams({g:it.gno,from:'price'});
+    if(state.cat!=='all') reportParams.set('fcat',state.cat);
+    if(state.v) reportParams.set('fv',state.v);
+    if(state.f) reportParams.set('ff',state.f);
+    const reportUrl = './?' + reportParams.toString();
+    const media = it.img ? `<img src="${esc(it.img)}" alt="${esc(it.brand)} ${esc(displayProductName(it))}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="m-fallback" hidden>제품 이미지 없음</span>` : '<span class="m-fallback">제품 이미지 없음</span>';
+    return `<article class="pcard" data-g="${it.gno}">
+      <a class="product-image" href="${esc(reportUrl)}" aria-label="${esc(it.name)} 판정서 보기">
+        <span class="rank ${it.rank<=3?'top':''}">${it.rank}위</span>${media}
+      </a>
+      <div class="card-body">
+      <div class="pmeta"><div class="brand-row"><div class="brand">${esc(it.brand)}</div><a class="purchase" href="${esc(it.aff)}" target="_blank" rel="noopener" title="올리브영 상품 페이지 (제휴 링크)">올리브영 ↗</a></div><a class="name" href="${esc(reportUrl)}" title="${esc(it.name)}">${esc(displayProductName(it))}</a></div>
+      <div class="price"><span class="cur">${won(it.cur)}</span><span class="price-context"><span class="vchip ${cls}">${label}</span><span class="card-flags">${ftags}</span></span></div>
+      <div class="card-history"><div class="spark">${spark(it)}</div><div class="xlab"><span>${first}</span><span class="obs">관측 ${it.days}일</span><span>${last}</span></div></div>
+      <details class="card-evidence"><summary>가격 근거 · 상품 전체 이름</summary>${shownLine(it)}<div class="original-name">${esc(it.name)}</div></details>
+      </div>
+    </article>`;
+  }).join('');
+  bind(view);
+  syncChips();
+  syncUrl();
+}
+
+/* ---------- 이벤트 ---------- */
+const tt = $('#tt');
+function bind(tab){
+  document.querySelectorAll('.pcard').forEach(card=>{
+    const it = tab.items.find(x=>x.gno===card.dataset.g);
+    const svg = card.querySelector('svg');
+    if(svg && it && it.series.length){
+      svg.addEventListener('mousemove', ev=>{
+        const box = svg.getBoundingClientRect();
+        const sx = (ev.clientX-box.left)*(CW/box.width);
+        const n = it.series.length;
+        let bi = n>1 ? Math.round((sx-L)/((CW-L-R)/(n-1))) : 0;
+        bi = Math.max(0, Math.min(n-1, bi));
+        tt.style.display='block';
+        tt.style.left = ev.clientX+'px';
+        tt.style.top  = ev.clientY+'px';
+        tt.innerHTML = `${it.series[bi][0]} · <b>${won(it.series[bi][1])}</b>`;
+      });
+      svg.addEventListener('mouseleave', ()=> tt.style.display='none');
+    }
+    // Navigation uses keyboard-accessible links; evidence disclosure stays on this page.
+  });
+  document.querySelectorAll('a.name').forEach(a=>
+    a.addEventListener('click', e=>e.stopPropagation()));
+}
+
+/* ---------- 카테고리 탭 ---------- */
+$('#cat-chips').innerHTML = TABS.map(t=>
+  `<button class="chip" data-key="${t.key}">${t.label}</button>`).join('');
+document.querySelectorAll('#cat-chips .chip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{ state.cat = ch.dataset.key; render(); });
+});
+
+/* ---------- 판정 탭 ---------- */
+/* 칩은 현재 카테고리 탭의 실제 집계로 매번 다시 그린다 — 0건 판정을 눌러
+   빈 화면을 보게 되는 일이 없도록. 단, 지금 선택된 판정은 0건이어도 남겨둔다
+   (딥링크로 들어왔는데 칩이 사라져 되돌아갈 곳이 없어지면 안 되므로). */
+const SHORT_FILTER = {genuine:'싼 편',watch:'보통',high:'비싼 편',hold:'판정 보류',inflated:'부풀림',raised:'표시정가 인상',sale_end:'할인 종료'};
+function syncChips(){
+  document.querySelectorAll('#cat-chips .chip').forEach(c=>
+    c.classList.toggle('on', c.dataset.key===state.cat));
+  const tab = TABS.find(t=>t.key===state.cat) || TABS[0];
+  const cnt = {}, fcnt = {};
+  tab.items.forEach(it=>{
+    cnt[gradeOf(it)] = (cnt[gradeOf(it)]||0) + 1;
+    flagsOf(it).forEach(fl=>{ fcnt[fl] = (fcnt[fl]||0) + 1; });
+  });
+  $('#v-chips').innerHTML =
+    `<button class="vchip-btn ${state.v?'':'on'}" data-v="" aria-label="전체 ${tab.items.length}개">전체<span class="n">${tab.items.length}</span></button>` +
+    VORDER.filter(v=>cnt[v] || v===state.v).map(v=>{
+      const [cls,label] = VCHIP[v];
+      return `<button class="vchip-btn ${cls} ${v===state.v?'on':''}" data-v="${v}" title="${label} ${cnt[v]||0}개" aria-label="${label} ${cnt[v]||0}개"><span class="filter-full">${label}</span><span class="filter-short">${SHORT_FILTER[v]}</span><span class="n">${cnt[v]||0}</span></button>`;
+    }).join('')
+    + (FORDER.some(fl=>fcnt[fl] || fl===state.f)
+        ? FORDER.filter(fl=>fcnt[fl] || fl===state.f).map(fl=>
+            `<button class="fchip-btn ${fl===state.f?'on':''}" data-f="${fl}" title="${FCHIP[fl]} ${fcnt[fl]||0}개" aria-label="${FCHIP[fl]} ${fcnt[fl]||0}개"><span class="filter-full">${FCHIP[fl]}</span><span class="filter-short">${SHORT_FILTER[fl]}</span><span class="n">${fcnt[fl]||0}</span></button>`).join('')
+        : '');
+  document.querySelectorAll('#v-chips .vchip-btn').forEach(ch=>{
+    ch.addEventListener('click', ()=>{ state.v = ch.dataset.v; render(); });
+  });
+  document.querySelectorAll('#v-chips .fchip-btn').forEach(ch=>{
+    ch.addEventListener('click', ()=>{ state.f = (state.f===ch.dataset.f ? '' : ch.dataset.f); render(); });
+  });
+  const lbl = state.f ? FCHIP[state.f] : (state.v ? (VCHIP[state.v]||['',''])[1] : '');
+  document.title = state.v
+    ? `더마릭 — ${lbl.replace(/^[✓✕!↑]\s*/,'')} · ${tab.label} 실제 가격`
+    : '더마릭 — 가격 데이터 · 오늘의 올영 랭킹 실제 가격';
+  $('#filter-note').innerHTML = (state.v || state.f)
+    ? `<b>${esc(tab.label)}</b> 중 <b>${esc(lbl)}</b>${state.v&&state.f?' + 표시가 주의':''}만 보고 있습니다 · <button class="linkish" id="clear-v">전체 보기</button>`
+    : '';
+  const cv = $('#clear-v');
+  if(cv) cv.addEventListener('click', ()=>{ state.v=''; state.f=''; render(); });
+}
+
+/* 주소로 상태를 유지 — 티저 칩 딥링크(?v=inflated)와 공유 링크가 같은 화면을 연다 */
+function syncUrl(){
+  const p = new URLSearchParams();
+  if(state.cat!=='all') p.set('cat', state.cat);
+  if(state.v) p.set('v', state.v);
+  if(state.f) p.set('f', state.f);
+  const qs = p.toString();
+  history.replaceState(null, '', qs ? '?'+qs : location.pathname);
+}
+{
+  const q = new URLSearchParams(location.search);
+  const c = q.get('cat'), v = q.get('v'), fl = q.get('f');
+  if(c && TABS.some(t=>t.key===c)) state.cat = c;
+  if(v && VCHIP[v]) state.v = v;
+  else if(v && FCHIP[v]) state.f = v;     /* 옛 ?v=inflated 링크 호환 */
+  if(fl && FCHIP[fl]) state.f = fl;
+}
+render();
+</script>
+<script>
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  const menu = document.querySelector('.site-menu[open]');
+  if(menu){ menu.open = false; menu.querySelector('summary').focus(); }
+});
+document.addEventListener('click', e => {
+  const menu = document.querySelector('.site-menu[open]');
+  if(menu && !menu.contains(e.target)) menu.open = false;
+});
+</script>
+</body>
+</html>
