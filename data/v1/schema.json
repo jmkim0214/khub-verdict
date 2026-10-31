@@ -1,0 +1,186 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://themaric.kr/data/v1/schema.json",
+ "title": "Themaric product price record",
+ "description": "One file per product at /data/v1/products/{goods_no}.json. Olive Young public listing price of the representative option, last observation of each day (KST), observed 1-2 times daily. Excludes coupons and card-issuer discounts. Olive Young sometimes switches the representative option, so a single jump in this series is not by itself proof of a price change.",
+ "type": "object",
+ "properties": {
+  "goods_no": {
+   "type": "string",
+   "pattern": "^[AB][0-9]{12}$",
+   "description": "Olive Young product number (goodsNo)."
+  },
+  "gtin13": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "GTIN-13 barcode of the representative option. Only set when unambiguous; null otherwise."
+  },
+  "brand": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "Brand name as shown on Olive Young (usually Korean)."
+  },
+  "name": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "Product name as shown on Olive Young (Korean, not translated)."
+  },
+  "page_url": {
+   "type": "string",
+   "description": "Human-readable verdict page on themaric.kr (Korean, with an English summary)."
+  },
+  "olive_young_url": {
+   "type": "string",
+   "description": "Olive Young product page. Affiliate link (see disclosure) when olive_young_url_is_affiliate is true."
+  },
+  "olive_young_url_is_affiliate": {
+   "type": "boolean"
+  },
+  "currency": {
+   "const": "KRW"
+  },
+  "as_of": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "format": "date",
+   "description": "Date of the latest observation (KST)."
+  },
+  "price": {
+   "type": "object",
+   "properties": {
+    "current": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "Latest observed listing price."
+    },
+    "list": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "Listed regular price shown by Olive Young (the base of the displayed discount)."
+    },
+    "usual": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "Usual selling price over the observation period."
+    },
+    "lowest_20d": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "Lowest actual selling price in the last ~20 days (Korean FTC 'prior transaction price' standard)."
+    }
+   }
+  },
+  "observation": {
+   "type": "object",
+   "properties": {
+    "from": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "date"
+    },
+    "to": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "date"
+    },
+    "days_observed": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "days_at_list_price": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "Days on which the listed regular price was actually charged, within days_window."
+    },
+    "days_window": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    }
+   }
+  },
+  "verdict": {
+   "type": "object",
+   "properties": {
+    "code": {
+     "enum": [
+      "genuine",
+      "honest",
+      "inflated",
+      "raised",
+      "sale_end",
+      "watch"
+     ],
+     "description": "honest: The listed regular price was actually charged on a meaningful share of observed days. inflated: The listed regular price was rarely or never actually charged, so a discount computed from it overstates the saving. genuine: The current price is clearly below the highest price observed — a real discount. watch: No list-price problem detected; the verdict compares the current price with the usual selling price (at / above / below usual). sale_end: A recent discount has ended; the current price is higher than the recent price. raised: The listed regular price was raised during observation."
+    },
+    "label_en": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "label_ko": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "detail_ko": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "price_history": {
+   "type": "array",
+   "description": "[date, price] pairs, oldest first.",
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "format": "date"
+     },
+     {
+      "type": "integer"
+     }
+    ]
+   }
+  }
+ },
+ "required": [
+  "goods_no",
+  "page_url",
+  "currency",
+  "price",
+  "verdict",
+  "price_history"
+ ]
+}

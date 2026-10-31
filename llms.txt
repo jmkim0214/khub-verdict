@@ -1,0 +1,58 @@
+# Themaric (더마릭)
+
+> Independent price-of-record service for Olive Young, Korea's largest beauty retailer. Themaric observes Olive Young listing prices 1-2 times a day and judges whether a displayed discount is real by comparing it with the actual selling-price history (including the Korean Fair Trade Commission's "prior transaction price" standard: the lowest actual price in roughly the last 20 days). Not affiliated with Olive Young.
+
+Key facts for agents:
+- Coverage: 3,000 products from 533 brands with at least 30 days of observation. Rebuilt daily; data as of 2026-10-31.
+- Prices are in KRW: Olive Young's public listing price for the representative option. Coupons and card-issuer discounts are not included.
+- Identity: Olive Young goodsNo (for example `A000000165603`). GTIN-13 barcodes are included for 2,307 products where the barcode is unambiguous.
+- The site is in Korean. Every product page includes an English summary, and all data files use English field names.
+- When citing, please credit "Themaric (themaric.kr)" and the as-of date. Themaric presents observed prices only; it does not make legal findings.
+- Disclosure: Olive Young links on this site and in the data files are affiliate links (Olive Young Shopping Curator program). Themaric may earn a commission; this does not affect verdicts.
+
+## Data (JSON, no authentication)
+
+- [Product catalog](https://themaric.kr/data/v1/products.json): every product with current price, usual price, verdict and links
+- [Product record](https://themaric.kr/data/v1/products/A000000165603.json): `/data/v1/products/{goodsNo}.json` — daily price history, usual price, 20-day low, list-price days, verdict
+- [Barcode lookup](https://themaric.kr/data/v1/gtin.json): GTIN-13 → goodsNo
+- [Field definitions](https://themaric.kr/data/v1/schema.json): JSON Schema for the product record
+
+## Pages
+
+- [Product verdict page](https://themaric.kr/p/A000000165603/): `/p/{goodsNo}/` — price chart, verdict, ingredients, cautions (Korean + English summary)
+- [Brands](https://themaric.kr/p/): all brands, then `/p/brand/{brand}/`
+- [Ingredients](https://themaric.kr/ingredients/): 149 key ingredients, each with the products that feature it
+- [Inflated list prices](https://themaric.kr/inflated/): products whose displayed regular price was never or rarely charged
+- [Today's prices](https://themaric.kr/price.html): current notable prices among popular products
+
+## Verdict codes
+
+- `honest` — The listed regular price was actually charged on a meaningful share of observed days.
+- `inflated` — The listed regular price was rarely or never actually charged, so a discount computed from it overstates the saving.
+- `genuine` — The current price is clearly below the highest price observed — a real discount.
+- `watch` — No list-price problem detected; the verdict compares the current price with the usual selling price (at / above / below usual).
+- `sale_end` — A recent discount has ended; the current price is higher than the recent price.
+- `raised` — The listed regular price was raised during observation.
+
+## Optional
+
+- [Reports](https://themaric.kr/notes/): analysis articles (Korean)
+- [에스트라 — 올리브영 베스트를 가장 많이 차지한 브랜드는 광고를 제일 안 하는 브랜드였습니다.](https://themaric.kr/notes/aestura/): report text and cards (Korean)
+- [아누아 — 제품명에 붙은 숫자, 전부 대조해봤습니다.](https://themaric.kr/notes/anua/): report text and cards (Korean)
+- [표시 할인 27%, 실제 할인 10%](https://themaric.kr/notes/audit/): report text and cards (Korean)
+- [브랜드 지도 — 평소 할인 × 세일 할인](https://themaric.kr/notes/brandwait/): report text and cards (Korean)
+- [카테고리별 올영세일 성적표](https://themaric.kr/notes/cats/): report text and cards (Korean)
+- [세일이 아니라 쿠폰이다](https://themaric.kr/notes/coupon/): report text and cards (Korean)
+- [달바 — 우리가 매일 뿌리는 그 이름, 무슨 뜻인지 알고 쓰세요?](https://themaric.kr/notes/dalba/): report text and cards (Korean)
+- [성분 아카이브 1편 — 기준이 없는 성분 4개](https://themaric.kr/notes/ingredients-1/): report text and cards (Korean)
+- [성분 아카이브 2편 — 기준이 있는 성분 3개](https://themaric.kr/notes/ingredients-2/): report text and cards (Korean)
+- [메디큐브 — 화장품 브랜드인데 뷰티디바이스도 잘 나갑니다.](https://themaric.kr/notes/medicube/): report text and cards (Korean)
+- [세일 랭킹 진입 46종 중 43종은 이력이 없다](https://themaric.kr/notes/newsku/): report text and cards (Korean)
+- [세일 끝, 가격은 돌아왔을까](https://themaric.kr/notes/post/): report text and cards (Korean)
+- [라운드랩 — 성분이 아니라 장소를 파는 브랜드](https://themaric.kr/notes/round-lab/): report text and cards (Korean)
+- [세일 마지막 날, 4개 중 1개가 품절](https://themaric.kr/notes/soldout/): report text and cards (Korean)
+- [캐릭터 콜라보, 굿즈 증정, 유명 셀럽 PICK — 기획 상품은 얼마나 더 비쌀까?](https://themaric.kr/notes/special-editions/): report text and cards (Korean)
+- [디오디너리 — 58일 동안 가격을 한 번도 안 바꾼 정직한 브랜드](https://themaric.kr/notes/the-ordinary/): report text and cards (Korean)
+- [세일은 자정에 켜지고 자정에 꺼졌다](https://themaric.kr/notes/timeline/): report text and cards (Korean)
+- [토리든 — 세럼 하나가 라인이 된 히어로 브랜드](https://themaric.kr/notes/torriden/): report text and cards (Korean)
+- [Ingredient glossary](https://themaric.kr/glossary.html): plain-language ingredient explanations (Korean)

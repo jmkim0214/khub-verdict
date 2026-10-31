@@ -1,0 +1,6 @@
+# 더마릭 — oracle/build_seo.py 생성물. 직접 편집하지 말 것.
+User-agent: *
+Allow: /
+Disallow: /*.bak
+
+Sitemap: https://themaric.kr/sitemap.xml
