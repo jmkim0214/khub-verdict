@@ -1,0 +1,12 @@
+.nt{max-width:760px;margin:0 auto;padding:8px 0 24px}
+.nt-crumb{font-size:12px;color:var(--muted);margin:6px 0 14px}.nt-crumb a{color:inherit;text-decoration:none}
+.nt h1{font-family:'Noto Serif KR',serif;font-weight:600;font-size:28px;line-height:1.45;letter-spacing:-.03em;margin:0 0 10px}
+.nt-lead{color:var(--ink-2);font-size:15px;line-height:1.8;margin:0 0 8px}
+.nt-meta{font-size:13px;color:var(--muted);margin:0 0 26px}.nt-meta a{color:inherit}
+.nt-card{border-top:1px solid var(--grid);padding:22px 0}
+.nt-card h2{font-size:13px;color:var(--muted);font-weight:500;margin:0 0 10px}
+.nt-card img{display:block;width:100%;max-width:540px;height:auto;border:1px solid #d8cdbc;margin:0 0 14px}
+.nt-card p{font-size:15px;line-height:1.8;margin:0 0 6px;white-space:pre-line}
+.nt-method{margin:24px 0;font-size:14px;line-height:1.8;color:var(--ink-2)}
+.nt-disc{font-size:12px;color:var(--muted);line-height:1.7;border-top:1px solid var(--grid);padding-top:16px;margin-top:20px}
+.nt-list{list-style:none;padding:0;margin:0}.nt-list li{padding:8px 0;border-bottom:1px solid var(--grid)}
